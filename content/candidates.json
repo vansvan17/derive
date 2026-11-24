@@ -1,0 +1,2756 @@
+{
+ "since": "2025-01-01",
+ "made": "2026-11-24",
+ "read": false,
+ "problems": [
+  {
+   "site": "Codeforces",
+   "contest": 2268,
+   "index": "A",
+   "title": "K Is Important",
+   "rating": 1200,
+   "tags": [
+    "constructive algorithms",
+    "greedy"
+   ],
+   "solved": 13023,
+   "round": "Codeforces Round 1124 (Div. 1)",
+   "date": "2026-09-26",
+   "url": "https://codeforces.com/contest/2268/problem/A"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2218,
+   "index": "E",
+   "title": "The 67th XOR Problem",
+   "rating": 1200,
+   "tags": [
+    "binary search",
+    "bitmasks",
+    "brute force"
+   ],
+   "solved": 18883,
+   "round": "Codeforces Round 1090 (Div. 4)",
+   "date": "2026-04-04",
+   "url": "https://codeforces.com/contest/2218/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2196,
+   "index": "A",
+   "title": "Game with a Fraction",
+   "rating": 1200,
+   "tags": [
+    "games",
+    "math"
+   ],
+   "solved": 18350,
+   "round": "Codeforces Round 1079 (Div. 1)",
+   "date": "2026-02-11",
+   "url": "https://codeforces.com/contest/2196/problem/A"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2172,
+   "index": "E",
+   "title": "Number Maze",
+   "rating": 1200,
+   "tags": [
+    "implementation"
+   ],
+   "solved": 6935,
+   "round": "2025 ICPC Asia Taichung Regional Contest (Unrated, Online Mirror, ICPC Rules, Preferably Teams)",
+   "date": "2025-11-16",
+   "url": "https://codeforces.com/contest/2172/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2149,
+   "index": "D",
+   "title": "A and B",
+   "rating": 1200,
+   "tags": [
+    "strings"
+   ],
+   "solved": 21078,
+   "round": "Codeforces Round 1054 (Div. 3)",
+   "date": "2025-09-25",
+   "url": "https://codeforces.com/contest/2149/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2135,
+   "index": "A",
+   "title": "Against the Difference",
+   "rating": 1200,
+   "tags": [
+    "data structures",
+    "dp"
+   ],
+   "solved": 21722,
+   "round": "Codeforces Round 1046 (Div. 1)",
+   "date": "2025-08-28",
+   "url": "https://codeforces.com/contest/2135/problem/A"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2267,
+   "index": "C",
+   "title": "GCD Treasury",
+   "rating": 1200,
+   "tags": [
+    "greedy",
+    "math",
+    "number theory"
+   ],
+   "solved": 11722,
+   "round": "Codeforces Round 1123 (Div. 2)",
+   "date": "2026-09-25",
+   "url": "https://codeforces.com/contest/2267/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2257,
+   "index": "C",
+   "title": "Spying on the Beaver",
+   "rating": 1200,
+   "tags": [
+    "constructive algorithms",
+    "dfs and similar",
+    "dsu",
+    "graphs",
+    "trees"
+   ],
+   "solved": 12925,
+   "round": "Codeforces Round 1117 (Div. 2)",
+   "date": "2026-08-17",
+   "url": "https://codeforces.com/contest/2257/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2182,
+   "index": "C",
+   "title": "Production of Snowmen",
+   "rating": 1200,
+   "tags": [
+    "brute force",
+    "combinatorics",
+    "dp"
+   ],
+   "solved": 16941,
+   "round": "Educational Codeforces Round 186 (Rated for Div. 2)",
+   "date": "2025-12-29",
+   "url": "https://codeforces.com/contest/2182/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2094,
+   "index": "E",
+   "title": "Boneca Ambalabu",
+   "rating": 1200,
+   "tags": [
+    "bitmasks"
+   ],
+   "solved": 19520,
+   "round": "Codeforces Round 1017 (Div. 4)",
+   "date": "2025-04-13",
+   "url": "https://codeforces.com/contest/2094/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2262,
+   "index": "A1",
+   "title": "Floor of MEX (Easy Version)",
+   "rating": 1200,
+   "tags": [
+    "constructive algorithms",
+    "greedy"
+   ],
+   "solved": 10708,
+   "round": "Codeforces Round 1120 (Div. 1)",
+   "date": "2026-09-12",
+   "url": "https://codeforces.com/contest/2262/problem/A1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2181,
+   "index": "H",
+   "title": "Honey Cake",
+   "rating": 1200,
+   "tags": [
+    "brute force",
+    "math",
+    "number theory"
+   ],
+   "solved": 8049,
+   "round": "2025-2026 ICPC, NERC, Northern Eurasia Finals (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2025-12-17",
+   "url": "https://codeforces.com/contest/2181/problem/H"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2261,
+   "index": "D1",
+   "title": "Come Be My Friend, Don't Be So Scared (Easy Version)",
+   "rating": 1300,
+   "tags": [
+    "constructive algorithms",
+    "greedy",
+    "math"
+   ],
+   "solved": 6548,
+   "round": "WorldQuant Round 1 (Codeforces Round 1128, Div. 1 + Div. 2)",
+   "date": "2026-10-17",
+   "url": "https://codeforces.com/contest/2261/problem/D1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2242,
+   "index": "C",
+   "title": "Unstable Elements",
+   "rating": 1300,
+   "tags": [
+    "brute force",
+    "data structures",
+    "implementation",
+    "sortings",
+    "two pointers"
+   ],
+   "solved": 12347,
+   "round": "Educational Codeforces Round 192 (Rated for Div. 2)",
+   "date": "2026-07-06",
+   "url": "https://codeforces.com/contest/2242/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2206,
+   "index": "K",
+   "title": "Time Display Stickers",
+   "rating": 1300,
+   "tags": [
+    "binary search"
+   ],
+   "solved": 2529,
+   "round": "2026 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2026-03-08",
+   "url": "https://codeforces.com/contest/2206/problem/K"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2160,
+   "index": "C",
+   "title": "Reverse XOR",
+   "rating": 1300,
+   "tags": [
+    "bitmasks"
+   ],
+   "solved": 16295,
+   "round": "Codeforces Round 1058 (Div. 2)",
+   "date": "2025-10-12",
+   "url": "https://codeforces.com/contest/2160/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2152,
+   "index": "B",
+   "title": "Catching the Krug",
+   "rating": 1300,
+   "tags": [
+    "games"
+   ],
+   "solved": 15178,
+   "round": "Squarepoint Challenge (Codeforces Round 1055, Div. 1 + Div. 2)",
+   "date": "2025-10-03",
+   "url": "https://codeforces.com/contest/2152/problem/B"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2073,
+   "index": "L",
+   "title": "Boarding Queue",
+   "rating": 1300,
+   "tags": [],
+   "solved": 1875,
+   "round": "2025 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2025-03-01",
+   "url": "https://codeforces.com/contest/2073/problem/L"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2273,
+   "index": "A",
+   "title": "Lavencia Oranges",
+   "rating": 1300,
+   "tags": [
+    "binary search",
+    "constructive algorithms",
+    "dp",
+    "greedy"
+   ],
+   "solved": 5053,
+   "round": "Codeforces Round 1127 (Div. 1, Based on Mexican Olympiad in Informatics 2026)",
+   "date": "2026-10-11",
+   "url": "https://codeforces.com/contest/2273/problem/A"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2217,
+   "index": "C",
+   "title": "Grid Covering",
+   "rating": 1300,
+   "tags": [
+    "chinese remainder theorem",
+    "math",
+    "number theory"
+   ],
+   "solved": 12549,
+   "round": "Codeforces Round 1091 (Div. 2) and CodeCraft 26",
+   "date": "2026-04-07",
+   "url": "https://codeforces.com/contest/2217/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2201,
+   "index": "A1",
+   "title": "Lost Civilization (Easy Version)",
+   "rating": 1300,
+   "tags": [
+    "data structures"
+   ],
+   "solved": 12945,
+   "round": "Codeforces Round 1082 (Div. 1)",
+   "date": "2026-02-23",
+   "url": "https://codeforces.com/contest/2201/problem/A1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2121,
+   "index": "D",
+   "title": "1709",
+   "rating": 1300,
+   "tags": [
+    "implementation",
+    "sortings"
+   ],
+   "solved": 19064,
+   "round": "Codeforces Round 1032 (Div. 3)",
+   "date": "2025-06-17",
+   "url": "https://codeforces.com/contest/2121/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2275,
+   "index": "D",
+   "title": "Precision Alignment",
+   "rating": 1300,
+   "tags": [
+    "binary search",
+    "brute force",
+    "greedy",
+    "implementation"
+   ],
+   "solved": 8819,
+   "round": "Codeforces Round 1125 (Div. 3)",
+   "date": "2026-10-07",
+   "url": "https://codeforces.com/contest/2275/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2254,
+   "index": "D",
+   "title": "Silhouette",
+   "rating": 1300,
+   "tags": [
+    "constructive algorithms",
+    "math",
+    "sortings"
+   ],
+   "solved": 11737,
+   "round": "Codeforces Round 1114 (Div. 3)",
+   "date": "2026-08-04",
+   "url": "https://codeforces.com/contest/2254/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2276,
+   "index": "D",
+   "title": "Caveman",
+   "rating": 1400,
+   "tags": [
+    "combinatorics",
+    "graphs"
+   ],
+   "solved": 8187,
+   "round": "Educational Codeforces Round 195 (Rated for Div. 2)",
+   "date": "2026-10-14",
+   "url": "https://codeforces.com/contest/2276/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2267,
+   "index": "D",
+   "title": "Backrooms Hill",
+   "rating": 1400,
+   "tags": [
+    "constructive algorithms",
+    "dp",
+    "greedy",
+    "sortings",
+    "two pointers"
+   ],
+   "solved": 8546,
+   "round": "Codeforces Round 1123 (Div. 2)",
+   "date": "2026-09-25",
+   "url": "https://codeforces.com/contest/2267/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2126,
+   "index": "E",
+   "title": "G-C-D, Unlucky!",
+   "rating": 1400,
+   "tags": [
+    "math",
+    "number theory"
+   ],
+   "solved": 18021,
+   "round": "Codeforces Round 1037 (Div. 3)",
+   "date": "2025-07-17",
+   "url": "https://codeforces.com/contest/2126/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2093,
+   "index": "D",
+   "title": "Skibidi Table",
+   "rating": 1400,
+   "tags": [
+    "bitmasks",
+    "implementation"
+   ],
+   "solved": 12804,
+   "round": "Codeforces Round 1016 (Div. 3)",
+   "date": "2025-04-08",
+   "url": "https://codeforces.com/contest/2093/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2271,
+   "index": "C",
+   "title": "XOR Problem",
+   "rating": 1400,
+   "tags": [
+    "bitmasks",
+    "constructive algorithms",
+    "graphs",
+    "greedy",
+    "math"
+   ],
+   "solved": 5587,
+   "round": "DeepInfra Round 1 (Codeforces Round 1126, Div. 1 + Div. 2)",
+   "date": "2026-10-10",
+   "url": "https://codeforces.com/contest/2271/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2238,
+   "index": "C",
+   "title": "Village Guilds",
+   "rating": 1400,
+   "tags": [
+    "dfs and similar",
+    "dp",
+    "trees"
+   ],
+   "solved": 10124,
+   "round": "Codeforces Round 1106 (Div. 2)",
+   "date": "2026-06-28",
+   "url": "https://codeforces.com/contest/2238/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2231,
+   "index": "C",
+   "title": "Chipmunk Theo and Equality",
+   "rating": 1400,
+   "tags": [
+    "implementation",
+    "sortings"
+   ],
+   "solved": 12798,
+   "round": "Codeforces Round 1099 (Div. 2)",
+   "date": "2026-05-21",
+   "url": "https://codeforces.com/contest/2231/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2266,
+   "index": "E",
+   "title": "Prime Destruction",
+   "rating": 1400,
+   "tags": [
+    "brute force",
+    "dp",
+    "math",
+    "number theory"
+   ],
+   "solved": 7893,
+   "round": "Codeforces Round 1122 (Div. 3)",
+   "date": "2026-09-21",
+   "url": "https://codeforces.com/contest/2266/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2252,
+   "index": "C",
+   "title": "Risky Tower",
+   "rating": 1400,
+   "tags": [
+    "binary search",
+    "brute force",
+    "data structures",
+    "greedy",
+    "sortings"
+   ],
+   "solved": 10918,
+   "round": "Codeforces Round 1115 (Div. 2)",
+   "date": "2026-08-06",
+   "url": "https://codeforces.com/contest/2252/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2204,
+   "index": "D",
+   "title": "Alternating Path",
+   "rating": 1400,
+   "tags": [
+    "constructive algorithms",
+    "dfs and similar",
+    "graph matchings",
+    "graphs"
+   ],
+   "solved": 10632,
+   "round": "Educational Codeforces Round 188 (Rated for Div. 2)",
+   "date": "2026-03-16",
+   "url": "https://codeforces.com/contest/2204/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2074,
+   "index": "D",
+   "title": "Counting Points",
+   "rating": 1400,
+   "tags": [
+    "brute force",
+    "data structures",
+    "geometry",
+    "implementation",
+    "two pointers"
+   ],
+   "solved": 12572,
+   "round": "Codeforces Round 1009 (Div. 3)",
+   "date": "2025-03-11",
+   "url": "https://codeforces.com/contest/2074/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2266,
+   "index": "D",
+   "title": "Falling Concrete",
+   "rating": 1400,
+   "tags": [
+    "constructive algorithms",
+    "data structures",
+    "math",
+    "sortings"
+   ],
+   "solved": 9655,
+   "round": "Codeforces Round 1122 (Div. 3)",
+   "date": "2026-09-21",
+   "url": "https://codeforces.com/contest/2266/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2275,
+   "index": "E",
+   "title": "Repentance Is Already on the Way",
+   "rating": 1500,
+   "tags": [
+    "dp",
+    "implementation"
+   ],
+   "solved": 5808,
+   "round": "Codeforces Round 1125 (Div. 3)",
+   "date": "2026-10-07",
+   "url": "https://codeforces.com/contest/2275/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2268,
+   "index": "B",
+   "title": "What a SauSaGe! It's All Meat",
+   "rating": 1500,
+   "tags": [
+    "bitmasks",
+    "brute force",
+    "data structures",
+    "math"
+   ],
+   "solved": 6997,
+   "round": "Codeforces Round 1124 (Div. 1)",
+   "date": "2026-09-26",
+   "url": "https://codeforces.com/contest/2268/problem/B"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2259,
+   "index": "E",
+   "title": "Treasure Map Destruction (Constructive Version)",
+   "rating": 1500,
+   "tags": [
+    "2-sat",
+    "constructive algorithms",
+    "greedy"
+   ],
+   "solved": 7037,
+   "round": "Codeforces Round 1119 (Div. 3)",
+   "date": "2026-09-05",
+   "url": "https://codeforces.com/contest/2259/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2253,
+   "index": "C",
+   "title": "Sum of Distinct Values in a Matrix",
+   "rating": 1500,
+   "tags": [
+    "greedy",
+    "sortings",
+    "two pointers"
+   ],
+   "solved": 8670,
+   "round": "Educational Codeforces Round 193 (Rated for Div. 2)",
+   "date": "2026-08-07",
+   "url": "https://codeforces.com/contest/2253/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2234,
+   "index": "D",
+   "title": "XOR, Expression and Two Binary Numbers",
+   "rating": 1500,
+   "tags": [
+    "bitmasks",
+    "divide and conquer",
+    "dp",
+    "math",
+    "number theory"
+   ],
+   "solved": 9384,
+   "round": "Codeforces Round 1102 (Div. 2)",
+   "date": "2026-06-07",
+   "url": "https://codeforces.com/contest/2234/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2218,
+   "index": "F",
+   "title": "The 67th Tree Problem",
+   "rating": 1500,
+   "tags": [
+    "constructive algorithms",
+    "implementation",
+    "trees"
+   ],
+   "solved": 9956,
+   "round": "Codeforces Round 1090 (Div. 4)",
+   "date": "2026-04-04",
+   "url": "https://codeforces.com/contest/2218/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2149,
+   "index": "E",
+   "title": "Hidden Knowledge of the Ancients",
+   "rating": 1500,
+   "tags": [
+    "data structures",
+    "two pointers"
+   ],
+   "solved": 10097,
+   "round": "Codeforces Round 1054 (Div. 3)",
+   "date": "2025-09-25",
+   "url": "https://codeforces.com/contest/2149/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2254,
+   "index": "E",
+   "title": "Chronostasis",
+   "rating": 1500,
+   "tags": [
+    "binary search",
+    "data structures",
+    "greedy"
+   ],
+   "solved": 8899,
+   "round": "Codeforces Round 1114 (Div. 3)",
+   "date": "2026-08-04",
+   "url": "https://codeforces.com/contest/2254/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2222,
+   "index": "C",
+   "title": "Median Partition",
+   "rating": 1500,
+   "tags": [
+    "dp",
+    "math"
+   ],
+   "solved": 6850,
+   "round": "Spectral::Cup 2026 Round 1 (Codeforces Round 1094, Div. 1 + Div. 2)",
+   "date": "2026-04-25",
+   "url": "https://codeforces.com/contest/2222/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2247,
+   "index": "D1",
+   "title": "XOR Sorting (Easy Version)",
+   "rating": 1500,
+   "tags": [
+    "bitmasks",
+    "greedy"
+   ],
+   "solved": 7361,
+   "round": "Codeforces Round 1111 (Div. 2)",
+   "date": "2026-07-18",
+   "url": "https://codeforces.com/contest/2247/problem/D1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2225,
+   "index": "D",
+   "title": "Exceptional Segments",
+   "rating": 1500,
+   "tags": [
+    "bitmasks",
+    "brute force",
+    "math"
+   ],
+   "solved": 9008,
+   "round": "Educational Codeforces Round 189 (Rated for Div. 2)",
+   "date": "2026-04-21",
+   "url": "https://codeforces.com/contest/2225/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2195,
+   "index": "E",
+   "title": "Idiot First Search",
+   "rating": 1500,
+   "tags": [
+    "dfs and similar",
+    "dp",
+    "trees"
+   ],
+   "solved": 10121,
+   "round": "Codeforces Round 1080 (Div. 3)",
+   "date": "2026-02-15",
+   "url": "https://codeforces.com/contest/2195/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2258,
+   "index": "B2",
+   "title": "Carrot Chopdown (Hard Version)",
+   "rating": 1600,
+   "tags": [
+    "brute force",
+    "greedy",
+    "implementation",
+    "math"
+   ],
+   "solved": 5513,
+   "round": "Codeforces Round 1118 (Div. 2)",
+   "date": "2026-08-29",
+   "url": "https://codeforces.com/contest/2258/problem/B2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2242,
+   "index": "D",
+   "title": "Two Digit Strings",
+   "rating": 1600,
+   "tags": [
+    "dp",
+    "strings"
+   ],
+   "solved": 8722,
+   "round": "Educational Codeforces Round 192 (Rated for Div. 2)",
+   "date": "2026-07-06",
+   "url": "https://codeforces.com/contest/2242/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2181,
+   "index": "F",
+   "title": "Fragmented Nim",
+   "rating": 1600,
+   "tags": [
+    "games"
+   ],
+   "solved": 4371,
+   "round": "2025-2026 ICPC, NERC, Northern Eurasia Finals (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2025-12-17",
+   "url": "https://codeforces.com/contest/2181/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2094,
+   "index": "F",
+   "title": "Trulimero Trulicina",
+   "rating": 1600,
+   "tags": [
+    "constructive algorithms"
+   ],
+   "solved": 12133,
+   "round": "Codeforces Round 1017 (Div. 4)",
+   "date": "2025-04-13",
+   "url": "https://codeforces.com/contest/2094/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2061,
+   "index": "D",
+   "title": "Kevin and Numbers",
+   "rating": 1600,
+   "tags": [
+    "bitmasks",
+    "data structures"
+   ],
+   "solved": 11300,
+   "round": "IAEPC Preliminary Contest (Codeforces Round 999, Div. 1 + Div. 2)",
+   "date": "2025-01-20",
+   "url": "https://codeforces.com/contest/2061/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2257,
+   "index": "D",
+   "title": "Bermuda Rectangle",
+   "rating": 1600,
+   "tags": [
+    "binary search",
+    "implementation",
+    "math",
+    "number theory",
+    "two pointers"
+   ],
+   "solved": 7057,
+   "round": "Codeforces Round 1117 (Div. 2)",
+   "date": "2026-08-17",
+   "url": "https://codeforces.com/contest/2257/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2207,
+   "index": "B",
+   "title": "One Night At Freddy's",
+   "rating": 1600,
+   "tags": [
+    "games",
+    "greedy",
+    "sortings"
+   ],
+   "solved": 7019,
+   "round": "Codeforces Round 1085 (Div. 1 + Div. 2)",
+   "date": "2026-03-08",
+   "url": "https://codeforces.com/contest/2207/problem/B"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2167,
+   "index": "G",
+   "title": "Mukhammadali and the Smooth Array",
+   "rating": 1600,
+   "tags": [
+    "data structures",
+    "dp"
+   ],
+   "solved": 11956,
+   "round": "Codeforces Round 1062 (Div. 4)",
+   "date": "2025-10-28",
+   "url": "https://codeforces.com/contest/2167/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2255,
+   "index": "B",
+   "title": "A Ribbon for Tomorrow",
+   "rating": 1600,
+   "tags": [
+    "combinatorics",
+    "math"
+   ],
+   "solved": 7869,
+   "round": "Codeforces Round 1116 (Div. 1)",
+   "date": "2026-08-09",
+   "url": "https://codeforces.com/contest/2255/problem/B"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2228,
+   "index": "C2",
+   "title": "Cirno and Number (Hard Version)",
+   "rating": 1600,
+   "tags": [
+    "binary search",
+    "dfs and similar",
+    "dp",
+    "greedy",
+    "implementation"
+   ],
+   "solved": 6729,
+   "round": "Codeforces Round 1098 (Div. 2)",
+   "date": "2026-05-16",
+   "url": "https://codeforces.com/contest/2228/problem/C2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2241,
+   "index": "E",
+   "title": "Fair and Square",
+   "rating": 1600,
+   "tags": [
+    "combinatorics",
+    "dp",
+    "graphs",
+    "math",
+    "number theory",
+    "trees"
+   ],
+   "solved": 7190,
+   "round": "Codeforces Round 1107 (Div. 3)",
+   "date": "2026-06-30",
+   "url": "https://codeforces.com/contest/2241/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2194,
+   "index": "D",
+   "title": "Table Cut",
+   "rating": 1600,
+   "tags": [
+    "constructive algorithms",
+    "greedy",
+    "implementation"
+   ],
+   "solved": 9179,
+   "round": "Codeforces Round 1078 (Div. 2)",
+   "date": "2026-02-08",
+   "url": "https://codeforces.com/contest/2194/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2271,
+   "index": "D",
+   "title": "Target Infection",
+   "rating": 1700,
+   "tags": [
+    "binary search",
+    "brute force",
+    "greedy",
+    "implementation",
+    "two pointers"
+   ],
+   "solved": 3192,
+   "round": "DeepInfra Round 1 (Codeforces Round 1126, Div. 1 + Div. 2)",
+   "date": "2026-10-10",
+   "url": "https://codeforces.com/contest/2271/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2236,
+   "index": "F1",
+   "title": "Elections in Saransk (easy version)",
+   "rating": 1700,
+   "tags": [
+    "number theory"
+   ],
+   "solved": 5492,
+   "round": "Codeforces Round 1103 (Div. 3)",
+   "date": "2026-06-12",
+   "url": "https://codeforces.com/contest/2236/problem/F1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2206,
+   "index": "J",
+   "title": "Worldwide Playlist",
+   "rating": 1700,
+   "tags": [
+    "math"
+   ],
+   "solved": 1644,
+   "round": "2026 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2026-03-08",
+   "url": "https://codeforces.com/contest/2206/problem/J"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2201,
+   "index": "B",
+   "title": "Recollect Numbers",
+   "rating": 1700,
+   "tags": [
+    "constructive algorithms"
+   ],
+   "solved": 5852,
+   "round": "Codeforces Round 1082 (Div. 1)",
+   "date": "2026-02-23",
+   "url": "https://codeforces.com/contest/2201/problem/B"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2201,
+   "index": "A2",
+   "title": "Lost Civilization (Hard Version)",
+   "rating": 1700,
+   "tags": [
+    "data structures",
+    "dp"
+   ],
+   "solved": 5866,
+   "round": "Codeforces Round 1082 (Div. 1)",
+   "date": "2026-02-23",
+   "url": "https://codeforces.com/contest/2201/problem/A2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2267,
+   "index": "F1",
+   "title": "XOR Transformations (Easy Version)",
+   "rating": 1700,
+   "tags": [
+    "bitmasks",
+    "brute force",
+    "implementation",
+    "sortings"
+   ],
+   "solved": 4433,
+   "round": "Codeforces Round 1123 (Div. 2)",
+   "date": "2026-09-25",
+   "url": "https://codeforces.com/contest/2267/problem/F1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2252,
+   "index": "D",
+   "title": "Array Replacement",
+   "rating": 1700,
+   "tags": [
+    "greedy",
+    "sortings"
+   ],
+   "solved": 6071,
+   "round": "Codeforces Round 1115 (Div. 2)",
+   "date": "2026-08-06",
+   "url": "https://codeforces.com/contest/2252/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2181,
+   "index": "M",
+   "title": "Medical Parity",
+   "rating": 1700,
+   "tags": [
+    "dp",
+    "strings"
+   ],
+   "solved": 4007,
+   "round": "2025-2026 ICPC, NERC, Northern Eurasia Finals (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2025-12-17",
+   "url": "https://codeforces.com/contest/2181/problem/M"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2123,
+   "index": "F",
+   "title": "Minimize Fixed Points",
+   "rating": 1700,
+   "tags": [
+    "constructive algorithms",
+    "number theory"
+   ],
+   "solved": 10433,
+   "round": "Codeforces Round 1034 (Div. 3)",
+   "date": "2025-07-01",
+   "url": "https://codeforces.com/contest/2123/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2260,
+   "index": "D",
+   "title": "Signs of Prefix Sums",
+   "rating": 1700,
+   "tags": [
+    "brute force",
+    "constructive algorithms",
+    "dfs and similar",
+    "dp",
+    "implementation"
+   ],
+   "solved": 5642,
+   "round": "Educational Codeforces Round 194 (Rated for Div. 2)",
+   "date": "2026-09-08",
+   "url": "https://codeforces.com/contest/2260/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2241,
+   "index": "F",
+   "title": "A Bit Odd",
+   "rating": 1700,
+   "tags": [
+    "data structures",
+    "games",
+    "greedy",
+    "math"
+   ],
+   "solved": 5454,
+   "round": "Codeforces Round 1107 (Div. 3)",
+   "date": "2026-06-30",
+   "url": "https://codeforces.com/contest/2241/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2065,
+   "index": "G",
+   "title": "Skibidus and Capping",
+   "rating": 1700,
+   "tags": [
+    "combinatorics",
+    "math",
+    "number theory"
+   ],
+   "solved": 6757,
+   "round": "Codeforces Round 1003 (Div. 4)",
+   "date": "2025-02-09",
+   "url": "https://codeforces.com/contest/2065/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2261,
+   "index": "E",
+   "title": "What Does the Cow Say?",
+   "rating": 1800,
+   "tags": [
+    "binary search",
+    "data structures",
+    "dfs and similar",
+    "greedy",
+    "trees"
+   ],
+   "solved": 2426,
+   "round": "WorldQuant Round 1 (Codeforces Round 1128, Div. 1 + Div. 2)",
+   "date": "2026-10-17",
+   "url": "https://codeforces.com/contest/2261/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2275,
+   "index": "F",
+   "title": "Tea Blend",
+   "rating": 1800,
+   "tags": [
+    "hashing",
+    "math",
+    "number theory"
+   ],
+   "solved": 2931,
+   "round": "Codeforces Round 1125 (Div. 3)",
+   "date": "2026-10-07",
+   "url": "https://codeforces.com/contest/2275/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2276,
+   "index": "E",
+   "title": "Good Substrings",
+   "rating": 1800,
+   "tags": [
+    "combinatorics",
+    "data structures",
+    "dp",
+    "greedy",
+    "strings"
+   ],
+   "solved": 3487,
+   "round": "Educational Codeforces Round 195 (Rated for Div. 2)",
+   "date": "2026-10-14",
+   "url": "https://codeforces.com/contest/2276/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2262,
+   "index": "A2",
+   "title": "Floor of MEX (Hard Version)",
+   "rating": 1800,
+   "tags": [
+    "dp",
+    "implementation",
+    "math"
+   ],
+   "solved": 3398,
+   "round": "Codeforces Round 1120 (Div. 1)",
+   "date": "2026-09-12",
+   "url": "https://codeforces.com/contest/2262/problem/A2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2206,
+   "index": "H",
+   "title": "Reflect Sort",
+   "rating": 1800,
+   "tags": [
+    "number theory"
+   ],
+   "solved": 1707,
+   "round": "2026 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2026-03-08",
+   "url": "https://codeforces.com/contest/2206/problem/H"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2127,
+   "index": "D",
+   "title": "Root was Built by Love, Broken by Destiny",
+   "rating": 1800,
+   "tags": [
+    "combinatorics",
+    "dfs and similar",
+    "graphs",
+    "trees"
+   ],
+   "solved": 8548,
+   "round": "Atto Round 1 (Codeforces Round 1041, Div. 1 + Div. 2)",
+   "date": "2025-08-07",
+   "url": "https://codeforces.com/contest/2127/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2259,
+   "index": "F",
+   "title": "Binary Bubble Sort Inversions",
+   "rating": 1800,
+   "tags": [
+    "data structures",
+    "math",
+    "two pointers"
+   ],
+   "solved": 3865,
+   "round": "Codeforces Round 1119 (Div. 3)",
+   "date": "2026-09-05",
+   "url": "https://codeforces.com/contest/2259/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2211,
+   "index": "C2",
+   "title": "Equal Multisets (Hard Version)",
+   "rating": 1800,
+   "tags": [
+    "constructive algorithms",
+    "dsu",
+    "greedy"
+   ],
+   "solved": 4518,
+   "round": "Nebius Round 2 (Codeforces Round 1088, Div. 1 + Div. 2)",
+   "date": "2026-03-28",
+   "url": "https://codeforces.com/contest/2211/problem/C2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2145,
+   "index": "D",
+   "title": "Inversion Value of a Permutation",
+   "rating": 1800,
+   "tags": [
+    "constructive algorithms",
+    "dfs and similar",
+    "dp"
+   ],
+   "solved": 7232,
+   "round": "Educational Codeforces Round 183 (Rated for Div. 2)",
+   "date": "2025-10-06",
+   "url": "https://codeforces.com/contest/2145/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2253,
+   "index": "D",
+   "title": "Hypercarp and Interdimensional Jumps",
+   "rating": 1800,
+   "tags": [
+    "binary search",
+    "brute force",
+    "geometry",
+    "greedy",
+    "implementation",
+    "math"
+   ],
+   "solved": 3863,
+   "round": "Educational Codeforces Round 193 (Rated for Div. 2)",
+   "date": "2026-08-07",
+   "url": "https://codeforces.com/contest/2253/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2222,
+   "index": "D",
+   "title": "Permutation Construction",
+   "rating": 1800,
+   "tags": [
+    "constructive algorithms",
+    "data structures",
+    "sortings"
+   ],
+   "solved": 4488,
+   "round": "Spectral::Cup 2026 Round 1 (Codeforces Round 1094, Div. 1 + Div. 2)",
+   "date": "2026-04-25",
+   "url": "https://codeforces.com/contest/2222/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2138,
+   "index": "C1",
+   "title": "Maple and Tree Beauty (Easy Version)",
+   "rating": 1800,
+   "tags": [
+    "brute force",
+    "dfs and similar",
+    "dp",
+    "graphs",
+    "trees"
+   ],
+   "solved": 5883,
+   "round": "Codeforces Round 1048 (Div. 1)",
+   "date": "2025-09-08",
+   "url": "https://codeforces.com/contest/2138/problem/C1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2273,
+   "index": "B",
+   "title": "Robot Championship",
+   "rating": 1900,
+   "tags": [
+    "constructive algorithms",
+    "math"
+   ],
+   "solved": 1882,
+   "round": "Codeforces Round 1127 (Div. 1, Based on Mexican Olympiad in Informatics 2026)",
+   "date": "2026-10-11",
+   "url": "https://codeforces.com/contest/2273/problem/B"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2244,
+   "index": "G",
+   "title": "Yura and Deadlines",
+   "rating": 1900,
+   "tags": [
+    "data structures",
+    "dp"
+   ],
+   "solved": 3316,
+   "round": "Codeforces Round 1109 (Div. 3)",
+   "date": "2026-07-14",
+   "url": "https://codeforces.com/contest/2244/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2246,
+   "index": "D",
+   "title": "diss_quack and Array Game",
+   "rating": 1900,
+   "tags": [
+    "bitmasks",
+    "brute force",
+    "games",
+    "greedy"
+   ],
+   "solved": 3591,
+   "round": "Codeforces Round 1108 (Div. 2)",
+   "date": "2026-07-12",
+   "url": "https://codeforces.com/contest/2246/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2073,
+   "index": "A",
+   "title": "Control Towers",
+   "rating": 1900,
+   "tags": [],
+   "solved": 1300,
+   "round": "2025 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2025-03-01",
+   "url": "https://codeforces.com/contest/2073/problem/A"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2275,
+   "index": "G",
+   "title": "Copper Squander",
+   "rating": 1900,
+   "tags": [
+    "binary search",
+    "data structures",
+    "dsu",
+    "graphs",
+    "greedy",
+    "math",
+    "sortings",
+    "ternary search"
+   ],
+   "solved": 1924,
+   "round": "Codeforces Round 1125 (Div. 3)",
+   "date": "2026-10-07",
+   "url": "https://codeforces.com/contest/2275/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2190,
+   "index": "B2",
+   "title": "Sub-RBS (Hard Version)",
+   "rating": 1900,
+   "tags": [
+    "dp",
+    "games",
+    "implementation",
+    "strings"
+   ],
+   "solved": 3588,
+   "round": "Codeforces Round 1073 (Div. 1)",
+   "date": "2026-01-17",
+   "url": "https://codeforces.com/contest/2190/problem/B2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2154,
+   "index": "D",
+   "title": "Catshock",
+   "rating": 1900,
+   "tags": [
+    "constructive algorithms",
+    "dfs and similar",
+    "graphs",
+    "trees",
+    "two pointers"
+   ],
+   "solved": 5379,
+   "round": "Codeforces Round 1060 (Div. 2)",
+   "date": "2025-10-19",
+   "url": "https://codeforces.com/contest/2154/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2264,
+   "index": "D",
+   "title": "Dr. Agos's Dark Mode",
+   "rating": 1900,
+   "tags": [
+    "brute force",
+    "chinese remainder theorem",
+    "constructive algorithms",
+    "math",
+    "strings"
+   ],
+   "solved": 2703,
+   "round": "Codeforces Round 1121 (Div. 2)",
+   "date": "2026-09-13",
+   "url": "https://codeforces.com/contest/2264/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2233,
+   "index": "D",
+   "title": "Goods on the Shelf",
+   "rating": 1900,
+   "tags": [
+    "brute force",
+    "data structures",
+    "implementation",
+    "two pointers"
+   ],
+   "solved": 3838,
+   "round": "Educational Codeforces Round 191 (Rated for Div. 2)",
+   "date": "2026-06-09",
+   "url": "https://codeforces.com/contest/2233/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2184,
+   "index": "F",
+   "title": "Cherry Tree",
+   "rating": 1900,
+   "tags": [
+    "dfs and similar",
+    "dp",
+    "graphs",
+    "trees"
+   ],
+   "solved": 4589,
+   "round": "Codeforces Round 1072 (Div. 3)",
+   "date": "2026-01-12",
+   "url": "https://codeforces.com/contest/2184/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2259,
+   "index": "G",
+   "title": "Index Removal",
+   "rating": 1900,
+   "tags": [
+    "binary search",
+    "data structures",
+    "math"
+   ],
+   "solved": 2903,
+   "round": "Codeforces Round 1119 (Div. 3)",
+   "date": "2026-09-05",
+   "url": "https://codeforces.com/contest/2259/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2231,
+   "index": "D",
+   "title": "Maximum Prefix Sums",
+   "rating": 1900,
+   "tags": [
+    "constructive algorithms",
+    "greedy",
+    "implementation",
+    "two pointers"
+   ],
+   "solved": 4138,
+   "round": "Codeforces Round 1099 (Div. 2)",
+   "date": "2026-05-21",
+   "url": "https://codeforces.com/contest/2231/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2267,
+   "index": "E",
+   "title": "Clean Substrings",
+   "rating": 2000,
+   "tags": [
+    "combinatorics",
+    "data structures",
+    "math"
+   ],
+   "solved": 2179,
+   "round": "Codeforces Round 1123 (Div. 2)",
+   "date": "2026-09-25",
+   "url": "https://codeforces.com/contest/2267/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2245,
+   "index": "D2",
+   "title": "Construct an Array (Hard Version)",
+   "rating": 2000,
+   "tags": [
+    "2-sat",
+    "constructive algorithms",
+    "dfs and similar",
+    "graphs",
+    "implementation"
+   ],
+   "solved": 2442,
+   "round": "Spectral::Cup 2026 Round 3 (Codeforces Round 1110, Div. 1 + Div. 2)",
+   "date": "2026-07-16",
+   "url": "https://codeforces.com/contest/2245/problem/D2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2172,
+   "index": "I",
+   "title": "Birthday",
+   "rating": 2000,
+   "tags": [
+    "geometry"
+   ],
+   "solved": 1272,
+   "round": "2025 ICPC Asia Taichung Regional Contest (Unrated, Online Mirror, ICPC Rules, Preferably Teams)",
+   "date": "2025-11-16",
+   "url": "https://codeforces.com/contest/2172/problem/I"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2073,
+   "index": "J",
+   "title": "Gathering Sharks",
+   "rating": 2000,
+   "tags": [],
+   "solved": 1238,
+   "round": "2025 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2025-03-01",
+   "url": "https://codeforces.com/contest/2073/problem/J"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2266,
+   "index": "F",
+   "title": "MEX Replacement",
+   "rating": 2000,
+   "tags": [
+    "binary search",
+    "brute force",
+    "greedy",
+    "implementation",
+    "math",
+    "sortings"
+   ],
+   "solved": 2152,
+   "round": "Codeforces Round 1122 (Div. 3)",
+   "date": "2026-09-21",
+   "url": "https://codeforces.com/contest/2266/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2247,
+   "index": "D2",
+   "title": "XOR Sorting (Hard Version)",
+   "rating": 2000,
+   "tags": [
+    "bitmasks",
+    "data structures",
+    "greedy"
+   ],
+   "solved": 2698,
+   "round": "Codeforces Round 1111 (Div. 2)",
+   "date": "2026-07-18",
+   "url": "https://codeforces.com/contest/2247/problem/D2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2138,
+   "index": "C2",
+   "title": "Maple and Tree Beauty (Hard Version)",
+   "rating": 2000,
+   "tags": [
+    "bitmasks",
+    "brute force",
+    "dfs and similar",
+    "dp",
+    "fft",
+    "trees"
+   ],
+   "solved": 3705,
+   "round": "Codeforces Round 1048 (Div. 1)",
+   "date": "2025-09-08",
+   "url": "https://codeforces.com/contest/2138/problem/C2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2262,
+   "index": "B",
+   "title": "Culling Game",
+   "rating": 2000,
+   "tags": [
+    "binary search",
+    "data structures",
+    "implementation",
+    "two pointers"
+   ],
+   "solved": 2283,
+   "round": "Codeforces Round 1120 (Div. 1)",
+   "date": "2026-09-12",
+   "url": "https://codeforces.com/contest/2262/problem/B"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2260,
+   "index": "E",
+   "title": "Cyclic Balance",
+   "rating": 2000,
+   "tags": [
+    "binary search",
+    "constructive algorithms",
+    "dp",
+    "math"
+   ],
+   "solved": 2298,
+   "round": "Educational Codeforces Round 194 (Rated for Div. 2)",
+   "date": "2026-09-08",
+   "url": "https://codeforces.com/contest/2260/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2232,
+   "index": "D",
+   "title": "Magical Tiered Cake",
+   "rating": 2000,
+   "tags": [
+    "constructive algorithms",
+    "dfs and similar",
+    "dp",
+    "greedy"
+   ],
+   "solved": 2941,
+   "round": "Codeforces Round 1101 (Div. 2)",
+   "date": "2026-05-30",
+   "url": "https://codeforces.com/contest/2232/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2248,
+   "index": "E",
+   "title": "Excuse for Breaks",
+   "rating": 2000,
+   "tags": [
+    "binary search",
+    "brute force",
+    "greedy",
+    "math",
+    "two pointers"
+   ],
+   "solved": 2187,
+   "round": "Codeforces Round 1113 (Div. 2)",
+   "date": "2026-08-01",
+   "url": "https://codeforces.com/contest/2248/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2249,
+   "index": "C",
+   "title": "Double-Rift Dial",
+   "rating": 2000,
+   "tags": [
+    "data structures",
+    "dfs and similar",
+    "dsu",
+    "implementation",
+    "two pointers"
+   ],
+   "solved": 2018,
+   "round": "Codeforces Round 1112 (Div. 1)",
+   "date": "2026-07-26",
+   "url": "https://codeforces.com/contest/2249/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2276,
+   "index": "G",
+   "title": "Elimination of Players",
+   "rating": 2100,
+   "tags": [
+    "combinatorics",
+    "dp",
+    "math"
+   ],
+   "solved": 484,
+   "round": "Educational Codeforces Round 195 (Rated for Div. 2)",
+   "date": "2026-10-14",
+   "url": "https://codeforces.com/contest/2276/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2271,
+   "index": "E",
+   "title": "Array Emptying",
+   "rating": 2100,
+   "tags": [
+    "binary search",
+    "data structures",
+    "greedy"
+   ],
+   "solved": 1639,
+   "round": "DeepInfra Round 1 (Codeforces Round 1126, Div. 1 + Div. 2)",
+   "date": "2026-10-10",
+   "url": "https://codeforces.com/contest/2271/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2172,
+   "index": "K",
+   "title": "Kindergarten Homework",
+   "rating": 2100,
+   "tags": [
+    "implementation",
+    "strings"
+   ],
+   "solved": 980,
+   "round": "2025 ICPC Asia Taichung Regional Contest (Unrated, Online Mirror, ICPC Rules, Preferably Teams)",
+   "date": "2025-11-16",
+   "url": "https://codeforces.com/contest/2172/problem/K"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2132,
+   "index": "F",
+   "title": "Rada and the Chamomile Valley",
+   "rating": 2100,
+   "tags": [
+    "dfs and similar",
+    "graphs",
+    "shortest paths"
+   ],
+   "solved": 3080,
+   "round": "Codeforces Round 1043 (Div. 3)",
+   "date": "2025-08-21",
+   "url": "https://codeforces.com/contest/2132/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2273,
+   "index": "C",
+   "title": "Matrix Puzzle",
+   "rating": 2100,
+   "tags": [
+    "brute force",
+    "data structures",
+    "implementation",
+    "math",
+    "matrices"
+   ],
+   "solved": 884,
+   "round": "Codeforces Round 1127 (Div. 1, Based on Mexican Olympiad in Informatics 2026)",
+   "date": "2026-10-11",
+   "url": "https://codeforces.com/contest/2273/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2238,
+   "index": "E",
+   "title": "Cake Trial",
+   "rating": 2100,
+   "tags": [
+    "dp",
+    "greedy"
+   ],
+   "solved": 2401,
+   "round": "Codeforces Round 1106 (Div. 2)",
+   "date": "2026-06-28",
+   "url": "https://codeforces.com/contest/2238/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2257,
+   "index": "E",
+   "title": "Busy Beaver",
+   "rating": 2100,
+   "tags": [
+    "brute force",
+    "data structures",
+    "divide and conquer",
+    "dp",
+    "greedy",
+    "implementation",
+    "sortings"
+   ],
+   "solved": 2363,
+   "round": "Codeforces Round 1117 (Div. 2)",
+   "date": "2026-08-17",
+   "url": "https://codeforces.com/contest/2257/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2234,
+   "index": "E",
+   "title": "Vlad, Misha and Two Arrays",
+   "rating": 2100,
+   "tags": [
+    "brute force",
+    "combinatorics",
+    "dfs and similar",
+    "divide and conquer",
+    "math"
+   ],
+   "solved": 2403,
+   "round": "Codeforces Round 1102 (Div. 2)",
+   "date": "2026-06-07",
+   "url": "https://codeforces.com/contest/2234/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2252,
+   "index": "E",
+   "title": "Generational Triplets",
+   "rating": 2100,
+   "tags": [
+    "bitmasks",
+    "combinatorics",
+    "dp",
+    "math"
+   ],
+   "solved": 2192,
+   "round": "Codeforces Round 1115 (Div. 2)",
+   "date": "2026-08-06",
+   "url": "https://codeforces.com/contest/2252/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2237,
+   "index": "E",
+   "title": "Permutation Commutation",
+   "rating": 2100,
+   "tags": [
+    "data structures",
+    "graphs",
+    "greedy"
+   ],
+   "solved": 2308,
+   "round": "Order Capital Round 2 (Codeforces Round 1104, Div. 1 + Div. 2)",
+   "date": "2026-06-18",
+   "url": "https://codeforces.com/contest/2237/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2229,
+   "index": "E",
+   "title": "Deconstruction Tree",
+   "rating": 2100,
+   "tags": [
+    "combinatorics",
+    "data structures",
+    "dp",
+    "graphs",
+    "trees"
+   ],
+   "solved": 2253,
+   "round": "Spectral::Cup 2026 Round 2 (Codeforces Round 1100, Div. 1 + Div. 2)",
+   "date": "2026-05-23",
+   "url": "https://codeforces.com/contest/2229/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2210,
+   "index": "D",
+   "title": "A Simple RBS Problem",
+   "rating": 2100,
+   "tags": [
+    "constructive algorithms",
+    "math",
+    "strings",
+    "trees"
+   ],
+   "solved": 2394,
+   "round": "Codeforces Round 1089 (Div. 2)",
+   "date": "2026-03-29",
+   "url": "https://codeforces.com/contest/2210/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2266,
+   "index": "G",
+   "title": "Modular Tree",
+   "rating": 2200,
+   "tags": [
+    "dfs and similar",
+    "dp",
+    "greedy",
+    "math",
+    "number theory",
+    "trees"
+   ],
+   "solved": 1143,
+   "round": "Codeforces Round 1122 (Div. 3)",
+   "date": "2026-09-21",
+   "url": "https://codeforces.com/contest/2266/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2073,
+   "index": "G",
+   "title": "Corrupted File",
+   "rating": 2200,
+   "tags": [],
+   "solved": 961,
+   "round": "2025 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2025-03-01",
+   "url": "https://codeforces.com/contest/2073/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2264,
+   "index": "E1",
+   "title": "A Prime Flood (Easy Version)",
+   "rating": 2200,
+   "tags": [
+    "combinatorics",
+    "dp",
+    "number theory"
+   ],
+   "solved": 1523,
+   "round": "Codeforces Round 1121 (Div. 2)",
+   "date": "2026-09-13",
+   "url": "https://codeforces.com/contest/2264/problem/E1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2253,
+   "index": "E",
+   "title": "Diameter Intersections",
+   "rating": 2200,
+   "tags": [
+    "brute force",
+    "dfs and similar",
+    "fft",
+    "graphs",
+    "implementation",
+    "trees"
+   ],
+   "solved": 1559,
+   "round": "Educational Codeforces Round 193 (Rated for Div. 2)",
+   "date": "2026-08-07",
+   "url": "https://codeforces.com/contest/2253/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2239,
+   "index": "C",
+   "title": "Revival",
+   "rating": 2200,
+   "tags": [
+    "binary search",
+    "data structures",
+    "math",
+    "two pointers"
+   ],
+   "solved": 1807,
+   "round": "Codeforces Round 1105 (Div. 1)",
+   "date": "2026-06-27",
+   "url": "https://codeforces.com/contest/2239/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2207,
+   "index": "E1",
+   "title": "N-MEX (Constructive Version)",
+   "rating": 2200,
+   "tags": [
+    "constructive algorithms",
+    "greedy"
+   ],
+   "solved": 1998,
+   "round": "Codeforces Round 1085 (Div. 1 + Div. 2)",
+   "date": "2026-03-08",
+   "url": "https://codeforces.com/contest/2207/problem/E1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2259,
+   "index": "H",
+   "title": "Treasure Map Destruction (Counting Version)",
+   "rating": 2200,
+   "tags": [
+    "dfs and similar",
+    "dp",
+    "dsu",
+    "graphs",
+    "math"
+   ],
+   "solved": 1087,
+   "round": "Codeforces Round 1119 (Div. 3)",
+   "date": "2026-09-05",
+   "url": "https://codeforces.com/contest/2259/problem/H"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2170,
+   "index": "D",
+   "title": "Almost Roman",
+   "rating": 2200,
+   "tags": [
+    "constructive algorithms",
+    "greedy",
+    "implementation"
+   ],
+   "solved": 1833,
+   "round": "Educational Codeforces Round 185 (Rated for Div. 2)",
+   "date": "2025-11-28",
+   "url": "https://codeforces.com/contest/2170/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2254,
+   "index": "G",
+   "title": "Nightcrawler",
+   "rating": 2200,
+   "tags": [
+    "data structures",
+    "dfs and similar",
+    "dp",
+    "greedy",
+    "sortings",
+    "trees"
+   ],
+   "solved": 1483,
+   "round": "Codeforces Round 1114 (Div. 3)",
+   "date": "2026-08-04",
+   "url": "https://codeforces.com/contest/2254/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2225,
+   "index": "E",
+   "title": "Covering Points with Circles",
+   "rating": 2200,
+   "tags": [
+    "constructive algorithms",
+    "geometry",
+    "math"
+   ],
+   "solved": 1391,
+   "round": "Educational Codeforces Round 189 (Rated for Div. 2)",
+   "date": "2026-04-21",
+   "url": "https://codeforces.com/contest/2225/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2242,
+   "index": "E",
+   "title": "Product of Closures",
+   "rating": 2200,
+   "tags": [
+    "bitmasks",
+    "brute force",
+    "constructive algorithms",
+    "greedy",
+    "implementation",
+    "math",
+    "number theory"
+   ],
+   "solved": 1704,
+   "round": "Educational Codeforces Round 192 (Rated for Div. 2)",
+   "date": "2026-07-06",
+   "url": "https://codeforces.com/contest/2242/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2209,
+   "index": "E",
+   "title": "A Trivial String Problem",
+   "rating": 2200,
+   "tags": [
+    "brute force",
+    "dp",
+    "hashing",
+    "string suffix structures",
+    "strings"
+   ],
+   "solved": 2145,
+   "round": "Codeforces Round 1087 (Div. 2)",
+   "date": "2026-03-21",
+   "url": "https://codeforces.com/contest/2209/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2271,
+   "index": "F",
+   "title": "Beautiful Pillers",
+   "rating": 2300,
+   "tags": [
+    "constructive algorithms",
+    "data structures",
+    "dp",
+    "greedy",
+    "implementation"
+   ],
+   "solved": 1120,
+   "round": "DeepInfra Round 1 (Codeforces Round 1126, Div. 1 + Div. 2)",
+   "date": "2026-10-10",
+   "url": "https://codeforces.com/contest/2271/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2245,
+   "index": "E",
+   "title": "Tom and Jerry",
+   "rating": 2300,
+   "tags": [
+    "dfs and similar",
+    "dsu",
+    "games",
+    "trees"
+   ],
+   "solved": 1319,
+   "round": "Spectral::Cup 2026 Round 3 (Codeforces Round 1110, Div. 1 + Div. 2)",
+   "date": "2026-07-16",
+   "url": "https://codeforces.com/contest/2245/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2233,
+   "index": "E2",
+   "title": "Permutation Transmission (Difficult Version)",
+   "rating": 2300,
+   "tags": [
+    "bitmasks",
+    "combinatorics",
+    "sortings"
+   ],
+   "solved": 1440,
+   "round": "Educational Codeforces Round 191 (Rated for Div. 2)",
+   "date": "2026-06-09",
+   "url": "https://codeforces.com/contest/2233/problem/E2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2268,
+   "index": "C",
+   "title": "KiaKio and Energy Intervals",
+   "rating": 2300,
+   "tags": [
+    "binary search",
+    "bitmasks",
+    "data structures",
+    "divide and conquer",
+    "dsu",
+    "greedy",
+    "trees",
+    "two pointers"
+   ],
+   "solved": 1264,
+   "round": "Codeforces Round 1124 (Div. 1)",
+   "date": "2026-09-26",
+   "url": "https://codeforces.com/contest/2268/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2181,
+   "index": "J",
+   "title": "Jinx or Jackpot",
+   "rating": 2300,
+   "tags": [
+    "brute force",
+    "dp",
+    "math",
+    "probabilities"
+   ],
+   "solved": 882,
+   "round": "2025-2026 ICPC, NERC, Northern Eurasia Finals (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2025-12-17",
+   "url": "https://codeforces.com/contest/2181/problem/J"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2159,
+   "index": "C",
+   "title": "Twin Polynomials",
+   "rating": 2300,
+   "tags": [
+    "combinatorics",
+    "graph matchings",
+    "math"
+   ],
+   "solved": 3580,
+   "round": "Codeforces Round 1058 (Div. 1)",
+   "date": "2025-10-12",
+   "url": "https://codeforces.com/contest/2159/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2110,
+   "index": "E",
+   "title": "Melody",
+   "rating": 2300,
+   "tags": [
+    "dfs and similar",
+    "graphs",
+    "implementation"
+   ],
+   "solved": 2912,
+   "round": "Codeforces Round 1026 (Div. 2)",
+   "date": "2025-05-24",
+   "url": "https://codeforces.com/contest/2110/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2267,
+   "index": "F2",
+   "title": "XOR Transformations (Hard Version)",
+   "rating": 2300,
+   "tags": [
+    "bitmasks",
+    "brute force",
+    "data structures",
+    "dfs and similar",
+    "greedy",
+    "math",
+    "sortings",
+    "strings",
+    "trees"
+   ],
+   "solved": 1001,
+   "round": "Codeforces Round 1123 (Div. 2)",
+   "date": "2026-09-25",
+   "url": "https://codeforces.com/contest/2267/problem/F2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2172,
+   "index": "L",
+   "title": "Maximum Color Segment",
+   "rating": 2300,
+   "tags": [
+    "dp",
+    "implementation"
+   ],
+   "solved": 974,
+   "round": "2025 ICPC Asia Taichung Regional Contest (Unrated, Online Mirror, ICPC Rules, Preferably Teams)",
+   "date": "2025-11-16",
+   "url": "https://codeforces.com/contest/2172/problem/L"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2262,
+   "index": "C",
+   "title": "Traveling the World",
+   "rating": 2300,
+   "tags": [
+    "combinatorics",
+    "constructive algorithms",
+    "graphs",
+    "greedy",
+    "math"
+   ],
+   "solved": 1160,
+   "round": "Codeforces Round 1120 (Div. 1)",
+   "date": "2026-09-12",
+   "url": "https://codeforces.com/contest/2262/problem/C"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2247,
+   "index": "E",
+   "title": "Build a Tree",
+   "rating": 2300,
+   "tags": [
+    "constructive algorithms",
+    "trees",
+    "two pointers"
+   ],
+   "solved": 1275,
+   "round": "Codeforces Round 1111 (Div. 2)",
+   "date": "2026-07-18",
+   "url": "https://codeforces.com/contest/2247/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2233,
+   "index": "E1",
+   "title": "Permutation Transmission (Easy Version)",
+   "rating": 2300,
+   "tags": [
+    "bitmasks",
+    "combinatorics",
+    "sortings"
+   ],
+   "solved": 1348,
+   "round": "Educational Codeforces Round 191 (Rated for Div. 2)",
+   "date": "2026-06-09",
+   "url": "https://codeforces.com/contest/2233/problem/E1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2261,
+   "index": "D2",
+   "title": "Come Be My Friend, Don't Be So Scared (Hard Version)",
+   "rating": 2400,
+   "tags": [
+    "constructive algorithms",
+    "data structures",
+    "dsu",
+    "graphs",
+    "hashing",
+    "trees",
+    "two pointers"
+   ],
+   "solved": 636,
+   "round": "WorldQuant Round 1 (Codeforces Round 1128, Div. 1 + Div. 2)",
+   "date": "2026-10-17",
+   "url": "https://codeforces.com/contest/2261/problem/D2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2275,
+   "index": "H",
+   "title": "A Problem to Warm Up the Eyebrows",
+   "rating": 2400,
+   "tags": [
+    "combinatorics",
+    "dp",
+    "math"
+   ],
+   "solved": 739,
+   "round": "Codeforces Round 1125 (Div. 3)",
+   "date": "2026-10-07",
+   "url": "https://codeforces.com/contest/2275/problem/H"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2206,
+   "index": "F",
+   "title": "Minesweeper String",
+   "rating": 2400,
+   "tags": [
+    "fft",
+    "number theory"
+   ],
+   "solved": 527,
+   "round": "2026 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2026-03-08",
+   "url": "https://codeforces.com/contest/2206/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2096,
+   "index": "E",
+   "title": "Wonderful Teddy Bears",
+   "rating": 2400,
+   "tags": [
+    "greedy",
+    "implementation",
+    "sortings"
+   ],
+   "solved": 2159,
+   "round": "Neowise Labs Contest 1 (Codeforces Round 1018, Div. 1 + Div. 2)",
+   "date": "2025-04-19",
+   "url": "https://codeforces.com/contest/2096/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2073,
+   "index": "D",
+   "title": "Tower of Hanoi",
+   "rating": 2400,
+   "tags": [],
+   "solved": 603,
+   "round": "2025 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2025-03-01",
+   "url": "https://codeforces.com/contest/2073/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2276,
+   "index": "F",
+   "title": "Permutation Coloring Game",
+   "rating": 2400,
+   "tags": [
+    "brute force",
+    "dp",
+    "dsu",
+    "games",
+    "greedy",
+    "implementation",
+    "math"
+   ],
+   "solved": 916,
+   "round": "Educational Codeforces Round 195 (Rated for Div. 2)",
+   "date": "2026-10-14",
+   "url": "https://codeforces.com/contest/2276/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2266,
+   "index": "H",
+   "title": "Deque Malfunction",
+   "rating": 2400,
+   "tags": [
+    "binary search",
+    "data structures",
+    "dp",
+    "greedy"
+   ],
+   "solved": 519,
+   "round": "Codeforces Round 1122 (Div. 3)",
+   "date": "2026-09-21",
+   "url": "https://codeforces.com/contest/2266/problem/H"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2258,
+   "index": "E",
+   "title": "DivMEX",
+   "rating": 2400,
+   "tags": [
+    "data structures",
+    "math",
+    "number theory"
+   ],
+   "solved": 1054,
+   "round": "Codeforces Round 1118 (Div. 2)",
+   "date": "2026-08-29",
+   "url": "https://codeforces.com/contest/2258/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2195,
+   "index": "H",
+   "title": "Codeforces Heuristic Contest 001",
+   "rating": 2400,
+   "tags": [
+    "brute force",
+    "constructive algorithms",
+    "geometry",
+    "implementation"
+   ],
+   "solved": 558,
+   "round": "Codeforces Round 1080 (Div. 3)",
+   "date": "2026-02-15",
+   "url": "https://codeforces.com/contest/2195/problem/H"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2241,
+   "index": "G",
+   "title": "Summmon",
+   "rating": 2400,
+   "tags": [
+    "binary search",
+    "data structures",
+    "greedy",
+    "implementation",
+    "math",
+    "number theory"
+   ],
+   "solved": 1079,
+   "round": "Codeforces Round 1107 (Div. 3)",
+   "date": "2026-06-30",
+   "url": "https://codeforces.com/contest/2241/problem/G"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2109,
+   "index": "E",
+   "title": "Binary String Wowee",
+   "rating": 2400,
+   "tags": [
+    "combinatorics",
+    "dp",
+    "strings"
+   ],
+   "solved": 1943,
+   "round": "Codeforces Round 1025 (Div. 2)",
+   "date": "2025-05-17",
+   "url": "https://codeforces.com/contest/2109/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2237,
+   "index": "F",
+   "title": "Paint the Array",
+   "rating": 2400,
+   "tags": [
+    "data structures",
+    "dp",
+    "greedy"
+   ],
+   "solved": 1307,
+   "round": "Order Capital Round 2 (Codeforces Round 1104, Div. 1 + Div. 2)",
+   "date": "2026-06-18",
+   "url": "https://codeforces.com/contest/2237/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2261,
+   "index": "F1",
+   "title": "Plegma II: Ask Me Any Cell (Easy Version)",
+   "rating": 2500,
+   "tags": [
+    "constructive algorithms",
+    "greedy",
+    "math"
+   ],
+   "solved": 410,
+   "round": "WorldQuant Round 1 (Codeforces Round 1128, Div. 1 + Div. 2)",
+   "date": "2026-10-17",
+   "url": "https://codeforces.com/contest/2261/problem/F1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2260,
+   "index": "F",
+   "title": "Edge Three-Coloring",
+   "rating": 2500,
+   "tags": [
+    "brute force",
+    "dfs and similar",
+    "dsu",
+    "graphs",
+    "trees"
+   ],
+   "solved": 757,
+   "round": "Educational Codeforces Round 194 (Rated for Div. 2)",
+   "date": "2026-09-08",
+   "url": "https://codeforces.com/contest/2260/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2257,
+   "index": "F1",
+   "title": "Beaver's Jumping Track (Easy Version)",
+   "rating": 2500,
+   "tags": [
+    "data structures",
+    "dp",
+    "matrices"
+   ],
+   "solved": 779,
+   "round": "Codeforces Round 1117 (Div. 2)",
+   "date": "2026-08-17",
+   "url": "https://codeforces.com/contest/2257/problem/F1"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2258,
+   "index": "D",
+   "title": "Magic Tiles",
+   "rating": 2500,
+   "tags": [
+    "dp",
+    "greedy",
+    "implementation"
+   ],
+   "solved": 612,
+   "round": "Codeforces Round 1118 (Div. 2)",
+   "date": "2026-08-29",
+   "url": "https://codeforces.com/contest/2258/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2228,
+   "index": "E2",
+   "title": "Amanojaku and Sequence (Hard Version)",
+   "rating": 2500,
+   "tags": [
+    "combinatorics",
+    "data structures",
+    "implementation",
+    "math"
+   ],
+   "solved": 425,
+   "round": "Codeforces Round 1098 (Div. 2)",
+   "date": "2026-05-16",
+   "url": "https://codeforces.com/contest/2228/problem/E2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2206,
+   "index": "B",
+   "title": "Subtree Removal Game",
+   "rating": 2500,
+   "tags": [
+    "binary search",
+    "games",
+    "trees"
+   ],
+   "solved": 559,
+   "round": "2026 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2026-03-08",
+   "url": "https://codeforces.com/contest/2206/problem/B"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2248,
+   "index": "F",
+   "title": "Matrix Elimination",
+   "rating": 2500,
+   "tags": [
+    "binary search",
+    "greedy",
+    "math"
+   ],
+   "solved": 782,
+   "round": "Codeforces Round 1113 (Div. 2)",
+   "date": "2026-08-01",
+   "url": "https://codeforces.com/contest/2248/problem/F"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2206,
+   "index": "E",
+   "title": "Parallel Sums",
+   "rating": 2500,
+   "tags": [
+    "data structures",
+    "geometry"
+   ],
+   "solved": 586,
+   "round": "2026 ICPC Asia Pacific Championship - Online Mirror (Unrated, Online Mirror, ICPC Rules, Teams Preferred)",
+   "date": "2026-03-08",
+   "url": "https://codeforces.com/contest/2206/problem/E"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2190,
+   "index": "D",
+   "title": "Prufer Vertex",
+   "rating": 2500,
+   "tags": [
+    "combinatorics",
+    "dsu",
+    "number theory",
+    "probabilities",
+    "trees"
+   ],
+   "solved": 1111,
+   "round": "Codeforces Round 1073 (Div. 1)",
+   "date": "2026-01-17",
+   "url": "https://codeforces.com/contest/2190/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2140,
+   "index": "E2",
+   "title": "Prime Gaming (Hard Version)",
+   "rating": 2500,
+   "tags": [
+    "bitmasks",
+    "combinatorics",
+    "dp",
+    "probabilities"
+   ],
+   "solved": 1330,
+   "round": "Codeforces Round 1049 (Div. 2)",
+   "date": "2025-09-09",
+   "url": "https://codeforces.com/contest/2140/problem/E2"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2239,
+   "index": "D",
+   "title": "Hunting the Beast",
+   "rating": 2500,
+   "tags": [
+    "combinatorics",
+    "dp",
+    "graphs",
+    "math"
+   ],
+   "solved": 816,
+   "round": "Codeforces Round 1105 (Div. 1)",
+   "date": "2026-06-27",
+   "url": "https://codeforces.com/contest/2239/problem/D"
+  },
+  {
+   "site": "Codeforces",
+   "contest": 2202,
+   "index": "G1",
+   "title": "Monotone Monochrome Matrices (Easy Version)",
+   "rating": 2500,
+   "tags": [
+    "data structures"
+   ],
+   "solved": 351,
+   "round": "Codeforces Round 1082 (Div. 2)",
+   "date": "2026-02-23",
+   "url": "https://codeforces.com/contest/2202/problem/G1"
+  }
+ ]
+}

@@ -1,0 +1,145 @@
+{
+ "idea": "fixed-length-game",
+ "opening": "Before working out a strategy for a game, check whether there is anything to work out.",
+ "steps": [
+  {
+   "id": "bar",
+   "kind": "number",
+   "prompt": "A chocolate bar of 2 by 3 squares. A move breaks one piece into two along a line. How many breaks are made before it is all single squares, whatever order they are made in?",
+   "answer": 5,
+   "verify": "result = 2 * 3 - 1",
+   "nudges": [
+    "How many pieces are there at the start and at the end, and what does one break do to that number?"
+   ],
+   "showed": "Each break adds one piece: from 1 piece to 6."
+  },
+  {
+   "id": "barwin",
+   "kind": "choice",
+   "prompt": "Two players take turns breaking; whoever makes the last break wins. Who wins the 2 by 3 bar?",
+   "options": [
+    "The first player, whatever either of them does",
+    "The second player",
+    "Whoever breaks more cleverly"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Who makes the 1st, 3rd and 5th break?"
+   ],
+   "showed": "Five breaks, and the first player makes the odd-numbered ones."
+  },
+  {
+   "id": "board",
+   "kind": "number",
+   "prompt": "The numbers 1 to 10 are on a board. A move erases two of them and writes their sum. The game stops when one number is left. How many moves are made?",
+   "answer": 9,
+   "verify": "result = 10 - 1",
+   "nudges": [
+    "What does a move do to how many numbers are on the board?"
+   ],
+   "showed": "One number fewer per move."
+  },
+  {
+   "id": "heap",
+   "kind": "choice",
+   "prompt": "A heap of 15 stones. A move splits one heap into two non-empty heaps. The player who cannot move loses. Who wins?",
+   "options": [
+    "The second player",
+    "The first player"
+   ],
+   "answer": 0,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef sp(h):\n    return any(not sp(tuple(sorted(h[:i] + (a, x - a) + h[i + 1:]))) for i, x in enumerate(h) for a in range(1, x // 2 + 1))\nresult = 1 if sp((15,)) else 0",
+   "nudges": [
+    "How many heaps are there at the end, and how does a move change the number of heaps?"
+   ],
+   "showed": "From 1 heap to 15 heaps takes exactly 14 moves, an even number, so the second player makes the last one."
+  },
+  {
+   "id": "leaves",
+   "kind": "number",
+   "prompt": "A tree has 8 vertices. A move removes a vertex that has exactly one neighbour (and its edge). The game ends when a single vertex is left. How many moves are made?",
+   "answer": 7,
+   "verify": "result = 8 - 1",
+   "nudges": [
+    "Is there always a vertex with exactly one neighbour while at least two vertices remain?"
+   ],
+   "showed": "A tree with two or more vertices always has a leaf, so the game cannot stop early: 7 moves."
+  },
+  {
+   "id": "hexagon",
+   "kind": "number",
+   "prompt": "A convex hexagon. A move draws a diagonal that does not cross any diagonal already drawn. The player who cannot move loses. How many diagonals are drawn in the whole game, however it is played?",
+   "answer": 3,
+   "verify": "import itertools\ndiag = [(a, b) for a, b in itertools.combinations(range(6), 2) if (b - a) % 6 not in (1, 5)]\ncross = lambda p, q: len({*p, *q}) == 4 and (p[0] < q[0] < p[1]) != (p[0] < q[1] < p[1])\nsizes = set()\ndef go(chosen):\n    free = [d for d in diag if d not in chosen and not any(cross(d, c) for c in chosen)]\n    if not free: sizes.add(len(chosen)); return\n    for d in free: go(chosen + [d])\ngo([])\nresult = sizes.pop() if len(sizes) == 1 else None",
+   "nudges": [
+    "When no more diagonals fit, into what shapes is the hexagon cut, and how many of them are there?"
+   ],
+   "showed": "The game ends with the hexagon cut into triangles: always 4 triangles and 3 diagonals. So the first player wins."
+  },
+  {
+   "id": "notfixed",
+   "kind": "choice",
+   "prompt": "A pile of 10 stones; a move removes 1 or 2; whoever takes the last stone wins. Does the same reasoning settle it?",
+   "options": [
+    "No: the number of moves depends on the choices made, so parity alone decides nothing",
+    "Yes: the first player wins because 10 is even",
+    "Yes: the second player wins"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Can this game last 5 moves? Can it last 10?"
+   ],
+   "showed": "Between 5 and 10 moves are possible. When the length is not forced, you really do have to label positions."
+  },
+  {
+   "id": "recipe",
+   "kind": "choice",
+   "prompt": "Faced with a new game in a contest, which check comes first?",
+   "options": [
+    "Does some count change by exactly one with every move and decide when the game ends? If so, only its parity matters",
+    "Compute the winner for every position up to 100",
+    "Look for a copying strategy"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What did the chocolate, the board of numbers and the heaps have in common?"
+   ],
+   "showed": "Look for the counter: pieces, numbers, heaps, edges. If every move ticks it by one, the game is already decided."
+  },
+  {
+   "id": "trap",
+   "kind": "choice",
+   "prompt": "In such a game a problem says \"both play optimally\". What role does optimal play have?",
+   "options": [
+    "None: every sequence of moves gives the same winner",
+    "It decides the winner",
+    "It only matters for the second player"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Could a bad move change the number of moves in the game?"
+   ],
+   "showed": "The phrase is there for every game; in a fixed-length game it changes nothing."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "A game starts with one heap of $n \\ge 1$ stones. A move splits one heap into two non-empty heaps; a player who cannot move loses. Prove that the game always lasts exactly $n - 1$ moves.",
+   "claims": [
+    "Each move replaces one heap by two, so the number of heaps increases by exactly one per move.",
+    "A move is possible exactly when some heap has at least two stones, so the game ends precisely when every heap has one stone, that is, when there are n heaps.",
+    "The number of heaps goes from 1 to n in steps of one, so exactly n - 1 moves are made, whatever the players choose."
+   ],
+   "nudges": [
+    "What changes by exactly one with every move?",
+    "What does the position look like when nobody can move?"
+   ],
+   "showed": "Count heaps: one more each move, from 1 up to n."
+  }
+ ],
+ "reveal": {
+  "name": "Games of fixed length",
+  "statement": "If some quantity changes by exactly one with every move and the game ends exactly when it reaches a fixed value, then every play has the same number of moves and the winner is decided by its parity alone.",
+  "remark": "It is the game-theory face of an invariant. Many \"who wins?\" problems at the easy end of a contest are this in disguise: count moves, do not search for strategy."
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "idea": "sum-xor-and",
+ "opening": "Addition and XOR look unrelated. One identity ties them together and answers a whole family of questions.",
+ "steps": [
+  {
+   "id": "x",
+   "kind": "number",
+   "prompt": "What is 5 XOR 3?",
+   "answer": 6,
+   "verify": "result = 5 ^ 3",
+   "nudges": [
+    "In which binary places do 101 and 011 differ?"
+   ],
+   "showed": "110."
+  },
+  {
+   "id": "a",
+   "kind": "number",
+   "prompt": "What is 5 AND 3?",
+   "answer": 1,
+   "verify": "result = 5 & 3",
+   "nudges": [
+    "In which places do both have a 1?"
+   ],
+   "showed": "001."
+  },
+  {
+   "id": "both",
+   "kind": "number",
+   "prompt": "Compute (5 XOR 3) + 2 x (5 AND 3).",
+   "answer": 8,
+   "verify": "result = (5 ^ 3) + 2 * (5 & 3)",
+   "nudges": [
+    "What are the two parts you have already found?"
+   ],
+   "showed": "6 + 2 = 8, which is 5 + 3."
+  },
+  {
+   "id": "why1",
+   "kind": "choice",
+   "prompt": "Adding two binary digits gives 0, 1 or 2. How do XOR and AND describe that?",
+   "options": [
+    "XOR is the digit written in that place, and AND says whether a carry of 1 goes to the next place",
+    "XOR is the carry and AND is the digit",
+    "They describe it only when there is no carry"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What are 1 + 1, 1 + 0 and 0 + 0 in binary?"
+   ],
+   "showed": "XOR adds without carrying; AND is exactly the carries, and a carry is worth double."
+  },
+  {
+   "id": "find",
+   "kind": "number",
+   "prompt": "Two numbers have sum 18 and XOR 10. What is their AND?",
+   "answer": 4,
+   "verify": "result = next(a & b for a in range(32) for b in range(32) if a + b == 18 and a ^ b == 10)",
+   "nudges": [
+    "Sum = XOR + 2 x AND. What is left when you take the XOR away from the sum?"
+   ],
+   "showed": "(18 - 10) / 2 = 4; for example 14 and 4."
+  },
+  {
+   "id": "small",
+   "kind": "choice",
+   "prompt": "Can two non-negative whole numbers have sum 9 and XOR 12?",
+   "options": [
+    "No",
+    "Yes"
+   ],
+   "answer": 0,
+   "verify": "result = 1 if any(a ^ (9 - a) == 12 for a in range(10)) else 0",
+   "nudges": [
+    "What would the AND have to be?"
+   ],
+   "showed": "The AND would be negative. The XOR can never exceed the sum."
+  },
+  {
+   "id": "odd",
+   "kind": "choice",
+   "prompt": "Can two non-negative whole numbers have sum 10 and XOR 5?",
+   "options": [
+    "No",
+    "Yes"
+   ],
+   "answer": 0,
+   "verify": "result = 1 if any(a ^ (10 - a) == 5 for a in range(11)) else 0",
+   "nudges": [
+    "Sum minus XOR is twice the AND. What is 10 - 5?"
+   ],
+   "showed": "Sum minus XOR must be even. Sum and XOR always have the same parity."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "How many ordered pairs (a, b) of non-negative whole numbers have sum 10 and XOR 4?",
+   "answer": 2,
+   "verify": "result = sum(1 for a in range(11) if a ^ (10 - a) == 4)",
+   "nudges": [
+    "The AND is 3. In the places where the AND has a 1, what are the bits of a and b? In the places where the XOR has a 1?"
+   ],
+   "showed": "AND = 3 fixes both numbers to have the 1s and 2s bits. The single XOR bit (the 4s place) goes to a or to b: (7, 3) and (3, 7)."
+  },
+  {
+   "id": "clash",
+   "kind": "number",
+   "prompt": "How many ordered pairs (a, b) have sum 12 and XOR 6?",
+   "answer": 0,
+   "verify": "result = sum(1 for a in range(13) if a ^ (12 - a) == 6)",
+   "nudges": [
+    "The AND would be 3. Can a place have a 1 in both the AND and the XOR?"
+   ],
+   "showed": "AND = 3 and XOR = 6 both claim the 2s place: both bits equal and different at once. So the third condition is (AND) AND (XOR) = 0."
+  },
+  {
+   "id": "or",
+   "kind": "number",
+   "prompt": "Two numbers have XOR 10 and AND 5. What is their OR?",
+   "answer": 15,
+   "verify": "result = next(a | b for a in range(32) for b in range(32) if a ^ b == 10 and a & b == 5)",
+   "nudges": [
+    "A place of the OR is 1 when exactly one has the bit, or when both do. Which of XOR and AND covers each case?"
+   ],
+   "showed": "OR = XOR + AND, since the two never share a place."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that for all whole numbers $a, b \\ge 0$: $a + b = (a \\text{ XOR } b) + 2\\,(a \\text{ AND } b)$.",
+   "claims": [
+    "Write a and b in binary with bits a_k and b_k, so a + b is the sum over k of 2^k (a_k + b_k).",
+    "For single bits, a_k + b_k = (a_k XOR b_k) + 2 (a_k AND b_k): check the four cases 0+0, 0+1, 1+0, 1+1.",
+    "Multiply by 2^k and add over all k: the first parts give a XOR b and the second parts give 2 (a AND b), since XOR and AND work place by place."
+   ],
+   "nudges": [
+    "How do you write $a + b$ as a sum over binary places?",
+    "What is the identity for two single bits?"
+   ],
+   "showed": "Four cases for one place, then add the places up."
+  }
+ ],
+ "reveal": {
+  "name": "Sum, XOR and AND",
+  "statement": "$a + b = (a \\oplus b) + 2\\,(a \\mathbin{\\&} b)$, and $a \\mathbin{|} b = (a \\oplus b) + (a \\mathbin{\\&} b)$. Given a sum $s$ and XOR $x$: a pair exists exactly when $s \\ge x$, $s - x$ is even, and $\\frac{s-x}{2} \\mathbin{\\&} x = 0$; then there are $2^{\\text{popcount}(x)}$ ordered pairs.",
+  "remark": "Use it whenever a problem mixes $+$ with a bitwise operation: it converts one into the other."
+ }
+}

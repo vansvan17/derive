@@ -1,0 +1,138 @@
+{
+ "idea": "masks",
+ "opening": "A set of small things can be stored as a single number. Then set operations become arithmetic.",
+ "steps": [
+  {
+   "id": "encode",
+   "kind": "number",
+   "prompt": "Items are numbered 0, 1, 2, 3. Record a set as a number whose binary digit in place $i$ (worth $2^i$) is 1 exactly when item $i$ is in the set. Which number records the set {0, 2, 3}?",
+   "answer": 13,
+   "verify": "result = sum(1 << i for i in (0, 2, 3))",
+   "nudges": [
+    "What are the place values for items 0, 2 and 3?"
+   ],
+   "showed": "1 + 4 + 8."
+  },
+  {
+   "id": "decode",
+   "kind": "list",
+   "prompt": "Which items are in the set recorded by the number 22?",
+   "answer": [
+    1,
+    2,
+    4
+   ],
+   "verify": "result = [i for i in range(8) if 22 >> i & 1]",
+   "nudges": [
+    "What is 22 in binary?"
+   ],
+   "showed": "22 = 16 + 4 + 2, which is 10110."
+  },
+  {
+   "id": "all",
+   "kind": "number",
+   "prompt": "How many different sets can be formed from 10 items (including the empty set and the full set)?",
+   "answer": 1024,
+   "verify": "result = 2 ** 10",
+   "nudges": [
+    "Each item is in or out. How many combinations is that?"
+   ],
+   "showed": "Exactly the numbers 0 to 1023, each recording one set."
+  },
+  {
+   "id": "union",
+   "kind": "number",
+   "prompt": "Sets are recorded by 12 and 10. Which number records their union (items in at least one)?",
+   "answer": 14,
+   "verify": "result = 12 | 10",
+   "nudges": [
+    "Which bitwise operation puts a 1 where at least one number has a 1?"
+   ],
+   "showed": "OR gives the union; AND gives the intersection, here 8."
+  },
+  {
+   "id": "test",
+   "kind": "choice",
+   "prompt": "How do you test whether item $i$ is in the set recorded by $m$?",
+   "options": [
+    "Shift $m$ right by $i$ places and look at the last digit",
+    "Check whether $m$ is larger than $i$",
+    "Check whether $m$ is divisible by $i$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Where is the digit for item $i$, and how do you bring it to the 1s place?"
+   ],
+   "showed": "In code: (m >> i) & 1."
+  },
+  {
+   "id": "subs",
+   "kind": "list",
+   "prompt": "The set {0, 2} is recorded by 5. List the numbers that record its subsets.",
+   "answer": [
+    0,
+    1,
+    4,
+    5
+   ],
+   "verify": "result = [s for s in range(6) if s & 5 == s]",
+   "nudges": [
+    "Which items may a subset contain?"
+   ],
+   "showed": "Any choice of the bits that 5 has."
+  },
+  {
+   "id": "walk",
+   "kind": "number",
+   "prompt": "A trick for visiting the subsets of $m$: start at $s = m$ and keep replacing $s$ by $(s - 1)$ AND $m$. With $m = 13$ the first value is 13 and the second is 12. What is the third?",
+   "answer": 9,
+   "verify": "m = 13\ns = (m - 1) & m\nresult = (s - 1) & m",
+   "nudges": [
+    "What is 12 - 1 in binary, and which of its bits does 13 keep?"
+   ],
+   "showed": "12 - 1 = 11 is 1011; AND with 1101 leaves 1001 = 9. The walk continues 8, 5, 4, 1, 0: every subset of 13, in decreasing order, with nothing wasted."
+  },
+  {
+   "id": "pairs",
+   "kind": "number",
+   "prompt": "For 4 items, count the pairs (a set, one of its subsets). How many are there?",
+   "answer": 81,
+   "verify": "result = sum(1 for m in range(16) for s in range(16) if s & m == s)",
+   "nudges": [
+    "For one item, in how many ways can it relate to the pair: in neither, in the set only, or in both?"
+   ],
+   "showed": "$3^4$: each item is in neither, in the set only, or in both."
+  },
+  {
+   "id": "size",
+   "kind": "number",
+   "prompt": "For 20 items a table indexed by sets has how many entries?",
+   "answer": 1048576,
+   "verify": "result = 2 ** 20",
+   "nudges": [
+    "What is $2^{10}$, squared?"
+   ],
+   "showed": "About a million: fine. For 20 items, visiting every subset of every set costs $3^{20}$, about 3.5 billion: too slow. Around 15 or 16 items is the limit for that."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that for a set of $n$ items the number of pairs $(S, T)$ with $T \\subseteq S$ is $3^n$.",
+   "claims": [
+    "For each item there are exactly three possibilities compatible with T being a subset of S: in neither, in S but not T, or in both (in T but not S is excluded).",
+    "A pair (S, T) with T inside S determines one of these three states for every item, and any assignment of states to the items gives exactly one such pair.",
+    "The n items are chosen independently, so the number of pairs is 3 * 3 * ... * 3 = 3^n."
+   ],
+   "nudges": [
+    "For one item, which combinations of \"in S\" and \"in T\" are allowed?",
+    "Why can the items be decided independently?"
+   ],
+   "showed": "Three states per item, chosen independently."
+  }
+ ],
+ "reveal": {
+  "name": "Subsets as bitmasks",
+  "statement": "A subset of $n$ items is an $n$-bit number: OR is union, AND is intersection, (m >> i) & 1 tests membership. The subsets of $m$ are visited by $s \\leftarrow (s-1) \\mathbin{\\&} m$, and over all $m$ that costs $3^n$ in total.",
+  "remark": "It makes a set usable as an array index, which is what DP over subsets needs. Rough limits: $2^n$ states for $n \\le 20$ or so, $3^n$ work for $n \\le 15$."
+ }
+}

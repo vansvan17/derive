@@ -1,0 +1,158 @@
+{
+ "idea": "mirror-strategy",
+ "opening": "Some games are won without calculating anything, by making sure you always have a reply.",
+ "steps": [
+  {
+   "id": "piles",
+   "kind": "choice",
+   "prompt": "Two piles of 4 stones each. A move removes any positive number of stones from one pile; whoever takes the last stone wins. Who wins?",
+   "options": [
+    "The second player",
+    "The first player"
+   ],
+   "answer": 0,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef nim(s): return any(not nim(tuple(sorted(s[:i] + (p - k,) + s[i + 1:]))) for i, p in enumerate(s) for k in range(1, p + 1))\nresult = 1 if nim((4, 4)) else 0",
+   "nudges": [
+    "Whatever the first player takes from one pile, what can the second player do to the other?"
+   ],
+   "showed": "The second player takes the same amount from the other pile, every time."
+  },
+  {
+   "id": "legal",
+   "kind": "choice",
+   "prompt": "Why is the second player's copying move always available?",
+   "options": [
+    "After each of the second player's moves the piles are equal, so whatever the first player takes from one pile is still there to take from the other",
+    "Because the piles are small",
+    "It is not always available"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What do the two piles look like just before each of the first player's moves?"
+   ],
+   "showed": "The copy keeps the position symmetric, and in a symmetric position any move has an untouched mirror image."
+  },
+  {
+   "id": "row7",
+   "kind": "choice",
+   "prompt": "Seven coins lie in a row. A move removes one coin, or two coins that are next to each other with no gap between them. Whoever removes the last coin wins. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef w(segs):\n    nxt = []\n    for i, s in enumerate(segs):\n        for k in (1, 2):\n            for a in range(s - k + 1):\n                nxt.append(tuple(sorted(x for x in segs[:i] + (a, s - k - a) + segs[i + 1:] if x)))\n    return any(not w(n) for n in nxt)\nresult = 0 if w((7,)) else 1",
+   "nudges": [
+    "Is there a first move that leaves two identical groups of coins?"
+   ],
+   "showed": "The first player removes the middle coin, leaving two separate rows of three, and from then on copies every move in the other row."
+  },
+  {
+   "id": "row8",
+   "kind": "number",
+   "prompt": "Now eight coins in a row, same rules. How many coins should the first player remove on the first move so as to leave two identical groups?",
+   "answer": 2,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef w(segs):\n    nxt = []\n    for i, s in enumerate(segs):\n        for k in (1, 2):\n            for a in range(s - k + 1):\n                nxt.append(tuple(sorted(x for x in segs[:i] + (a, s - k - a) + segs[i + 1:] if x)))\n    return any(not w(n) for n in nxt)\nresult = next(k for k in (1, 2) if (8 - k) % 2 == 0 and not w(((8 - k) // 2, (8 - k) // 2)))",
+   "nudges": [
+    "Where is the middle of a row of eight?"
+   ],
+   "showed": "The two middle coins, leaving three and three. The first player wins every row length this way."
+  },
+  {
+   "id": "centre",
+   "kind": "choice",
+   "prompt": "In the coin rows the first player could not simply copy from the start. What had to be dealt with first?",
+   "options": [
+    "The middle, which is its own mirror image: a move there has no separate copy",
+    "The two ends of the row",
+    "Nothing; copying works immediately"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which coin would the copy of \"remove the middle coin\" be?"
+   ],
+   "showed": "A move that is its own mirror image cannot be copied. Whoever can take that part first becomes the copier."
+  },
+  {
+   "id": "dominoes",
+   "kind": "choice",
+   "prompt": "Two players take turns placing dominoes on a 4 by 4 board, each covering two neighbouring empty squares. The player who cannot place a domino loses. Who wins?",
+   "options": [
+    "The second player",
+    "The first player"
+   ],
+   "answer": 0,
+   "verify": "import functools\ndoms = [(1 << (4 * x + y)) | (1 << (4 * x + y + 1)) for x in range(4) for y in range(3)] + [(1 << (4 * x + y)) | (1 << (4 * (x + 1) + y)) for x in range(3) for y in range(4)]\n@functools.lru_cache(None)\ndef win(m): return any(not win(m | d) for d in doms if not m & d)\nresult = 1 if win(0) else 0",
+   "nudges": [
+    "Rotate the board half a turn about its centre. Can a domino ever land on itself?"
+   ],
+   "showed": "The second player answers each domino with the one obtained by a half-turn about the centre. On a 4 by 4 board no domino is its own half-turn image, so the reply is always free."
+  },
+  {
+   "id": "table",
+   "kind": "choice",
+   "prompt": "Two players take turns putting identical round coins flat on a round table, without overlapping. The player who cannot place a coin loses. How does the first player win?",
+   "options": [
+    "Put the first coin exactly in the centre, then always place the mirror image through the centre of the opponent's coin",
+    "Always place a coin touching the opponent's last coin",
+    "Place coins round the edge first"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which spot on the table is its own mirror image?"
+   ],
+   "showed": "The centre is the only self-symmetric spot. Take it, and every later move by the opponent has a free mirror image."
+  },
+  {
+   "id": "four",
+   "kind": "choice",
+   "prompt": "Back to stones: piles of 3, 3, 5 and 5, with the same rules as the first question. Who wins?",
+   "options": [
+    "The second player",
+    "The first player"
+   ],
+   "answer": 0,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef nim(s): return any(not nim(tuple(sorted(s[:i] + (p - k,) + s[i + 1:]))) for i, p in enumerate(s) for k in range(1, p + 1))\nresult = 1 if nim((3, 3, 5, 5)) else 0",
+   "nudges": [
+    "Can the piles be grouped into twins?"
+   ],
+   "showed": "Each pile has a twin; the second player copies in the twin."
+  },
+  {
+   "id": "recipe",
+   "kind": "choice",
+   "prompt": "A game position has a symmetry. What is the plan?",
+   "options": [
+    "If no move is its own mirror image, be the second player and copy; if exactly one is, play it first and then copy",
+    "Always go first",
+    "Avoid symmetric positions"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Who gets to copy in the piles game, and who in the coin rows?"
+   ],
+   "showed": "Find the symmetry, find the self-symmetric moves, and decide who ends up as the copier."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Two piles with the same number of stones; a move removes any positive number of stones from one pile; whoever takes the last stone wins. Prove that the second player wins.",
+   "claims": [
+    "The second player's strategy: whenever the first player removes k stones from one pile, remove k stones from the other.",
+    "By induction the piles are equal before each of the first player's moves; the first player's move leaves the other pile with at least k stones, so the reply is legal and makes the piles equal again.",
+    "The game ends when both piles are empty, which is a position with equal piles, so it arises right after a move of the second player: the second player took the last stone."
+   ],
+   "nudges": [
+    "What exactly does the second player do in reply to each move?",
+    "Why is that reply always possible?",
+    "After whose move can both piles be empty?"
+   ],
+   "showed": "Keep the piles equal; the empty position is an equal position."
+  }
+ ],
+ "reveal": {
+  "name": "Copy the opponent",
+  "statement": "If the position has a symmetry and you can always answer a move by its mirror image, you can never be the one without a move. If one move is its own mirror image, the player who makes it first becomes the copier.",
+  "remark": "Also called a symmetry or pairing strategy. Look for it before computing anything: equal piles, boards with a centre, rows with a middle."
+ }
+}

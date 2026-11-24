@@ -349,6 +349,31 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2234D",
+  "site": "Codeforces",
+  "contest": 2234,
+  "index": "D",
+  "title": "XOR, Expression and Two Binary Numbers",
+  "rating": 1500,
+  "url": "https://codeforces.com/contest/2234/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/154319",
+  "ideas": [
+   "xor-cancels",
+   "sum-invariant"
+  ],
+  "observations": [
+   "With A and B the two given numbers and C = A xor B, the XOR of any two of the three is the third, so every number in the sequence is A, B or C.",
+   "Which of the three sits at a position depends only on the position mod 3: the midpoint of two positions with different remainders has the third remainder, matching the third value.",
+   "So count how many of the positions 1..2^k + 1 fall in each remainder class, and multiply each count by (ones x zeros) of the corresponding number."
+  ],
+  "nudges": [
+   "Write out the sequence for k = 3 using letters for the two given numbers. How many different values appear?",
+   "Look at the positions where each value appears. What do they have in common?",
+   "If p and q have different remainders mod 3 and p + q is even, what is the remainder of their midpoint?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
   "id": "cf-2247D1",
   "site": "Codeforces",
   "contest": 2247,
@@ -447,6 +472,31 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2167G",
+  "site": "Codeforces",
+  "contest": 2167,
+  "index": "G",
+  "title": "Mukhammadali and the Smooth Array",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2167/problem/G",
+  "editorial": "https://codeforces.com/blog/entry/147869",
+  "ideas": [
+   "complement",
+   "dp-state"
+  ],
+  "observations": [
+   "A changed position can be given any value, so the only constraint is on the positions you keep: their values must be non-decreasing from left to right.",
+   "Minimising the cost of what you change is the same as maximising the total cost of what you keep.",
+   "Let best(i) be the largest kept total of a non-decreasing subsequence ending at i: c_i plus the largest best(j) over j < i with a_j <= a_i. With n up to 8000 the O(n^2) table is enough; the answer is the sum of all c minus the largest best."
+  ],
+  "nudges": [
+   "Suppose you have decided which positions stay untouched. When can the rest be filled in to make the array non-decreasing?",
+   "Is it easier to describe what you pay for, or what you keep?",
+   "What do you need to know about a kept subsequence in order to append one more element to it?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
   "id": "cf-2241E",
   "site": "Codeforces",
   "contest": 2241,
@@ -491,6 +541,154 @@
    "Which numbers up to n share no factor with any other number up to n?",
    "If several positions are all multiples of the same prime, in how many ways may you shuffle the values among them?",
    "How can you split 2..n into groups, each sharing a prime, so that as few groups as possible have size one?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2236F1",
+  "site": "Codeforces",
+  "contest": 2236,
+  "index": "F1",
+  "title": "Elections in Saransk (easy version)",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2236/problem/F1",
+  "editorial": "https://codeforces.com/blog/entry/154496",
+  "ideas": [
+   "divisor-count"
+  ],
+  "observations": [
+   "The lcm equals the product exactly when the chosen numbers are pairwise coprime, i.e. every prime divides at most one of them.",
+   "Primes do not interact. For one prime, either nobody uses it, or exactly one voter i does, with any exponent from 1 up to its exponent in a_i: that is 1 + (sum of its exponents over all a_i) ways.",
+   "Multiply that over every prime that divides some a_i, factorising with a smallest-prime-factor sieve."
+  ],
+  "nudges": [
+   "When is the least common multiple of several numbers equal to their product?",
+   "Fix one prime. In how many ways can it be handed out among the voters?",
+   "Do the choices made for two different primes restrict each other?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2241F",
+  "site": "Codeforces",
+  "contest": 2241,
+  "index": "F",
+  "title": "A Bit Odd",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2241/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/154698",
+  "ideas": [
+   "parity-invariant"
+  ],
+  "observations": [
+   "A position with no legal move is a string of equal characters, so try to win in one move: delete all the 1s (plus some 0s) or all the 0s (plus some 1s). That works exactly when some 0 has an odd number of 1s before it, or some 1 has an odd number of 0s after it.",
+   "If neither holds, the string is an optional 0, then blocks each equal to 00 or 11, then an optional 1.",
+   "In such a string, split any block between the removed part and the rest and both parts get the same character; blocks kept together add an even amount. So the removed part and the remainder have the same inversion parity: after any legal move the remainder is itself a legal move, and the opponent deletes all of it.",
+   "So the first player wins exactly when the string is not of that block form."
+  ],
+  "nudges": [
+   "What do the positions with no legal move look like, and when can you reach one in a single move?",
+   "If no single move wins, what must the string look like, read two characters at a time?",
+   "In that case, compare the parity of inversions in the part you delete with the parity in the part you leave. What does that hand your opponent?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2252D",
+  "site": "Codeforces",
+  "contest": 2252,
+  "index": "D",
+  "title": "Array Replacement",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2252/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/155741",
+  "ideas": [
+   "difference-array",
+   "parity-invariant"
+  ],
+  "observations": [
+   "Look at the differences d_i = a_(i+1) - a_i. The operation at i swaps d_(i-1) and d_i and changes nothing else.",
+   "It is allowed when a_(i-1) and a_(i+1) have the same parity, i.e. when d_(i-1) + d_i is even: the two differences have the same parity.",
+   "So a difference can never pass one of the other parity: each maximal run of same-parity differences can be sorted freely, and nothing else is reachable. Sort every run in increasing order and rebuild from a_1."
+  ],
+  "nudges": [
+   "What does the operation do to the two gaps on either side of a_i?",
+   "Restate the parity condition in terms of those two gaps.",
+   "If neighbouring gaps can be swapped only when they have the same parity, which rearrangements of the gaps are possible?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2145D",
+  "site": "Codeforces",
+  "contest": 2145,
+  "index": "D",
+  "title": "Inversion Value of a Permutation",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2145/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/147164",
+  "ideas": [
+   "complement",
+   "knapsack"
+  ],
+  "observations": [
+   "Count the opposite: segments with no inversion. A segment has no inversion exactly when it is increasing, so cut the permutation at every descent into increasing blocks.",
+   "If every pair of elements from different blocks is inverted, the inversion-free segments are exactly those inside one block: a block of length L gives L(L-1)/2 of them.",
+   "So you need block lengths summing to n with the L(L-1)/2 summing to n(n-1)/2 - k: a small table over (elements used, segments so far). Then fill the first block with the largest numbers in increasing order, the next block with the next largest, and so on."
+  ],
+  "nudges": [
+   "Which is easier to describe: a segment that contains an inversion, or one that contains none?",
+   "If the permutation is made of increasing runs, how many inversion-free segments does a run of length L contribute?",
+   "Given the run lengths, how do you place the numbers so that no segment crossing two runs is increasing?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2259F",
+  "site": "Codeforces",
+  "contest": 2259,
+  "index": "F",
+  "title": "Binary Bubble Sort Inversions",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2259/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/156457",
+  "ideas": [
+   "small-cases"
+  ],
+  "observations": [
+   "Trying small arrays shows a bubble only moves one element in effect: the first 1 ends up at the very end. A reverse bubble moves the last 0 to the very front.",
+   "Moving the first 1 to the end removes one inversion for every 0 after it: (number of 0s) minus (number of leading 0s). The reverse case removes (number of 1s) minus (number of trailing 1s).",
+   "Leading 0s and trailing 1s never matter again, so keep two pointers around the active middle part: a bubble drops its first element, a reverse bubble its last, then skip new leading 0s and trailing 1s while updating the counts."
+  ],
+  "nudges": [
+   "Run one bubble by hand on 1 1 0 1 0 0. Compare before and after: which elements have effectively moved?",
+   "When that one element moves to the end, which inversions disappear?",
+   "Which parts of the array can no longer take part in any inversion, and can you stop looking at them?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2275F",
+  "site": "Codeforces",
+  "contest": 2275,
+  "index": "F",
+  "title": "Tea Blend",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2275/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/157528",
+  "ideas": [
+   "divisor-count",
+   "xor-cancels"
+  ],
+  "observations": [
+   "The number of divisors is the product of (exponent + 1), which is odd exactly when every exponent is even: the number is a perfect square.",
+   "Only the parity of each exponent matters, and multiplying numbers XORs their sets of odd-exponent primes. So F(i, j) is a square exactly when a_i and the product of the first j elements have the same set.",
+   "Keep a map from the set (hashed) of each prefix to how often it occurs, and add up, over i, the count for the set of a_i. Sets with more than 7 primes can be ignored: no single a_i up to 10^6 has that many."
+  ],
+  "nudges": [
+   "Which numbers have an odd number of divisors?",
+   "For a product to be a perfect square, what must be true of each prime's exponent in the two factors?",
+   "What short summary of a prefix product is enough to tell whether one more factor makes it a square?"
   ],
   "checked": "2026-11-24"
  }

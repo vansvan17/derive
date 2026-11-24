@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 LINK_KINDS = ('used to prove', 'special case of', 'combines with')
-STEP_KINDS = ('number', 'list', 'choice', 'formula', 'counterexample', 'proof')
+STEP_KINDS = ('number', 'list', 'choice', 'formula', 'counterexample', 'proof', 'code')
 SITES = ('Codeforces', 'AtCoder', 'CSES')
 
 
@@ -120,7 +120,8 @@ def problems(content):
             for text in [step.get('prompt', ''), step.get('showed', '')] + step.get('nudges', []):
                 if name in text.casefold():
                     faults.append(f'{tag}: names the result before the reveal')
-            if not 1 <= len(step.get('nudges', [])) <= 3:
+            # A code step is judged by running the program; a failing small test is its nudge, so it may have none.
+            if not (0 if step.get('kind') == 'code' else 1) <= len(step.get('nudges', [])) <= 3:
                 faults.append(f'{tag}: needs one to three nudges')
             for nudge in step.get('nudges', []):
                 if not nudge.rstrip().endswith('?'):
@@ -132,6 +133,8 @@ def problems(content):
                 faults.append(f'{tag}: missing answer')
             if kind in ('number', 'list', 'formula', 'counterexample') and not step.get('verify'):
                 faults.append(f'{tag}: needs a "verify" expression so the stored answer can be recomputed')
+            if kind == 'code' and step.get('task') not in content.tasks:
+                faults.append(f'{tag}: a code step must name an existing task')
             if kind == 'formula' and not step.get('vars'):
                 faults.append(f'{tag}: formula needs variable ranges')
             if kind == 'counterexample' and not (step.get('vars') and step.get('property') and step.get('bounds')):

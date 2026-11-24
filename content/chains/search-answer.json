@@ -168,6 +168,15 @@
    ],
    "showed": "In t seconds the machines make t//3 + t//5 + t//7 products (rounded down each). That never decreases with t; find the first t reaching 100.",
    "tier": "hard"
+  },
+  {
+   "id": "c-split",
+   "kind": "code",
+   "task": "fair-split",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Halve on the limit between max(a) and sum(a), with a greedy \"how many parts are needed for this limit\" check. The bounds matter: starting below max(a) breaks the check.",
+   "tier": "hard"
   }
  ],
  "reveal": {

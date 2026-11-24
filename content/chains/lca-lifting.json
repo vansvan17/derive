@@ -161,6 +161,15 @@
    ],
    "showed": "A jump of 4 and a jump of 1. (In this particular company it is also 1000 // 32.)",
    "tier": "hard"
+  },
+  {
+   "id": "c-parents",
+   "kind": "code",
+   "task": "g-parents",
+   "prompt": "Every method on rooted trees starts from the same two arrays. Write the program that produces them.",
+   "nudges": [],
+   "showed": "Parent and depth from one traversal from the root. With these two arrays, the jump table is one more loop.",
+   "tier": "hard"
   }
  ],
  "reveal": {

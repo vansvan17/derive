@@ -1,0 +1,83 @@
+{
+ "idea": "graph-walk",
+ "opening": "Nine programs, each asking for exactly one thing, each built on the one before. Nothing is explained first: write it.",
+ "steps": [
+  {
+   "id": "adjacency",
+   "kind": "code",
+   "task": "g-adjacency",
+   "prompt": "Start with the structure everything else stands on.",
+   "nudges": [],
+   "showed": "A vector of vectors (or one flat array with offsets): each edge is pushed onto both ends. Reading 2 x 10^5 edges and printing as much needs fast input and output."
+  },
+  {
+   "id": "bfs",
+   "kind": "code",
+   "task": "g-bfs",
+   "prompt": "Now walk it outward from one vertex.",
+   "nudges": [],
+   "showed": "A queue and a distance array that doubles as the \"visited\" mark. Each vertex enters the queue once."
+  },
+  {
+   "id": "components",
+   "kind": "code",
+   "task": "g-components",
+   "prompt": "Now walk it from everywhere.",
+   "nudges": [],
+   "showed": "An outer loop over all vertices that starts a new walk from every vertex not yet marked; count the starts and the size of each walk."
+  },
+  {
+   "id": "parents",
+   "kind": "code",
+   "task": "g-parents",
+   "prompt": "A tree, given only as loose edges. Give it a top.",
+   "nudges": [],
+   "showed": "The same walk from vertex 1, remembering who you came from. In a tree \"do not go back to the parent\" is all the visited-marking you need."
+  },
+  {
+   "id": "subtree",
+   "kind": "code",
+   "task": "g-subtree",
+   "prompt": "Now compute something about what hangs below each vertex.",
+   "nudges": [],
+   "showed": "Children must be finished before their parent: recursion does that for you, or take the order of the walk from the root and go through it backwards."
+  },
+  {
+   "id": "diameter",
+   "kind": "code",
+   "task": "g-diameter",
+   "prompt": "A question about the whole tree.",
+   "nudges": [],
+   "showed": "Walk from any vertex to the farthest one, then walk again from there: the second distance is the answer. (Or, hung from a root, combine the two deepest branches at every vertex.)"
+  },
+  {
+   "id": "peel",
+   "kind": "code",
+   "task": "g-peel",
+   "prompt": "Remove the tree layer by layer from the outside.",
+   "nudges": [],
+   "showed": "Keep a count of remaining neighbours for every vertex; the vertices whose count drops to one form the next layer. Each edge is looked at once."
+  },
+  {
+   "id": "prune",
+   "kind": "code",
+   "task": "g-prune",
+   "prompt": "Cut away what is not needed.",
+   "nudges": [],
+   "showed": "One fact per vertex, \"is there a coin at or below me\", filled from the leaves upward. The kept vertices are exactly those where it is true."
+  },
+  {
+   "id": "collect",
+   "kind": "code",
+   "task": "g-collect",
+   "prompt": "And use what is left.",
+   "nudges": [],
+   "showed": "After pruning, every remaining edge is walked exactly twice, down and back up: twice the number of kept vertices other than the root."
+  }
+ ],
+ "reveal": {
+  "name": "Storing and walking a graph",
+  "statement": "Adjacency lists, one walk that marks vertices as it reaches them, and for trees a top-down order that can be replayed backwards. Distances, components, parents, depths, subtree values, peeling and pruning are all this one loop with a different line in the middle.",
+  "remark": "In C++: vector<vector<int>> adj(n + 1). For trees with up to about 10^5 vertices recursion is fine; beyond that, or in Python, use an explicit order."
+ }
+}

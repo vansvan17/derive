@@ -172,6 +172,24 @@
    ],
    "showed": "An edge with s vertices on one side is crossed by at most min(s, 10 - s) pairs: 1 + 2 + 3 + 4 + 5 + 4 + 3 + 2 + 1 = 25. Pairing each of the first five with one of the last five crosses every edge that many times.",
    "tier": "hard"
+  },
+  {
+   "id": "c-subtree",
+   "kind": "code",
+   "task": "g-subtree",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Subtree sizes are the s in s(n - s). Either a recursive walk that returns the size, or an order from the root processed backwards.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-collect",
+   "kind": "code",
+   "task": "g-collect",
+   "prompt": "And a problem that is this idea in disguise.",
+   "nudges": [],
+   "showed": "An edge must be walked (twice) exactly when the side away from the root contains a coin. So the answer is twice the number of such edges, read off from \"does this subtree contain a coin\".",
+   "tier": "hard"
   }
  ],
  "reveal": {

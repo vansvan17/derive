@@ -131,6 +131,15 @@
    ],
    "showed": "Let every i add 1 to each of its multiples; then take the maximum. Worth remembering as a size estimate: about a hundred divisors at 10^5, about 1300 at 10^9.",
    "tier": "hard"
+  },
+  {
+   "id": "c-div",
+   "kind": "code",
+   "task": "divisor-partners",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "A count array indexed by value up to the largest value present, then for each value that occurs, a loop over its multiples. Equal values need care: subtract the element itself.",
+   "tier": "hard"
   }
  ],
  "reveal": {

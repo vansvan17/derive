@@ -159,6 +159,15 @@
    ],
    "showed": "Because the best route may go up or left, there is no fixed order to fill a table in. Treat cells as vertices and settle the nearest first.",
    "tier": "hard"
+  },
+  {
+   "id": "c-bfs",
+   "kind": "code",
+   "task": "g-bfs",
+   "prompt": "First the case where every road has the same length. Write it.",
+   "nudges": [],
+   "showed": "With equal lengths a plain queue already takes vertices in order of distance: no priority queue needed. Unreached vertices keep their initial -1.",
+   "tier": "hard"
   }
  ],
  "reveal": {

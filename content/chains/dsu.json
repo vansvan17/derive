@@ -160,6 +160,15 @@
    ],
    "showed": "Same leader means already connected: count those and merge the rest.",
    "tier": "hard"
+  },
+  {
+   "id": "c-groups",
+   "kind": "code",
+   "task": "friend-groups",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "A parent array, find with path shortening written as a loop, and a counter that drops by one only when two different leaders are joined.",
+   "tier": "hard"
   }
  ],
  "reveal": {

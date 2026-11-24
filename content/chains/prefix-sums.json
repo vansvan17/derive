@@ -172,6 +172,24 @@
    ],
    "showed": "A block is divisible by 5 exactly when its two running totals have the same remainder mod 5. Count the running totals in each class and add up the pairs within each class.",
    "tier": "hard"
+  },
+  {
+   "id": "c-range",
+   "kind": "code",
+   "task": "range-sums",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "One array of running totals with an extra 0 at the front; every answer is a single subtraction. Sums can reach 2 x 10^14, so the totals need 64 bits.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-zero",
+   "kind": "code",
+   "task": "zero-stretches",
+   "prompt": "And one where the totals are looked up rather than subtracted.",
+   "nudges": [],
+   "showed": "A stretch sums to 0 when two running totals are equal: keep a map from total to how often it has occurred, starting with total 0 seen once, and add the count before inserting.",
+   "tier": "hard"
   }
  ],
  "reveal": {

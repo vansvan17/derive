@@ -171,6 +171,8 @@ class Service:
             out['vars'] = list(step['vars'])
         if step['kind'] == 'counterexample':
             out['bounds'] = step['bounds']
+        if step['kind'] == 'code':
+            out['task'] = step['task']
         if step['kind'] == 'proof':
             last = store.one("SELECT * FROM proofs WHERE scope='chain' AND owner=? AND step=? ORDER BY id DESC LIMIT 1", (idea, step['id']))
             out['proof'] = {'id': last['id'], 'text': last['text'], 'status': last['status'], 'feedback': json.loads(last['feedback'])} if last else None
@@ -188,6 +190,8 @@ class Service:
         derived = self.derived(store)
         if not self.chain_open(idea, derived) and idea not in derived:
             raise ApiError('This chain builds on something you have not derived yet.', 409)
+        self.settle_code_steps(store, idea, chain)
+        derived = self.derived(store)
         done = self.done_steps(store, idea)
         steps = []
         for step in chain['steps']:
@@ -198,7 +202,7 @@ class Service:
         ticked = set(store.get('practice_done', []))
         info = self.content.ideas[idea]
         # What skipping leads to: the hard questions if the chain has them, otherwise just its final step (the proof).
-        hard = [s['id'] for s in chain['steps'] if s.get('tier') == 'hard'] or [chain['steps'][-1]['id']]
+        hard = self.unskippable(chain)
         return {'idea': idea, 'opening': chain['opening'], 'steps': steps, 'total': len(chain['steps']), 'complete': complete,
                 'hard_total': len(hard), 'has_hard': any(s.get('tier') == 'hard' for s in chain['steps']),
                 'can_skip': any(s['id'] not in done for s in chain['steps'] if s['id'] not in hard),
@@ -206,6 +210,15 @@ class Service:
                 # Practice tasks would give the topic away, so they are listed only once the chain is finished.
                 'practice': [{**t, 'done': t['url'] in ticked} for t in self.content.practice.get(idea, [])] if complete else [],
                 'area': next(a['title'] for a in self.content.areas if a['id'] == info['area'])}
+
+    def settle_code_steps(self, store, idea, chain):
+        """A code step is finished by the judge, not by a typed answer: once its task is accepted, the step is done."""
+        while True:
+            done = self.done_steps(store, idea)
+            current = next((s for s in chain['steps'] if s['id'] not in done), None)
+            if not current or current['kind'] != 'code' or not store.one('SELECT 1 FROM tasks_done WHERE task=?', (current['task'],)):
+                return
+            self.finish_step(store, idea, chain, current, 'accepted')
 
     def current_step(self, store, idea, step_id):
         chain = self.content.chains.get(idea)
@@ -226,13 +239,19 @@ class Service:
             store.run('INSERT OR IGNORE INTO discoveries VALUES(?,?)', (idea, now()))
         return complete
 
+    @staticmethod
+    def unskippable(chain):
+        """Steps that "Skip the warm-up" never skips: the hard part (or the final step if there is none), and every step where code is written."""
+        hard = [s['id'] for s in chain['steps'] if s.get('tier') == 'hard'] or [chain['steps'][-1]['id']]
+        return hard + [s['id'] for s in chain['steps'] if s['kind'] == 'code' and s['id'] not in hard]
+
     def skip_easy(self, store, data):
         """Too easy: mark the warm-up steps as skipped and go straight to the hard questions."""
         idea = data.get('idea')
         chain = self.content.chains.get(idea) if isinstance(idea, str) else None
         if not chain:
             raise ApiError('No such chain.', 404)
-        keep = [s['id'] for s in chain['steps'] if s.get('tier') == 'hard'] or [chain['steps'][-1]['id']]
+        keep = self.unskippable(chain)
         if not self.chain_open(idea, self.derived(store)) and idea not in self.derived(store):
             raise ApiError('This chain builds on something you have not derived yet.', 409)
         for step in chain['steps']:
@@ -245,6 +264,8 @@ class Service:
         chain, step = self.current_step(store, idea, step_id)
         if step['kind'] == 'proof':
             raise ApiError('This step is a written proof.')
+        if step['kind'] == 'code':
+            raise ApiError('This step is finished by getting your program accepted.')
         raw = data.get('answer')
         raw = text(raw, 'Your answer', 2000) if isinstance(raw, str) else raw
         try:

@@ -172,6 +172,24 @@
    ],
    "showed": "l can be 1..20 and r can be 20..50: 20 x 31.",
    "tier": "hard"
+  },
+  {
+   "id": "c-paint",
+   "kind": "code",
+   "task": "painted-fence",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Two updates per job on an array one longer than the fence, then one pass of running totals. 64-bit values.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-busy",
+   "kind": "code",
+   "task": "busy-moment",
+   "prompt": "The same idea when the positions are far too large for an array.",
+   "nudges": [],
+   "showed": "Sort the 2n events (+1 at l, -1 at r + 1) and sweep. Coordinates up to 10^9 mean a sorted list of events, not an array indexed by time.",
+   "tier": "hard"
   }
  ],
  "reveal": {

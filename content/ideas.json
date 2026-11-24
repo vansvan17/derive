@@ -749,6 +749,20 @@
     "fermat",
     "crt"
    ]
+  },
+  {
+   "id": "graph-walk",
+   "area": "gr",
+   "name": "Storing and walking a graph",
+   "statement": "Keep, for every vertex, the list of its neighbours. A walk from a start vertex that marks vertices as it reaches them visits each vertex and each edge once, and gives distances, components, parents, and (processed in reverse) anything about subtrees.",
+   "needs": []
+  },
+  {
+   "id": "seen-table",
+   "area": "seq",
+   "name": "Count with a table of what you have seen",
+   "statement": "To count pairs with a relation between their two elements, go left to right and, for each element, look up how many earlier elements would complete a pair; then record the element.",
+   "needs": []
   }
  ]
 }

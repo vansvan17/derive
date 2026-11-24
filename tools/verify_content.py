@@ -35,6 +35,8 @@ def brute(code, variables=None):
 def verify_step(tag, step):
     faults = []
     kind = step['kind']
+    if kind == 'code':
+        return faults                       # judged by its task, which is checked separately
     if kind in ('number', 'list'):
         want = brute(step['verify'])
         stored = step['answer']

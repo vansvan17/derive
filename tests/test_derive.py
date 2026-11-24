@@ -380,6 +380,24 @@ class App(unittest.TestCase):
         after = self.get('/task/equal-pairs')
         self.assertEqual((after['solved'], after['tries']), (True, 3))
 
+    def test_a_code_step_in_a_chain_is_finished_only_by_the_judge(self):
+        chain = json.loads((self.root / 'content/chains/seen-table.json').read_text())
+        first_code = next(i for i, s in enumerate(chain['steps']) if s['kind'] == 'code')
+        with self.service.store() as store:
+            for step in chain['steps'][:first_code]:
+                store.run('INSERT INTO steps_done VALUES(?,?,?,?)', ('seen-table', step['id'], 'now', 'x'))
+        page = self.get('/chain/seen-table')
+        current = next(s for s in page['steps'] if not s['done'])
+        self.assertEqual((current['kind'], current['task']), ('code', 'equal-pairs'))
+        self.assertEqual(self.post('/chain/answer', {'idea': 'seen-table', 'step': current['id'], 'answer': '4'})[0], 400)   # no typed answer finishes it
+        self.judged({'id': 'equal-pairs', 'language': 'python', 'main': 'input(); print(0)\n'})
+        self.assertEqual(next(s for s in self.get('/chain/seen-table')['steps'] if not s['done'])['id'], current['id'])       # a wrong program changes nothing
+        right = 'import collections\ninput()\nprint(sum(c * (c - 1) // 2 for c in collections.Counter(input().split()).values()))\n'
+        self.assertEqual(self.judged({'id': 'equal-pairs', 'language': 'python', 'main': right})['verdict'], 'AC')
+        after = self.get('/chain/seen-table')
+        self.assertTrue(next(s for s in after['steps'] if s['id'] == current['id'])['done'])                                  # accepted, so the chain moves on
+        self.assertNotEqual(next(s for s in after['steps'] if not s['done'])['id'], current['id'])
+
     # ---- puzzles ----
     def test_puzzles_come_one_at_a_time_and_giving_up_is_not_solving(self):
         page = self.get('/puzzles?set=invariants')

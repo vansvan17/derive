@@ -159,6 +159,24 @@
    ],
    "showed": "Fix the longest stick and put fingers at both ends of the shorter ones: if the two fingers add up to more than the longest, every stick between them works with the right finger too; count them and move the right finger left; otherwise move the left finger right.",
    "tier": "hard"
+  },
+  {
+   "id": "c-calm",
+   "kind": "code",
+   "task": "calm-stretch",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "One loop for the right end, an inner while that advances the left end; the sum needs 64 bits. The inner loop runs n times in total, not per step.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-variety",
+   "kind": "code",
+   "task": "window-variety",
+   "prompt": "A fixed-width window, with something other than a sum to maintain.",
+   "nudges": [],
+   "showed": "A map from value to count inside the window, and a counter of how many values have a non-zero count: add the new element, remove the one that left.",
+   "tier": "hard"
   }
  ],
  "reveal": {

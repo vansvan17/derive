@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 
 from .store import now
 
-START_BAND = 1200
+START_BAND = 1600   # below this is theory only: chains, no problems
 TOP_BAND = 2500
 RETURN_DAYS = (3, 7, 21)     # an idea that needed help comes back after 3 days, then 7, then 21
 CAUSES = {

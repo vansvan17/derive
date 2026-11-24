@@ -33,7 +33,7 @@ def call(method):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--since', default='2025-01-01')
-    parser.add_argument('--low', type=int, default=1200)
+    parser.add_argument('--low', type=int, default=1600)
     parser.add_argument('--high', type=int, default=2500)
     parser.add_argument('--per-band', type=int, default=12, help='candidates per 100 points (more than needed, some get dropped on reading)')
     parser.add_argument('--out', default=str(ROOT / 'content' / 'candidates.json'))

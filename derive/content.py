@@ -138,8 +138,8 @@ def problems(content):
                 faults.append(f'{tag}: unknown idea {idea}')
         if not 1 <= len(problem.get('observations', [])) <= 4:
             faults.append(f'{tag}: needs one to four observations')
-        if not isinstance(problem.get('rating'), int) or not 800 <= problem['rating'] <= 3000:
-            faults.append(f'{tag}: rating must be a whole number from the source')
+        if not isinstance(problem.get('rating'), int) or not 1600 <= problem['rating'] <= 3000:
+            faults.append(f'{tag}: rating must be a whole number from the source, 1600 or above (below that is chains only)')
         for nudge in problem.get('nudges', []):
             if not nudge.rstrip().endswith('?'):
                 faults.append(f'{tag}: a nudge must be a question')

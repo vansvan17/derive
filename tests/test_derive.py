@@ -22,11 +22,11 @@ from derive.web import LocalServer, Service
 
 REPO = Path(__file__).resolve().parents[1]
 PROBLEMS = [
-    {'id': 'cf-1-a', 'site': 'Codeforces', 'url': 'https://codeforces.com/problemset/problem/1/A', 'title': 'One', 'rating': 1200, 'contest': 1, 'index': 'A',
+    {'id': 'cf-1-a', 'site': 'Codeforces', 'url': 'https://codeforces.com/problemset/problem/1/A', 'title': 'One', 'rating': 1600, 'contest': 1, 'index': 'A',
      'ideas': ['residues'], 'observations': ['Only the remainder matters.'], 'nudges': ['What repeats?'], 'editorial': None, 'checked': '2026-11-24'},
-    {'id': 'cf-2-b', 'site': 'Codeforces', 'url': 'https://codeforces.com/problemset/problem/2/B', 'title': 'Two', 'rating': 1300, 'contest': 2, 'index': 'B',
+    {'id': 'cf-2-b', 'site': 'Codeforces', 'url': 'https://codeforces.com/problemset/problem/2/B', 'title': 'Two', 'rating': 1700, 'contest': 2, 'index': 'B',
      'ideas': ['residues', 'contribution'], 'observations': ['Count each remainder.'], 'nudges': [], 'editorial': None, 'checked': '2026-11-24'},
-    {'id': 'cses-3', 'site': 'CSES', 'url': 'https://cses.fi/problemset/task/3', 'title': 'Three', 'rating': 1250,
+    {'id': 'cses-3', 'site': 'CSES', 'url': 'https://cses.fi/problemset/task/3', 'title': 'Three', 'rating': 1650,
      'ideas': ['contribution'], 'observations': ['Count per element.'], 'nudges': [], 'editorial': None, 'checked': '2026-11-24'},
 ]
 
@@ -360,11 +360,11 @@ class App(unittest.TestCase):
         course = self.service.content
         with self.service.store() as store:
             for i in range(10):
-                course.problems[f't{i}'] = {'id': f't{i}', 'rating': 1200, 'ideas': ['residues']}
+                course.problems[f't{i}'] = {'id': f't{i}', 'rating': 1600, 'ideas': ['residues']}
                 store.run('INSERT INTO attempts(problem,opened_at,solved_at,cold) VALUES(?,?,?,?)', (f't{i}', '2026-01-01', f'2026-01-02T00:00:{i:02d}', int(i < 6)))
             self.assertIsNone(evidence.raise_band(course, store))                 # six cold of ten is not enough
             store.run("UPDATE attempts SET cold=1 WHERE problem='t9'")
-            self.assertEqual(evidence.raise_band(course, store), 1300)
+            self.assertEqual(evidence.raise_band(course, store), 1700)
             self.assertEqual(evidence.band(course, store)['recent'], 0)           # the count starts again
         for i in range(10):
             del course.problems[f't{i}']

@@ -621,6 +621,59 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2134D",
+  "site": "Codeforces",
+  "contest": 2134,
+  "index": "D",
+  "title": "Sliding Tree",
+  "rating": 2300,
+  "url": "https://codeforces.com/contest/2134/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/145832",
+  "ideas": [
+   "monovariant",
+   "matching-bounds",
+   "extremal"
+  ],
+  "observations": [
+   "Watch the longest path (the diameter). One sliding operation changes the length of any path by at most 1, so the diameter grows by at most 1 per operation.",
+   "A path graph has diameter n - 1, so with diameter l at the start at least (n - 1) - l operations are needed.",
+   "That bound is reached: take a longest path, find a vertex u on it that has a neighbour v off it, and slide with b = u, c = v and a = the neighbour of u on the path towards one end. The longest path gets one longer every time.",
+   "So the answer is any such operation; if no vertex of a longest path has an off-path neighbour, the tree is already a path."
+  ],
+  "nudges": [
+   "What single number measures how far the tree is from being a path, and what is it for a path?",
+   "By how much can one operation change the length of a given path?",
+   "If you want that number to grow by exactly one, where in the tree should the operation be applied?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2159C",
+  "site": "Codeforces",
+  "contest": 2159,
+  "index": "C",
+  "title": "Twin Polynomials",
+  "rating": 2300,
+  "url": "https://codeforces.com/contest/2159/problem/C",
+  "editorial": "https://codeforces.com/blog/entry/147322",
+  "ideas": [
+   "extremal",
+   "dp-state"
+  ],
+  "observations": [
+   "Rewrite the condition: for every i, a_i equals the sum of all j with a_j = i.",
+   "Looking at the smallest positive index that misbehaves gives a contradiction, so for every i > 0 there are only three cases: a_i = 0, a_i = i, or a_i = j and a_j = i for some other j. The polynomial is a pairing of some indices, with every unpaired index choosing 0 or itself.",
+   "With nothing fixed, the count for indices 1..i satisfies D(i) = 2 D(i-1) + (i-1) D(i-2): index i is alone (two choices) or paired with one of the i - 1 others.",
+   "Fixed coefficients either contradict the three cases (answer 0) or simply remove decided indices, after which the same recurrence counts the free ones."
+  ],
+  "nudges": [
+   "Write the condition f = g coefficient by coefficient. What must a_i be, in terms of the other coefficients?",
+   "Suppose some index does not fit a simple pattern. What can you say about the smallest such index?",
+   "Once you know each index is alone or paired with exactly one other, how do you count the arrangements of i indices from smaller counts?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
   "id": "cf-2096E",
   "site": "Codeforces",
   "contest": 2096,

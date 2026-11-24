@@ -130,5 +130,137 @@
    "url": "https://cses.fi/problemset/task/1676",
    "checked": "2026-11-24"
   }
+ ],
+ "ncr-mod": [
+  {
+   "site": "CSES",
+   "title": "Creating Strings II",
+   "url": "https://cses.fi/problemset/task/1715",
+   "checked": "2026-11-26"
+  }
+ ],
+ "topo-order": [
+  {
+   "site": "CSES",
+   "title": "Course Schedule",
+   "url": "https://cses.fi/problemset/task/1679",
+   "checked": "2026-11-26"
+  },
+  {
+   "site": "CSES",
+   "title": "Longest Flight Route",
+   "url": "https://cses.fi/problemset/task/1680",
+   "checked": "2026-11-26"
+  }
+ ],
+ "shortest-paths": [
+  {
+   "site": "CSES",
+   "title": "Shortest Routes I",
+   "url": "https://cses.fi/problemset/task/1671",
+   "checked": "2026-11-26"
+  }
+ ],
+ "mst": [
+  {
+   "site": "CSES",
+   "title": "Road Reparation",
+   "url": "https://cses.fi/problemset/task/1675",
+   "checked": "2026-11-26"
+  }
+ ],
+ "fenwick": [
+  {
+   "site": "CSES",
+   "title": "Dynamic Range Sum Queries",
+   "url": "https://cses.fi/problemset/task/1648",
+   "checked": "2026-11-26"
+  }
+ ],
+ "segment-tree": [
+  {
+   "site": "CSES",
+   "title": "Dynamic Range Minimum Queries",
+   "url": "https://cses.fi/problemset/task/1649",
+   "checked": "2026-11-26"
+  }
+ ],
+ "sparse-table": [
+  {
+   "site": "CSES",
+   "title": "Static Range Minimum Queries",
+   "url": "https://cses.fi/problemset/task/1647",
+   "checked": "2026-11-26"
+  }
+ ],
+ "lca-lifting": [
+  {
+   "site": "CSES",
+   "title": "Company Queries I",
+   "url": "https://cses.fi/problemset/task/1687",
+   "checked": "2026-11-26"
+  },
+  {
+   "site": "CSES",
+   "title": "Company Queries II",
+   "url": "https://cses.fi/problemset/task/1688",
+   "checked": "2026-11-26"
+  }
+ ],
+ "string-hash": [
+  {
+   "site": "CSES",
+   "title": "String Matching",
+   "url": "https://cses.fi/problemset/task/1753",
+   "checked": "2026-11-26"
+  }
+ ],
+ "bridges": [
+  {
+   "site": "CSES",
+   "title": "Necessary Roads",
+   "url": "https://cses.fi/problemset/task/2076",
+   "checked": "2026-11-26"
+  }
+ ],
+ "masks": [
+  {
+   "site": "CSES",
+   "title": "Apple Division",
+   "url": "https://cses.fi/problemset/task/1623",
+   "checked": "2026-11-26"
+  }
+ ],
+ "linearity": [
+  {
+   "site": "CSES",
+   "title": "Inversion Probability",
+   "url": "https://cses.fi/problemset/task/1728",
+   "checked": "2026-11-26"
+  }
+ ],
+ "nim-xor": [
+  {
+   "site": "CSES",
+   "title": "Nim Game I",
+   "url": "https://cses.fi/problemset/task/1730",
+   "checked": "2026-11-26"
+  }
+ ],
+ "win-lose-states": [
+  {
+   "site": "CSES",
+   "title": "Stick Game",
+   "url": "https://cses.fi/problemset/task/1729",
+   "checked": "2026-11-26"
+  }
+ ],
+ "xor-cancels": [
+  {
+   "site": "CSES",
+   "title": "Range Xor Queries",
+   "url": "https://cses.fi/problemset/task/1650",
+   "checked": "2026-11-26"
+  }
  ]
 }

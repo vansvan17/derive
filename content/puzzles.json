@@ -1428,6 +1428,123 @@
    "answer": 36,
    "verify": "import functools\n@functools.lru_cache(None)\ndef t(cells):\n    if not cells: return 1\n    x, y = min(cells)\n    return sum(t(cells - {(x, y), n}) for n in ((x + 1, y), (x, y + 1)) if n in cells)\nresult = t(frozenset((x, y) for x in range(4) for y in range(4)))",
    "showed": "Fill the board square by square, always covering the first empty square in one of two ways, and count the completions; the state is the set of covered squares, or just the profile of the current column."
+  },
+  {
+   "id": "x-four12",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "Twelve lamps in a row, all off. A move switches four neighbouring lamps. How many different patterns can be reached, counting the starting one?",
+   "answer": 512,
+   "verify": "def reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = len(reach_set((0,) * 12, lambda s: [s[:i] + tuple(1 - v for v in s[i:i + 4]) + s[i + 4:] for i in range(9)]))",
+   "showed": "There are nine moves, their order does not matter and repeating one cancels it, so a pattern is a subset of moves. Different subsets give different patterns (look at the leftmost move in which they differ), so the count is 2 to the power 9."
+  },
+  {
+   "id": "x-ring9",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "Nine lamps in a circle, all off. A move switches three neighbouring lamps. How many different patterns can be reached, counting the starting one?",
+   "answer": 128,
+   "verify": "def reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = len(reach_set((0,) * 9, lambda s: [tuple(1 - v if (j - i) % 9 < 3 else v for j, v in enumerate(s)) for i in range(9)]))",
+   "showed": "Nine moves, but they are not independent: the three moves starting at positions 0, 3, 6 together switch every lamp once, and so do those starting at 1, 4, 7 and at 2, 5, 8. Those two coincidences halve the count twice: 2 to the power 7."
+  },
+  {
+   "id": "x-grid4",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "Sixteen lamps in a 4 by 4 grid, all off. A move switches every lamp in one row or one column. How many different patterns can be reached, counting the starting one?",
+   "answer": 128,
+   "verify": "def reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\ndef rc(s):\n    out = []\n    for k in range(4):\n        out.append(tuple(1 - v if i // 4 == k else v for i, v in enumerate(s)))\n        out.append(tuple(1 - v if i % 4 == k else v for i, v in enumerate(s)))\n    return out\nresult = len(reach_set((0,) * 16, rc))",
+   "showed": "Eight moves; using all four rows and all four columns changes nothing, and that is the only coincidence. So 2 to the power 7."
+  },
+  {
+   "id": "x-swaps4",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "The row 1 2 3 4 5. A move swaps any two entries. How many different rows can be reached in exactly four moves?",
+   "answer": 60,
+   "verify": "import itertools\ncur = {(1, 2, 3, 4, 5)}\nfor _ in range(4):\n    cur = {p[:i] + (p[j],) + p[i + 1:j] + (p[i],) + p[j + 1:] for p in cur for i, j in itertools.combinations(range(5), 2)}\nresult = len(cur)",
+   "showed": "Four swaps always give an even arrangement, so at most half of the 120. And every even arrangement needs 0, 2 or 4 swaps, which can be padded to exactly four by swapping the same pair twice."
+  },
+  {
+   "id": "x-coprime",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "Start from the pair (1, 1). A move replaces (a, b) by (a + b, b) or by (a, a + b). How many pairs with both numbers at most 20 can be reached?",
+   "answer": 255,
+   "verify": "def reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = len(reach_set((1, 1), lambda s: [t for t in ((s[0] + s[1], s[1]), (s[0], s[0] + s[1])) if max(t) <= 20]))",
+   "showed": "The gcd never changes, so only pairs with gcd 1 are possible; and every such pair is reached, by running the subtraction process backwards from it to (1, 1). So this counts the ordered pairs up to 20 with no common factor."
+  },
+  {
+   "id": "x-pow2",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "A move removes 1, 2, 4, 8, ... (any power of two) stones from a pile; a player who cannot move loses. For how many pile sizes from 1 to 100 does the player to move lose?",
+   "answer": 33,
+   "verify": "import functools, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nw = solver(lambda n: tuple(n - (1 << k) for k in range(8) if (1 << k) <= n))\nresult = sum(1 for n in range(1, 101) if not w(n))",
+   "showed": "No power of two is a multiple of 3, so from a multiple of 3 every move leaves a non-multiple; and from a non-multiple you can remove 1 or 2 to reach a multiple. The losing piles are the multiples of 3."
+  },
+  {
+   "id": "x-squares",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "A move removes a perfect square number of stones (1, 4, 9, ...) from a pile; a player who cannot move loses. For how many pile sizes from 1 to 100 does the player to move lose?",
+   "answer": 20,
+   "verify": "import functools, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nw = solver(lambda n: tuple(n - k * k for k in range(1, 11) if k * k <= n))\nresult = sum(1 for n in range(1, 101) if not w(n))",
+   "showed": "There is no formula here. Label the piles one by one from 0: a pile loses if every square you can remove leads to a winning pile. The losing piles begin 2, 5, 7, 10, 12, 15, 17, 20, 22, 34, ..."
+  },
+  {
+   "id": "x-xor3",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "How many ordered triples (a, b, c) of numbers from 0 to 7 have a XOR b XOR c = 0?",
+   "answer": 64,
+   "verify": "result = sum(1 for a in range(8) for b in range(8) for c in range(8) if a ^ b ^ c == 0)",
+   "showed": "Choose a and b freely; c is then forced to be a XOR b, which is again between 0 and 7."
+  },
+  {
+   "id": "x-prefix",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "For how many n from 1 to 1000 is 1 XOR 2 XOR ... XOR n equal to 0?",
+   "answer": 250,
+   "verify": "import itertools, operator\nresult = sum(1 for v in itertools.accumulate(range(1, 1001), operator.xor) if v == 0)",
+   "showed": "The running XOR is n, 1, n + 1, 0 as n mod 4 is 0, 1, 2, 3. So it is 0 exactly when n is 3 mod 4."
+  },
+  {
+   "id": "x-ones",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "Write the numbers 1 to 1000 in binary. How many digits 1 are written in total?",
+   "answer": 4938,
+   "verify": "result = sum(bin(i).count('1') for i in range(1, 1001))",
+   "showed": "Count place by place. In the place worth 2^k the digits run in blocks of 2^k zeros then 2^k ones; count the complete blocks up to 1000 and the leftover part, and add over the ten places."
+  },
+  {
+   "id": "x-onebit",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "How many pairs a < b of numbers from 0 to 31 differ in exactly one binary digit?",
+   "answer": 80,
+   "verify": "result = sum(1 for a in range(32) for b in range(a + 1, 32) if bin(a ^ b).count('1') == 1)",
+   "showed": "Each of the 32 numbers has 5 neighbours (flip one of its five digits), and each pair is counted from both ends: 32 x 5 / 2."
+  },
+  {
+   "id": "x-chips9",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "Nine chips sit on the point 0 of a number line. A move picks a point with at least two chips and sends one chip one step left and one chip one step right. How many moves are made before the process stops?",
+   "answer": 30,
+   "verify": "c, moves = {0: 9}, 0\nwhile True:\n    p = next((k for k, v in c.items() if v >= 2), None)\n    if p is None: break\n    c[p] -= 2; c[p - 1] = c.get(p - 1, 0) + 1; c[p + 1] = c.get(p + 1, 0) + 1; moves += 1\nresult = moves",
+   "showed": "The sum of the squares of the chip positions grows by exactly 2 with every move. The final position is one chip on each of -4, ..., 4, with sum of squares 60, so 30 moves."
+  },
+  {
+   "id": "x-inv4",
+   "set": "hard",
+   "kind": "number",
+   "prompt": "How many orders of the numbers 1 to 5 have exactly four pairs that are out of order?",
+   "answer": 20,
+   "verify": "import itertools\nresult = sum(1 for p in itertools.permutations(range(5)) if sum(1 for i in range(5) for j in range(i + 1, 5) if p[i] > p[j]) == 4)",
+   "showed": "Build the table by size: inserting the largest number into an order of k - 1 numbers adds between 0 and k - 1 out-of-order pairs. Row by row: 1; 1 1; 1 2 2 1; 1 3 5 6 5 3 1; and for five numbers the entry for four pairs."
   }
  ]
 }

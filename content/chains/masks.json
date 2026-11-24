@@ -152,7 +152,7 @@
     "What must each group add up to?",
     "With only 12 numbers, how many subsets are there to try?"
    ],
-   "showed": "The total is 78, so each group sums to 39. Going through all 4096 subsets as bitmasks finds 124 with sum 39; each split is counted twice.",
+   "showed": "The total is 78, so each group sums to 39. Going through all 4096 subsets, each recorded as a 12-bit number, finds 124 with sum 39; each split is counted twice.",
    "tier": "hard"
   },
   {

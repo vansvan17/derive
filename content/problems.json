@@ -613,7 +613,7 @@
   ],
   "nudges": [
    "What does the operation do to the two gaps on either side of a_i?",
-   "Restate the parity condition in terms of those two gaps.",
+   "What does the parity condition say about those two gaps?",
    "If neighbouring gaps can be swapped only when they have the same parity, which rearrangements of the gaps are possible?"
   ],
   "checked": "2026-11-24"

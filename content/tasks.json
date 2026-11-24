@@ -724,5 +724,91 @@
    ]
   ],
   "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    if size == 'small': return f\"{rng.randint(1, 400)} {rng.randint(1, 20)}\\n\"\n    N = rng.randint(1, 10 ** 18) if rng.random() < 0.7 else rng.choice([10 ** 18, 999999999999999999, 10 ** 17 + 1])\n    return f\"{N} {rng.randint(1, 162 if rng.random() < 0.3 else 90)}\\n\"\ndef solve(text):\n    import functools\n    N, S = ints(text); digits = list(map(int, str(N)))\n    @functools.lru_cache(None)\n    def free(k, s):\n        if s < 0: return 0\n        if k == 0: return 1 if s == 0 else 0\n        return sum(free(k - 1, s - d) for d in range(10))\n    total, used = 0, 0\n    for i, d in enumerate(digits):\n        for x in range(d): total += free(len(digits) - i - 1, S - used - x)\n        used += d\n    if used == S: total += 1\n    return str(total)\ndef brute(text):\n    N, S = ints(text)\n    return str(sum(1 for x in range(1, N + 1) if sum(map(int, str(x))) == S))\n"
+ },
+ {
+  "id": "assign-jobs",
+  "title": "Jobs for everyone",
+  "track": "toolbox",
+  "statement": "$n$ people and $n$ jobs. Person $i$ doing job $j$ costs $c_{ij}$. Give every person exactly one job and every job to exactly one person so that the total cost is as small as possible. Print that cost.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 16$). Each of the next $n$ lines contains $n$ costs, each between 1 and $10^6$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3\n4 2 8\n4 3 7\n3 1 6\n",
+    "12"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 5), 'medium': 10, 'large': 16}[size]; top = 9 if size == 'small' else 10 ** 6\n    return f\"{n}\\n\" + ''.join(' '.join(str(rng.randint(1, top)) for _ in range(n)) + '\\n' for _ in range(n))\ndef solve(text):\n    v = ints(text); n = v[0]; c = [v[1 + i * n:1 + (i + 1) * n] for i in range(n)]\n    INF = 10 ** 18; best = [INF] * (1 << n); best[0] = 0\n    for mask in range(1 << n):\n        b = best[mask]\n        if b == INF: continue\n        row = c[bin(mask).count('1')] if mask != (1 << n) - 1 else None\n        if row is None: continue\n        for j in range(n):\n            if not mask >> j & 1:\n                w = b + row[j]\n                if w < best[mask | 1 << j]: best[mask | 1 << j] = w\n    return str(best[-1])\ndef brute(text):\n    import itertools\n    v = ints(text); n = v[0]; c = [v[1 + i * n:1 + (i + 1) * n] for i in range(n)]\n    return str(min(sum(c[i][p[i]] for i in range(n)) for p in itertools.permutations(range(n))))\n"
+ },
+ {
+  "id": "merge-piles",
+  "title": "Merging piles",
+  "track": "toolbox",
+  "statement": "$n$ piles of stones stand in a row. In one step you merge two neighbouring piles into one; the step costs the number of stones in the merged pile. Continue until one pile is left. Print the smallest possible total cost.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 200$). The second line contains the $n$ pile sizes, each between 1 and $10^6$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "4\n1 2 3 4\n",
+    "19"
+   ],
+   [
+    "1\n5\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 60, 'large': 200}[size]\n    return f\"{n}\\n{' '.join(str(rng.randint(1, 9 if size == 'small' else 10 ** 6)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); n = v[0]; a = v[1:]; pre = [0]\n    for x in a: pre.append(pre[-1] + x)\n    dp = [[0] * n for _ in range(n)]\n    for length in range(2, n + 1):\n        for l in range(n - length + 1):\n            r = l + length - 1; row = dp[l]\n            dp[l][r] = min(row[k] + dp[k + 1][r] for k in range(l, r)) + pre[r + 1] - pre[l]\n    return str(dp[0][n - 1])\ndef brute(text):\n    import functools\n    v = ints(text); a = tuple(v[1:])\n    @functools.lru_cache(None)\n    def f(t):\n        if len(t) == 1: return 0\n        return min(t[i] + t[i + 1] + f(t[:i] + (t[i] + t[i + 1],) + t[i + 2:]) for i in range(len(t) - 1))\n    return str(f(a))\n"
+ },
+ {
+  "id": "borders",
+  "title": "Prefixes that are suffixes",
+  "track": "toolbox",
+  "statement": "You are given a string of lowercase letters. Print every length $k$, with $1 \\le k < n$, for which the first $k$ letters of the string equal its last $k$ letters, in increasing order. If there is no such length, print an empty line.\n\n**Input.** One line: the string, of length $n$ between 1 and $5 \\cdot 10^5$.\n\n**Output.** The lengths on one line.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "abacaba\n",
+    "1 3"
+   ],
+   [
+    "abc\n",
+    ""
+   ],
+   [
+    "aaaa\n",
+    "1 2 3"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': 3000, 'large': 500000}[size]; kind = rng.choice(['same', 'period', 'random'])\n    if kind == 'same': return 'a' * n + '\\n' if size != 'large' else ('ab' * (n // 2 + 1))[:n] + '\\n'\n    if kind == 'period':\n        b = ''.join(rng.choice('ab') for _ in range(rng.randint(1, 6))); return (b * (n // len(b) + 1))[:n] + '\\n'\n    return ''.join(rng.choice('ab') for _ in range(n)) + '\\n'\ndef solve(text):\n    s = text.strip(); n = len(s); pi = [0] * n; k = 0\n    for i in range(1, n):\n        while k and s[i] != s[k]: k = pi[k - 1]\n        if s[i] == s[k]: k += 1\n        pi[i] = k\n    out = []; k = pi[-1] if n else 0\n    while k: out.append(k); k = pi[k - 1]\n    return ' '.join(map(str, reversed(out)))\ndef brute(text):\n    s = text.strip(); n = len(s)\n    return ' '.join(str(k) for k in range(1, n) if s[:k] == s[n - k:])\n"
+ },
+ {
+  "id": "all-distances",
+  "title": "Distances from everywhere",
+  "track": "toolbox",
+  "statement": "A tree has $n$ vertices. For each vertex, print the sum of its distances (in edges) to all the other vertices.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** $n$ numbers on one line.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5\n1 2\n1 3\n3 4\n3 5\n",
+    "6 9 5 8 8"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 2000, 'large': 100000}[size]; shape = rng.choice(['random', 'path', 'star', 'deep'])\n    label = list(range(1, n + 1)); rng.shuffle(label); E = []\n    for i in range(1, n):\n        p = i - 1 if shape == 'path' else 0 if shape == 'star' else rng.randint(max(0, i - 3), i - 1) if shape == 'deep' else rng.randint(0, i - 1)\n        E.append((label[p], label[i]))\n    rng.shuffle(E)\n    return f\"{n}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in E)\ndef solve(text):\n    v = ints(text); n = v[0]; adj = [[] for _ in range(n + 1)]\n    for i in range(n - 1): a, b = v[1 + 2 * i], v[2 + 2 * i]; adj[a].append(b); adj[b].append(a)\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for x in order:\n        for u in adj[x]:\n            if u != par[x]: par[u] = x; order.append(u)\n    size_ = [1] * (n + 1); down = [0] * (n + 1)\n    for x in reversed(order[1:]):\n        p = par[x]; size_[p] += size_[x]; down[p] += down[x] + size_[x]\n    ans = [0] * (n + 1); ans[1] = down[1]\n    for x in order[1:]: ans[x] = ans[par[x]] - size_[x] + (n - size_[x])\n    return ' '.join(map(str, ans[1:]))\ndef brute(text):\n    v = ints(text); n = v[0]; adj = [[] for _ in range(n + 1)]\n    for i in range(n - 1): a, b = v[1 + 2 * i], v[2 + 2 * i]; adj[a].append(b); adj[b].append(a)\n    out = []\n    for s in range(1, n + 1):\n        d = {s: 0}; q = [s]\n        for x in q:\n            for u in adj[x]:\n                if u not in d: d[u] = d[x] + 1; q.append(u)\n        out.append(sum(d.values()))\n    return ' '.join(map(str, out))\n"
+ },
+ {
+  "id": "break-walls",
+  "title": "Through the walls",
+  "track": "toolbox",
+  "statement": "A grid of $n$ rows and $m$ columns; each cell is free (`.`) or a wall (`#`). You start in the top-left cell and move up, down, left or right. Stepping onto a wall cell breaks it. Print the smallest number of walls you must break to reach the bottom-right cell. The start and finish cells are free.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n, m \\le 500$). Each of the next $n$ lines contains $m$ characters.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3 4\n.#..\n.##.\n##..\n",
+    "1"
+   ],
+   [
+    "1 1\n.\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 4), 'medium': 60, 'large': 500}[size]; m = {'small': rng.randint(1, 4), 'medium': 60, 'large': 500}[size]\n    p = rng.choice([0.2, 0.5, 0.8])\n    g = [['#' if rng.random() < p else '.' for _ in range(m)] for _ in range(n)]\n    g[0][0] = '.'; g[n - 1][m - 1] = '.'\n    return f\"{n} {m}\\n\" + ''.join(''.join(r) + '\\n' for r in g)\ndef solve(text):\n    from collections import deque\n    parts = text.split(); n, m = int(parts[0]), int(parts[1]); g = parts[2:]\n    INF = 10 ** 9; d = [[INF] * m for _ in range(n)]; d[0][0] = 0; dq = deque([(0, 0)])\n    while dq:\n        x, y = dq.popleft(); cur = d[x][y]\n        for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):\n            if 0 <= nx < n and 0 <= ny < m:\n                w = cur + (1 if g[nx][ny] == '#' else 0)\n                if w < d[nx][ny]:\n                    d[nx][ny] = w\n                    if g[nx][ny] == '#': dq.append((nx, ny))\n                    else: dq.appendleft((nx, ny))\n    return str(d[n - 1][m - 1])\ndef brute(text):\n    parts = text.split(); n, m = int(parts[0]), int(parts[1]); g = parts[2:]\n    INF = 10 ** 9; d = [[INF] * m for _ in range(n)]; d[0][0] = 0; changed = True\n    while changed:\n        changed = False\n        for x in range(n):\n            for y in range(m):\n                for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):\n                    if 0 <= nx < n and 0 <= ny < m and d[x][y] + (g[nx][ny] == '#') < d[nx][ny]:\n                        d[nx][ny] = d[x][y] + (g[nx][ny] == '#'); changed = True\n    return str(d[n - 1][m - 1])\n"
  }
 ]

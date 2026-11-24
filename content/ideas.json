@@ -39,6 +39,10 @@
   {
    "id": "bit",
    "title": "Bits"
+  },
+  {
+   "id": "alg",
+   "title": "Standard machinery"
   }
  ],
  "ideas": [
@@ -478,6 +482,111 @@
    "name": "Pairs that cannot both survive",
    "statement": "Find pairs of objects of which exactly one can be taken whatever you do; the problem then splits into one small choice per pair.",
    "needs": []
+  },
+  {
+   "id": "fast-power",
+   "area": "alg",
+   "name": "Fast exponentiation",
+   "statement": "a^e needs only about 2 log2(e) multiplications: square repeatedly and multiply the powers picked out by the binary digits of e.",
+   "needs": [
+    "residues"
+   ]
+  },
+  {
+   "id": "sieve",
+   "area": "alg",
+   "name": "Sieve of smallest prime factors",
+   "statement": "Marking the multiples of each prime up to n gives every number its smallest prime factor, so any number up to n factorises in O(log n).",
+   "needs": [
+    "harmonic-multiples"
+   ]
+  },
+  {
+   "id": "ncr-mod",
+   "area": "alg",
+   "name": "Binomials modulo a prime",
+   "statement": "With factorials and inverse factorials precomputed mod p, C(n, k) = n! * inv(k!) * inv((n-k)!) in O(1).",
+   "needs": [
+    "mod-inverse",
+    "fast-power"
+   ]
+  },
+  {
+   "id": "dsu",
+   "area": "alg",
+   "name": "Disjoint set union",
+   "statement": "Keep each group as a tree of parent pointers; merge the smaller tree under the larger and shorten paths as you walk them, and each operation is almost constant time.",
+   "needs": []
+  },
+  {
+   "id": "mst",
+   "area": "alg",
+   "name": "Minimum spanning tree by sorted edges",
+   "statement": "Take edges from cheapest to dearest, keeping an edge exactly when it joins two different groups; a swap argument shows nothing cheaper exists.",
+   "needs": [
+    "dsu",
+    "exchange"
+   ]
+  },
+  {
+   "id": "topo-order",
+   "area": "alg",
+   "name": "Topological order",
+   "statement": "Repeatedly remove a vertex with no incoming edges; if you get stuck there is a cycle, otherwise the removal order respects every edge.",
+   "needs": []
+  },
+  {
+   "id": "shortest-paths",
+   "area": "alg",
+   "name": "Shortest paths by settling the nearest",
+   "statement": "With non-negative lengths, the unsettled vertex with the smallest tentative distance already has its true distance.",
+   "needs": [
+    "extremal"
+   ]
+  },
+  {
+   "id": "fenwick",
+   "area": "alg",
+   "name": "Fenwick tree",
+   "statement": "Store sums of blocks whose lengths are the lowest set bit of the index; a prefix sum and a point update each touch O(log n) blocks.",
+   "needs": [
+    "prefix-sums"
+   ]
+  },
+  {
+   "id": "segment-tree",
+   "area": "alg",
+   "name": "Segment tree",
+   "statement": "Store an answer for each of 2n - 1 halving blocks; any range splits into O(log n) of them and a point change touches O(log n).",
+   "needs": [
+    "prefix-sums"
+   ]
+  },
+  {
+   "id": "sparse-table",
+   "area": "alg",
+   "name": "Sparse table",
+   "statement": "Precompute the answer for every block of length 2^k; when overlap is harmless (min, max, gcd) any range is two blocks.",
+   "needs": []
+  },
+  {
+   "id": "lca-lifting",
+   "area": "alg",
+   "name": "Lowest common ancestor by doubling",
+   "statement": "Store the 2^k-th ancestor of every vertex; lift the deeper vertex, then lift both together from the largest jump down.",
+   "needs": [
+    "fast-power"
+   ]
+  },
+  {
+   "id": "string-hash",
+   "area": "alg",
+   "name": "Polynomial hashing",
+   "statement": "Treat a string as a number in base b modulo p; the hash of any substring comes from two prefix hashes, so equal substrings can be compared in O(1).",
+   "needs": [
+    "residues",
+    "prefix-sums"
+   ]
   }
  ]
 }

@@ -108,5 +108,27 @@
    "url": "https://cses.fi/problemset/task/1158",
    "checked": "2026-11-24"
   }
+ ],
+ "fast-power": [
+  {
+   "site": "CSES",
+   "title": "Exponentiation",
+   "url": "https://cses.fi/problemset/task/1095",
+   "checked": "2026-11-24"
+  }
+ ],
+ "dsu": [
+  {
+   "site": "CSES",
+   "title": "Building Roads",
+   "url": "https://cses.fi/problemset/task/1666",
+   "checked": "2026-11-24"
+  },
+  {
+   "site": "CSES",
+   "title": "Road Construction",
+   "url": "https://cses.fi/problemset/task/1676",
+   "checked": "2026-11-24"
+  }
  ]
 }

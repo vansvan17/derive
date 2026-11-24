@@ -1,0 +1,133 @@
+{
+ "idea": "dsu",
+ "opening": "People become friends one pair at a time, and you keep being asked who is in the same circle.",
+ "steps": [
+  {
+   "id": "groups",
+   "kind": "number",
+   "prompt": "Six people, numbered 1 to 6. Friendships form: 1 with 2, 3 with 4, 2 with 3, 5 with 6. Friends of friends are in the same circle. How many circles are there?",
+   "answer": 2,
+   "verify": "g = {i: {i} for i in range(1, 7)}\nfor a, b in [(1, 2), (3, 4), (2, 3), (5, 6)]:\n    m = g[a] | g[b]\n    for x in m: g[x] = m\nresult = len({frozenset(s) for s in g.values()})",
+   "nudges": [
+    "Which circle is person 4 in after the third friendship?"
+   ],
+   "showed": "{1, 2, 3, 4} and {5, 6}."
+  },
+  {
+   "id": "pointer",
+   "kind": "number",
+   "prompt": "Give every circle a leader, and let every person hold a pointer towards their leader (the leader points to nobody). Circle {1, 2} has leader 1 and circle {3, 4} has leader 3. To join the two circles, what is the smallest number of pointers you must change?",
+   "answer": 1,
+   "verify": "result = 1",
+   "nudges": [
+    "Does person 4 need to know about the change at all, if 4 can ask 3?"
+   ],
+   "showed": "Point leader 3 at leader 1. Person 4 still points to 3, and reaches 1 by following two pointers."
+  },
+  {
+   "id": "chain",
+   "kind": "number",
+   "prompt": "Careless merging can produce this: 1 points to 2, 2 to 3, 3 to 4, and so on up to 7 pointing to 8, the leader. How many pointers do you follow to find the leader of person 1?",
+   "answer": 7,
+   "verify": "parent = {i: i + 1 for i in range(1, 8)}\nx, n = 1, 0\nwhile x in parent: x, n = parent[x], n + 1\nresult = n",
+   "nudges": [
+    "How many arrows lie between 1 and 8?"
+   ],
+   "showed": "A circle of $n$ people can cost $n - 1$ steps per question."
+  },
+  {
+   "id": "smaller",
+   "kind": "choice",
+   "prompt": "When two circles are joined, which leader should be pointed at which, to keep the walks short?",
+   "options": [
+    "The leader of the smaller circle points to the leader of the larger",
+    "The leader of the larger circle points to the leader of the smaller",
+    "It makes no difference"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Whose walk gets one step longer when a leader is re-pointed, and how many such people are there in each case?"
+   ],
+   "showed": "Only the people in the re-pointed circle walk one step further, so make that the smaller circle."
+  },
+  {
+   "id": "depth",
+   "kind": "number",
+   "prompt": "With that rule, your walk gets one step longer only when your circle is the smaller one in a merge, so your circle at least doubles. Among 1,000,000 people, what is the largest number of steps anyone can ever need?",
+   "answer": 19,
+   "verify": "result = (10 ** 6).bit_length() - 1",
+   "nudges": [
+    "How many times can a circle double before it would exceed a million people?"
+   ],
+   "showed": "$2^{19} \\le 10^6 < 2^{20}$: nineteen doublings at most."
+  },
+  {
+   "id": "shortcut",
+   "kind": "number",
+   "prompt": "Back to the chain 1, 2, ..., 8. You look up the leader of person 1, and on the way back you re-point every person you passed directly to the leader. How many pointers does the next look-up for person 1 follow?",
+   "answer": 1,
+   "verify": "result = 1",
+   "nudges": [
+    "Where does person 1 point after the re-pointing?"
+   ],
+   "showed": "One. A walk you have paid for once never has to be paid for again."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "Ten people and the friendships 1-2, 2-3, 4-5, 6-7, 7-8, 8-6, 1-3, 5-4. How many circles?",
+   "answer": 5,
+   "verify": "parent = list(range(11))\ndef find(x):\n    while parent[x] != x: x = parent[x]\n    return x\nfor a, b in [(1, 2), (2, 3), (4, 5), (6, 7), (7, 8), (8, 6), (1, 3), (5, 4)]:\n    parent[find(a)] = find(b)\nresult = len({find(i) for i in range(1, 11)})",
+   "nudges": [
+    "Start with ten circles. Which friendships actually join two different circles?"
+   ],
+   "showed": "Ten circles to begin with, and exactly five of the friendships joined two different ones."
+  },
+  {
+   "id": "cycle",
+   "kind": "choice",
+   "prompt": "A new friendship between $u$ and $v$ arrives, and $u$ and $v$ already have the same leader. What does that tell you?",
+   "options": [
+    "They were already connected, so in the friendship graph this edge closes a cycle",
+    "One of them is the leader",
+    "The structure is broken"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Before this edge, was there already a path of friendships from $u$ to $v$?"
+   ],
+   "showed": "Same leader means a path already existed; the new edge is a second route."
+  },
+  {
+   "id": "cycles",
+   "kind": "number",
+   "prompt": "Five people. Friendships arrive in this order: 1-2, 2-3, 3-1, 3-4, 4-2, 5-1. How many of them close a cycle?",
+   "answer": 2,
+   "verify": "parent = list(range(6))\ndef find(x):\n    while parent[x] != x: x = parent[x]\n    return x\nn = 0\nfor a, b in [(1, 2), (2, 3), (3, 1), (3, 4), (4, 2), (5, 1)]:\n    if find(a) == find(b): n += 1\n    else: parent[find(a)] = find(b)\nresult = n",
+   "nudges": [
+    "For each friendship, were the two people already in the same circle?"
+   ],
+   "showed": "3-1 and 4-2. The other four each joined two circles: five people, four joining edges."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Circles are kept as pointer trees, and a merge always points the leader of the smaller circle (ties either way) at the leader of the larger. Prove that among $n$ people nobody is ever more than $\\log_2 n$ pointers away from their leader.",
+   "claims": [
+    "A person's distance to their leader grows (by exactly one) only when the leader of their own circle is pointed at another leader, which happens only when their circle is the smaller or equal one in a merge.",
+    "In that case the merged circle has at least twice as many people as the circle the person was in before.",
+    "A circle never has more than n people, so the size of a person's circle can double at most log2(n) times; hence the distance is at most log2(n)."
+   ],
+   "nudges": [
+    "In which merges does your own walk to the leader get longer?",
+    "What happens to the size of your circle in exactly those merges?"
+   ],
+   "showed": "Every extra step is paid for by a doubling, and there is only room for $\\log_2 n$ doublings."
+  }
+ ],
+ "reveal": {
+  "name": "Disjoint set union",
+  "statement": "Each set is a tree of parent pointers with its leader at the root. find follows pointers to the root; union points the root of the smaller tree at the root of the larger. Depth stays at most $\\log_2 n$, and re-pointing visited nodes to the root makes operations almost constant time.",
+  "remark": "Also called union-find. Use it whenever things only ever merge: connectivity as edges arrive, detecting cycles, sorting edges for a spanning tree, or deletions handled in reverse."
+ }
+}

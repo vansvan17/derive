@@ -292,5 +292,29 @@
   "to": "necessary-sufficient",
   "kind": "special case of",
   "note": "The pairs are the obstruction; choosing freely inside each pair is the construction."
+ },
+ {
+  "from": "fast-power",
+  "to": "fermat",
+  "kind": "combines with",
+  "note": "The inverse a^(p-2) is only usable because the power can be computed in about 60 multiplications."
+ },
+ {
+  "from": "dsu",
+  "to": "reverse-time",
+  "kind": "combines with",
+  "note": "Groups can be merged but not split, so deletions are handled by running time backwards."
+ },
+ {
+  "from": "fenwick",
+  "to": "difference-array",
+  "kind": "combines with",
+  "note": "Point updates on the jumps plus prefix sums of them give range updates with point queries."
+ },
+ {
+  "from": "sieve",
+  "to": "divisor-count",
+  "kind": "used to prove",
+  "note": "The exponents needed for the divisor formula come from repeatedly dividing by the smallest prime factor."
  }
 ]

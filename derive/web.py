@@ -222,7 +222,7 @@ class Service:
             correct, message = check(step, raw)
         except CheckError as exc:
             # Unreadable input is not counted as a wrong attempt.
-            raise ApiError(str(exc)) from exc
+            return {'correct': False, 'unreadable': True, 'message': str(exc)}
         store.run('INSERT INTO step_attempts(at,idea,step,answer,correct) VALUES(?,?,?,?,?)', (now(), idea, step_id, str(raw)[:2000], int(correct)))
         if not correct:
             return {'correct': False, 'message': message}

@@ -20,7 +20,11 @@ MAX_EXPONENT = 200
 
 
 class CheckError(ValueError):
-    """The answer could not be read; the message is shown to the learner."""
+    """The answer could not be used; the message is shown to the learner."""
+
+
+class Unreadable(CheckError):
+    """The text is not arithmetic at all (as opposed to arithmetic that breaks at some value)."""
 
 
 def _is_prime(n):
@@ -83,11 +87,11 @@ def _evaluate(node, names, logic):
             return node.value
         if isinstance(node.value, int) and not isinstance(node.value, bool):
             return node.value
-        raise CheckError('Use whole numbers only.')
+        raise Unreadable('Use whole numbers only.')
     if isinstance(node, ast.Name):
         if node.id in names:
             return names[node.id]
-        raise CheckError(f'"{node.id}" is not a quantity in this question.')
+        raise Unreadable(f'"{node.id}" is not a quantity in this question.')
     if isinstance(node, ast.UnaryOp):
         value = _evaluate(node.operand, names, logic)
         if isinstance(node.op, ast.USub):
@@ -96,7 +100,7 @@ def _evaluate(node, names, logic):
             return value
         if isinstance(node.op, ast.Not) and logic:
             return not value
-        raise CheckError('That operator is not understood.')
+        raise Unreadable('That operator is not understood.')
     if isinstance(node, ast.BinOp):
         a, b = _evaluate(node.left, names, logic), _evaluate(node.right, names, logic)
         op = node.op
@@ -116,10 +120,10 @@ def _evaluate(node, names, logic):
             if isinstance(op, ast.FloorDiv):
                 return math.floor(Fraction(a) / Fraction(b))
             return a % b
-        raise CheckError('That operator is not understood.')
+        raise Unreadable('That operator is not understood.')
     if isinstance(node, ast.Call):
         if not isinstance(node.func, ast.Name) or node.func.id not in FUNCTIONS or node.keywords:
-            raise CheckError('That function is not understood. Available: gcd, lcm, min, max, abs, C(n,k), fact, floor, ceil.')
+            raise Unreadable('That function is not understood. Available: gcd, lcm, min, max, abs, C(n,k), fact, floor, ceil.')
         args = [_evaluate(a, names, logic) for a in node.args]
         try:
             return _guard(FUNCTIONS[node.func.id](*args))
@@ -134,7 +138,7 @@ def _evaluate(node, names, logic):
             ok = {ast.Eq: left == right, ast.NotEq: left != right, ast.Lt: left < right, ast.LtE: left <= right,
                   ast.Gt: left > right, ast.GtE: left >= right}.get(type(op))
             if ok is None:
-                raise CheckError('That comparison is not understood.')
+                raise Unreadable('That comparison is not understood.')
             if not ok:
                 return False
             left = right
@@ -142,14 +146,14 @@ def _evaluate(node, names, logic):
     if logic and isinstance(node, ast.BoolOp):
         values = [_evaluate(v, names, logic) for v in node.values]
         return all(values) if isinstance(node.op, ast.And) else any(values)
-    raise CheckError('That is not arithmetic this page can read.')
+    raise Unreadable('That is not arithmetic this page can read.')
 
 
 def _prepare(text):
     """Accept the way people write maths: ^ for powers, 2n and n(n+1) for products."""
     text = text.strip().replace('^', '**').replace('×', '*').replace('·', '*').replace('−', '-').replace('÷', '/')
     if len(text) > 300:
-        raise CheckError('That is too long to be a formula.')
+        raise Unreadable('That is too long to be a formula.')
     text = re.sub(r'(\d)\s*([A-Za-z(])', r'\1*\2', text)                      # 2n, 2(n+1)
     text = re.sub(r'\)\s*([A-Za-z0-9(])', r')*\1', text)                      # (n+1)(n+2), (n+1)n
     names = '|'.join(sorted(FUNCTIONS, key=len, reverse=True))
@@ -162,7 +166,7 @@ def evaluate(text, names, logic=False, prepared=False):
         # Authored properties are already plain Python-style arithmetic; only typed formulas are tidied up.
         tree = ast.parse(text if prepared or logic else _prepare(text), mode='eval')
     except SyntaxError as exc:
-        raise CheckError('That could not be read as a formula. Check the brackets and operators.') from exc
+        raise Unreadable('That could not be read as a formula. Check the brackets and operators.') from exc
     return _evaluate(tree, names, logic)
 
 
@@ -227,10 +231,10 @@ def check(step, raw):
             expected = evaluate(reference, point, prepared=True)
             try:
                 got = evaluate(prepared, point, prepared=True)
-            except CheckError as exc:
+            except Unreadable:
+                raise
+            except CheckError:
                 # A formula that breaks only at some values is wrong there, not unreadable.
-                if 'not a quantity' in str(exc) or 'could not be read' in str(exc) or 'not understood' in str(exc) or 'Use whole numbers' in str(exc):
-                    raise
                 return False, 'It is not defined for ' + ', '.join(f'{k} = {v}' for k, v in point.items()) + '.'
             if Fraction(got) != Fraction(expected):
                 # Saying where it fails is a prompt to test small cases, not a giveaway.

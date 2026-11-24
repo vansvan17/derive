@@ -44,7 +44,8 @@ def parse(output, claim_count):
     """Pull the verdict out of the command's reply. Raises ValueError if it is not a clean verdict."""
     try:
         envelope = json.loads(output)
-        reply = envelope.get('result', '') if isinstance(envelope, dict) else ''
+        # Either the command's envelope ({"result": "<text>"}) or a bare verdict pasted in by hand.
+        reply = output if isinstance(envelope, dict) and 'pass' in envelope else envelope.get('result', '') if isinstance(envelope, dict) else ''
     except json.JSONDecodeError:
         reply = output
     match = re.search(r'\{.*\}', reply, re.S)

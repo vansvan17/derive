@@ -75,7 +75,7 @@
    "nudges": [
     "How many choices for each part of the pair?"
    ],
-   "showed": "Two hundred summaries, against roughly $10^{19}$ routes."
+   "showed": "Two hundred summaries, against roughly $4 \\times 10^{16}$ routes."
   },
   {
    "id": "grid",

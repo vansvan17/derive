@@ -61,6 +61,7 @@ class Service:
         self.csrf = secrets.token_urlsafe(32)
         self.lock = threading.RLock()            # one writer at a time keeps the record consistent
         self.workers = ThreadPoolExecutor(max_workers=1, thread_name_prefix='derive-run')
+        self.tutors = ThreadPoolExecutor(max_workers=1, thread_name_prefix='derive-tutor')   # slow, so kept apart from code runs
         self.fetch = sync.fetch                  # replaced in tests with recorded replies
         self.grade = grader.grade
         self.teach = tutor.teach                 # replaced in tests
@@ -74,6 +75,7 @@ class Service:
 
     def close(self):
         self.workers.shutdown(wait=False, cancel_futures=True)
+        self.tutors.shutdown(wait=False, cancel_futures=True)
 
     # ---------- settings ----------
     def settings(self, store):
@@ -469,6 +471,11 @@ class Service:
         if self.settings(store)['tutor'] != 'codex':
             raise ApiError('The in-app tutor is switched off. Turn it on in Settings, or copy the prompt into ChatGPT.', 409)
         prompt, gated, scope, owner, step, secret = self.tutor_context(store, data)
+        turns = data.get('thread', [])
+        if not isinstance(turns, list) or len(turns) > 40:
+            raise ApiError('That conversation is too long; start a new one.', 413)
+        said = [(t.get('who') == 'tutor', text(t.get('text'), 'A message', 20000)) for t in turns if isinstance(t, dict)]
+        prompt = tutor.with_thread(prompt, said)
         store.run('INSERT INTO tutor_uses(at,scope,owner,step,outlet,gated) VALUES(?,?,?,?,?,?)', (now(), scope, owner, step, 'codex', int(gated)))
         return {'job': self.queue(store, 'tutor', {'prompt': prompt, 'secret': secret}), 'gated': gated}
 
@@ -504,7 +511,7 @@ class Service:
             raise ApiError('Let the current run finish first.', 429)
         job = uuid.uuid4().hex
         store.run('INSERT INTO jobs VALUES(?,?,?,?,?,?,NULL)', (job, kind, 'queued', now(), now(), json.dumps(payload)))
-        self.workers.submit(self.work, job)
+        (self.tutors if kind == 'tutor' else self.workers).submit(self.work, job)
         return job
 
     def queue_run(self, store, data):

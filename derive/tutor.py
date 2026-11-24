@@ -46,7 +46,7 @@ Rules for this conversation:
 - One question at a time; wait for her reply.
 - If she is missing background knowledge, teach that background plainly on a different example.
 - If she reaches a complete correct idea, tell her so and help her check edge cases and complexity, then let her implement it herself.
-- If you can open the link, read the statement there. If you cannot, ask her to paste it. Do not guess the statement.'''
+- If the statement is not included below and you cannot open the link, your first message should ask her to paste the statement. Do not guess it.'''
 
 EXPLAIN = '''You are tutoring one student in competitive programming. She has just finished the material below by herself, so nothing needs to be hidden any more. Teach it properly:
 
@@ -106,6 +106,15 @@ def problem_full(problem, approach, observations, idea_names, solved):
     parts += ['', 'Also compare her first approach with the real solution: what she had right, and the exact point where it needed something more.',
               'If you can open the links, read the statement there; otherwise ask her to paste it.']
     return '\n'.join(parts)
+
+
+def with_thread(prompt, turns):
+    """Add the conversation so far (pairs of is_tutor, text). Each Codex call is separate, so the history is resent."""
+    if not turns:
+        return prompt
+    lines = ['', 'THE CONVERSATION SO FAR (continue it; reply only with your next message to her)']
+    lines += [('You said: ' if is_tutor else 'She said: ') + said for is_tutor, said in turns]
+    return prompt + '\n' + '\n'.join(lines)
 
 
 def available():

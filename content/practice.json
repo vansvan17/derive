@@ -10,12 +10,6 @@
  "fermat": [
   {
    "site": "CSES",
-   "title": "Exponentiation",
-   "url": "https://cses.fi/problemset/task/1095",
-   "checked": "2026-11-24"
-  },
-  {
-   "site": "CSES",
    "title": "Exponentiation II",
    "url": "https://cses.fi/problemset/task/1712",
    "checked": "2026-11-24"
@@ -37,14 +31,6 @@
    "checked": "2026-11-24"
   }
  ],
- "euclid": [
-  {
-   "site": "CSES",
-   "title": "Common Divisors",
-   "url": "https://cses.fi/problemset/task/1081",
-   "checked": "2026-11-24"
-  }
- ],
  "prefix-sums": [
   {
    "site": "CSES",
@@ -57,18 +43,6 @@
    "title": "Forest Queries",
    "url": "https://cses.fi/problemset/task/1652",
    "checked": "2026-11-24"
-  },
-  {
-   "site": "CSES",
-   "title": "Subarray Sums II",
-   "url": "https://cses.fi/problemset/task/1661",
-   "checked": "2026-11-24"
-  },
-  {
-   "site": "CSES",
-   "title": "Subarray Divisibility",
-   "url": "https://cses.fi/problemset/task/1662",
-   "checked": "2026-11-24"
   }
  ],
  "difference-array": [
@@ -76,12 +50,6 @@
    "site": "CSES",
    "title": "Restaurant Customers",
    "url": "https://cses.fi/problemset/task/1619",
-   "checked": "2026-11-24"
-  },
-  {
-   "site": "CSES",
-   "title": "Range Update Queries",
-   "url": "https://cses.fi/problemset/task/1651",
    "checked": "2026-11-24"
   }
  ],
@@ -119,6 +87,12 @@
    "title": "Grid Paths I",
    "url": "https://cses.fi/problemset/task/1638",
    "checked": "2026-11-24"
+  },
+  {
+   "site": "CSES",
+   "title": "Coin Combinations I",
+   "url": "https://cses.fi/problemset/task/1635",
+   "checked": "2026-11-24"
   }
  ],
  "knapsack": [
@@ -132,12 +106,6 @@
    "site": "CSES",
    "title": "Book Shop",
    "url": "https://cses.fi/problemset/task/1158",
-   "checked": "2026-11-24"
-  },
-  {
-   "site": "CSES",
-   "title": "Coin Combinations I",
-   "url": "https://cses.fi/problemset/task/1635",
    "checked": "2026-11-24"
   }
  ]

@@ -326,6 +326,14 @@ class App(unittest.TestCase):
             self.assertEqual(job['result']['status'], expected)
             self.assertNotIn(chain['reveal']['name'], json.dumps(job['result']))
         self.assertNotIn(chain['reveal']['name'].casefold(), seen[0].casefold())
+        # a reply in the same conversation carries the earlier turns, since each Codex call starts afresh
+        self.service.teach = lambda prompt: (seen.append(prompt), {'status': 'ok', 'reply': 'And then?'})[1]
+        reply = self.post('/tutor/ask', {**ask, 'thread': [{'who': 'tutor', 'text': 'What happens with the smallest case?'}, {'who': 'me', 'text': 'I get two.'}]})[1]
+        for _ in range(100):
+            if self.get('/jobs/' + reply['job'])['status'] not in ('queued', 'running'):
+                break
+            time.sleep(.05)
+        self.assertIn('She said: I get two.', seen[-1])
 
     # ---- real problems ----
     def open(self):

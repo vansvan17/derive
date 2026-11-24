@@ -14,7 +14,7 @@ export async function askTutor(ctx, where, {unfinished = false, warn = ''} = {})
     const typed = await dialog({
       title: 'Ask a tutor', wide: true,
       body: (warn ? warn + ' ' : '') + 'The tutor sees what you have done so far and will lead you with questions. It is told not to give the answer.',
-      input: {label: 'What is confusing you? (optional)', placeholder: 'I do not see why…', rows: 3},
+      input: {label: where.scope === 'problem' && inApp ? 'Where are you stuck? (You can paste the statement too, in case the tutor cannot open the link.)' : 'What is confusing you? (optional)', placeholder: 'I do not see why…', rows: where.scope === 'problem' && inApp ? 5 : 3},
       confirm: inApp ? 'Ask Codex' : 'Get the prompt for ChatGPT',
     });
     if (typed === false) return false;
@@ -23,17 +23,23 @@ export async function askTutor(ctx, where, {unfinished = false, warn = ''} = {})
   const body = {...where, question};
   try {
     if (inApp) {
-      toast('Asking the tutor. This can take a minute.', 'info');
-      const {job} = await post('/tutor/ask', body);
-      const done = await waitFor(job);
-      const result = done?.result;
-      if (result?.status === 'ok') {
-        await dialog({title: 'The tutor', wide: true, html: markdown(result.reply), confirm: 'Close', cancel: ''});
-        return true;
+      // A conversation: every Codex call is separate, so the turns so far are sent back each time.
+      const thread = [];
+      let result = null;
+      for (;;) {
+        toast('Asking the tutor. This can take a minute.', 'info');
+        const {job} = await post('/tutor/ask', {...body, thread});
+        result = (await waitFor(job))?.result;
+        if (result?.status !== 'ok') break;
+        thread.push({who: 'tutor', text: result.reply});
+        const history = thread.map(t => `<div class="tutor-turn ${t.who === 'tutor' ? 'is-tutor' : 'is-me'}"><p class="eyebrow">${t.who === 'tutor' ? 'Tutor' : 'You'}</p>${markdown(t.text)}</div>`).join('');
+        const reply = await dialog({title: 'The tutor', wide: true, html: `<div class="tutor-thread">${history}</div>`, input: {label: 'Your reply', placeholder: 'Answer the tutor, or ask something else…', rows: 3}, confirm: 'Reply', cancel: 'Close'});
+        if (reply === false || reply === true) return true;
+        thread.push({who: 'me', text: reply});
       }
       toast(result?.reason || result?.error || 'The tutor did not answer.', 'error');
-      if (result?.status === 'withheld') return true;
-      // Codex could not answer: fall through to the prompt for ChatGPT.
+      if (result?.status === 'withheld' || thread.length) return true;
+      // Codex could not answer at all: fall through to the prompt for ChatGPT.
     }
     const {prompt} = await post('/tutor/prompt', body);
     let copied = false;

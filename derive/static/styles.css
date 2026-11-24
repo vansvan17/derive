@@ -303,3 +303,5 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 
 /* the tutor prompt, shown in a dialog */
 .tutor-prompt{max-height:22rem;overflow:auto;white-space:pre-wrap;font-size:.8rem}
+.tutor-thread{max-height:24rem;overflow:auto;display:grid;gap:.75rem}
+.tutor-turn.is-me{padding-left:1rem;border-left:2px solid var(--border,#ccc)}

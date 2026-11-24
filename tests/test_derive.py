@@ -335,6 +335,41 @@ class App(unittest.TestCase):
             time.sleep(.05)
         self.assertIn('She said: I get two.', seen[-1])
 
+    # ---- contest mode ----
+    def test_a_contest_is_scored_the_icpc_way_and_locks_help(self):
+        from datetime import datetime, timedelta, timezone
+        subs = []
+        listing = {'status': 'OK', 'result': {'problems': [{'contestId': 7, 'index': 'B', 'name': 'Two', 'rating': 1700}, {'contestId': 7, 'index': 'A', 'name': 'One'}, {'contestId': 8, 'index': 'A', 'name': 'Other'}]}}
+        self.service.fetch = lambda url: listing if 'problemset.problems' in url else {'status': 'OK', 'result': [s for s in subs if 'handle=' + s['who'] in url]}
+        self.assertEqual(self.post('/contest/start', {'contest': 123456, 'minutes': 60, 'handles': ['ann']})[0], 400)      # gym numbers are refused
+        status, run = self.post('/contest/start', {'contest': 7, 'minutes': 60, 'handles': ['ann', 'bob']})
+        self.assertEqual((status, [r['index'] for r in run['rows']]), (200, ['A', 'B']))
+        self.assertEqual(self.post('/contest/start', {'contest': 7, 'minutes': 60, 'handles': ['ann']})[0], 409)          # one at a time
+        pid = self.open(); self.commit(pid)
+        for path, body in (('/nudge', {'scope': 'problem', 'id': pid}), ('/problem/editorial', {'id': pid}), ('/tutor/prompt', {'scope': 'problem', 'id': pid})):
+            self.assertEqual(self.post(path, body)[0], 409, path)                                                          # no help while the clock runs
+        began = (datetime.now(timezone.utc) - timedelta(minutes=50)).replace(microsecond=0)
+        with self.service.store() as store:
+            store.run('UPDATE contests SET started_at=?', (began.isoformat(),))
+        at = lambda seconds: int(began.timestamp()) + seconds
+        sub = lambda who, index, verdict, seconds, sid: {'who': who, 'id': sid, 'verdict': verdict, 'creationTimeSeconds': at(seconds), 'problem': {'contestId': 7, 'index': index}}
+        subs += [sub('ann', 'A', 'WRONG_ANSWER', 60, 1), sub('ann', 'A', 'COMPILATION_ERROR', 90, 2), sub('ann', 'A', 'OK', 300, 3), sub('bob', 'B', 'TIME_LIMIT_EXCEEDED', 100, 4),
+                 sub('ann', 'A', 'WRONG_ANSWER', -500, 5)]                                                                 # from before the start: ignored
+        board = self.post('/contest/refresh', {'run': run['id']})[1]
+        self.assertEqual((board['solved'], board['penalty']), (1, 5 + 20))                                                 # 5 minutes, one wrong try, the compile error is free
+        self.assertEqual(self.post('/contest/label', {'run': run['id'], 'submission': '1', 'label': 'overflow'})[0], 409)   # labelled only afterwards
+        ended = self.post('/contest/end', {'run': run['id']})[1]
+        self.assertTrue(ended['ended'])
+        self.assertEqual(self.post('/nudge', {'scope': 'problem', 'id': pid})[0], 200)                                     # help is back
+        self.assertEqual(self.post('/contest/label', {'run': run['id'], 'submission': '1', 'label': 'overflow'})[0], 200)
+        page = self.get('/contests')
+        self.assertEqual([u['index'] for u in page['upsolve']], ['B'])
+        self.assertEqual(next(m['count'] for m in page['mistakes'] if m['id'] == 'overflow'), 1)
+        self.assertEqual(page['unlabelled'], 1)
+        subs.append(sub('bob', 'B', 'OK', 50 * 60 + 600, 6))                                                                # accepted after the end
+        after = self.post('/contest/refresh', {'run': run['id']})[1]
+        self.assertEqual((after['solved'], self.get('/contests')['upsolve']), (1, []))                                     # not a contest solve, but upsolved
+
     # ---- real problems ----
     def open(self):
         return self.post('/problem/next')[1]['id']

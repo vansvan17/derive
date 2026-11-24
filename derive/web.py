@@ -22,7 +22,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import uuid
 import webbrowser
 
-from . import evidence, grader, sync, tutor
+from . import contest, evidence, grader, sync, tutor
 from .checks import CheckError, check
 from .content import Content
 from .runner import Executable, JudgeError, same_output
@@ -65,6 +65,7 @@ class Service:
         self.fetch = sync.fetch                  # replaced in tests with recorded replies
         self.grade = grader.grade
         self.teach = tutor.teach                 # replaced in tests
+        self.cf_cache = {}                       # the Codeforces problem list, read once per launch
         with self.store() as store:
             store.run("UPDATE jobs SET status='error', result=?, updated=? WHERE status IN ('queued','running')",
                       (json.dumps({'error': 'The app restarted before this finished.'}), now()))
@@ -239,7 +240,12 @@ class Service:
         complete = self.finish_step(store, idea, chain, step, str(raw)[:2000])
         return {'correct': True, 'showed': step['showed'], 'complete': complete}
 
+    def no_contest(self, store):
+        if contest.active(store):
+            raise ApiError('A contest is running: no nudges, tutor or editorials until it ends.', 409)
+
     def nudge(self, store, data):
+        self.no_contest(store)
         if data.get('scope') == 'problem':
             problem, row = self.attempt(store, data.get('id'))
             if not row['committed_at']:
@@ -363,6 +369,7 @@ class Service:
         return self.problem(store, problem['id'])
 
     def editorial(self, store, data):
+        self.no_contest(store)
         problem, row = self.attempt(store, data.get('id'))
         if not row['committed_at']:
             raise ApiError('Commit to an approach before opening the editorial.', 409)
@@ -434,6 +441,7 @@ class Service:
     # ---------- the tutor ----------
     def tutor_context(self, store, data):
         """Build the prompt for wherever the learner is. Returns (prompt, gated, scope, owner, step, names to keep out of a reply)."""
+        self.no_contest(store)
         question = text(data.get('question', ''), 'Your question', 4000).strip()
         if data.get('scope') == 'problem':
             problem, row = self.attempt(store, data.get('id'))
@@ -635,6 +643,8 @@ class Service:
                 return self.proof_prompt(store, path[7:])
             if path == '/mastery':
                 return self.mastery(store)
+            if path == '/contests':
+                return contest.overview(store)
         raise ApiError('Not found.', 404)
 
     def post(self, path, data):
@@ -654,6 +664,8 @@ class Service:
                 return {'saved': True}
             if path == '/settings':
                 return {'settings': self.save_settings(store, data)}
+            if path in ('/contest/start', '/contest/refresh', '/contest/end', '/contest/label'):
+                return getattr(contest, path[9:])(self, store, data, ApiError)
             if path == '/practice':
                 known = {t['url'] for tasks in self.content.practice.values() for t in tasks}
                 if data.get('url') not in known:

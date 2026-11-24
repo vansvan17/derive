@@ -40,6 +40,12 @@ CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY, kind TEXT NOT NULL, status 
 -- each time a tutor was asked for (a copied prompt or Codex); "gated" means the step or problem was unfinished, so it counts as help
 CREATE TABLE IF NOT EXISTS tutor_uses(id INTEGER PRIMARY KEY, at TEXT NOT NULL, scope TEXT NOT NULL, owner TEXT NOT NULL,
   step TEXT NOT NULL, outlet TEXT NOT NULL, gated INTEGER NOT NULL);
+-- contest mode: one row per timed run of a real round; "board" is the last score read from the judge
+CREATE TABLE IF NOT EXISTS contests(id INTEGER PRIMARY KEY, contest INTEGER NOT NULL, started_at TEXT NOT NULL, minutes INTEGER NOT NULL,
+  handles TEXT NOT NULL, board TEXT NOT NULL, checked_at TEXT, ended_at TEXT);
+-- what went wrong in each wrong submission of a run, as labelled afterwards
+CREATE TABLE IF NOT EXISTS contest_mistakes(run INTEGER NOT NULL, submission TEXT NOT NULL, label TEXT NOT NULL, at TEXT NOT NULL,
+  PRIMARY KEY(run, submission));
 CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 '''
 

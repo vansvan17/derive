@@ -305,3 +305,6 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .tutor-prompt{max-height:22rem;overflow:auto;white-space:pre-wrap;font-size:.8rem}
 .tutor-thread{max-height:24rem;overflow:auto;display:grid;gap:.75rem}
 .tutor-turn.is-me{padding-left:1rem;border-left:2px solid var(--border,#ccc)}
+.contest-clock{font-size:clamp(2.5rem,8vw,4.5rem);font-variant-numeric:tabular-nums;font-weight:600;line-height:1.1;margin:.25rem 0 .5rem}
+.mistake{display:grid;gap:.15rem;margin-bottom:.4rem}
+.mistake select{max-width:16rem}

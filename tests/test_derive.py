@@ -257,6 +257,19 @@ class App(unittest.TestCase):
             self.assertEqual(job['result']['status'], expected)
         self.assertTrue(self.get('/chain/mult-permutes')['complete'])
 
+    def test_the_warm_up_can_be_skipped_but_the_hard_part_cannot(self):
+        chain = json.loads((self.root / 'content/chains/parity-invariant.json').read_text())
+        hard = [s['id'] for s in chain['steps'] if s.get('tier') == 'hard']
+        self.assertTrue(len(hard) >= 4)
+        before = self.get('/chain/parity-invariant')
+        self.assertTrue(before['can_skip'] and before['has_hard'])
+        after = self.post('/chain/skip', {'idea': 'parity-invariant'})[1]
+        current = next(s for s in after['steps'] if not s['done'])
+        self.assertEqual((current['id'], current['hard'], after['complete'], after['can_skip']), (hard[0], True, False, False))
+        self.assertIsNone(after['reveal'])                                        # skipping reveals nothing
+        plain = self.post('/chain/skip', {'idea': 'residues'})[1]                 # no hard part: only the last step is left
+        self.assertEqual(next(s for s in plain['steps'] if not s['done'])['id'], json.loads((self.root / 'content/chains/residues.json').read_text())['steps'][-1]['id'])
+
     # ---- the tutor ----
     def test_a_tutor_prompt_for_an_unfinished_step_holds_nothing_hidden(self):
         chain = json.loads((self.root / 'content/chains/residues.json').read_text())

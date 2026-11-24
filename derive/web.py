@@ -163,7 +163,7 @@ class Service:
 
     def public_step(self, store, idea, step, done):
         level = self.nudges_open(store, 'chain', idea, step['id'])
-        out = {'id': step['id'], 'kind': step['kind'], 'prompt': step['prompt'], 'done': bool(done),
+        out = {'id': step['id'], 'kind': step['kind'], 'prompt': step['prompt'], 'done': bool(done), 'hard': step.get('tier') == 'hard',
                'nudges': step.get('nudges', [])[:level], 'nudges_total': len(step.get('nudges', []))}
         if step['kind'] == 'choice':
             out['options'] = step['options']
@@ -197,7 +197,11 @@ class Service:
         complete = idea in derived
         ticked = set(store.get('practice_done', []))
         info = self.content.ideas[idea]
+        # What skipping leads to: the hard questions if the chain has them, otherwise just its final step (the proof).
+        hard = [s['id'] for s in chain['steps'] if s.get('tier') == 'hard'] or [chain['steps'][-1]['id']]
         return {'idea': idea, 'opening': chain['opening'], 'steps': steps, 'total': len(chain['steps']), 'complete': complete,
+                'hard_total': len(hard), 'has_hard': any(s.get('tier') == 'hard' for s in chain['steps']),
+                'can_skip': any(s['id'] not in done for s in chain['steps'] if s['id'] not in hard),
                 'reveal': {**chain['reveal'], 'problems': len(self.content.problems_for(idea))} if complete else None,
                 # Practice tasks would give the topic away, so they are listed only once the chain is finished.
                 'practice': [{**t, 'done': t['url'] in ticked} for t in self.content.practice.get(idea, [])] if complete else [],
@@ -221,6 +225,20 @@ class Service:
         if complete:
             store.run('INSERT OR IGNORE INTO discoveries VALUES(?,?)', (idea, now()))
         return complete
+
+    def skip_easy(self, store, data):
+        """Too easy: mark the warm-up steps as skipped and go straight to the hard questions."""
+        idea = data.get('idea')
+        chain = self.content.chains.get(idea) if isinstance(idea, str) else None
+        if not chain:
+            raise ApiError('No such chain.', 404)
+        keep = [s['id'] for s in chain['steps'] if s.get('tier') == 'hard'] or [chain['steps'][-1]['id']]
+        if not self.chain_open(idea, self.derived(store)) and idea not in self.derived(store):
+            raise ApiError('This chain builds on something you have not derived yet.', 409)
+        for step in chain['steps']:
+            if step['id'] not in keep:
+                store.run('INSERT OR IGNORE INTO steps_done VALUES(?,?,?,?)', (idea, step['id'], now(), '(skipped)'))
+        return self.chain(store, idea)
 
     def answer(self, store, data):
         idea, step_id = data.get('idea'), data.get('step')
@@ -693,7 +711,7 @@ class Service:
     def post(self, path, data):
         if not isinstance(data, dict):
             raise ApiError('Send a JSON object.')
-        routes = {'/chain/answer': self.answer, '/nudge': self.nudge, '/chain/proof': self.submit_proof, '/proof/verdict': self.manual_verdict,
+        routes = {'/chain/answer': self.answer, '/chain/skip': self.skip_easy, '/nudge': self.nudge, '/chain/proof': self.submit_proof, '/proof/verdict': self.manual_verdict,
                   '/problem/commit': self.commit, '/problem/editorial': self.editorial, '/problem/check': self.check_submissions,
                   '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause,
                   '/code': self.save_code, '/run': self.queue_run,

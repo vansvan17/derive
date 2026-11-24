@@ -1,150 +1,237 @@
 {
-  "idea": "parity-invariant",
-  "opening": "A row of coins and one allowed move. Before trying moves, ask what no move can change.",
-  "steps": [
-    {
-      "id": "try",
-      "kind": "choice",
-      "prompt": "Seven coins, all heads up. A move turns over exactly two coins. Play it by hand for a while. Can you reach seven tails?",
-      "options": [
-        "Yes, in four moves",
-        "Yes, but it needs more than four moves",
-        "No"
-      ],
-      "answer": 2,
-      "nudges": [
-        "After one move there are how many tails? After two moves, which numbers are possible?"
-      ],
-      "showed": "You could not. Now find out why."
-    },
-    {
-      "id": "from3",
-      "kind": "list",
-      "prompt": "A position has 3 tails. List every number of tails it can have after one move.",
-      "answer": [
-        1,
-        3,
-        5
-      ],
-      "verify": "result = sorted({bin(m ^ (1 << i) ^ (1 << j)).count('1') for m in range(128) if bin(m).count('1') == 3 for i in range(7) for j in range(i)})",
-      "nudges": [
-        "The two coins turned over might be both tails, both heads, or one of each. What happens in each case?"
-      ],
-      "showed": "From 3 tails you can only get 1, 3 or 5."
-    },
-    {
-      "id": "change",
-      "kind": "choice",
-      "prompt": "In general, one move changes the number of tails by:",
-      "options": [
-        "always $+1$ or $-1$",
-        "$-2$, $0$ or $+2$",
-        "any amount"
-      ],
-      "answer": 1,
-      "nudges": [
-        "What happens to the number of tails in each case: both tails, both heads, one of each?"
-      ],
-      "showed": "The number of tails changes by an even amount, so whether it is odd or even never changes."
-    },
-    {
-      "id": "ten",
-      "kind": "list",
-      "prompt": "Ten coins, all heads, same move. List every number of tails that can be reached.",
-      "answer": [
-        0,
-        2,
-        4,
-        6,
-        8,
-        10
-      ],
-      "verify": "seen, todo = {0}, [0]\nwhile todo:\n    m = todo.pop()\n    for i in range(10):\n        for j in range(i):\n            t = m ^ (1 << i) ^ (1 << j)\n            if t not in seen:\n                seen.add(t); todo.append(t)\nresult = sorted({bin(m).count('1') for m in seen})",
-      "nudges": [
-        "Which numbers are ruled out by the last step?",
-        "Can every number that is not ruled out actually be reached?"
-      ],
-      "showed": "Every even number is reachable and no odd one: the obstruction you found is the only one."
-    },
-    {
-      "id": "board",
-      "kind": "number",
-      "prompt": "A new game. The numbers $1,2,\\dots,10$ are written on a board. A move rubs out two numbers $a$ and $b$ and writes $|a-b|$. After nine moves one number is left. Type 1 if it must be odd, 0 if it must be even.",
-      "answer": 1,
-      "verify": "import random\nends = set()\nfor seed in range(400):\n    r = random.Random(seed); xs = list(range(1, 11))\n    while len(xs) > 1:\n        r.shuffle(xs); a, b = xs.pop(), xs.pop(); xs.append(abs(a - b))\n    ends.add(xs[0] % 2)\nresult = ends.pop() if len(ends) == 1 else None",
-      "nudges": [
-        "Compare $a+b$ with $|a-b|$. Can one be odd while the other is even?",
-        "What does a move do to the oddness of the total of all the numbers on the board?"
-      ],
-      "showed": "The total keeps its oddness, because $a+b$ and $|a-b|$ differ by $2\\min(a,b)$. It starts at 55."
-    },
-    {
-      "id": "which-n",
-      "kind": "number",
-      "prompt": "Play the same game with $1,2,\\dots,n$. A final 0 is ruled out unless the starting total is even. For how many $n$ from 1 to 100 is the total $1+2+\\dots+n$ even?",
-      "answer": 50,
-      "verify": "result = sum(1 for n in range(1, 101) if sum(range(1, n + 1)) % 2 == 0)",
-      "nudges": [
-        "The total is $n(n+1)/2$. For $n=1,2,3,4,5,6,7,8$, is it odd or even?"
-      ],
-      "showed": "It depends only on n mod 4: the total is even when n leaves remainder 0 or 3."
-    },
-    {
-      "id": "domino",
-      "kind": "number",
-      "prompt": "A chessboard, $8\\times8$, coloured in the usual way. A domino covers two squares that share a side. How many black squares does one domino cover?",
-      "answer": 1,
-      "verify": "result = (lambda s: s.pop() if len(s) == 1 else None)({sum((r + c) % 2 for r, c in cells) for cells in [((r, c), (r, c + 1)) for r in range(8) for c in range(7)] + [((r, c), (r + 1, c)) for r in range(7) for c in range(8)]})",
-      "nudges": [
-        "What colours are two squares that share a side?"
-      ],
-      "showed": "Always one black and one white."
-    },
-    {
-      "id": "corners",
-      "kind": "number",
-      "prompt": "Remove two opposite corner squares from the board. Among the 62 squares left, how many more are there of one colour than the other?",
-      "answer": 2,
-      "verify": "cells = [(r, c) for r in range(8) for c in range(8) if (r, c) not in ((0, 0), (7, 7))]\nresult = abs(sum(1 for r, c in cells if (r + c) % 2) - sum(1 for r, c in cells if (r + c) % 2 == 0))",
-      "nudges": [
-        "What colour is each of the two removed corners?"
-      ],
-      "showed": "The two removed corners have the same colour, leaving 32 of one colour and 30 of the other."
-    },
-    {
-      "id": "cover",
-      "kind": "choice",
-      "prompt": "Can 31 dominoes cover those 62 squares?",
-      "options": [
-        "Yes",
-        "No",
-        "Only if dominoes may be placed diagonally"
-      ],
-      "answer": 1,
-      "nudges": [
-        "How many squares of each colour would 31 dominoes cover?"
-      ],
-      "showed": "No: 31 dominoes cover 31 of each colour, and the board has 32 and 30."
-    },
-    {
-      "id": "argument",
-      "kind": "proof",
-      "prompt": "Prove that from seven heads you can never reach seven tails by turning over exactly two coins per move.",
-      "claims": [
-        "A move changes the number of tails by -2, 0 or +2 (two tails turned, one of each, or two heads turned).",
-        "Therefore the parity of the number of tails is the same after every move.",
-        "The start has 0 tails (even) and the target has 7 (odd), so the target can never be reached."
-      ],
-      "nudges": [
-        "What are the possible changes in the number of tails in one move?",
-        "Which property of the number of tails is therefore fixed?"
-      ],
-      "showed": "A quantity whose oddness cannot change separates the reachable from the unreachable."
-    }
-  ],
-  "reveal": {
-    "name": "Parity invariant",
-    "statement": "If every move changes some count by an even amount, the parity of that count is the same in every reachable position. A target of the other parity is unreachable.",
-    "remark": "When a problem asks \"is it possible?\", looking for something no move can change is the first thing to try."
+ "idea": "parity-invariant",
+ "opening": "A row of coins and one allowed move. Before trying moves, ask what no move can change.",
+ "steps": [
+  {
+   "id": "try",
+   "kind": "choice",
+   "prompt": "Seven coins, all heads up. A move turns over exactly two coins. Play it by hand for a while. Can you reach seven tails?",
+   "options": [
+    "Yes, in four moves",
+    "Yes, but it needs more than four moves",
+    "No"
+   ],
+   "answer": 2,
+   "nudges": [
+    "After one move there are how many tails? After two moves, which numbers are possible?"
+   ],
+   "showed": "You could not. Now find out why."
+  },
+  {
+   "id": "from3",
+   "kind": "list",
+   "prompt": "A position has 3 tails. List every number of tails it can have after one move.",
+   "answer": [
+    1,
+    3,
+    5
+   ],
+   "verify": "result = sorted({bin(m ^ (1 << i) ^ (1 << j)).count('1') for m in range(128) if bin(m).count('1') == 3 for i in range(7) for j in range(i)})",
+   "nudges": [
+    "The two coins turned over might be both tails, both heads, or one of each. What happens in each case?"
+   ],
+   "showed": "From 3 tails you can only get 1, 3 or 5."
+  },
+  {
+   "id": "change",
+   "kind": "choice",
+   "prompt": "In general, one move changes the number of tails by:",
+   "options": [
+    "always $+1$ or $-1$",
+    "$-2$, $0$ or $+2$",
+    "any amount"
+   ],
+   "answer": 1,
+   "nudges": [
+    "What happens to the number of tails in each case: both tails, both heads, one of each?"
+   ],
+   "showed": "The number of tails changes by an even amount, so whether it is odd or even never changes."
+  },
+  {
+   "id": "ten",
+   "kind": "list",
+   "prompt": "Ten coins, all heads, same move. List every number of tails that can be reached.",
+   "answer": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10
+   ],
+   "verify": "seen, todo = {0}, [0]\nwhile todo:\n    m = todo.pop()\n    for i in range(10):\n        for j in range(i):\n            t = m ^ (1 << i) ^ (1 << j)\n            if t not in seen:\n                seen.add(t); todo.append(t)\nresult = sorted({bin(m).count('1') for m in seen})",
+   "nudges": [
+    "Which numbers are ruled out by the last step?",
+    "Can every number that is not ruled out actually be reached?"
+   ],
+   "showed": "Every even number is reachable and no odd one: the obstruction you found is the only one."
+  },
+  {
+   "id": "board",
+   "kind": "number",
+   "prompt": "A new game. The numbers $1,2,\\dots,10$ are written on a board. A move rubs out two numbers $a$ and $b$ and writes $|a-b|$. After nine moves one number is left. Type 1 if it must be odd, 0 if it must be even.",
+   "answer": 1,
+   "verify": "import random\nends = set()\nfor seed in range(400):\n    r = random.Random(seed); xs = list(range(1, 11))\n    while len(xs) > 1:\n        r.shuffle(xs); a, b = xs.pop(), xs.pop(); xs.append(abs(a - b))\n    ends.add(xs[0] % 2)\nresult = ends.pop() if len(ends) == 1 else None",
+   "nudges": [
+    "Compare $a+b$ with $|a-b|$. Can one be odd while the other is even?",
+    "What does a move do to the oddness of the total of all the numbers on the board?"
+   ],
+   "showed": "The total keeps its oddness, because $a+b$ and $|a-b|$ differ by $2\\min(a,b)$. It starts at 55."
+  },
+  {
+   "id": "which-n",
+   "kind": "number",
+   "prompt": "Play the same game with $1,2,\\dots,n$. A final 0 is ruled out unless the starting total is even. For how many $n$ from 1 to 100 is the total $1+2+\\dots+n$ even?",
+   "answer": 50,
+   "verify": "result = sum(1 for n in range(1, 101) if sum(range(1, n + 1)) % 2 == 0)",
+   "nudges": [
+    "The total is $n(n+1)/2$. For $n=1,2,3,4,5,6,7,8$, is it odd or even?"
+   ],
+   "showed": "It depends only on n mod 4: the total is even when n leaves remainder 0 or 3."
+  },
+  {
+   "id": "domino",
+   "kind": "number",
+   "prompt": "A chessboard, $8\\times8$, coloured in the usual way. A domino covers two squares that share a side. How many black squares does one domino cover?",
+   "answer": 1,
+   "verify": "result = (lambda s: s.pop() if len(s) == 1 else None)({sum((r + c) % 2 for r, c in cells) for cells in [((r, c), (r, c + 1)) for r in range(8) for c in range(7)] + [((r, c), (r + 1, c)) for r in range(7) for c in range(8)]})",
+   "nudges": [
+    "What colours are two squares that share a side?"
+   ],
+   "showed": "Always one black and one white."
+  },
+  {
+   "id": "corners",
+   "kind": "number",
+   "prompt": "Remove two opposite corner squares from the board. Among the 62 squares left, how many more are there of one colour than the other?",
+   "answer": 2,
+   "verify": "cells = [(r, c) for r in range(8) for c in range(8) if (r, c) not in ((0, 0), (7, 7))]\nresult = abs(sum(1 for r, c in cells if (r + c) % 2) - sum(1 for r, c in cells if (r + c) % 2 == 0))",
+   "nudges": [
+    "What colour is each of the two removed corners?"
+   ],
+   "showed": "The two removed corners have the same colour, leaving 32 of one colour and 30 of the other."
+  },
+  {
+   "id": "cover",
+   "kind": "choice",
+   "prompt": "Can 31 dominoes cover those 62 squares?",
+   "options": [
+    "Yes",
+    "No",
+    "Only if dominoes may be placed diagonally"
+   ],
+   "answer": 1,
+   "nudges": [
+    "How many squares of each colour would 31 dominoes cover?"
+   ],
+   "showed": "No: 31 dominoes cover 31 of each colour, and the board has 32 and 30."
+  },
+  {
+   "id": "argument",
+   "kind": "proof",
+   "prompt": "Prove that from seven heads you can never reach seven tails by turning over exactly two coins per move.",
+   "claims": [
+    "A move changes the number of tails by -2, 0 or +2 (two tails turned, one of each, or two heads turned).",
+    "Therefore the parity of the number of tails is the same after every move.",
+    "The start has 0 tails (even) and the target has 7 (odd), so the target can never be reached."
+   ],
+   "nudges": [
+    "What are the possible changes in the number of tails in one move?",
+    "Which property of the number of tails is therefore fixed?"
+   ],
+   "showed": "A quantity whose oddness cannot change separates the reachable from the unreachable."
+  },
+  {
+   "tier": "hard",
+   "id": "h-lamps",
+   "kind": "list",
+   "prompt": "From here on nobody tells you what to look at. A row of $n$ lamps, all off. A move switches three neighbouring lamps. For which $n$ from 3 to 12 can all $n$ lamps be on at once?",
+   "answer": [
+    3,
+    6,
+    9,
+    12
+   ],
+   "verify": "def reach(n):\n    seen, todo = {(0,) * n}, [(0,) * n]\n    while todo:\n        s = todo.pop()\n        for i in range(n - 2):\n            t = s[:i] + tuple(1 - v for v in s[i:i + 3]) + s[i + 3:]\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = [n for n in range(3, 13) if (1,) * n in reach(n)]",
+   "nudges": [
+    "One parity is not enough here. Can you split the lamps into several groups so that every move switches exactly one lamp of each group?",
+    "After $m$ moves, what is the parity of the number of lit lamps in each group, and what must it be at the end?"
+   ],
+   "showed": "Group the lamps by position mod 3. Every move switches one lamp in each group, so after $m$ moves each group has $m$ lit lamps mod 2. All on needs the three group sizes to have the same parity, which happens only when $n$ is a multiple of 3."
+  },
+  {
+   "tier": "hard",
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "Same move (switch three neighbouring lamps), ten lamps, all off at the start. How many different on/off patterns can be reached, counting the starting one?",
+   "answer": 256,
+   "verify": "def reach(n):\n    seen, todo = {(0,) * n}, [(0,) * n]\n    while todo:\n        s = todo.pop()\n        for i in range(n - 2):\n            t = s[:i] + tuple(1 - v for v in s[i:i + 3]) + s[i + 3:]\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = len(reach(10))",
+   "nudges": [
+    "How many different moves are there, and does the order in which you make them matter?",
+    "Look at the leftmost lamp where two different sets of moves would differ. Can they give the same pattern?"
+   ],
+   "showed": "There are 8 moves; the order is irrelevant and doing a move twice cancels, so a pattern is decided by which subset of moves is used. Different subsets give different patterns (the leftmost differing move shows up in its first lamp), so $2^8 = 256$ of the 1024 patterns are reachable. Two independent parity conditions cut the total by 4."
+  },
+  {
+   "tier": "hard",
+   "id": "h-grid",
+   "kind": "number",
+   "prompt": "Nine lamps in a 3 by 3 grid, all off. A move switches every lamp in one row or in one column. How many different patterns can be reached, counting the starting one?",
+   "answer": 32,
+   "verify": "def rc(s):\n    out = []\n    for k in range(3):\n        out.append(tuple(1 - v if i // 3 == k else v for i, v in enumerate(s)))\n        out.append(tuple(1 - v if i % 3 == k else v for i, v in enumerate(s)))\n    return out\nseen, todo = {(0,) * 9}, [(0,) * 9]\nwhile todo:\n    s = todo.pop()\n    for t in rc(s):\n        if t not in seen: seen.add(t); todo.append(t)\nresult = len(seen)",
+   "nudges": [
+    "There are six moves. Do all 64 subsets of them give different patterns?",
+    "What happens if you use all three rows and all three columns?"
+   ],
+   "showed": "Six moves give 64 subsets, but using all six switches every lamp twice and changes nothing, so subsets come in pairs with the same result: 32 patterns. The matching invariant: the four corners of any rectangle always contain an even number of lit lamps."
+  },
+  {
+   "tier": "hard",
+   "id": "h-rows",
+   "kind": "number",
+   "prompt": "The row 1 2 3 4 5. A move takes three neighbouring entries a b c and replaces them by b c a. How many different rows can be reached, counting the starting one?",
+   "answer": 60,
+   "verify": "seen, todo = {(1, 2, 3, 4, 5)}, [(1, 2, 3, 4, 5)]\nwhile todo:\n    s = todo.pop()\n    for i in range(3):\n        t = s[:i] + (s[i + 1], s[i + 2], s[i]) + s[i + 3:]\n        if t not in seen: seen.add(t); todo.append(t)\nresult = len(seen)",
+   "nudges": [
+    "How does one move change the number of pairs that are out of order?",
+    "Your invariant rules out half of the 120 rows. If you bring 1 to the front, then 2, then 3, what is left, and is everything else reachable?"
+   ],
+   "showed": "The move is two swaps of neighbours, so the parity of the number of out-of-order pairs never changes: at most 60 rows. And all 60 are reachable, because the moves can put 1, 2 and 3 in place one after another, leaving the last two fixed by parity. An invariant gives an upper bound; you still have to show it is the only obstacle."
+  },
+  {
+   "tier": "hard",
+   "id": "h-treasure",
+   "kind": "list",
+   "ordered": true,
+   "prompt": "An infinite grid of lamps, all off except one at an unknown point $(s, t)$. A move picks integers $x, y$ and switches the four lamps at $(x, y)$, $(x, y+1)$, $(x+1, y-1)$ and $(x+1, y)$. After some moves exactly these seven lamps are on: $(1,6)$, $(1,7)$, $(2,4)$, $(3,4)$, $(3,5)$, $(4,2)$, $(4,3)$. Find $s$ and $t$ (answer as $s$, $t$).",
+   "answer": [
+    2,
+    5
+   ],
+   "verify": "lit = {(2, 5)}\nfor x, y in [(2, 5), (3, 3), (1, 6), (2, 4)]:\n    lit ^= {(x, y), (x, y + 1), (x + 1, y - 1), (x + 1, y)}\nassert sorted(lit) == [(1, 6), (1, 7), (2, 4), (3, 4), (3, 5), (4, 2), (4, 3)]\nxs = [x for x in {p[0] for p in lit} if sum(1 for p in lit if p[0] == x) % 2]\nds = [c for c in {sum(p) for p in lit} if sum(1 for p in lit if sum(p) == c) % 2]\nresult = [xs[0], ds[0] - xs[0]] if len(xs) == 1 and len(ds) == 1 else None",
+   "nudges": [
+    "The total number of lit lamps is odd for ever. Can you find a family of lines such that every move switches an even number of lamps on each line?",
+    "One family of lines gives you one coordinate. Which other family of lines does every move also meet in an even number of lamps?"
+   ],
+   "showed": "Each move switches two lamps on the vertical line $x$ and two on $x+1$, so every vertical line keeps its parity: the only vertical line with an odd count (here $x = 2$) is the treasure's. The same holds for the diagonals $x + y = c$: the odd one is $x + y = 7$. So the treasure is at $(2, 5)$. This is a 2000-rated contest problem."
+  },
+  {
+   "tier": "hard",
+   "id": "h-domino",
+   "kind": "number",
+   "prompt": "A 4 by 4 board, coloured like a chessboard. One white square and one black square are removed. For how many of the 64 possible choices (white square, black square) can the remaining 14 squares be covered by dominoes?",
+   "answer": 64,
+   "verify": "def tilings(cells):\n    cells = frozenset(cells)\n    if not cells: return 1\n    x, y = min(cells)\n    return sum(tilings(cells - {(x, y), n}) for n in ((x + 1, y), (x, y + 1)) if n in cells)\nfull = {(x, y) for x in range(4) for y in range(4)}\nresult = sum(1 for a in full for b in full if sum(a) % 2 == 0 and sum(b) % 2 == 1 and tilings(full - {a, b}))",
+   "nudges": [
+    "The colour count no longer forbids anything. Does that mean a covering exists?",
+    "Can you draw one closed path through all 16 squares, each step to a neighbouring square? What does removing two squares do to it?"
+   ],
+   "showed": "All 64. A closed path through all 16 squares is cut by the two removed squares into two stretches; because the squares have different colours, each stretch has even length and can be covered by dominoes along the path. Here the parity condition turns out to be sufficient as well as necessary, but that needed a construction."
   }
+ ],
+ "reveal": {
+  "name": "Parity invariant",
+  "statement": "If every move changes some count by an even amount, the parity of that count is the same in every reachable position. A target of the other parity is unreachable.",
+  "remark": "When a problem asks \"is it possible?\", looking for something no move can change is the first thing to try."
+ }
 }

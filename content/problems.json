@@ -268,5 +268,155 @@
    "What short summary of a prefix product is enough to tell whether one more factor makes it a square?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2217D",
+  "site": "Codeforces",
+  "contest": 2217,
+  "index": "D",
+  "title": "Flip the Bit (Hard Version)",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2217/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/152772",
+  "ideas": [
+   "difference-array",
+   "matching-bounds"
+  ],
+  "observations": [
+   "Mark each cell as right or wrong and pad both ends with right. A flip of [l, r] changes only the two boundaries at l-1 and r, so the task is to remove every boundary between a right and a wrong cell.",
+   "The range must contain a special index, so the two boundaries it touches lie in different regions between special indices.",
+   "With S boundaries in total and X in the fullest region: each operation removes at most two, and at most one from any region, so at least max(S/2, X) operations are needed.",
+   "That many are enough: pair boundaries from different regions while no region holds more than half; leftovers from a dominant region are removed one per operation against a throwaway position on the other side."
+  ],
+  "nudges": [
+   "Instead of the cells, look at the places where a right cell meets a wrong one. What does one flip do to those places?",
+   "What does the rule about special indices say about the two places one flip can touch?",
+   "What two different reasons stop you from using fewer operations, and can a pairing scheme meet both?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2264D",
+  "site": "Codeforces",
+  "contest": 2264,
+  "index": "D",
+  "title": "Dr. Agos's Dark Mode",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2264/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/156680",
+  "ideas": [
+   "residues",
+   "prefix-pairs"
+  ],
+  "observations": [
+   "2 is -1 mod 3, so the powers of 2 alternate +1, -1. With the alternating prefix sum p_i = sum of (-1)^j s_j mod 3, the segment (l, r) is divisible by 3 exactly when p_(l-1) = p_r.",
+   "So f(s) is the number of equal pairs among the n+1 prefix values: C(c0,2) + C(c1,2) + C(c2,2), smallest when the three counts differ by at most one.",
+   "A 0 repeats the current prefix value and a 1 changes it, so three 1s make four constant blocks. Put the 1s near n/3, 2n/3 and the end; trying the two nearest positions for each (eight candidates) always contains a balanced one."
+  ],
+  "nudges": [
+   "What are the powers of 2 modulo 3?",
+   "Can you define a running quantity such that a segment is divisible by 3 exactly when it takes the same value at both ends?",
+   "If the running quantity takes each of its three values c0, c1, c2 times, how many bad segments are there, and which split of n+1 makes that smallest?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2096D",
+  "site": "Codeforces",
+  "contest": 2096,
+  "index": "D",
+  "title": "Wonderful Lightbulbs",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2096/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/142070",
+  "ideas": [
+   "parity-invariant"
+  ],
+  "observations": [
+   "Every operation flips four bulbs, so the number of lit bulbs stays odd; that alone does not locate anything.",
+   "Two of the four bulbs are on the line x = u and two on x = u + 1, so the parity of lit bulbs on every vertical line never changes: exactly one vertical line has an odd count, the treasure's.",
+   "The same holds for the diagonals x + y = c (two bulbs on u + v, two on u + v + 1). The odd vertical line and the odd diagonal meet at the treasure."
+  ],
+  "nudges": [
+   "How many bulbs does one operation flip, and what does that keep fixed?",
+   "Split the four flipped bulbs by their x coordinate. What stays fixed on each vertical line?",
+   "One family of lines gives one coordinate. Is there another family of lines that each operation also hits an even number of times?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2267E",
+  "site": "Codeforces",
+  "contest": 2267,
+  "index": "E",
+  "title": "Clean Substrings",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2267/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/157126",
+  "ideas": [
+   "difference-array",
+   "contribution"
+  ],
+  "observations": [
+   "Let b_i = 1 where s_i and s_(i+1) differ. Inverting a clean substring changes only the b just before it and the b at its end, so one coin clears at most two 1s: the beauty is ceil(sum of b / 2).",
+   "The sum of b over a substring is odd exactly when its first and last characters differ, and there are cnt0 x cnt1 such substrings. So the total of the ceilings is (total of the sums + cnt0 x cnt1) / 2.",
+   "The total of the sums is found per position: a 1 at b_i lies in i (n - i) substrings. A modification changes only two entries of b and the two counts, so each update is O(1)."
+  ],
+  "nudges": [
+   "Mark every place where two neighbouring characters differ. What does one operation do to those marks?",
+   "For which substrings is the number of marks odd? Can you count them without looking at the marks?",
+   "In how many substrings does one particular mark appear?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2092E",
+  "site": "Codeforces",
+  "contest": 2092,
+  "index": "E",
+  "title": "She knows...",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/2092/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/141023",
+  "ideas": [
+   "parity-invariant",
+   "contribution"
+  ],
+  "observations": [
+   "Flipping the colour of one cell changes the number of differing neighbour pairs by an amount with the parity of its number of neighbours. So cells with an even number of neighbours never affect the parity.",
+   "The cells with an odd number of neighbours are the border cells that are not corners. The parity of the count equals the parity of the number of black cells among them.",
+   "If all of those cells are already painted, the answer is 2^(free cells) or 0. If at least one is free, exactly half of all colourings work: 2^(free cells - 1)."
+  ],
+  "nudges": [
+   "Recolour a single cell. By how much can the number of differing neighbour pairs change, and what decides whether that change is odd?",
+   "Which cells of the board have an odd number of neighbours?",
+   "If one of those cells is still unpainted, how do the colourings with an even count compare in number with those with an odd count?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2252E",
+  "site": "Codeforces",
+  "contest": 2252,
+  "index": "E",
+  "title": "Generational Triplets",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/2252/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/155741",
+  "ideas": [
+   "sum-xor-and",
+   "digit-dp"
+  ],
+  "observations": [
+   "The conditions say 2b = a + c and b = a xor c, so 2 (a xor c) = a + c.",
+   "Since a + c = (a xor c) + 2 (a and c), this becomes a xor c = 2 (a and c): the XOR pattern is the AND pattern shifted up by one bit. b is then determined, and a < b < c follows from a < c.",
+   "Count pairs a < c <= n bit by bit from the top, remembering: whether c is already below n, whether a is already below c, and the AND bit that the previous XOR bit demands here."
+  ],
+  "nudges": [
+   "Use the two conditions to eliminate b. What single equation do a and c satisfy?",
+   "How is a + c related to a xor c and a and c?",
+   "Reading the bits of a and c from the top, what must you carry from one bit position to the next to check that equation and the bound c <= n?"
+  ],
+  "checked": "2026-11-24"
  }
 ]

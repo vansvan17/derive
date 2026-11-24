@@ -1037,6 +1037,284 @@
    "answer": 0,
    "verify": "import itertools\nedges = list(itertools.combinations(range(5), 2))\npar = set()\nfor mask in range(1 << 10):\n    deg = [0] * 5\n    for i, (a, b) in enumerate(edges):\n        if mask >> i & 1: deg[a] += 1; deg[b] += 1\n    par.add(sum(d % 2 for d in deg) % 2)\nresult = 0 if par == {0} else 1 if par == {1} else 2",
    "showed": "Adding up everyone's handshakes counts each handshake twice, so the total is even. A sum is even only if it has an even number of odd terms."
+  },
+  {
+   "id": "g-sub14",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "A pile of 10 stones. A move removes exactly 1 or exactly 4 stones; whoever takes the last stone wins. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nsub = lambda S: solver(lambda n: tuple(n - k for k in S if k <= n))\nresult = 0 if sub((1, 4))(10) else 1",
+   "showed": "Label small piles: the losing ones for the mover are 0, 2, 5, 7, 10, ... (remainder 0 or 2 mod 5). From those every move leaves remainder 1, 3 or 4, and from those you can always return to 0 or 2."
+  },
+  {
+   "id": "g-sub14b",
+   "set": "games",
+   "kind": "number",
+   "prompt": "Same game (remove 1 or 4) with 13 stones. How many should the first player take?",
+   "answer": 1,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nsub = lambda S: solver(lambda n: tuple(n - k for k in S if k <= n))\nresult = next(k for k in (1, 4) if not sub((1, 4))(13 - k))",
+   "showed": "Leave 12, which has remainder 2 mod 5. Taking 4 would leave 9, a winning pile for the opponent."
+  },
+  {
+   "id": "g-wyt35",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Two piles of 3 and 5 stones. A move removes any positive number from one pile, or the same positive number from both. Whoever takes the last stone wins. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nwy = solver(lambda s: tuple({tuple(sorted(t)) for t in [(s[0] - k, s[1]) for k in range(1, s[0] + 1)] + [(s[0], s[1] - k) for k in range(1, s[1] + 1)] + [(s[0] - k, s[1] - k) for k in range(1, min(s) + 1)]}))\nresult = 0 if wy((3, 5)) else 1",
+   "showed": "Labelling small positions gives the losing pairs (1, 2), (3, 5), (4, 7), ... Every move from (3, 5) can be answered by moving to (1, 2) or by finishing."
+  },
+  {
+   "id": "g-wyt46",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Same rules with piles of 4 and 6. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nwy = solver(lambda s: tuple({tuple(sorted(t)) for t in [(s[0] - k, s[1]) for k in range(1, s[0] + 1)] + [(s[0], s[1] - k) for k in range(1, s[1] + 1)] + [(s[0] - k, s[1] - k) for k in range(1, min(s) + 1)]}))\nresult = 0 if wy((4, 6)) else 1",
+   "showed": "Take one stone from each pile, handing over the losing pair (3, 5)."
+  },
+  {
+   "id": "g-nim222",
+   "set": "games",
+   "kind": "number",
+   "prompt": "Three piles of 2 stones each; a move removes any positive number from one pile; last stone wins. How many different winning first moves are there (counting the choice of pile)?",
+   "answer": 3,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nnim = solver(lambda s: tuple(tuple(sorted(s[:i] + (p - k,) + s[i + 1:])) for i, p in enumerate(s) for k in range(1, p + 1)))\nresult = sum(1 for i in range(3) for q in range(2) if not nim(tuple(sorted((q, 2, 2)))))",
+   "showed": "Remove one whole pile, leaving two equal piles to copy on. Any of the three piles will do; taking a single stone leaves 1, 2, 2 with XOR 1."
+  },
+  {
+   "id": "g-nim1111",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Four piles of 1 stone each, same rules. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nnim = solver(lambda s: tuple(tuple(sorted(s[:i] + (p - k,) + s[i + 1:])) for i, p in enumerate(s) for k in range(1, p + 1)))\nresult = 0 if nim((1, 1, 1, 1)) else 1",
+   "showed": "Four moves are made whatever happens, and the second player makes the fourth. (Equivalently: 1 xor 1 xor 1 xor 1 = 0.)"
+  },
+  {
+   "id": "g-halve",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "The number 9 is on a board. A move subtracts 1, or halves the number if it is even. The player who makes the number 0 wins. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nhv = solver(lambda n: tuple(([n - 1] if n >= 1 else []) + ([n // 2] if n % 2 == 0 and n >= 2 else [])))\nresult = 0 if hv(9) else 1",
+   "showed": "From an odd number of at least 5 the only move is to an even number of at least 4. From there the opponent subtracts 1 back to an odd number of at least 5, or from 4 halves to 2, which also loses for the player to move."
+  },
+  {
+   "id": "g-mult",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "The number 1 is on a board. A move multiplies it by 2 or by 3. The player who first makes the number 30 or more wins. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nmult = solver(lambda x: (2 * x, 3 * x) if x < 30 else ())\nresult = 0 if mult(1) else 1",
+   "showed": "Work backwards. From 10 to 29 the mover wins at once. From 5 to 9 both moves land in 10 to 29, so those lose. From 2, 3 and 4 the mover can reach 6 or 8, so those win. From 1 both moves (2 and 3) hand over a winning number."
+  },
+  {
+   "id": "g-chomp",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "A chocolate bar of 2 rows and 3 columns; the top-left square is poisoned. A move chooses a remaining square and eats it together with every remaining square below it or to its right (or both). Whoever eats the poisoned square loses. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef cm(rows):\n    out = set()\n    for r, w in enumerate(rows):\n        for c in range(w):\n            if (r, c) != (0, 0): out.add(tuple(min(x, c) if i >= r else x for i, x in enumerate(rows)))\n    return tuple(out)\nresult = 0 if solver(cm)((3, 3)) else 1",
+   "showed": "The first player eats only the bottom-right square. In fact the first player wins on any rectangle: if eating just the far corner were a losing move, the opponent's winning reply could have been played as a first move instead."
+  },
+  {
+   "id": "g-strip4",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "A strip of 4 cells in a row. A move colours a cell that is not next to an already coloured cell. The player who cannot move loses. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef sm(s):\n    out = []\n    for i, n in enumerate(s):\n        for p in range(n):\n            out.append(tuple(sorted(x for x in s[:i] + (max(0, p - 1), max(0, n - p - 2)) + s[i + 1:] if x)))\n    return tuple(out)\nst = solver(sm)\nresult = 0 if st((4,)) else 1",
+   "showed": "Whichever cell is coloured first, exactly one more cell can be coloured afterwards. Two moves, so the second player makes the last one."
+  },
+  {
+   "id": "g-strip5",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "The same game on a strip of 5 cells. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef sm(s):\n    out = []\n    for i, n in enumerate(s):\n        for p in range(n):\n            out.append(tuple(sorted(x for x in s[:i] + (max(0, p - 1), max(0, n - p - 2)) + s[i + 1:] if x)))\n    return tuple(out)\nst = solver(sm)\nresult = 0 if st((5,)) else 1",
+   "showed": "Colour the middle cell. Only the two end cells remain, one move each: three moves in all."
+  },
+  {
+   "id": "g-euclid85",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "The numbers 8 and 5 are on a board. A move subtracts a positive multiple of the smaller number from the larger, keeping it non-negative. The player who makes one of the numbers 0 wins. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\neu = solver(lambda s: tuple(tuple(sorted((s[1] - k * s[0], s[0]))) for k in range(1, s[1] // s[0] + 1)) if s[0] > 0 else ())\nresult = 0 if eu((5, 8)) else 1",
+   "showed": "Every move is forced: (8, 5), (5, 3), (3, 2), (2, 1). It is then the second player's turn, who subtracts 2 x 1 from the 2 and reaches 0."
+  },
+  {
+   "id": "g-euclid104",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Same game with 10 and 4. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\neu = solver(lambda s: tuple(tuple(sorted((s[1] - k * s[0], s[0]))) for k in range(1, s[1] // s[0] + 1)) if s[0] > 0 else ())\nresult = 0 if eu((4, 10)) else 1",
+   "showed": "The first player has a choice (subtract 4 or 8), and a player with a choice can decide who gets the next forced position: subtract 4, leaving (6, 4); the opponent must go to (4, 2), and then 4 - 2 x 2 = 0."
+  },
+  {
+   "id": "g-half",
+   "set": "games",
+   "kind": "number",
+   "prompt": "A pile of 20 stones. A move removes at least one stone and at most half of the pile. The player who cannot move (a single stone is left) loses. How many stones should the first player take?",
+   "answer": 5,
+   "verify": "import functools\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\nhalf = solver(lambda n: tuple(n - k for k in range(1, n // 2 + 1)))\nresult = next(k for k in range(1, 11) if not half(20 - k))",
+   "showed": "The losing piles are 1, 3, 7, 15, 31, ...: one less than a power of two. From 15 every move leaves between 8 and 14, and from any of those the opponent can go to 7. So leave 15."
+  },
+  {
+   "id": "b-two",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "How many numbers from 0 to 31 have exactly two binary digits equal to 1?",
+   "answer": 10,
+   "verify": "result = sum(1 for x in range(32) if bin(x).count('1') == 2)",
+   "showed": "Choose which two of the five places hold the 1s: 10 ways."
+  },
+  {
+   "id": "b-andrange",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is the AND of all the numbers 12, 13, 14, 15?",
+   "answer": 12,
+   "verify": "result = 12 & 13 & 14 & 15",
+   "showed": "They share the leading digits 11 and differ in everything below: 1100."
+  },
+  {
+   "id": "b-orrange",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is the OR of all the numbers from 5 to 9?",
+   "answer": 15,
+   "verify": "import functools, operator\nresult = functools.reduce(operator.or_, range(5, 10))",
+   "showed": "7 supplies the three low bits and 8 supplies the next one: 1111."
+  },
+  {
+   "id": "b-comp",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is 6 XOR 15?",
+   "answer": 9,
+   "verify": "result = 6 ^ 15",
+   "showed": "XOR with 1111 flips all four low bits: 0110 becomes 1001. It is the same as 15 - 6."
+  },
+  {
+   "id": "b-clear",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is 44 AND 43?",
+   "answer": 40,
+   "verify": "result = 44 & 43",
+   "showed": "Subtracting 1 turns the lowest 1 into 0 and the zeros below it into 1s; the AND then removes exactly that lowest 1. 44 is 101100, the result 101000."
+  },
+  {
+   "id": "b-ones",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "How many binary digits of 1023 are 1?",
+   "answer": 10,
+   "verify": "result = bin(1023).count('1')",
+   "showed": "1023 is one less than 1024, so it is ten 1s in a row."
+  },
+  {
+   "id": "b-pairs3",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "How many pairs a < b of numbers from 1 to 8 have a XOR b = 3?",
+   "answer": 3,
+   "verify": "result = sum(1 for a in range(1, 9) for b in range(a + 1, 9) if a ^ b == 3)",
+   "showed": "b must be a XOR 3, so each number has exactly one partner: (1, 2), (4, 7), (5, 6). The partner of 3 is 0 and of 8 is 11, both out of range."
+  },
+  {
+   "id": "b-maxand",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is the largest value of a AND b for two different numbers a, b from 1 to 10?",
+   "answer": 8,
+   "verify": "result = max(a & b for a in range(1, 11) for b in range(1, 11) if a != b)",
+   "showed": "8 AND 9 = 8. To beat 8 both numbers would need the 8s bit and a common lower bit, but 8, 9 and 10 share no lower bit."
+  },
+  {
+   "id": "b-minxor",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "Among the numbers 4, 9, 10, 15, what is the smallest XOR of two different ones?",
+   "answer": 3,
+   "verify": "import itertools\nresult = min(a ^ b for a, b in itertools.combinations((4, 9, 10, 15), 2))",
+   "showed": "9 XOR 10 = 3. The smallest XOR in a set is always between two numbers that are neighbours in sorted order."
+  },
+  {
+   "id": "b-pairs15",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "How many ordered pairs (a, b) of non-negative whole numbers have a + b = 15 and a XOR b = 15?",
+   "answer": 16,
+   "verify": "result = sum(1 for a in range(16) if a ^ (15 - a) == 15)",
+   "showed": "Sum equals XOR means the AND is 0: no place is shared. Each of the four bits of 15 goes to a or to b: 16 ways."
+  },
+  {
+   "id": "b-top",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is the largest power of two that is at most 100?",
+   "answer": 64,
+   "verify": "result = 1 << (100).bit_length() - 1",
+   "showed": "64; the next one, 128, is too large. It is the value of the highest 1 in the binary form of 100."
+  },
+  {
+   "id": "b-grow",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "For how many x from 0 to 15 is x XOR 5 larger than x?",
+   "answer": 8,
+   "verify": "result = sum(1 for x in range(16) if x ^ 5 > x)",
+   "showed": "XOR with 5 flips the 4s bit and the 1s bit. The result is larger exactly when the higher of the flipped bits, the 4s bit, was 0: half of the sixteen numbers."
   }
  ]
 }

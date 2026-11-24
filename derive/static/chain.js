@@ -1,6 +1,8 @@
 /* A derivation chain: one small question at a time. The next question appears only
    when this one is right, and the name of the result only at the very end. */
 
+import {askTutor} from './tutor.js';
+
 const HINTS = {
   number: 'A whole number, or a fraction like 3/4.',
   list: 'Numbers separated by commas or spaces.',
@@ -38,13 +40,13 @@ export async function renderChain(ctx, idea) {
       <form data-answer novalidate>${input(step)}
         ${feedback ? `<p class="step-feedback ${feedback.kind}" role="alert">${e(feedback.text)}</p>` : ''}
         ${step.nudges.length ? `<ol class="nudges">${step.nudges.map(n => `<li>${inline(n)}</li>`).join('')}</ol>` : ''}
-        <div class="step-actions"><button class="btn btn-primary" type="submit">${step.kind === 'proof' ? 'Submit proof' : 'Check'}</button>${more ? `<button class="btn btn-ghost" type="button" data-nudge>Ask a smaller question (${step.nudges.length + 1} of ${step.nudges_total})</button>` : ''}</div>
+        <div class="step-actions"><button class="btn btn-primary" type="submit">${step.kind === 'proof' ? 'Submit proof' : 'Check'}</button>${more ? `<button class="btn btn-ghost" type="button" data-nudge>Ask a smaller question (${step.nudges.length + 1} of ${step.nudges_total})</button>` : ''}<button class="btn btn-ghost" type="button" data-tutor>Ask a tutor</button></div>
       </form></div></li>`;
   }
 
   function paint(focus = false) {
     const done = chain.steps.filter(s => s.done).length;
-    const reveal = chain.complete ? `<section class="surface reveal" data-reveal><p class="eyebrow">You have just derived</p><h2>${e(chain.reveal.name)}</h2><div class="reveal-statement">${markdown(chain.reveal.statement)}</div>${chain.reveal.remark ? `<p class="muted">${inline(chain.reveal.remark)}</p>` : ''}<div class="step-actions"><a class="btn btn-primary" href="#/derive">Next chain</a>${chain.reveal.problems ? `<a class="btn btn-secondary" href="#/solve">Use it on a real problem</a>` : ''}<a class="btn btn-ghost" href="#/">See it on the map</a></div></section>` : '';
+    const reveal = chain.complete ? `<section class="surface reveal" data-reveal><p class="eyebrow">You have just derived</p><h2>${e(chain.reveal.name)}</h2><div class="reveal-statement">${markdown(chain.reveal.statement)}</div>${chain.reveal.remark ? `<p class="muted">${inline(chain.reveal.remark)}</p>` : ''}<div class="step-actions"><a class="btn btn-primary" href="#/derive">Next chain</a>${chain.reveal.problems ? `<a class="btn btn-secondary" href="#/solve">Use it on a real problem</a>` : ''}<a class="btn btn-ghost" href="#/">See it on the map</a></div><p class="muted small">Want it explained properly now that you have derived it? <button class="link-btn" type="button" data-teach>Have a tutor teach it in full</button></p></section>` : '';
     root.innerHTML = `<div class="reading"><header class="chain-head"><p class="eyebrow">${e(chain.area)} · ${chain.complete ? 'derived' : `step ${Math.min(done + 1, chain.total)} of ${chain.total}`}</p><h1>${chain.complete ? e(chain.reveal.name) : 'A chain of questions'}</h1><p class="chain-opening">${inline(chain.opening)}</p>
       <div class="dots" role="img" aria-label="${done} of ${chain.total} steps done">${Array.from({length: chain.total}, (_, i) => `<span class="${i < done ? 'is-done' : i === done ? 'is-here' : ''}"></span>`).join('')}</div></header>
       <ol class="steps">${chain.steps.map((s, i) => s.done ? doneStep(s, i) : currentStep(s, i)).join('')}</ol>${reveal}</div>`;
@@ -53,10 +55,12 @@ export async function renderChain(ctx, idea) {
     if (form && step) {
       form.addEventListener('submit', event => { event.preventDefault(); step.kind === 'proof' ? submitProof(form, step) : submit(form, step); });
       root.querySelector('[data-nudge]')?.addEventListener('click', () => nudge(step));
+      root.querySelector('[data-tutor]')?.addEventListener('click', () => askTutor(ctx, {scope: 'chain', idea, step: step.id}, {unfinished: true}));
       root.querySelector('[data-manual]')?.replaceChildren(manualLink(step));
       if (step.kind === 'proof' && step.proof?.status === 'grading') watch(step);
       if (focus) { root.querySelector('[data-current]').scrollIntoView({behavior: 'smooth', block: 'center'}); form.querySelector('input[type=text], textarea')?.focus({preventScroll: true}); }
     }
+    root.querySelector('[data-teach]')?.addEventListener('click', () => askTutor(ctx, {scope: 'chain', idea}));
     if (focus && chain.complete) root.querySelector('[data-reveal]').scrollIntoView({behavior: 'smooth', block: 'center'});
   }
 

@@ -37,6 +37,9 @@ CREATE TABLE IF NOT EXISTS returns(id INTEGER PRIMARY KEY, idea TEXT NOT NULL, d
 -- background runs of the learner's code and proof grading
 CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY, kind TEXT NOT NULL, status TEXT NOT NULL, created TEXT NOT NULL,
   updated TEXT NOT NULL, payload TEXT NOT NULL, result TEXT);
+-- each time a tutor was asked for (a copied prompt or Codex); "gated" means the step or problem was unfinished, so it counts as help
+CREATE TABLE IF NOT EXISTS tutor_uses(id INTEGER PRIMARY KEY, at TEXT NOT NULL, scope TEXT NOT NULL, owner TEXT NOT NULL,
+  step TEXT NOT NULL, outlet TEXT NOT NULL, gated INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 '''
 

@@ -38,6 +38,9 @@ export async function renderSettings(ctx) {
     <section class="surface"><h2>Proof grading</h2><p class="muted small">Written proofs cannot be checked by this app. When this is on, the app runs the Claude Code command installed on this Mac, once per proof, with all tools off, and asks only for pass or fail and one question back. It uses whichever Claude account Claude Code is signed into here.</p>
       <label class="choice"><input type="radio" name="grader" value="off" ${s.grader === 'off' ? 'checked' : ''}><span><strong>Off.</strong> Proofs are saved as "waiting for a grade"; you can grade each by hand by pasting a prompt into Claude.</span></label>
       <label class="choice"><input type="radio" name="grader" value="claude" ${s.grader === 'claude' ? 'checked' : ''} ${ctx.boot.grader_available ? '' : 'disabled'}><span><strong>On.</strong> Graded in about 10 to 30 seconds; the next step opens only on a pass.${ctx.boot.grader_available ? '' : ' (The claude command was not found on this computer.)'}</span></label></section>
+    <section class="surface"><h2>Tutor</h2><p class="muted small">Every step and every problem has an "Ask a tutor" button. It builds a prompt for exactly where you are. While something is unfinished the tutor is told to lead with questions and never give the answer or the name of the result; once you have finished, it teaches the whole thing.</p>
+      <label class="choice"><input type="radio" name="tutor" value="off" ${s.tutor === 'off' ? 'checked' : ''}><span><strong>Copy for ChatGPT.</strong> The prompt goes on your clipboard and you paste it into ChatGPT.</span></label>
+      <label class="choice"><input type="radio" name="tutor" value="codex" ${s.tutor === 'codex' ? 'checked' : ''} ${ctx.boot.tutor_available ? '' : 'disabled'}><span><strong>Ask Codex here.</strong> The app runs the Codex command on this Mac (read-only, in an empty folder) and shows its reply. It uses whichever ChatGPT account Codex is signed into, and its usage limit.${ctx.boot.tutor_available ? '' : ' (The codex command was not found on this computer.)'}</span></label></section>
     <section class="surface"><h2>Editor</h2><div class="form-grid"><label class="field">Language<select name="language"><option value="cpp" ${s.language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${s.language === 'python' ? 'selected' : ''}>Python</option></select></label>
       <label class="field">Font size<select name="font_size">${[12, 13, 14, 15, 16, 18, 20].map(n => `<option ${s.font_size === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="field">Theme<select name="theme">${['light', 'dark', 'system'].map(t => `<option value="${t}" ${s.theme === t ? 'selected' : ''}>${t[0].toUpperCase() + t.slice(1)}</option>`).join('')}</select></label></div></section>
@@ -46,7 +49,7 @@ export async function renderSettings(ctx) {
     event.preventDefault();
     const f = new FormData(event.target);
     try {
-      const saved = await post('/settings', {cf_handle: f.get('cf_handle').trim(), atcoder_handle: f.get('atcoder_handle').trim(), grader: f.get('grader') || 'off', language: f.get('language'), font_size: Number(f.get('font_size')), theme: f.get('theme')});
+      const saved = await post('/settings', {cf_handle: f.get('cf_handle').trim(), atcoder_handle: f.get('atcoder_handle').trim(), grader: f.get('grader') || 'off', tutor: f.get('tutor') || 'off', language: f.get('language'), font_size: Number(f.get('font_size')), theme: f.get('theme')});
       applyTheme(saved.settings.theme);
       await ctx.sync();
       toast('Saved.', 'success');

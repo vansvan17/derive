@@ -22,7 +22,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import uuid
 import webbrowser
 
-from . import evidence, grader, sync
+from . import evidence, grader, sync, tutor
 from .checks import CheckError, check
 from .content import Content
 from .runner import Executable, JudgeError, same_output
@@ -63,6 +63,7 @@ class Service:
         self.workers = ThreadPoolExecutor(max_workers=1, thread_name_prefix='derive-run')
         self.fetch = sync.fetch                  # replaced in tests with recorded replies
         self.grade = grader.grade
+        self.teach = tutor.teach                 # replaced in tests
         with self.store() as store:
             store.run("UPDATE jobs SET status='error', result=?, updated=? WHERE status IN ('queued','running')",
                       (json.dumps({'error': 'The app restarted before this finished.'}), now()))
@@ -77,7 +78,7 @@ class Service:
     # ---------- settings ----------
     def settings(self, store):
         saved = store.get('settings', {})
-        return {'language': 'cpp', 'cf_handle': '', 'atcoder_handle': '', 'grader': 'off', 'theme': 'light', 'font_size': 14, **saved}
+        return {'language': 'cpp', 'cf_handle': '', 'atcoder_handle': '', 'grader': 'off', 'tutor': 'off', 'theme': 'light', 'font_size': 14, **saved}
 
     def save_settings(self, store, data):
         current = self.settings(store)
@@ -89,6 +90,10 @@ class Service:
             elif key == 'grader' and value in ('off', 'claude'):
                 if value == 'claude' and not grader.available():
                     raise ApiError('The Claude Code command is not installed on this computer.')
+                current[key] = value
+            elif key == 'tutor' and value in ('off', 'codex'):
+                if value == 'codex' and not tutor.available():
+                    raise ApiError('The codex command is not installed on this computer.')
                 current[key] = value
             elif key == 'theme' and value in ('light', 'dark', 'system'):
                 current[key] = value
@@ -145,7 +150,7 @@ class Service:
         return next((i for i in self.content.order if i in self.content.chains and i not in derived and self.chain_open(i, derived)), None)
 
     def bootstrap(self, store):
-        return {'csrf': self.csrf, 'settings': self.settings(store), 'grader_available': grader.available(),
+        return {'csrf': self.csrf, 'settings': self.settings(store), 'grader_available': grader.available(), 'tutor_available': tutor.available(),
                 'counts': self.counts(store), 'band': evidence.band(self.content, store),
                 'open_problem': evidence.open_problem(store), 'next_chain': self.next_chain(store)}
 
@@ -361,7 +366,8 @@ class Service:
         return self.problem(store, problem['id'])
 
     def finish(self, store, problem, row, source, submission=None, before_open=False):
-        helped = bool(self.nudges_open(store, 'problem', problem['id'], '-') or row['editorial_at'])
+        tutored = store.one("SELECT 1 FROM tutor_uses WHERE scope='problem' AND owner=? AND gated=1", (problem['id'],))
+        helped = bool(self.nudges_open(store, 'problem', problem['id'], '-') or row['editorial_at'] or tutored)
         cold = source == 'judge' and not helped and not before_open and bool(row['committed_at'])
         store.run('UPDATE attempts SET solved_at=?, verdict_source=?, submission=?, cold=? WHERE problem=?',
                   (now(), source, submission, int(cold), problem['id']))
@@ -419,6 +425,58 @@ class Service:
             raise ApiError('This was not a cold solve, so something was in the way. Pick what it was.')
         store.run('UPDATE attempts SET cause=? WHERE problem=?', (cause, problem['id']))
         return self.problem(store, problem['id'])
+
+    # ---------- the tutor ----------
+    def tutor_context(self, store, data):
+        """Build the prompt for wherever the learner is. Returns (prompt, gated, scope, owner, step, names to keep out of a reply)."""
+        question = text(data.get('question', ''), 'Your question', 4000).strip()
+        if data.get('scope') == 'problem':
+            problem, row = self.attempt(store, data.get('id'))
+            level = self.nudges_open(store, 'problem', problem['id'], '-')
+            if row['solved_at'] or row['gave_up_at']:
+                derived = self.derived(store)
+                names = [self.content.ideas[i]['name'] for i in problem['ideas'] if i in derived]
+                return tutor.problem_full(problem, row['approach'], problem['observations'], names, bool(row['solved_at'])), False, 'problem', problem['id'], '-', []
+            if not row['committed_at']:
+                raise ApiError('Commit to an approach before asking a tutor; your own first idea is what the tutor works from.', 409)
+            return tutor.problem_stuck(problem, row['approach'], row['cue'], problem.get('nudges', [])[:level], question), True, 'problem', problem['id'], '-', []
+        idea = data.get('idea')
+        chain = self.content.chains.get(idea) if isinstance(idea, str) else None
+        if not chain:
+            raise ApiError('No such chain.', 404)
+        if idea in self.derived(store):
+            reveal = chain['reveal']
+            return tutor.chain_full(reveal['name'], reveal['statement'], reveal.get('remark', ''), chain['steps']), False, 'chain', idea, '-', []
+        _, step = self.current_step(store, idea, data.get('step'))
+        done = self.done_steps(store, idea)
+        shown = lambda s: s['options'][int(done[s['id']]['answer'])] if s['kind'] == 'choice' and str(done[s['id']]['answer']).isdigit() else done[s['id']]['answer']
+        earlier = [(s['prompt'], shown(s), s['showed']) for s in chain['steps'] if s['id'] in done]
+        level = self.nudges_open(store, 'chain', idea, step['id'])
+        prompt = tutor.chain_step(chain['opening'], earlier, step, step.get('options'), step.get('nudges', [])[:level], question)
+        return prompt, True, 'chain', idea, step['id'], [self.content.ideas[idea]['name']]
+
+    def tutor_prompt(self, store, data):
+        """The copy outlet: hand back the prompt to paste into ChatGPT."""
+        prompt, gated, scope, owner, step, _ = self.tutor_context(store, data)
+        store.run('INSERT INTO tutor_uses(at,scope,owner,step,outlet,gated) VALUES(?,?,?,?,?,?)', (now(), scope, owner, step, 'copy', int(gated)))
+        return {'prompt': prompt, 'gated': gated}
+
+    def tutor_ask(self, store, data):
+        """The in-app outlet: run Codex in the background and show its reply."""
+        if self.settings(store)['tutor'] != 'codex':
+            raise ApiError('The in-app tutor is switched off. Turn it on in Settings, or copy the prompt into ChatGPT.', 409)
+        prompt, gated, scope, owner, step, secret = self.tutor_context(store, data)
+        store.run('INSERT INTO tutor_uses(at,scope,owner,step,outlet,gated) VALUES(?,?,?,?,?,?)', (now(), scope, owner, step, 'codex', int(gated)))
+        return {'job': self.queue(store, 'tutor', {'prompt': prompt, 'secret': secret}), 'gated': gated}
+
+    def work_tutor(self, payload):
+        outcome = self.teach(payload['prompt'])
+        if outcome['status'] != 'ok':
+            return {'status': 'unavailable', 'reason': outcome['reason']}
+        # A reply that says the name of a result she has not finished deriving is not shown.
+        if any(name.casefold() in outcome['reply'].casefold() for name in payload.get('secret', [])):
+            return {'status': 'withheld', 'reason': 'The tutor named the result you are deriving, so its reply is not shown. Ask again, or use a smaller question.'}
+        return {'status': 'ok', 'reply': outcome['reply']}
 
     # ---------- code and runs ----------
     def code(self, store, owner, language):
@@ -487,6 +545,8 @@ class Service:
             try:
                 if row['kind'] == 'grade':
                     result = self.work_grade(store, payload)
+                elif row['kind'] == 'tutor':
+                    result = self.work_tutor(payload)
                 else:
                     result = self.work_run(row['kind'], payload)
                 status = 'done'
@@ -573,7 +633,8 @@ class Service:
         routes = {'/chain/answer': self.answer, '/nudge': self.nudge, '/chain/proof': self.submit_proof, '/proof/verdict': self.manual_verdict,
                   '/problem/commit': self.commit, '/problem/editorial': self.editorial, '/problem/check': self.check_submissions,
                   '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause,
-                  '/code': self.save_code, '/run': self.queue_run}
+                  '/code': self.save_code, '/run': self.queue_run,
+                  '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask}
         with self.lock, self.store() as store:
             if path == '/problem/next':
                 return self.open_next(store)

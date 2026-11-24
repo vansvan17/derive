@@ -257,6 +257,67 @@ class App(unittest.TestCase):
             self.assertEqual(job['result']['status'], expected)
         self.assertTrue(self.get('/chain/mult-permutes')['complete'])
 
+    # ---- the tutor ----
+    def test_a_tutor_prompt_for_an_unfinished_step_holds_nothing_hidden(self):
+        chain = json.loads((self.root / 'content/chains/residues.json').read_text())
+        first = chain['steps'][0]
+        status, reply = self.post('/tutor/prompt', {'scope': 'chain', 'idea': 'residues', 'step': first['id'], 'question': 'I do not follow the notation.'})
+        self.assertEqual(status, 200)
+        prompt = reply['prompt']
+        self.assertTrue(reply['gated'])
+        self.assertIn(first['prompt'], prompt)
+        self.assertIn('I do not follow the notation.', prompt)
+        self.assertNotIn(chain['reveal']['name'].casefold(), prompt.casefold())      # the name is not said
+        self.assertNotIn(first['showed'], prompt)                                     # nor what the step will show
+        for later in chain['steps'][1:]:
+            self.assertNotIn(later['prompt'], prompt)                                 # nor any later question
+        self.assertEqual(self.post('/tutor/prompt', {'scope': 'chain', 'idea': 'residues', 'step': chain['steps'][1]['id']})[0], 409)
+
+    def test_a_finished_chain_can_be_taught_in_full(self):
+        self.derive('residues')
+        chain = json.loads((self.root / 'content/chains/residues.json').read_text())
+        reply = self.post('/tutor/prompt', {'scope': 'chain', 'idea': 'residues'})[1]
+        self.assertFalse(reply['gated'])
+        self.assertIn(chain['reveal']['name'], reply['prompt'])
+
+    def test_a_tutor_on_a_problem_needs_an_approach_and_counts_as_help(self):
+        with self.service.store() as store:
+            store.set('settings', {'cf_handle': 'someone'})
+        pid = self.open()
+        self.assertEqual(self.post('/tutor/prompt', {'scope': 'problem', 'id': pid})[0], 409)
+        self.commit(pid)
+        prompt = self.post('/tutor/prompt', {'scope': 'problem', 'id': pid, 'question': 'Where is my gap?'})[1]['prompt']
+        self.assertIn('Reduce everything mod m', prompt)                              # her own approach is in it
+        self.assertNotIn('Only the remainder matters.', prompt)                       # the observation is not
+        self.assertNotIn('Arithmetic of remainders', prompt)                          # nor the idea's name
+        self.accept(1, 'A')
+        done = self.post('/problem/check', {'id': pid})[1]
+        self.assertTrue(done['solved'])
+        self.assertFalse(done['cold'])                                                # tutored, so not a cold solve
+        self.assertIn('Only the remainder matters.', self.post('/tutor/prompt', {'scope': 'problem', 'id': pid})[1]['prompt'])
+
+    def test_the_in_app_tutor_is_off_by_default_and_never_shows_the_name(self):
+        chain = json.loads((self.root / 'content/chains/residues.json').read_text())
+        ask = {'scope': 'chain', 'idea': 'residues', 'step': chain['steps'][0]['id']}
+        self.assertEqual(self.post('/tutor/ask', ask)[0], 409)
+        with self.service.store() as store:
+            store.set('settings', {'tutor': 'codex'})
+        seen = []
+        replies = [{'status': 'ok', 'reply': 'What happens with the smallest case?'},
+                   {'status': 'ok', 'reply': 'This is just ' + chain['reveal']['name'].upper() + ', so...'},
+                   {'status': 'unavailable', 'reason': 'Codex did not answer.'}]
+        self.service.teach = lambda prompt: (seen.append(prompt), replies.pop(0))[1]
+        for expected in ('ok', 'withheld', 'unavailable'):
+            reply = self.post('/tutor/ask', ask)[1]
+            for _ in range(100):
+                job = self.get('/jobs/' + reply['job'])
+                if job['status'] not in ('queued', 'running'):
+                    break
+                time.sleep(.05)
+            self.assertEqual(job['result']['status'], expected)
+            self.assertNotIn(chain['reveal']['name'], json.dumps(job['result']))
+        self.assertNotIn(chain['reveal']['name'].casefold(), seen[0].casefold())
+
     # ---- real problems ----
     def open(self):
         return self.post('/problem/next')[1]['id']

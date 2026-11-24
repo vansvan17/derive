@@ -1,3 +1,4 @@
+import {askTutor} from './tutor.js';
 /* A real problem from a real judge, with no topic given.
    Order of events: commit to an approach, work, (help), the judge's verdict, then what cracked it. */
 
@@ -97,7 +98,9 @@ export async function renderProblem(ctx, id) {
     host.innerHTML = `<h2>Help</h2><p class="muted small">Any help means this cannot count as a cold solve, and the idea will come back later inside a different problem.</p>
       ${p.nudges.length ? `<ol class="nudges">${p.nudges.map(n => `<li>${inline(n)}</li>`).join('')}</ol>` : ''}
       <div class="step-actions">${more ? `<button class="btn btn-secondary btn-sm" type="button" data-nudge>Ask a smaller question (${p.nudges.length + 1} of ${p.nudges_total})</button>` : p.nudges_total ? '<span class="muted small">No more questions for this one.</span>' : ''}
-      ${p.editorial_opened ? (p.editorial ? `<a class="btn btn-secondary btn-sm" href="${e(p.editorial)}" target="_blank" rel="noopener noreferrer">${icon('external')}Editorial</a>` : '<span class="muted small">Editorial marked as opened; find it on the problem page.</span>') : '<button class="btn btn-ghost btn-sm" type="button" data-editorial>I am going to read the editorial</button>'}</div>`;
+      ${p.editorial_opened ? (p.editorial ? `<a class="btn btn-secondary btn-sm" href="${e(p.editorial)}" target="_blank" rel="noopener noreferrer">${icon('external')}Editorial</a>` : '<span class="muted small">Editorial marked as opened; find it on the problem page.</span>') : '<button class="btn btn-ghost btn-sm" type="button" data-editorial>I am going to read the editorial</button>'}
+      <button class="btn btn-ghost btn-sm" type="button" data-tutor>Talk it through with a tutor</button></div>`;
+    host.querySelector('[data-tutor]')?.addEventListener('click', () => askTutor(ctx, {scope: 'problem', id}, {unfinished: true, warn: 'After this the problem can no longer count as a cold solve.'}));
     host.querySelector('[data-nudge]')?.addEventListener('click', async () => {
       if (!p.nudges.length && !p.editorial_opened && !await dialog({title: 'Ask a smaller question?', body: 'After this the problem can no longer count as a cold solve.', confirm: 'Ask'})) return;
       try { const r = await post('/nudge', {scope: 'problem', id}); p.nudges = r.nudges; paintHelp(); } catch (error) { toast(error.message, 'error'); }
@@ -153,7 +156,8 @@ export async function renderProblem(ctx, id) {
       ${p.editorial ? `<p><a href="${e(p.editorial)}" target="_blank" rel="noopener noreferrer">Editorial</a></p>` : ''}
       <h3>${p.cold ? 'Anything in the way?' : 'What was in the way?'}</h3>
       <form data-cause class="choices">${causes.map(([k, label]) => `<label class="choice"><input type="radio" name="cause" value="${k}" ${p.cause === k ? 'checked' : ''}><span>${label}</span></label>`).join('')}</form>
-      <div class="step-actions"><a class="btn btn-primary" href="#/solve">Next problem</a><a class="btn btn-ghost" href="#/mastery">What you can do</a></div></section>`;
+      <div class="step-actions"><a class="btn btn-primary" href="#/solve">Next problem</a><button class="btn btn-secondary" type="button" data-teach>Have a tutor teach the solution</button><a class="btn btn-ghost" href="#/mastery">What you can do</a></div></section>`;
+    host.querySelector('[data-teach]').addEventListener('click', () => askTutor(ctx, {scope: 'problem', id}));
     host.querySelector('[data-cause]').addEventListener('change', async event => {
       try { p = await post('/problem/cause', {id, cause: event.target.value}); toast('Recorded.', 'success'); } catch (error) { toast(error.message, 'error'); }
     });

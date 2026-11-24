@@ -699,5 +699,32 @@
    "The best instructions move a 0 two places. What property of the positions of the 0s do they leave unchanged, and what must that property be at the end?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2196D",
+  "site": "Codeforces",
+  "contest": 2196,
+  "index": "D",
+  "title": "Double Bracket Sequence",
+  "rating": 2500,
+  "url": "https://codeforces.com/contest/2196/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/151052",
+  "ideas": [
+   "exchange",
+   "parity-invariant",
+   "dp-state"
+  ],
+  "observations": [
+   "In the final string every bracket is matched with a partner. A pair costs 0 if it is already an opening and a closing bracket of one type in the right order, 1 if one of the two must change, and 2 only when it is a closing bracket followed by an opening one.",
+   "By re-pairing, an optimal solution never needs more than one pair of cost 2: two such pairs can be re-matched more cheaply.",
+   "Maximise the free pairs first: take a longest correct subsequence among the round brackets and, separately, among the square ones (a stack-style greedy for each). All remaining brackets pair up at cost 1 each pair, plus possibly one pair of cost 2.",
+   "The cost-2 pair is forced exactly when the leftovers are closing brackets followed by opening brackets with an odd number of each. A table over (position, round balance, square balance) is cubic but gives a brute force to test against."
+  ],
+  "nudges": [
+   "Think of the final string as a set of matched pairs. What can a pair cost, depending on what its two characters are now?",
+   "Could a cheapest solution contain two pairs that each need both characters changed?",
+   "After keeping as many already-correct pairs as possible, what do the leftover brackets look like, and when can they not all be fixed with one change per pair?"
+  ],
+  "checked": "2026-11-24"
  }
 ]

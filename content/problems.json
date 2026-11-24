@@ -701,6 +701,32 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2109E",
+  "site": "Codeforces",
+  "contest": 2109,
+  "index": "E",
+  "title": "Binary String Wowee",
+  "rating": 2400,
+  "url": "https://codeforces.com/contest/2109/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/142960",
+  "ideas": [
+   "dp-state",
+   "parity-invariant"
+  ],
+  "observations": [
+   "An operation at index i flips only positions up to i. So the current value of position i depends only on its start value and on how many operations so far were made at index i or later.",
+   "Build from the right: let D(i, j) be the number of ways to make exactly j operations that all use indices i..n. To add k operations at index i-1, interleave them with the j later ones.",
+   "Position i-1 flips with every one of the j + k operations, so it is 0 only at times of one fixed parity. The k operations at i-1 must be placed at such times: C(floor((j+k)/2), k) or C(ceil((j+k)/2), k) ways, depending on the starting character.",
+   "The table has n x k states with up to k transitions each: O(n k^2), and the answer is D(1, k)."
+  ],
+  "nudges": [
+   "An operation at index i changes which positions? What then decides the current value of position i?",
+   "If you already know how the operations on positions i..n are ordered, in how many ways can operations at position i-1 be slotted in?",
+   "At which moments of the combined sequence is position i-1 equal to 0?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2174C2",
   "site": "Codeforces",
   "contest": 2174,

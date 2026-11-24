@@ -701,6 +701,32 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2174C2",
+  "site": "Codeforces",
+  "contest": 2174,
+  "index": "C2",
+  "title": "Beautiful Patterns (Hard Version)",
+  "rating": 2500,
+  "url": "https://codeforces.com/contest/2174/problem/C2",
+  "editorial": "https://codeforces.com/blog/entry/149003",
+  "ideas": [
+   "linearity",
+   "contribution"
+  ],
+  "observations": [
+   "The count f of palindromic substrings is a sum of 0-or-1 indicators, one per substring. Then f squared is the sum over ordered pairs of substrings of the product of two indicators, so its expectation is the sum over pairs of the probability that both are palindromes.",
+   "One substring of length s is a palindrome with probability m to the power -(floor of s/2): the first half is free, the rest is forced.",
+   "Two substrings with the same centre: both are palindromes exactly when the longer one is. Two substrings with different centres: the two events are independent, so the probabilities multiply.",
+   "So the answer is (sum over concentric pairs of the longer one's probability) + (sum over non-concentric pairs of the product). Grouping non-concentric pairs by the parities of the two lengths and by their total length brings it down to O(n)."
+  ],
+  "nudges": [
+   "How can the number of palindromic substrings be written as a sum of yes-or-no quantities, and what does squaring that sum produce?",
+   "What is the probability that one particular substring of length s is a palindrome?",
+   "For two substrings, when does knowing that one is a palindrome tell you something about the other?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2196D",
   "site": "Codeforces",
   "contest": 2196,

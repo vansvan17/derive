@@ -1,0 +1,138 @@
+{
+ "idea": "exchange",
+ "opening": "A queue of jobs, and a question about the best order. You will not try all the orders.",
+ "steps": [
+  {
+   "id": "queue",
+   "kind": "number",
+   "prompt": "Three jobs take 3, 1 and 2 minutes and are done one after another in that order, starting at time 0. Each job finishes at some time. What is the sum of the three finishing times?",
+   "answer": 13,
+   "verify": "import itertools\nresult = sum(itertools.accumulate([3, 1, 2]))",
+   "nudges": [
+    "When does the second job finish?"
+   ],
+   "showed": "3 + 4 + 6."
+  },
+  {
+   "id": "bestq",
+   "kind": "number",
+   "prompt": "Over all six orders of those three jobs, what is the smallest possible sum of finishing times?",
+   "answer": 10,
+   "verify": "import itertools\nresult = min(sum(itertools.accumulate(p)) for p in itertools.permutations([3, 1, 2]))",
+   "nudges": [
+    "Which job delays the most others if it goes first?"
+   ],
+   "showed": "Order 1, 2, 3 gives 1 + 3 + 6."
+  },
+  {
+   "id": "pair",
+   "kind": "number",
+   "prompt": "Somewhere in a long queue, a 5-minute job is immediately followed by a 2-minute job; the first of them starts at time 10. By how much does the sum of all finishing times drop if just these two swap places?",
+   "answer": 3,
+   "verify": "before = (10 + 5) + (10 + 5 + 2)\nafter = (10 + 2) + (10 + 2 + 5)\nresult = before - after",
+   "nudges": [
+    "What are the two finishing times before the swap, and after it?"
+   ],
+   "showed": "15 + 17 becomes 12 + 17."
+  },
+  {
+   "id": "gain",
+   "kind": "formula",
+   "prompt": "In general: a job of length $a$ is immediately followed by a job of length $b$, with $a > b$. By how much does the sum of finishing times drop when the two swap?",
+   "answer": "a-b",
+   "vars": {
+    "a": [
+     1,
+     9
+    ],
+    "b": [
+     1,
+     9
+    ]
+   },
+   "verify": "t = 7\nresult = ((t + a) + (t + a + b)) - ((t + b) + (t + a + b))",
+   "nudges": [
+    "Which of the two finishing times is the same before and after?"
+   ],
+   "showed": "The later of the two still finishes at the same moment; the earlier one finishes $a - b$ sooner."
+  },
+  {
+   "id": "others",
+   "kind": "choice",
+   "prompt": "When two neighbours in the queue swap, what happens to the finishing times of all the other jobs?",
+   "options": [
+    "Nothing: earlier jobs are untouched, and later jobs still start after the same total",
+    "Later jobs finish earlier",
+    "Earlier jobs finish later"
+   ],
+   "answer": 0,
+   "nudges": [
+    "When does the job right after the pair start, before and after the swap?"
+   ],
+   "showed": "A swap of neighbours is a purely local change. That is what makes it easy to reason about."
+  },
+  {
+   "id": "exists",
+   "kind": "choice",
+   "prompt": "Take any order that is not sorted from shortest to longest. It must contain:",
+   "options": [
+    "two neighbours with the longer one first",
+    "a job that is longer than all the others",
+    "two jobs of equal length"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If every job is no longer than its right neighbour, what is the order?"
+   ],
+   "showed": "So every unsorted order can be improved by one swap of neighbours, and cannot be the best."
+  },
+  {
+   "id": "weights",
+   "kind": "number",
+   "prompt": "Now each job also has a weight: the cost is the sum of weight times finishing time. The jobs are (length 3, weight 1), (length 1, weight 2) and (length 2, weight 4). What is the smallest possible cost?",
+   "answer": 20,
+   "verify": "import itertools\njobs = [(3, 1), (1, 2), (2, 4)]\ndef cost(p):\n    t = c = 0\n    for l, w in p:\n        t += l; c += w * t\n    return c\nresult = min(cost(p) for p in itertools.permutations(jobs))",
+   "nudges": [
+    "For two neighbours, what are the two costs, and when is it better to put the first one first?"
+   ],
+   "showed": "Shortest first is no longer the rule: the heavy job of length 2 wants to go early."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Two neighbours: first (length $t_1$, weight $w_1$), then (length $t_2$, weight $w_2$). Leaving them in this order is at least as good as swapping exactly when:",
+   "options": [
+    "$t_1 w_2 \\le t_2 w_1$",
+    "$t_1 \\le t_2$",
+    "$w_1 \\ge w_2$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Start both at time $T$. What is the cost of the pair in each order, and what cancels?"
+   ],
+   "showed": "The difference of the two costs is $t_1 w_2 - t_2 w_1$. Sorting by $t/w$ makes every pair of neighbours satisfy it."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Jobs of lengths $t_1, \\dots, t_n$ are done one after another. Prove that doing them in order of increasing length minimises the sum of finishing times.",
+   "claims": [
+    "Swapping two neighbouring jobs changes no finishing time other than those two.",
+    "If the earlier of the two neighbours is strictly longer (lengths a > b), swapping them lowers the sum by a - b > 0.",
+    "Any order that is not sorted by length has two neighbours with the longer one first, so it can be strictly improved and is not optimal.",
+    "There are finitely many orders, so a best one exists; by the previous claim it must be sorted (orders that differ only in equal lengths have equal sums)."
+   ],
+   "nudges": [
+    "What does one swap of neighbours change, exactly?",
+    "Why must an unsorted order contain a pair of neighbours that are the wrong way round?",
+    "How do you get from \"every unsorted order can be improved\" to \"the sorted order is best\"?"
+   ],
+   "showed": "Local improvement by swapping neighbours, plus the fact that only the sorted order has nothing left to improve."
+  }
+ ],
+ "reveal": {
+  "name": "Exchange argument",
+  "statement": "To prove an order is optimal: show that swapping two neighbours that are out of order never makes things worse. Then any solution can be turned into the sorted one without loss.",
+  "remark": "It also tells you what to sort by: write the cost of a pair in both orders, cancel, and the comparison that is left is the sort key."
+ }
+}

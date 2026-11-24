@@ -1,0 +1,155 @@
+{
+ "idea": "dp-state",
+ "opening": "Counting ways to climb a staircase, and what happens to the count when the rules get fussier.",
+ "steps": [
+  {
+   "id": "five",
+   "kind": "number",
+   "prompt": "You climb a staircase taking 1 or 2 steps at a time. In how many different ways can you climb 5 steps?",
+   "answer": 8,
+   "verify": "def w(n): return 1 if n == 0 else sum(w(n - s) for s in (1, 2) if s <= n)\nresult = w(5)",
+   "nudges": [
+    "What can the last move be, and where were you just before it?"
+   ],
+   "showed": "1, 2, 3, 5, 8 for staircases of 1 to 5 steps."
+  },
+  {
+   "id": "ten",
+   "kind": "number",
+   "prompt": "And 10 steps?",
+   "answer": 89,
+   "verify": "def w(n): return 1 if n == 0 else sum(w(n - s) for s in (1, 2) if s <= n)\nresult = w(10)",
+   "nudges": [
+    "How do you get the count for 6 steps from the counts for 5 and 4?"
+   ],
+   "showed": "Keep adding the last two counts."
+  },
+  {
+   "id": "enough",
+   "kind": "choice",
+   "prompt": "To count the ways to reach step $n$, what do you need to know about the earlier steps?",
+   "options": [
+    "Only how many ways reach step $n-1$ and how many reach step $n-2$",
+    "The full list of every way to reach every earlier step",
+    "Only how many ways reach step $n-1$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two different ways of reaching step $n-1$: can they be continued differently?"
+   ],
+   "showed": "Two numbers stand in for an enormous list of routes."
+  },
+  {
+   "id": "fussy",
+   "kind": "number",
+   "prompt": "New rule: you may never take two 2-steps in a row. In how many ways can you climb 6 steps?",
+   "answer": 9,
+   "verify": "def w(n, last=0): return 1 if n == 0 else sum(w(n - s, s) for s in (1, 2) if s <= n and not (s == 2 and last == 2))\nresult = w(6)",
+   "nudges": [
+    "Split the ways to reach a step by their last move. Which of them may be followed by a 2-step?",
+    "How many ways reach step 4 ending in a 1-step?"
+   ],
+   "showed": "Without the rule it would be 13."
+  },
+  {
+   "id": "more",
+   "kind": "choice",
+   "prompt": "Under the new rule, is \"the number of ways to reach step $n$\" still enough to carry forward?",
+   "options": [
+    "No: you also need to know whether the last move was a 2-step",
+    "Yes, as before",
+    "No: you need the entire sequence of moves"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two routes reach step 4, one ending in a 1-step and one in a 2-step. Do they have the same options next?"
+   ],
+   "showed": "One extra bit of memory, not the whole history."
+  },
+  {
+   "id": "size",
+   "kind": "number",
+   "prompt": "With that rule, a summary is a pair (step reached, size of the last move). For a staircase of 100 steps, how many summaries are there with the step from 1 to 100 and the last move 1 or 2?",
+   "answer": 200,
+   "verify": "result = 100 * 2",
+   "nudges": [
+    "How many choices for each part of the pair?"
+   ],
+   "showed": "Two hundred summaries, against roughly $10^{19}$ routes."
+  },
+  {
+   "id": "grid",
+   "kind": "number",
+   "prompt": "A grid of 4 by 4 cells. You start in the top-left cell and move right or down, one cell at a time, to the bottom-right cell. The cell in row 2, column 2 is blocked. How many routes are there?",
+   "answer": 8,
+   "verify": "def w(r, c):\n    if (r, c) == (2, 2): return 0\n    if (r, c) == (4, 4): return 1\n    return (w(r + 1, c) if r < 4 else 0) + (w(r, c + 1) if c < 4 else 0)\nresult = w(1, 1)",
+   "nudges": [
+    "Write in each cell the number of routes that reach it. How does a cell get its number from its neighbours?"
+   ],
+   "showed": "Each cell is the sum of the cell above and the cell to the left; the blocked cell is 0."
+  },
+  {
+   "id": "merge",
+   "kind": "choice",
+   "prompt": "Two different routes arrive at the same cell. For the purpose of counting how they can finish, must they be kept apart?",
+   "options": [
+    "No: what can happen next depends only on the cell",
+    "Yes: they came from different directions",
+    "Only if they have different lengths"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Does the rule \"move right or down\" look at how you got here?"
+   ],
+   "showed": "Routes with the same future can be merged into one number."
+  },
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "Same 4 by 4 grid with no blocked cell, but now a route may never make three moves in the same direction in a row. How many routes?",
+   "answer": 14,
+   "verify": "import itertools\nresult = sum(1 for c in itertools.combinations(range(6), 3) for s in [\"\".join(\"R\" if i in c else \"D\" for i in range(6))] if \"RRR\" not in s and \"DDD\" not in s)",
+   "nudges": [
+    "Is the cell alone still enough to know which moves are allowed next?",
+    "What is the least you must remember about the route so far?"
+   ],
+   "showed": "Fourteen of the twenty routes survive."
+  },
+  {
+   "id": "remember",
+   "kind": "choice",
+   "prompt": "For that last rule, what is the smallest summary of a route so far that still decides which moves are allowed next?",
+   "options": [
+    "The cell, the direction of the last move, and whether the last two moves were the same",
+    "The cell only",
+    "The cell and the number of moves made"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which pieces of the past does the rule \"no three in a row\" actually look at?"
+   ],
+   "showed": "Remember exactly what the rule can still ask about, and nothing else."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $W(n)$ be the number of ways to climb $n$ steps taking 1 or 2 at a time. Prove that $W(n) = W(n-1) + W(n-2)$ for $n \\ge 2$.",
+   "claims": [
+    "Every way of reaching step n ends with either a 1-step from step n-1 or a 2-step from step n-2, and these two kinds are different ways (they differ in the last move).",
+    "Removing the final 1-step matches the ways ending in a 1-step one-to-one with the ways of reaching step n-1: each way to n-1 extends in exactly one way.",
+    "Likewise the ways ending in a 2-step match one-to-one with the ways of reaching step n-2.",
+    "So W(n) is the sum of the two counts."
+   ],
+   "nudges": [
+    "Into which groups can you sort the ways by their last move?",
+    "Why does each way of reaching step $n-1$ correspond to exactly one way in the first group?"
+   ],
+   "showed": "Sort by the last move; each group is a copy of a smaller problem."
+  }
+ ],
+ "reveal": {
+  "name": "What a state must remember",
+  "statement": "A state is a summary of the past that is enough to decide the future. Histories with the same summary can be merged, so you count (or optimise) per state instead of per history.",
+  "remark": "The craft is choosing the summary: too little and the rules cannot be checked, too much and there are too many states. Ask what the remaining rules can still look at."
+ }
+}

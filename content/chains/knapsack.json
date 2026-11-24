@@ -1,0 +1,140 @@
+{
+ "idea": "knapsack",
+ "opening": "Making totals out of weights, and one detail of the bookkeeping that decides what you have computed.",
+ "steps": [
+  {
+   "id": "once",
+   "kind": "list",
+   "prompt": "You have three weights, 3, 4 and 5, one of each. Which totals from 0 to 12 can you make with some of them (possibly none)?",
+   "answer": [
+    0,
+    3,
+    4,
+    5,
+    7,
+    8,
+    9,
+    12
+   ],
+   "verify": "import itertools\nresult = sorted({sum(c) for k in range(4) for c in itertools.combinations([3, 4, 5], k)})",
+   "nudges": [
+    "How many ways are there to choose which weights to use?"
+   ],
+   "showed": "Eight choices of weights, eight different totals."
+  },
+  {
+   "id": "many",
+   "kind": "list",
+   "prompt": "Now you have an unlimited supply of each of 3, 4 and 5. Which totals from 0 to 12 can you NOT make?",
+   "answer": [
+    1,
+    2
+   ],
+   "verify": "can = [True] + [False] * 12\nfor s in range(1, 13): can[s] = any(s >= w and can[s - w] for w in (3, 4, 5))\nresult = [s for s in range(13) if not can[s]]",
+   "nudges": [
+    "Can you make 6? 10? 11?"
+   ],
+   "showed": "Everything from 3 upward is reachable."
+  },
+  {
+   "id": "up",
+   "kind": "list",
+   "prompt": "Keep a table can[0..12], with only can[0] = yes at the start. Process the weight 3 like this: for $s = 3, 4, \\dots, 12$ in that order, if can[$s-3$] is yes then set can[$s$] to yes. Which totals are yes afterwards?",
+   "answer": [
+    0,
+    3,
+    6,
+    9,
+    12
+   ],
+   "verify": "can = [True] + [False] * 12\nfor s in range(3, 13):\n    if can[s - 3]: can[s] = True\nresult = [s for s in range(13) if can[s]]",
+   "nudges": [
+    "When $s = 6$, what does the table say about 3 by then?"
+   ],
+   "showed": "The weight got used again and again: by the time you reach 6, the entry for 3 was already switched on by this same weight."
+  },
+  {
+   "id": "down",
+   "kind": "list",
+   "prompt": "Same start, same weight 3, but go the other way: for $s = 12, 11, \\dots, 3$, if can[$s-3$] is yes then set can[$s$] to yes. Which totals are yes afterwards?",
+   "answer": [
+    0,
+    3
+   ],
+   "verify": "can = [True] + [False] * 12\nfor s in range(12, 2, -1):\n    if can[s - 3]: can[s] = True\nresult = [s for s in range(13) if can[s]]",
+   "nudges": [
+    "When $s = 6$, has the entry for 3 been touched yet?"
+   ],
+   "showed": "The weight was used at most once."
+  },
+  {
+   "id": "reason",
+   "kind": "choice",
+   "prompt": "Why does going downward use the weight at most once?",
+   "options": [
+    "When can[$s$] is decided, can[$s-w$] has not yet been touched by this weight, so it still describes totals made without it",
+    "Because larger totals are harder to reach",
+    "Because the loop runs fewer times"
+   ],
+   "answer": 0,
+   "nudges": [
+    "In which order are $s$ and $s - w$ visited when going down?"
+   ],
+   "showed": "The direction decides whether you read the table from before this weight or from during it."
+  },
+  {
+   "id": "value",
+   "kind": "number",
+   "prompt": "Items have (weight, value): (3, 4), (4, 5), (5, 7), (2, 3). You may carry total weight at most 8 and take each item at most once. What is the largest total value?",
+   "answer": 11,
+   "verify": "import itertools\nitems = [(3, 4), (4, 5), (5, 7), (2, 3)]\nresult = max(sum(v for _, v in c) for k in range(5) for c in itertools.combinations(items, k) if sum(w for w, _ in c) <= 8)",
+   "nudges": [
+    "Which pairs of items fit together?",
+    "Instead of yes or no, what could the table hold for each total weight?"
+   ],
+   "showed": "Items 3 and 5 together. The table now holds the best value for each weight, and the update is a maximum."
+  },
+  {
+   "id": "valuemany",
+   "kind": "number",
+   "prompt": "Same items and the same limit of 8, but now you may take any number of copies of each. What is the largest total value?",
+   "answer": 12,
+   "verify": "best = [0] * 9\nfor s in range(1, 9): best[s] = max([best[s - 1]] + [best[s - w] + v for w, v in [(3, 4), (4, 5), (5, 7), (2, 3)] if w <= s])\nresult = best[8]",
+   "nudges": [
+    "Which single item gives the most value per unit of weight?"
+   ],
+   "showed": "Four copies of the lightest item. In the table, the only change is the direction of the inner loop."
+  },
+  {
+   "id": "work",
+   "kind": "number",
+   "prompt": "There are 100 items and the weight limit is $10^4$. Processing one item visits each total once. How many table updates is that in all?",
+   "answer": 1000000,
+   "verify": "result = 100 * 10**4",
+   "nudges": [
+    "How many totals are there, roughly, and how many items?"
+   ],
+   "showed": "A million updates, against $2^{100}$ subsets."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "A table can[0..C] is exactly right for some set of weights already processed, each used at most once. A new weight $w$ is processed by: for $s = C, C-1, \\dots, w$: if can[$s-w$] then set can[$s$]. Prove that afterwards can[$s$] is yes exactly for the totals that can be made using each old weight and the new one at most once.",
+   "claims": [
+    "When s is handled, the entry s - w has a smaller index and has not yet been visited in this pass, so it still holds its old value: whether s - w can be made from the old weights alone.",
+    "So can[s] becomes yes exactly when s could already be made from the old weights, or s - w could be made from the old weights alone.",
+    "Those are exactly the totals that use the new weight zero times or exactly once on top of the old weights, which is what was to be shown."
+   ],
+   "nudges": [
+    "At the moment $s$ is handled, has can[$s-w$] been changed during this pass?",
+    "What are the two ways a total can be made if the new weight may be used at most once?"
+   ],
+   "showed": "Reading only untouched entries is the same as reading the table from before the new weight."
+  }
+ ],
+ "reveal": {
+  "name": "Knapsack and the order of loops",
+  "statement": "Process the items one at a time over a table indexed by total weight. Running the weight index downward uses each item at most once; running it upward allows unlimited copies.",
+  "remark": "The table can hold yes or no, a best value, or a count of ways; the loop direction means the same thing in all three."
+ }
+}

@@ -155,6 +155,15 @@
    ],
    "showed": "Whatever order equal-cost cables are tried in, the same number of each cost ends up in the tree, because after all cables of cost at most x have been considered the groups are the same.",
    "tier": "hard"
+  },
+  {
+   "id": "c-network",
+   "kind": "code",
+   "task": "cheapest-network",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Sort the edges by cost, union-find with a loop for find, add the cost when two different leaders are joined, and count the joins: fewer than n - 1 means it cannot be connected. The total needs 64 bits.",
+   "tier": "hard"
   }
  ],
  "reveal": {

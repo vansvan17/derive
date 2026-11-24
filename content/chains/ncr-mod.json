@@ -156,6 +156,15 @@
    ],
    "showed": "Factorials modulo p up to 100000, then one inverse (by fast powering) used twice.",
    "tier": "hard"
+  },
+  {
+   "id": "c-binom",
+   "kind": "code",
+   "task": "binomials",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Factorials up to the largest n, one modular inverse at the top, inverse factorials downward; each answer is two multiplications, reduced after each one to stay inside 64 bits.",
+   "tier": "hard"
   }
  ],
  "reveal": {

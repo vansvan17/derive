@@ -32,7 +32,12 @@ class Content:
         path = self.root / 'content/tasks.json'
         self.tasks = {t['id']: t for t in json.loads(path.read_text())} if path.exists() else {}
         self.task_tracks = [{'id': 'core', 'title': 'Arrays and counting', 'about': 'Plain statements, no hint about technique. The obvious loop is too slow.'},
-                            {'id': 'graphs', 'title': 'Graphs and trees, from the adjacency list up', 'about': 'A ladder: each task asks for exactly one thing, and each builds on the one before.'}]
+                            {'id': 'graphs', 'title': 'Graphs and trees, from the adjacency list up', 'about': 'A ladder: each task asks for exactly one thing, and each builds on the one before.'},
+                            {'id': 'numbers', 'title': 'Numbers', 'about': 'Primes, factors, powers and binomials at contest sizes.'},
+                            {'id': 'structures', 'title': 'Structures and graph algorithms', 'about': 'The standard machinery, written by you.'},
+                            {'id': 'tables', 'title': 'Tables and orders', 'about': 'Filling a table in the right order, and sorting by the right key.'},
+                            {'id': 'bits', 'title': 'Bits and games', 'about': 'XOR, masks, and positions that win or lose.'},
+                            {'id': 'strings', 'title': 'Strings', 'about': 'Matching without comparing letter by letter.'}]
         # Past ICPC regional papers: links only, shown on the contest page.
         path = self.root / 'content/papers.json'
         self.papers = json.loads(path.read_text()) if path.exists() else []

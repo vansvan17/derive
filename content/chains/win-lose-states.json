@@ -193,6 +193,15 @@
    ],
    "showed": "They are (1,2), (3,5), (4,7), (6,10), (8,13), (9,15), (11,18), (12,20). The k-th pair has difference k, and its smaller number is the smallest number not used in any earlier pair.",
    "tier": "hard"
+  },
+  {
+   "id": "c-sticks",
+   "kind": "code",
+   "task": "stick-game",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "An array of win flags filled upward from 0: a pile wins if some allowed move lands on a losing pile. Stop at the first such move.",
+   "tier": "hard"
   }
  ],
  "reveal": {

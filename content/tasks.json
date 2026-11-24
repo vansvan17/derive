@@ -3,7 +3,7 @@
   "id": "equal-pairs",
   "title": "Equal pairs",
   "statement": "You are given $n$ whole numbers. Count the pairs of positions $i < j$ holding equal numbers.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** One number: the count of pairs.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5\n3 1 3 3 1\n",
@@ -20,7 +20,7 @@
   "id": "range-sums",
   "title": "Range totals",
   "statement": "You are given $n$ whole numbers and $q$ questions. Each question gives $l$ and $r$ and asks for the sum of the numbers in positions $l$ through $r$ (positions are numbered from 1).\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 2 \\cdot 10^5$). The second line contains the $n$ numbers, each between $-10^9$ and $10^9$. Each of the next $q$ lines contains $l$ and $r$ ($1 \\le l \\le r \\le n$).\n\n**Output.** For each question, one line with the sum.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5 3\n2 -1 4 0 3\n1 5\n2 3\n4 4\n",
@@ -33,7 +33,7 @@
   "id": "busy-moment",
   "title": "Busiest moment",
   "statement": "$n$ visitors each stay in a museum from minute $l_i$ to minute $r_i$, both included. What is the largest number of visitors inside during a single minute?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). Each of the next $n$ lines contains $l_i$ and $r_i$ ($1 \\le l_i \\le r_i \\le 10^9$).\n\n**Output.** One number.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "3\n1 4\n2 6\n5 8\n",
@@ -50,7 +50,7 @@
   "id": "pair-sum",
   "title": "Pairs with a given sum",
   "statement": "You are given $n$ whole numbers and a target $S$. Count the pairs of positions $i < j$ whose numbers add up to exactly $S$.\n\n**Input.** The first line contains $n$ and $S$ ($1 \\le n \\le 2 \\cdot 10^5$, $1 \\le S \\le 2 \\cdot 10^9$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** One number: the count of pairs.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5 6\n1 5 3 3 5\n",
@@ -67,7 +67,7 @@
   "id": "zero-stretches",
   "title": "Stretches that cancel",
   "statement": "You are given $n$ whole numbers, which may be negative. Count the contiguous stretches (of length at least 1) whose sum is exactly 0.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between $-10^9$ and $10^9$.\n\n**Output.** One number.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5\n1 -1 2 -2 0\n",
@@ -84,7 +84,7 @@
   "id": "calm-stretch",
   "title": "Longest affordable stretch",
   "statement": "You are given $n$ positive whole numbers and a budget $S$. Find the largest number of consecutive positions whose numbers add up to at most $S$. If no single number fits, the answer is 0.\n\n**Input.** The first line contains $n$ and $S$ ($1 \\le n \\le 2 \\cdot 10^5$, $1 \\le S \\le 10^{14}$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** One number.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "6 6\n2 1 3 2 4 1\n",
@@ -101,7 +101,7 @@
   "id": "taller-left",
   "title": "Nearest taller to the left",
   "statement": "$n$ people stand in a row; person $i$ has height $h_i$. For each person, find the nearest person to their left who is strictly taller, and print that person's position (positions are numbered from 1). Print 0 if there is nobody taller to the left.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ heights, each between 1 and $10^9$.\n\n**Output.** $n$ numbers on one line.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "6\n5 3 4 4 6 1\n",
@@ -114,7 +114,7 @@
   "id": "divisor-partners",
   "title": "Divisor partners",
   "statement": "You are given $n$ whole numbers. Count the ordered pairs of different positions $(i, j)$ such that the number in position $i$ divides the number in position $j$. Equal numbers in different positions divide each other, so they count in both orders.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^6$.\n\n**Output.** One number.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "4\n2 4 4 3\n",
@@ -131,7 +131,7 @@
   "id": "painted-fence",
   "title": "Coats of paint",
   "statement": "A fence has $n$ boards, numbered from 1, all unpainted. There are $q$ painting jobs; job $k$ adds $v_k$ coats to every board from $l_k$ to $r_k$. Print the number of coats on each board at the end.\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 2 \\cdot 10^5$). Each of the next $q$ lines contains $l$, $r$ and $v$ ($1 \\le l \\le r \\le n$, $1 \\le v \\le 10^9$).\n\n**Output.** $n$ numbers on one line.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5 3\n1 3 2\n2 5 1\n4 4 10\n",
@@ -144,7 +144,7 @@
   "id": "fair-split",
   "title": "Fairest split",
   "statement": "You are given $n$ positive whole numbers in a row and a number $k$. Cut the row into exactly $k$ non-empty contiguous parts so that the largest part-sum is as small as possible. Print that largest part-sum.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** One number.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5 2\n7 2 5 10 8\n",
@@ -161,7 +161,7 @@
   "id": "friend-groups",
   "title": "Circles of friends",
   "statement": "$n$ people, numbered from 1, start as strangers. Then $m$ friendships are formed one at a time. Friends of friends belong to the same circle. After each friendship, print the number of circles.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n, m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different people $a$ and $b$. The same pair may appear more than once.\n\n**Output.** $m$ lines, one number each.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5 4\n1 2\n3 4\n2 1\n2 3\n",
@@ -174,7 +174,7 @@
   "id": "window-variety",
   "title": "Variety in every window",
   "statement": "You are given $n$ whole numbers and a window length $k$. For every window of $k$ consecutive positions, from left to right, print how many different numbers it contains.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** $n - k + 1$ numbers on one line.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "6 3\n1 2 1 3 3 3\n",
@@ -188,7 +188,7 @@
   "title": "1. The adjacency list",
   "track": "graphs",
   "statement": "A graph has $n$ vertices numbered from 1 and $m$ edges; edges have no direction. Store it so that you can list the neighbours of any vertex, and print exactly this: for each vertex from 1 to $n$, one line with the number of its neighbours followed by the neighbours in increasing order.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different vertices. No pair appears twice.\n\n**Output.** $n$ lines.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "4 3\n1 2\n3 1\n2 3\n",
@@ -202,7 +202,7 @@
   "title": "2. Distances from vertex 1",
   "track": "graphs",
   "statement": "A graph has $n$ vertices and $m$ undirected edges. For each vertex print the smallest number of edges on a route from vertex 1 to it, or $-1$ if it cannot be reached.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different vertices.\n\n**Output.** $n$ numbers on one line.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5 4\n1 2\n2 3\n1 3\n4 5\n",
@@ -216,7 +216,7 @@
   "title": "3. Connected pieces",
   "track": "graphs",
   "statement": "A graph has $n$ vertices and $m$ undirected edges. Print the number of connected pieces and the number of vertices in the largest one.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different vertices.\n\n**Output.** Two numbers on one line.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "6 3\n1 2\n2 3\n5 6\n",
@@ -230,7 +230,7 @@
   "title": "4. Parents and depths",
   "track": "graphs",
   "statement": "A tree has $n$ vertices; it is given by its $n - 1$ edges in no particular order. Hang it from vertex 1. Print, on the first line, the parent of every vertex (0 for vertex 1), and on the second line the depth of every vertex (0 for vertex 1).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** Two lines of $n$ numbers each.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5\n2 1\n3 2\n2 4\n5 1\n",
@@ -244,7 +244,7 @@
   "title": "5. Subtree sizes",
   "track": "graphs",
   "statement": "A tree with $n$ vertices is hung from vertex 1. The subtree of a vertex is the vertex itself together with everything below it. Print the number of vertices in the subtree of every vertex.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** $n$ numbers on one line.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5\n2 1\n3 2\n2 4\n5 1\n",
@@ -258,7 +258,7 @@
   "title": "6. The longest route",
   "track": "graphs",
   "statement": "A tree has $n$ vertices. Print the largest number of edges on a route between two of its vertices (a route never repeats a vertex).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** One number.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "5\n2 1\n3 2\n2 4\n5 1\n",
@@ -276,7 +276,7 @@
   "title": "7. Peeling the leaves",
   "track": "graphs",
   "statement": "A tree has $n$ vertices. In each round, every vertex that currently has at most one neighbour is removed, all at the same moment. For each vertex print the number of the round in which it is removed (the first round is round 1).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** $n$ numbers on one line.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "6\n1 2\n2 3\n3 4\n4 5\n3 6\n",
@@ -290,7 +290,7 @@
   "title": "8. Pruning empty branches",
   "track": "graphs",
   "statement": "A tree with $n$ vertices is hung from vertex 1, and some vertices hold a coin. A vertex is kept if its subtree (itself and everything below it) contains at least one coin; all other vertices are cut away. Print the number of vertices kept.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). The second line contains $n$ numbers, each 0 or 1: whether vertex $i$ holds a coin. Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** One number.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "6\n0 0 1 0 0 0\n1 2\n2 3\n1 4\n4 5\n4 6\n",
@@ -308,7 +308,7 @@
   "title": "9. Collecting the coins",
   "track": "graphs",
   "statement": "A tree with $n$ vertices; some vertices hold a coin. You start at vertex 1, walk along edges, must stand on every vertex that holds a coin at least once, and must finish back at vertex 1. Print the smallest number of edge-steps needed.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). The second line contains $n$ numbers, each 0 or 1: whether vertex $i$ holds a coin. Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** One number.",
-  "seconds": 2.0,
+  "seconds": 3.0,
   "samples": [
    [
     "6\n0 0 1 0 0 1\n1 2\n2 3\n1 4\n4 5\n4 6\n",
@@ -316,5 +316,323 @@
    ]
   ],
   "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n, edges = tree_input(rng, size)\n    p = rng.choice([0.0, 0.02, 0.3, 1.0]) if size != 'small' else rng.choice([0.0, 0.3, 0.6])\n    coins = [1 if rng.random() < p else 0 for _ in range(n)]\n    return f\"{n}\\n{' '.join(map(str, coins))}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n = v[0]; coin = [0] + v[1:1 + n]\n    adj = adjacency(n, [(v[1 + n + 2 * i], v[2 + n + 2 * i]) for i in range(n - 1)])\n    par, order = order_from_root(n, adj)\n    has = coin[:]\n    for x in reversed(order[1:]):\n        if has[x]: has[par[x]] = 1\n    return str(2 * sum(1 for x in range(2, n + 1) if has[x]))\ndef brute(text):\n    import itertools\n    v = ints(text); n = v[0]; coin = [0] + v[1:1 + n]\n    adj = adjacency(n, [(v[1 + n + 2 * i], v[2 + n + 2 * i]) for i in range(n - 1)])\n    need = frozenset(x for x in range(1, n + 1) if coin[x])\n    from collections import deque\n    start = (1, frozenset([1]) & need)\n    seen = {start: 0}; q = deque([start])\n    while q:\n        x, got = q.popleft()\n        if x == 1 and got == need: return str(seen[(x, got)])\n        for u in adj[x]:\n            s = (u, got | (frozenset([u]) & need))\n            if s not in seen: seen[s] = seen[(x, got)] + 1; q.append(s)\n    return '0'\n"
+ },
+ {
+  "id": "count-primes",
+  "title": "Primes in a range",
+  "track": "numbers",
+  "statement": "Answer $q$ questions: how many primes are there from $l$ to $r$, both included?\n\n**Input.** The first line contains $q$ ($1 \\le q \\le 2 \\cdot 10^5$). Each of the next $q$ lines contains $l$ and $r$ ($1 \\le l \\le r \\le 10^6$).\n\n**Output.** One line per question.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3\n1 10\n14 16\n97 97\n",
+    "4\n0\n1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    top = {'small': 30, 'medium': 5000, 'large': 10 ** 6}[size]; q = {'small': rng.randint(1, 5), 'medium': 2000, 'large': 200000}[size]\n    lines = [str(q)]\n    for _ in range(q):\n        l = rng.randint(1, top); r = rng.randint(l, top); lines.append(f\"{l} {r}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); q = v[0]; top = max(v[1:])\n    s = bytearray([1]) * (top + 1); s[0] = 0\n    if top >= 1: s[1] = 0\n    i = 2\n    while i * i <= top:\n        if s[i]: s[i * i::i] = bytearray(len(s[i * i::i]))\n        i += 1\n    pre = [0] * (top + 1)\n    for x in range(1, top + 1): pre[x] = pre[x - 1] + s[x]\n    return '\\n'.join(str(pre[v[2 + 2 * k]] - pre[v[1 + 2 * k] - 1]) for k in range(q))\ndef brute(text):\n    v = ints(text); q = v[0]\n    isp = lambda x: x > 1 and all(x % d for d in range(2, x))\n    return '\\n'.join(str(sum(1 for x in range(v[1 + 2 * k], v[2 + 2 * k] + 1) if isp(x))) for k in range(q))\n"
+ },
+ {
+  "id": "largest-factor",
+  "title": "Largest prime factor",
+  "track": "numbers",
+  "statement": "You are given $n$ whole numbers. For each, print its largest prime factor (print 1 for the number 1).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^6$.\n\n**Output.** $n$ numbers on one line.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5\n1 12 13 49 30\n",
+    "1 3 13 7 5"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    top = {'small': 40, 'medium': 5000, 'large': 10 ** 6}[size]; n = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 200000}[size]\n    return f\"{n}\\n{' '.join(str(rng.randint(1, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]; top = max(a)\n    big = [1] * (top + 1)\n    for p in range(2, top + 1):\n        if big[p] == 1:\n            for m in range(p, top + 1, p): big[m] = p\n    return ' '.join(str(big[x]) for x in a)\ndef brute(text):\n    v = ints(text)\n    def f(x):\n        best, d = 1, 2\n        while x > 1:\n            if x % d == 0: best = d; x //= d\n            else: d += 1\n        return best\n    return ' '.join(str(f(x)) for x in v[1:])\n"
+ },
+ {
+  "id": "binomials",
+  "title": "Many binomials",
+  "track": "numbers",
+  "statement": "Answer $q$ questions: in how many ways can $k$ items be chosen out of $n$? Print each answer modulo $1\\,000\\,000\\,007$.\n\n**Input.** The first line contains $q$ ($1 \\le q \\le 2 \\cdot 10^5$). Each of the next $q$ lines contains $n$ and $k$ ($0 \\le k \\le n \\le 10^6$).\n\n**Output.** One line per question.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3\n5 2\n10 0\n10 5\n",
+    "10\n1\n252"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    top = {'small': 12, 'medium': 3000, 'large': 10 ** 6}[size]; q = {'small': rng.randint(1, 5), 'medium': 2000, 'large': 200000}[size]\n    lines = [str(q)]\n    for _ in range(q):\n        n = rng.randint(0, top); lines.append(f\"{n} {rng.randint(0, n)}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); q = v[0]; top = max(v[1::2]) if q else 0\n    f = [1] * (top + 1)\n    for i in range(1, top + 1): f[i] = f[i - 1] * i % MOD\n    inv = [1] * (top + 1); inv[top] = pow(f[top], MOD - 2, MOD)\n    for i in range(top, 0, -1): inv[i - 1] = inv[i] * i % MOD\n    return '\\n'.join(str(f[v[1 + 2 * k]] * inv[v[2 + 2 * k]] % MOD * inv[v[1 + 2 * k] - v[2 + 2 * k]] % MOD) for k in range(q))\ndef brute(text):\n    import math\n    v = ints(text); q = v[0]\n    return '\\n'.join(str(math.comb(v[1 + 2 * k], v[2 + 2 * k]) % MOD) for k in range(q))\n"
+ },
+ {
+  "id": "power-mod",
+  "title": "Large powers",
+  "track": "numbers",
+  "statement": "Answer $q$ questions: what is $a^b$ modulo $m$? Take $0^0$ to be 1.\n\n**Input.** The first line contains $q$ ($1 \\le q \\le 2 \\cdot 10^5$). Each of the next $q$ lines contains $a$, $b$ and $m$ ($0 \\le a \\le 10^9$, $0 \\le b \\le 10^{18}$, $1 \\le m \\le 10^9$).\n\n**Output.** One line per question.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3\n2 10 1000\n3 0 7\n0 0 5\n",
+    "24\n1\n1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    q = {'small': rng.randint(1, 5), 'medium': 2000, 'large': 200000}[size]\n    lines = [str(q)]\n    for _ in range(q):\n        if size == 'small': lines.append(f\"{rng.randint(0, 6)} {rng.randint(0, 9)} {rng.randint(1, 12)}\")\n        else: lines.append(f\"{rng.randint(0, 10 ** 9)} {rng.randint(0, 10 ** 18)} {rng.randint(1, 10 ** 9)}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); q = v[0]\n    return '\\n'.join(str(pow(v[1 + 3 * k], v[2 + 3 * k], v[3 + 3 * k])) for k in range(q))\ndef brute(text):\n    v = ints(text); q = v[0]; out = []\n    for k in range(q):\n        a, b, m = v[1 + 3 * k], v[2 + 3 * k], v[3 + 3 * k]; r = 1 % m\n        for _ in range(b): r = r * a % m\n        out.append(str(r))\n    return '\\n'.join(out)\n"
+ },
+ {
+  "id": "changing-sums",
+  "title": "Totals of a changing array",
+  "track": "structures",
+  "statement": "An array of $n$ numbers and $q$ operations of two kinds: `1 i v` sets position $i$ to the value $v$; `2 l r` asks for the sum of positions $l$ through $r$.\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 2 \\cdot 10^5$). The second line contains the $n$ numbers, each between 1 and $10^9$. Each of the next $q$ lines contains an operation; values are between 1 and $10^9$.\n\n**Output.** One line for each operation of the second kind.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5 4\n3 1 4 1 5\n2 1 5\n1 3 10\n2 2 4\n2 3 3\n",
+    "14\n12\n10"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 200000}[size]; q = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]\n    top = 9 if size == 'small' else 10 ** 9\n    lines = [f\"{n} {q}\", ' '.join(str(rng.randint(1, top)) for _ in range(n))]\n    for _ in range(q):\n        if rng.random() < 0.5: lines.append(f\"1 {rng.randint(1, n)} {rng.randint(1, top)}\")\n        else:\n            l = rng.randint(1, n) if size != 'large' else rng.randint(1, max(1, n // 4)); r = rng.randint(l, n) if size != 'large' else rng.randint(max(l, 3 * n // 4), n)\n            lines.append(f\"2 {l} {r}\")\n    return '\\n'.join(lines) + '\\n'\n\ndef solve(text):\n    v = ints(text); n, q = v[0], v[1]; a = [0] + v[2:2 + n]; rest = v[2 + n:]\n    t = [0] * (n + 1)\n    for i in range(1, n + 1):\n        t[i] += a[i]; j = i + (i & -i)\n        if j <= n: t[j] += t[i]\n    def pre(i):\n        s = 0\n        while i: s += t[i]; i -= i & -i\n        return s\n    out = []\n    for k in range(q):\n        kind, x, y = rest[3 * k], rest[3 * k + 1], rest[3 * k + 2]\n        if kind == 1:\n            d = y - a[x]; a[x] = y; i = x\n            while i <= n: t[i] += d; i += i & -i\n        else: out.append(str(pre(y) - pre(x - 1)))\n    return '\\n'.join(out)\ndef brute(text):\n    v = ints(text); n, q = v[0], v[1]; a = [0] + v[2:2 + n]; rest = v[2 + n:]; out = []\n    for k in range(q):\n        kind, x, y = rest[3 * k], rest[3 * k + 1], rest[3 * k + 2]\n        if kind == 1: a[x] = y\n        else: out.append(str(sum(a[x:y + 1])))\n    return '\\n'.join(out)\n"
+ },
+ {
+  "id": "changing-minimum",
+  "title": "Minimum of a changing array",
+  "track": "structures",
+  "statement": "An array of $n$ numbers and $q$ operations of two kinds: `1 i v` sets position $i$ to the value $v$; `2 l r` asks for the smallest value among positions $l$ through $r$.\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 2 \\cdot 10^5$). The second line contains the $n$ numbers, each between 1 and $10^9$. Each of the next $q$ lines contains an operation; values are between 1 and $10^9$.\n\n**Output.** One line for each operation of the second kind.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5 4\n3 1 4 1 5\n2 1 5\n1 2 9\n2 1 3\n2 4 4\n",
+    "1\n3\n1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 200000}[size]; q = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]\n    top = 9 if size == 'small' else 10 ** 9\n    lines = [f\"{n} {q}\", ' '.join(str(rng.randint(1, top)) for _ in range(n))]\n    for _ in range(q):\n        if rng.random() < 0.5: lines.append(f\"1 {rng.randint(1, n)} {rng.randint(1, top)}\")\n        else:\n            l = rng.randint(1, n) if size != 'large' else rng.randint(1, max(1, n // 4)); r = rng.randint(l, n) if size != 'large' else rng.randint(max(l, 3 * n // 4), n)\n            lines.append(f\"2 {l} {r}\")\n    return '\\n'.join(lines) + '\\n'\n\ndef solve(text):\n    v = ints(text); n, q = v[0], v[1]; rest = v[2 + n:]\n    size = 1\n    while size < n: size *= 2\n    t = [10 ** 18] * (2 * size)\n    t[size:size + n] = v[2:2 + n]\n    for i in range(size - 1, 0, -1): t[i] = min(t[2 * i], t[2 * i + 1])\n    out = []\n    for k in range(q):\n        kind, x, y = rest[3 * k], rest[3 * k + 1], rest[3 * k + 2]\n        if kind == 1:\n            i = size + x - 1; t[i] = y; i //= 2\n            while i: t[i] = min(t[2 * i], t[2 * i + 1]); i //= 2\n        else:\n            lo, hi, best = size + x - 1, size + y, 10 ** 18\n            while lo < hi:\n                if lo & 1: best = min(best, t[lo]); lo += 1\n                if hi & 1: hi -= 1; best = min(best, t[hi])\n                lo //= 2; hi //= 2\n            out.append(str(best))\n    return '\\n'.join(out)\ndef brute(text):\n    v = ints(text); n, q = v[0], v[1]; a = [0] + v[2:2 + n]; rest = v[2 + n:]; out = []\n    for k in range(q):\n        kind, x, y = rest[3 * k], rest[3 * k + 1], rest[3 * k + 2]\n        if kind == 1: a[x] = y\n        else: out.append(str(min(a[x:y + 1])))\n    return '\\n'.join(out)\n"
+ },
+ {
+  "id": "fixed-minimum",
+  "title": "Minimum of a fixed array",
+  "track": "structures",
+  "statement": "An array of $n$ numbers that never changes, and $q$ questions: what is the smallest value among positions $l$ through $r$?\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 2 \\cdot 10^5$). The second line contains the $n$ numbers, each between 1 and $10^9$. Each of the next $q$ lines contains $l$ and $r$.\n\n**Output.** One line per question.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5 3\n3 1 4 1 5\n1 5\n3 3\n3 5\n",
+    "1\n4\n1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]; q = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 200000}[size]\n    lines = [f\"{n} {q}\", ' '.join(str(rng.randint(1, 9 if size == 'small' else 10 ** 9)) for _ in range(n))]\n    for _ in range(q):\n        l = rng.randint(1, n); lines.append(f\"{l} {rng.randint(l, n)}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]; rest = v[2 + n:]\n    table = [a]; k = 1\n    while 2 * k <= n:\n        prev = table[-1]; table.append([min(prev[i], prev[i + k]) for i in range(n - 2 * k + 1)]); k *= 2\n    out = []\n    for j in range(q):\n        l, r = rest[2 * j] - 1, rest[2 * j + 1] - 1; b = (r - l + 1).bit_length() - 1\n        out.append(str(min(table[b][l], table[b][r - (1 << b) + 1])))\n    return '\\n'.join(out)\ndef brute(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]; rest = v[2 + n:]\n    return '\\n'.join(str(min(a[rest[2 * j] - 1:rest[2 * j + 1]])) for j in range(q))\n"
+ },
+ {
+  "id": "course-order",
+  "title": "Order of courses",
+  "track": "structures",
+  "statement": "There are $n$ courses and $m$ rules of the form \"course $a$ must be taken before course $b$\". Print the order in which to take all the courses that respects every rule and is smallest in dictionary order (compare the first course, then the second, and so on). If no order exists, print $-1$.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains $a$ and $b$ ($a \\ne b$).\n\n**Output.** $n$ numbers on one line, or $-1$.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "4 3\n3 1\n1 2\n4 2\n",
+    "3 1 4 2"
+   ],
+   [
+    "2 2\n1 2\n2 1\n",
+    "-1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 100000}[size]; m = {'small': rng.randint(0, 7), 'medium': 4000, 'large': 200000}[size]\n    perm = list(range(1, n + 1)); rng.shuffle(perm); lines = []\n    cyclic = rng.random() < 0.25\n    for _ in range(m if n > 1 else 0):\n        i = rng.randint(0, n - 2); j = rng.randint(i + 1, n - 1)\n        if cyclic and rng.random() < (0.3 if size == 'small' else 0.0001): i, j = j, i\n        lines.append(f\"{perm[i]} {perm[j]}\")\n    return f\"{n} {len(lines)}\\n\" + ''.join(l + '\\n' for l in lines)\ndef solve(text):\n    import heapq\n    v = ints(text); n, m = v[0], v[1]\n    adj = [[] for _ in range(n + 1)]; deg = [0] * (n + 1)\n    for k in range(m):\n        a, b = v[2 + 2 * k], v[3 + 2 * k]; adj[a].append(b); deg[b] += 1\n    heap = [x for x in range(1, n + 1) if deg[x] == 0]; heapq.heapify(heap); out = []\n    while heap:\n        x = heapq.heappop(heap); out.append(x)\n        for u in adj[x]:\n            deg[u] -= 1\n            if deg[u] == 0: heapq.heappush(heap, u)\n    return ' '.join(map(str, out)) if len(out) == n else '-1'\ndef brute(text):\n    import itertools\n    v = ints(text); n, m = v[0], v[1]; E = [(v[2 + 2 * k], v[3 + 2 * k]) for k in range(m)]\n    for p in itertools.permutations(range(1, n + 1)):\n        pos = {x: i for i, x in enumerate(p)}\n        if all(pos[a] < pos[b] for a, b in E): return ' '.join(map(str, p))\n    return '-1'\n"
+ },
+ {
+  "id": "cheapest-network",
+  "title": "Cheapest network",
+  "track": "structures",
+  "statement": "$n$ towns and $m$ possible cables, each joining two towns at a given cost. Print the smallest total cost of a set of cables that connects all the towns, or $-1$ if they cannot all be connected.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different towns and a cost between 1 and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "4 5\n1 2 1\n2 3 2\n1 3 3\n3 4 4\n2 4 5\n",
+    "7"
+   ],
+   [
+    "3 1\n1 2 7\n",
+    "-1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 100000}[size]; m = {'small': rng.randint(0, 8), 'medium': 4000, 'large': 200000}[size]\n    lines = []\n    if size != 'small' and rng.random() < 0.7:\n        for i in range(2, n + 1): lines.append(f\"{rng.randint(1, i - 1)} {i} {rng.randint(1, 10 ** 9)}\")\n    while len(lines) < m and n > 1:\n        a = rng.randint(1, n); b = rng.randint(1, n)\n        if a != b: lines.append(f\"{a} {b} {rng.randint(1, 9 if size == 'small' else 10 ** 9)}\")\n    rng.shuffle(lines)\n    return f\"{n} {len(lines)}\\n\" + ''.join(l + '\\n' for l in lines)\ndef solve(text):\n    v = ints(text); n, m = v[0], v[1]\n    E = sorted((v[4 + 3 * k], v[2 + 3 * k], v[3 + 3 * k]) for k in range(m))\n    p = list(range(n + 1))\n    def find(x):\n        while p[x] != x: p[x] = p[p[x]]; x = p[x]\n        return x\n    total = used = 0\n    for w, a, b in E:\n        a, b = find(a), find(b)\n        if a != b: p[a] = b; total += w; used += 1\n    return str(total) if used == n - 1 else '-1'\ndef brute(text):\n    import itertools\n    v = ints(text); n, m = v[0], v[1]; E = [(v[2 + 3 * k], v[3 + 3 * k], v[4 + 3 * k]) for k in range(m)]\n    best = None\n    for mask in range(1 << m):\n        label = list(range(n + 1)); cost = 0\n        for i in range(m):\n            if mask >> i & 1:\n                a, b, w = E[i]; cost += w; la, lb = label[a], label[b]\n                if la != lb: label = [lb if x == la else x for x in label]\n        if len(set(label[1:])) == 1 and (best is None or cost < best): best = cost\n    return str(best) if best is not None else '-1'\n"
+ },
+ {
+  "id": "critical-roads",
+  "title": "Roads that must not close",
+  "track": "structures",
+  "statement": "$n$ towns and $m$ two-way roads. A road is critical if closing it alone would cut some town off from another that it can currently reach. Print the number of critical roads.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different towns. No pair of towns appears twice.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5 5\n1 2\n2 3\n3 1\n3 4\n4 5\n",
+    "2"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 100000}[size]; m = {'small': rng.randint(0, 9), 'medium': 2600, 'large': 130000}[size]\n    seen = set()\n    if size != 'small':\n        for i in range(2, n + 1):\n            a = rng.randint(max(1, i - (1 if rng.random() < 0.5 else 50)), i - 1); seen.add((a, i))\n    tries = 0\n    while len(seen) < min(m, n * (n - 1) // 2) and tries < 10 * m + 100:\n        tries += 1; a = rng.randint(1, n); b = rng.randint(1, n)\n        if a != b: seen.add((min(a, b), max(a, b)))\n    E = list(seen); rng.shuffle(E)\n    return f\"{n} {len(E)}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in E)\ndef solve(text):\n    v = ints(text); n, m = v[0], v[1]\n    adj = [[] for _ in range(n + 1)]\n    for k in range(m):\n        a, b = v[2 + 2 * k], v[3 + 2 * k]; adj[a].append((b, k)); adj[b].append((a, k))\n    tin = [0] * (n + 1); low = [0] * (n + 1); timer = 0; count = 0\n    for s in range(1, n + 1):\n        if tin[s]: continue\n        timer += 1; tin[s] = low[s] = timer; stack = [(s, -1, 0)]\n        while stack:\n            x, pe, i = stack.pop()\n            if i < len(adj[x]):\n                stack.append((x, pe, i + 1)); u, e = adj[x][i]\n                if e == pe: continue\n                if tin[u]: low[x] = min(low[x], tin[u])\n                else:\n                    timer += 1; tin[u] = low[u] = timer; stack.append((u, e, 0))\n            elif stack:\n                par = stack[-1][0]; low[par] = min(low[par], low[x])\n                if low[x] > tin[par]: count += 1\n    return str(count)\ndef brute(text):\n    v = ints(text); n, m = v[0], v[1]; E = [(v[2 + 2 * k], v[3 + 2 * k]) for k in range(m)]\n    def comps(es):\n        label = list(range(n + 1))\n        for a, b in es:\n            la, lb = label[a], label[b]\n            if la != lb: label = [lb if x == la else x for x in label]\n        return len(set(label[1:]))\n    base = comps(E)\n    return str(sum(1 for i in range(m) if comps(E[:i] + E[i + 1:]) > base))\n"
+ },
+ {
+  "id": "occurrences",
+  "title": "Occurrences of a pattern",
+  "track": "strings",
+  "statement": "Given a text and a pattern, both of lowercase letters, count the positions where the pattern occurs in the text. Occurrences may overlap.\n\n**Input.** The first line contains the text and the second the pattern; each has length between 1 and $5 \\cdot 10^5$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "abababa\naba\n",
+    "3"
+   ],
+   [
+    "aaaa\nb\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': 3000, 'large': 500000}[size]\n    alpha = 'ab' if rng.random() < 0.7 else 'abc'\n    if size == 'small':\n        t = ''.join(rng.choice(alpha) for _ in range(n)); p = ''.join(rng.choice(alpha) for _ in range(rng.randint(1, 3)))\n    elif rng.random() < 0.5:\n        m = n // 2; t = 'a' * n; p = 'a' * m if rng.random() < 0.5 else 'a' * (m - 1) + 'b'\n    else:\n        block = ''.join(rng.choice(alpha) for _ in range(rng.randint(1, 5))); t = (block * (n // len(block) + 1))[:n]; p = (block * 50)[:rng.randint(1, 100)]\n    return f\"{t}\\n{p}\\n\"\ndef solve(text):\n    t, p = text.split()\n    m = len(p); fail = [0] * (m + 1); k = 0\n    for i in range(1, m):\n        while k and p[i] != p[k]: k = fail[k]\n        if p[i] == p[k]: k += 1\n        fail[i + 1] = k\n    count = k = 0\n    for ch in t:\n        while k and (k == m or ch != p[k]): k = fail[k]\n        if ch == p[k]: k += 1\n        if k == m: count += 1\n    return str(count)\ndef brute(text):\n    t, p = text.split()\n    return str(sum(1 for i in range(len(t) - len(p) + 1) if t[i:i + len(p)] == p))\n"
+ },
+ {
+  "id": "coin-ways",
+  "title": "Ways to pay",
+  "track": "tables",
+  "statement": "You have unlimited coins of $n$ different values. In how many ways can you pay exactly $x$, if the order of the coins does not matter? Print the answer modulo $1\\,000\\,000\\,007$.\n\n**Input.** The first line contains $n$ and $x$ ($1 \\le n \\le 100$, $1 \\le x \\le 2 \\cdot 10^5$). The second line contains the $n$ different coin values, each between 1 and $2 \\cdot 10^5$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3 9\n2 3 5\n",
+    "3"
+   ],
+   [
+    "1 7\n2\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 4), 'medium': 30, 'large': 100}[size]; x = {'small': rng.randint(1, 12), 'medium': 3000, 'large': 200000}[size]\n    top = {'small': 6, 'medium': 300, 'large': 200000}[size]\n    coins = rng.sample(range(1, top + 1), min(n, top))\n    if size == 'large': coins = rng.sample(range(1, 400), 60) + rng.sample(range(400, 200000), 40)\n    return f\"{len(coins)} {x}\\n{' '.join(map(str, coins))}\\n\"\ndef solve(text):\n    v = ints(text); n, x = v[0], v[1]\n    ways = [0] * (x + 1); ways[0] = 1\n    for c in v[2:]:\n        for s in range(c, x + 1):\n            w = ways[s] + ways[s - c]\n            ways[s] = w - MOD if w >= MOD else w\n    return str(ways[x])\ndef brute(text):\n    v = ints(text); n, x = v[0], v[1]; coins = v[2:]\n    def f(i, left):\n        if left == 0: return 1\n        if i == len(coins): return 0\n        return sum(f(i + 1, left - k * coins[i]) for k in range(left // coins[i] + 1))\n    return str(f(0, x) % MOD)\n"
+ },
+ {
+  "id": "grid-routes",
+  "title": "Routes through a field",
+  "track": "tables",
+  "statement": "A field of $n$ rows and $m$ columns; some cells are blocked. You start in the top-left cell and move only right or down. Count the routes to the bottom-right cell, modulo $1\\,000\\,000\\,007$. A blocked start or finish gives 0.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n, m \\le 1000$). Each of the next $n$ lines contains $m$ characters: `.` for a free cell, `#` for a blocked one.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3 3\n...\n.#.\n...\n",
+    "2"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 4), 'medium': 60, 'large': 1000}[size]; m = {'small': rng.randint(1, 4), 'medium': 60, 'large': 1000}[size]\n    p = rng.choice([0.0, 0.05, 0.2]) if size != 'large' else rng.choice([0.0, 0.01])\n    rows = [''.join('#' if rng.random() < p else '.' for _ in range(m)) for _ in range(n)]\n    return f\"{n} {m}\\n\" + ''.join(r + '\\n' for r in rows)\ndef solve(text):\n    parts = text.split(); n, m = int(parts[0]), int(parts[1]); g = parts[2:]\n    prev = [0] * m\n    for i in range(n):\n        cur = [0] * m; row = g[i]\n        for j in range(m):\n            if row[j] == '#': continue\n            if i == 0 and j == 0: cur[j] = 1\n            else:\n                w = prev[j] + (cur[j - 1] if j else 0)\n                cur[j] = w - MOD if w >= MOD else w\n        prev = cur\n    return str(prev[m - 1])\ndef brute(text):\n    parts = text.split(); n, m = int(parts[0]), int(parts[1]); g = parts[2:]\n    def f(i, j):\n        if i >= n or j >= m or g[i][j] == '#': return 0\n        if (i, j) == (n - 1, m - 1): return 1\n        return f(i + 1, j) + f(i, j + 1)\n    return str(f(0, 0) % MOD)\n"
+ },
+ {
+  "id": "job-order",
+  "title": "Order of jobs",
+  "track": "tables",
+  "statement": "$n$ jobs must be done one after another. Job $i$ takes $t_i$ minutes and has weight $w_i$; its cost is $w_i$ times the minute at which it finishes. Print the smallest possible total cost.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). Each of the next $n$ lines contains $t_i$ and $w_i$, both between 1 and $10^4$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3\n3 1\n1 2\n2 4\n",
+    "20"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 200000}[size]; top = 6 if size == 'small' else 10 ** 4\n    return f\"{n}\\n\" + ''.join(f\"{rng.randint(1, top)} {rng.randint(1, top)}\\n\" for _ in range(n))\ndef solve(text):\n    from functools import cmp_to_key\n    v = ints(text); n = v[0]; jobs = [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n)]\n    jobs.sort(key=cmp_to_key(lambda a, b: a[0] * b[1] - b[0] * a[1]))\n    t = c = 0\n    for l, w in jobs: t += l; c += w * t\n    return str(c)\ndef brute(text):\n    import itertools\n    v = ints(text); n = v[0]; jobs = [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n)]\n    best = None\n    for p in itertools.permutations(jobs):\n        t = c = 0\n        for l, w in p: t += l; c += w * t\n        best = c if best is None else min(best, c)\n    return str(best)\n"
+ },
+ {
+  "id": "xor-queries",
+  "title": "XOR of a stretch",
+  "track": "bits",
+  "statement": "An array of $n$ numbers and $q$ questions: what is the XOR of the numbers in positions $l$ through $r$?\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 2 \\cdot 10^5$). The second line contains the $n$ numbers, each between 0 and $10^9$. Each of the next $q$ lines contains $l$ and $r$.\n\n**Output.** One line per question.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5 3\n3 5 6 2 7\n1 5\n2 4\n3 3\n",
+    "5\n1\n6"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]; q = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 200000}[size]\n    lines = [f\"{n} {q}\", ' '.join(str(rng.randint(0, 7 if size == 'small' else 10 ** 9)) for _ in range(n))]\n    for _ in range(q):\n        if size == 'large': l, r = rng.randint(1, n // 4), rng.randint(3 * n // 4, n)\n        else:\n            l = rng.randint(1, n); r = rng.randint(l, n)\n        lines.append(f\"{l} {r}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); n, q = v[0], v[1]; rest = v[2 + n:]\n    p = [0]\n    for x in v[2:2 + n]: p.append(p[-1] ^ x)\n    return '\\n'.join(str(p[rest[2 * k + 1]] ^ p[rest[2 * k] - 1]) for k in range(q))\ndef brute(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]; rest = v[2 + n:]; out = []\n    for k in range(q):\n        x = 0\n        for y in a[rest[2 * k] - 1:rest[2 * k + 1]]: x ^= y\n        out.append(str(x))\n    return '\\n'.join(out)\n"
+ },
+ {
+  "id": "xor-pairs",
+  "title": "XOR over all pairs",
+  "track": "bits",
+  "statement": "You are given $n$ numbers. Add up $a_i \\text{ XOR } a_j$ over all pairs of positions $i < j$ and print the total.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 0 and $10^6$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3\n1 2 3\n",
+    "6"
+   ],
+   [
+    "1\n9\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]\n    return f\"{n}\\n{' '.join(str(rng.randint(0, 15 if size == 'small' else 10 ** 6)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]; n = len(a); total = 0\n    for b in range(20):\n        c = sum(x >> b & 1 for x in a); total += (c * (n - c)) << b\n    return str(total)\ndef brute(text):\n    v = ints(text); a = v[1:]\n    return str(sum(a[i] ^ a[j] for i in range(len(a)) for j in range(i + 1, len(a))))\n"
+ },
+ {
+  "id": "nim-winner",
+  "title": "Who wins the piles",
+  "track": "bits",
+  "statement": "Several games are played, each with some piles of stones. Players alternate; a move removes any positive number of stones from one pile; whoever takes the last stone wins. For each game print `first` or `second`.\n\n**Input.** The first line contains the number of games $t$. Each game is two lines: the number of piles $n$, then the $n$ pile sizes, each between 1 and $10^9$. The total number of piles is at most $2 \\cdot 10^5$.\n\n**Output.** One line per game.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3\n2\n5 5\n3\n1 2 3\n3\n3 4 5\n",
+    "second\nsecond\nfirst"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 3), 'medium': 50, 'large': 2000}[size]; lines = [str(t)]\n    for _ in range(t):\n        n = rng.randint(1, 3) if size == 'small' else rng.randint(1, 100)\n        piles = [rng.randint(1, 4 if size == 'small' else 10 ** 9) for _ in range(n)]\n        if size != 'small' and rng.random() < 0.4 and n > 1:\n            x = 0\n            for p in piles[:-1]: x ^= p\n            piles[-1] = x if x else piles[-1]\n        lines.append(str(n)); lines.append(' '.join(map(str, piles)))\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); t = v[0]; i = 1; out = []\n    for _ in range(t):\n        n = v[i]; x = 0\n        for p in v[i + 1:i + 1 + n]: x ^= p\n        out.append('first' if x else 'second'); i += n + 1\n    return '\\n'.join(out)\ndef brute(text):\n    import functools\n    @functools.lru_cache(None)\n    def win(s): return any(not win(tuple(sorted(s[:i] + (p - k,) + s[i + 1:]))) for i, p in enumerate(s) for k in range(1, p + 1))\n    v = ints(text); t = v[0]; i = 1; out = []\n    for _ in range(t):\n        n = v[i]; out.append('first' if win(tuple(sorted(v[i + 1:i + 1 + n]))) else 'second'); i += n + 1\n    return '\\n'.join(out)\n"
+ },
+ {
+  "id": "stick-game",
+  "title": "Winning piles",
+  "track": "bits",
+  "statement": "A pile of stones and a list of allowed move sizes: a move removes exactly one of those numbers of stones; a player who cannot move loses. For every pile size from 1 to $n$, decide whether the player to move wins. Print a string of $n$ characters, `W` or `L`.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le n \\le 10^6$, $1 \\le k \\le 30$). The second line contains the $k$ different move sizes, each between 1 and $n$.\n\n**Output.** One string.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "10 3\n1 3 4\n",
+    "WLWWWWLWLW"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 12), 'medium': 3000, 'large': 10 ** 6}[size]; k = min(n, {'small': rng.randint(1, 3), 'medium': 10, 'large': 30}[size])\n    moves = rng.sample(range(1, min(n, 60 if size != 'small' else n) + 1), min(k, min(n, 60 if size != 'small' else n)))\n    return f\"{n} {len(moves)}\\n{' '.join(map(str, moves))}\\n\"\ndef solve(text):\n    v = ints(text); n, k = v[0], v[1]; moves = v[2:]\n    win = bytearray(n + 1)\n    for s in range(1, n + 1):\n        for m in moves:\n            if m <= s and not win[s - m]: win[s] = 1; break\n    return ''.join('W' if win[s] else 'L' for s in range(1, n + 1))\ndef brute(text):\n    import functools, sys\n    sys.setrecursionlimit(10000)\n    v = ints(text); n, k = v[0], v[1]; moves = tuple(v[2:])\n    @functools.lru_cache(None)\n    def w(s): return any(not w(s - m) for m in moves if m <= s)\n    return ''.join('W' if w(s) else 'L' for s in range(1, n + 1))\n"
+ },
+ {
+  "id": "two-baskets",
+  "title": "Two baskets",
+  "track": "bits",
+  "statement": "$n$ apples with known weights must be put into two baskets. Print the smallest possible difference between the total weights of the two baskets.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 20$). The second line contains the $n$ weights, each between 1 and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5\n3 2 7 4 1\n",
+    "1"
+   ],
+   [
+    "1\n9\n",
+    "9"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 6), 'medium': 14, 'large': 20}[size]\n    return f\"{n}\\n{' '.join(str(rng.randint(1, 20 if size == 'small' else 10 ** 9)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]; total = sum(a); sums = [0]\n    for x in a: sums = sums + [s + x for s in sums]\n    return str(min(abs(total - 2 * s) for s in sums))\ndef brute(text):\n    import itertools\n    v = ints(text); a = v[1:]; total = sum(a)\n    return str(min(abs(total - 2 * sum(c)) for k in range(len(a) + 1) for c in itertools.combinations(a, k)))\n"
+ },
+ {
+  "id": "coprime-pairs",
+  "title": "Pairs with nothing in common",
+  "track": "numbers",
+  "statement": "You are given $n$ numbers. Count the pairs of positions $i < j$ whose numbers have greatest common divisor 1.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). The second line contains $n$ numbers, each between 1 and $10^5$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5\n2 3 4 9 5\n",
+    "8"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 100000}[size]; top = {'small': 12, 'medium': 2000, 'large': 100000}[size]\n    return f\"{n}\\n{' '.join(str(rng.randint(1, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]; top = max(a); cnt = [0] * (top + 1)\n    for x in a: cnt[x] += 1\n    exact = [0] * (top + 1)\n    for g in range(top, 0, -1):\n        c = sum(cnt[g::g]); e = c * (c - 1) // 2 - sum(exact[2 * g::g])\n        exact[g] = e\n    return str(exact[1])\ndef brute(text):\n    import math\n    v = ints(text); a = v[1:]\n    return str(sum(1 for i in range(len(a)) for j in range(i + 1, len(a)) if math.gcd(a[i], a[j]) == 1))\n"
+ },
+ {
+  "id": "stretch-totals",
+  "title": "Sum of all stretch sums",
+  "track": "tables",
+  "statement": "You are given $n$ numbers. Take the sum of every contiguous stretch (all $n(n+1)/2$ of them) and add those sums together. Print the result modulo $1\\,000\\,000\\,007$.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3\n1 2 3\n",
+    "20"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nMOD = 10 ** 9 + 7\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]\n    return f\"{n}\\n{' '.join(str(rng.randint(1, 9 if size == 'small' else 10 ** 9)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]; n = len(a)\n    return str(sum(x * (i + 1) * (n - i) for i, x in enumerate(a)) % MOD)\ndef brute(text):\n    v = ints(text); a = v[1:]; n = len(a)\n    return str(sum(sum(a[i:j + 1]) for i in range(n) for j in range(i, n)) % MOD)\n"
  }
 ]

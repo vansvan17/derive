@@ -142,6 +142,15 @@
    ],
    "showed": "The sum over g of g times E(g).",
    "tier": "hard"
+  },
+  {
+   "id": "c-coprime",
+   "kind": "code",
+   "task": "coprime-pairs",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Count occurrences by value; for each g from large to small, c = number of elements that are multiples of g (loop over multiples), exact[g] = c(c - 1)/2 minus exact[2g], exact[3g], ...",
+   "tier": "hard"
   }
  ],
  "reveal": {

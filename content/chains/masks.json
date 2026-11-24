@@ -167,6 +167,15 @@
    ],
    "showed": "Person 1 takes task 2, person 2 task 1, person 3 task 3, person 4 task 4: 2 + 6 + 1 + 4. For larger sizes, process people in order and remember only the set of tasks already used: 2^n states instead of n! orders.",
    "tier": "hard"
+  },
+  {
+   "id": "c-baskets",
+   "kind": "code",
+   "task": "two-baskets",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "A loop over all 2^n numbers, each one a choice of basket for every apple, adding the weights whose bit is set; or build the subset sums incrementally. 64-bit sums.",
+   "tier": "hard"
   }
  ],
  "reveal": {

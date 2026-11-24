@@ -169,6 +169,15 @@
    ],
    "showed": "1000 is 1111101000: nine squarings to reach $a^{512}$, and five more multiplications to combine the six powers that are needed.",
    "tier": "hard"
+  },
+  {
+   "id": "c-power",
+   "kind": "code",
+   "task": "power-mod",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "A loop over the bits of b: square the base, multiply into the result when the bit is set. Reduce the base before starting, use 64-bit products, and remember that the modulus can be 1.",
+   "tier": "hard"
   }
  ],
  "reveal": {

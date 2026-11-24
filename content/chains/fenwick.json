@@ -191,6 +191,15 @@
    ],
    "showed": "For each new value, count the earlier values that are larger, then record the new value. With boxes indexed by value, both steps are a handful of look-ups: n log n in all.",
    "tier": "hard"
+  },
+  {
+   "id": "c-sums",
+   "kind": "code",
+   "task": "changing-sums",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "An array t of size n + 1; an update walks i += i & -i adding the change (new value minus old); a prefix query walks i -= i & -i. Keep the current values so you know the change.",
+   "tier": "hard"
   }
  ],
  "reveal": {

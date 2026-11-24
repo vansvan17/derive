@@ -153,6 +153,15 @@
    ],
    "showed": "Every arrow goes forward, so the stations in increasing order are a valid processing order: routes to j = routes to j - 2 plus routes to j - 3.",
    "tier": "hard"
+  },
+  {
+   "id": "c-order",
+   "kind": "code",
+   "task": "course-order",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Count incoming rules per course, keep the available courses in a min-heap instead of a queue so that the smallest goes first, and compare the length of the result with n to detect a cycle.",
+   "tier": "hard"
   }
  ],
  "reveal": {

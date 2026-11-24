@@ -168,6 +168,15 @@
    ],
    "showed": "A place survives the AND only if all three numbers have it: C(c_k, 3) triples for place k. With c = 10, 10, 9, 8, 5 for the places 1, 2, 4, 8, 16: 120 + 240 + 336 + 448 + 160.",
    "tier": "hard"
+  },
+  {
+   "id": "c-xorsum",
+   "kind": "code",
+   "task": "xor-pairs",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Twenty passes, one per bit: count the numbers with that bit, multiply by the count without it, shift into place. The total needs 64 bits.",
+   "tier": "hard"
   }
  ],
  "reveal": {

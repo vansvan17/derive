@@ -161,6 +161,15 @@
    ],
    "showed": "1 x 961 + 2 x 31 + 3.",
    "tier": "hard"
+  },
+  {
+   "id": "c-occur",
+   "kind": "code",
+   "task": "occurrences",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Prefix hashes of the text with precomputed powers, compared with the hash of the pattern at every start; add the modulus before taking a remainder after subtraction. (A prefix function on pattern + # + text also works.)",
+   "tier": "hard"
   }
  ],
  "reveal": {

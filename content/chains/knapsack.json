@@ -166,6 +166,15 @@
    ],
    "showed": "Three coins of 21. Largest-first is not safe for arbitrary coin systems; the table over totals is.",
    "tier": "hard"
+  },
+  {
+   "id": "c-ways",
+   "kind": "code",
+   "task": "coin-ways",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Coins in the outer loop and totals upward in the inner loop, so each multiset of coins is counted once; one array of size x + 1.",
+   "tier": "hard"
   }
  ],
  "reveal": {

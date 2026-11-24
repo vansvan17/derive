@@ -175,6 +175,15 @@
    ],
    "showed": "In a tree every road is critical: 99. The new road puts exactly the 37 roads of the old route on a cycle, and is itself on that cycle.",
    "tier": "hard"
+  },
+  {
+   "id": "c-critical",
+   "kind": "code",
+   "task": "critical-roads",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Entry times and low values from one depth-first search; skip the edge you arrived by (by its index, not by the parent vertex); a tree edge to v is critical when low[v] is greater than the entry time of its upper end.",
+   "tier": "hard"
   }
  ],
  "reveal": {

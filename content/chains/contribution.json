@@ -193,6 +193,15 @@
    ],
    "showed": "k is the smallest element of exactly 2^(10-k) subsets (any choice of larger elements). Add k times that over k.",
    "tier": "hard"
+  },
+  {
+   "id": "c-totals",
+   "kind": "code",
+   "task": "stretch-totals",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "One pass: element i (counting from 1) lies in i x (n - i + 1) stretches. Reduce modulo the prime before the product overflows: i x (n - i + 1) alone is up to 10^10.",
+   "tier": "hard"
   }
  ],
  "reveal": {

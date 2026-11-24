@@ -158,6 +158,15 @@
    ],
    "showed": "The partner of a is a XOR 6, which stays inside the same block of eight (8k to 8k+7), four pairs per block. Blocks 8..15 up to 88..95 are complete: 11 blocks, 44 pairs. From 0..7 the pair (0, 6) is lost, leaving 3. From 96..103 only (98, 100) lies within range. 44 + 3 + 1.",
    "tier": "hard"
+  },
+  {
+   "id": "c-xor",
+   "kind": "code",
+   "task": "xor-queries",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Prefix XORs with an extra 0 at the front; each answer is the XOR of two of them.",
+   "tier": "hard"
   }
  ],
  "reveal": {

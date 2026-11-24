@@ -164,6 +164,15 @@
    ],
    "showed": "Swapping two neighbours so that the earlier deadline comes first never increases the larger of their two latenesses. So do the tasks in order of deadline.",
    "tier": "hard"
+  },
+  {
+   "id": "c-jobs",
+   "kind": "code",
+   "task": "job-order",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "Sort with a comparator derived from the swap argument, t1 x w2 < t2 x w1, written with multiplication rather than division; then one pass accumulating the finishing time. 64-bit total.",
+   "tier": "hard"
   }
  ],
  "reveal": {

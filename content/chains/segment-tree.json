@@ -168,6 +168,15 @@
    ],
    "showed": "A tree in which every inner node has two children and there are n leaves has n - 1 inner nodes: 2n - 1 in all.",
    "tier": "hard"
+  },
+  {
+   "id": "c-min",
+   "kind": "code",
+   "task": "changing-minimum",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "An array of size twice a power of two, leaves at the back; an update fixes a leaf and recomputes its ancestors; a query combines O(log n) nodes from both ends inward.",
+   "tier": "hard"
   }
  ],
  "reveal": {

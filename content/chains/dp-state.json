@@ -181,6 +181,15 @@
    ],
    "showed": "The strip begins with one vertical domino (leaving n - 1), or with two horizontal dominoes or one square (leaving n - 2 in two ways): T(n) = T(n-1) + 2 T(n-2).",
    "tier": "hard"
+  },
+  {
+   "id": "c-routes",
+   "kind": "code",
+   "task": "grid-routes",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "One number per cell, from the cell above and the cell to the left, zero on blocked cells; a single row is enough memory. Check the start cell before anything else.",
+   "tier": "hard"
   }
  ],
  "reveal": {

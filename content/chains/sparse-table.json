@@ -155,6 +155,15 @@
    ],
    "showed": "gcd(x, x) = x, so overlap is harmless and the trick applies. The two blocks of 8 give gcd 12 each.",
    "tier": "hard"
+  },
+  {
+   "id": "c-fixed",
+   "kind": "code",
+   "task": "fixed-minimum",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "About 18 rows; row k is built from row k - 1; a query takes the highest bit of the length and two look-ups. With this many answers, use fast input and output.",
+   "tier": "hard"
   }
  ],
  "reveal": {

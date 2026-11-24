@@ -165,6 +165,24 @@
    ],
    "showed": "Fill the smallest-prime-factor table once and add it up.",
    "tier": "hard"
+  },
+  {
+   "id": "c-primes",
+   "kind": "code",
+   "task": "count-primes",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "One sieve up to the largest r, one array of running counts, one subtraction per question. Sieve once, not per question.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-factor",
+   "kind": "code",
+   "task": "largest-factor",
+   "prompt": "And the version that keeps more than a yes or no per cell.",
+   "nudges": [],
+   "showed": "Let every prime write itself into all its multiples, in increasing order of primes: the last one to write is the largest prime factor.",
+   "tier": "hard"
   }
  ],
  "reveal": {

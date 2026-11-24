@@ -178,6 +178,15 @@
    ],
    "showed": "Still the second player. Play exactly as in the normal game (keep the XOR at 0) until a move would leave only piles of size 1; at that moment leave an odd number of them instead of an even number. Only positions made entirely of single stones behave differently.",
    "tier": "hard"
+  },
+  {
+   "id": "c-nim",
+   "kind": "code",
+   "task": "nim-winner",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "One XOR per game. The work is in reading the input format correctly and resetting the XOR for each game.",
+   "tier": "hard"
   }
  ],
  "reveal": {

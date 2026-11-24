@@ -25,6 +25,9 @@ class Content:
         # Unrated practice tasks (CSES) offered once an idea's chain is finished.
         path = self.root / 'content/practice.json'
         self.practice = json.loads(path.read_text()) if path.exists() else {}
+        # Past ICPC regional papers: links only, shown on the contest page.
+        path = self.root / 'content/papers.json'
+        self.papers = json.loads(path.read_text()) if path.exists() else []
 
     def step(self, idea, step_id):
         chain = self.chains.get(idea)

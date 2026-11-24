@@ -1,0 +1,189 @@
+[
+ {
+  "year": "2025-26",
+  "name": "Amritapuri regional",
+  "note": "Problem A is not mirrored.",
+  "links": [
+   {
+    "label": "Problems (CodeChef)",
+    "url": "https://www.codechef.com/ICPCAMRRP25"
+   },
+   {
+    "label": "Tutorial for the hard ones (UCup)",
+    "url": "https://assets.ucup.ac/tutorials/tutorials-4-20-en.pdf"
+   },
+   {
+    "label": "Discussion",
+    "url": "https://codeforces.com/blog/entry/149832"
+   }
+  ]
+ },
+ {
+  "year": "2025-26",
+  "name": "Chennai regional",
+  "note": "",
+  "links": [
+   {
+    "label": "Paper (PDF)",
+    "url": "https://icpc-iiitdm.vercel.app/Icpc%202025/ICPC_Chennai_2025_Problems.pdf"
+   },
+   {
+    "label": "Problems (CodeChef)",
+    "url": "https://www.codechef.com/ICPCCHNRP25"
+   },
+   {
+    "label": "Editorial",
+    "url": "https://drive.google.com/file/d/1Gd_W04FBmOByXNVVo0ttxWLI0RbrNVtc/view"
+   },
+   {
+    "label": "Discussion",
+    "url": "https://codeforces.com/blog/entry/149710"
+   }
+  ]
+ },
+ {
+  "year": "2025-26",
+  "name": "Kanpur regional",
+  "note": "",
+  "links": [
+   {
+    "label": "Problems (CodeChef)",
+    "url": "https://www.codechef.com/ICPCKANRP25"
+   },
+   {
+    "label": "Editorial",
+    "url": "https://drive.google.com/file/d/1F8EuzrP4g28O_r9uUbmOwtPJPQvDAZTj/view"
+   },
+   {
+    "label": "Discussion",
+    "url": "https://codeforces.com/blog/entry/149435"
+   }
+  ]
+ },
+ {
+  "year": "2025",
+  "name": "India online prelims",
+  "note": "",
+  "links": [
+   {
+    "label": "Problems (CodeChef)",
+    "url": "https://www.codechef.com/ICPCOL2025"
+   }
+  ]
+ },
+ {
+  "year": "2024-25",
+  "name": "Amritapuri regional",
+  "note": "The onsite itself ran on this page.",
+  "links": [
+   {
+    "label": "Problems (CodeChef)",
+    "url": "https://www.codechef.com/ICPCAMROS24"
+   },
+   {
+    "label": "Discussion",
+    "url": "https://codeforces.com/blog/entry/137912"
+   }
+  ]
+ },
+ {
+  "year": "2024-25",
+  "name": "Chennai regional",
+  "note": "No judge: test your own solutions.",
+  "links": [
+   {
+    "label": "Paper (PDF)",
+    "url": "https://icpc-iiitdm.vercel.app/ICPC_Chennai_Onsite_Question_Paper.pdf"
+   },
+   {
+    "label": "Discussion",
+    "url": "https://codeforces.com/blog/entry/138076"
+   }
+  ]
+ },
+ {
+  "year": "2024-25",
+  "name": "Kanpur regional",
+  "note": "No judge: test your own solutions.",
+  "links": [
+   {
+    "label": "Paper (PDF)",
+    "url": "https://kanpur.indiaicpc.in/docs/Problem_Set2024.pdf"
+   }
+  ]
+ },
+ {
+  "year": "2023-24",
+  "name": "Amritapuri regional",
+  "note": "The statements are inside the editorial slides.",
+  "links": [
+   {
+    "label": "Editorial slides",
+    "url": "https://docs.google.com/presentation/d/12IG1ZXaJtcOg1Is9Ut9ycRZ9bgEv8Ww0FP7deVVWKMY/edit"
+   },
+   {
+    "label": "Discussion",
+    "url": "https://codeforces.com/blog/entry/125153"
+   }
+  ]
+ },
+ {
+  "year": "2019",
+  "name": "Amritapuri regional",
+  "note": "Judge still works.",
+  "links": [
+   {
+    "label": "Problems (CodeChef)",
+    "url": "https://www.codechef.com/AM19MOS"
+   }
+  ]
+ },
+ {
+  "year": "2019",
+  "name": "Kanpur regional",
+  "note": "Judge still works.",
+  "links": [
+   {
+    "label": "Problems (CodeChef)",
+    "url": "https://www.codechef.com/KA19MOS"
+   }
+  ]
+ },
+ {
+  "year": "2019",
+  "name": "Kharagpur regional",
+  "note": "Judge still works.",
+  "links": [
+   {
+    "label": "Problems (CodeChef)",
+    "url": "https://www.codechef.com/KH19MOS"
+   }
+  ]
+ },
+ {
+  "year": "2019",
+  "name": "Gwalior-Pune regional",
+  "note": "Judge still works.",
+  "links": [
+   {
+    "label": "Problems (CodeChef)",
+    "url": "https://www.codechef.com/GW19MOS"
+   }
+  ]
+ },
+ {
+  "year": "2006-2021",
+  "name": "Older Indian regionals, one archive",
+  "note": "Amritapuri, Kanpur, Kharagpur, Chennai and Gwalior papers, some with solution outlines.",
+  "links": [
+   {
+    "label": "Archive (GitHub)",
+    "url": "https://github.com/m-e-r-l-i-n/icpc-india/tree/main/src"
+   },
+   {
+    "label": "Index of contests",
+    "url": "https://codeforces.com/blog/entry/105000"
+   }
+  ]
+ }
+]

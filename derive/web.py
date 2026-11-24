@@ -644,7 +644,7 @@ class Service:
             if path == '/mastery':
                 return self.mastery(store)
             if path == '/contests':
-                return contest.overview(store)
+                return {**contest.overview(store), 'papers': self.content.papers}
         raise ApiError('Not found.', 404)
 
     def post(self, path, data):

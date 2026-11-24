@@ -1,0 +1,150 @@
+{
+ "idea": "fenwick",
+ "opening": "Running totals are instant to read but slow to change. Here is a compromise built from binary.",
+ "steps": [
+  {
+   "id": "low",
+   "kind": "number",
+   "prompt": "Write 12 in binary. What is the value of its lowest digit that is 1?",
+   "answer": 4,
+   "verify": "result = 12 & -12",
+   "nudges": [
+    "What is 12 in binary, read from the right?"
+   ],
+   "showed": "12 is 1100, and the lowest 1 stands for 4. Call this the low bit of 12."
+  },
+  {
+   "id": "lows",
+   "kind": "list",
+   "prompt": "Write the low bit of each of the numbers 1, 2, 3, 4, 5, 6, 7, 8, in that order.",
+   "answer": [
+    1,
+    2,
+    1,
+    4,
+    1,
+    2,
+    1,
+    8
+   ],
+   "verify": "result = [i & -i for i in range(1, 9)]",
+   "nudges": [
+    "Which numbers are odd, and what is their low bit?"
+   ],
+   "showed": "Odd numbers have 1; every second even number has 2; and so on.",
+   "ordered": true
+  },
+  {
+   "id": "cover",
+   "kind": "list",
+   "prompt": "An array has positions 1 to 8. Box $i$ stores the sum of the last (low bit of $i$) positions ending at $i$. Which positions does box 6 cover?",
+   "answer": [
+    5,
+    6
+   ],
+   "verify": "i = 6\nresult = list(range(i - (i & -i) + 1, i + 1))",
+   "nudges": [
+    "How many positions does box 6 cover, and where does it end?"
+   ],
+   "showed": "Two positions ending at 6. Box 8 covers all eight, box 7 only itself."
+  },
+  {
+   "id": "query",
+   "kind": "list",
+   "prompt": "To get the total of positions 1 to 7, start at box 7, then jump to the box numbered (current number minus its low bit), until you reach 0. Which boxes do you visit, in order?",
+   "answer": [
+    7,
+    6,
+    4
+   ],
+   "verify": "i, out = 7, []\nwhile i: out.append(i); i -= i & -i\nresult = out",
+   "nudges": [
+    "Box 7 covers only position 7. Which box ends at position 6?"
+   ],
+   "showed": "Box 7 covers {7}, box 6 covers {5, 6}, box 4 covers {1, 2, 3, 4}: together exactly 1 to 7.",
+   "ordered": true
+  },
+  {
+   "id": "qcost",
+   "kind": "number",
+   "prompt": "How many boxes are visited for the total of positions 1 to 1000?",
+   "answer": 6,
+   "verify": "result = bin(1000).count(\"1\")",
+   "nudges": [
+    "Each jump removes one binary digit 1 from the number. How many does 1000 have?"
+   ],
+   "showed": "1000 is 1111101000 in binary: six 1s, six boxes."
+  },
+  {
+   "id": "update",
+   "kind": "list",
+   "prompt": "The element at position 3 changes. Which boxes (numbered 1 to 8) cover position 3 and must be corrected?",
+   "answer": [
+    3,
+    4,
+    8
+   ],
+   "verify": "result = [i for i in range(1, 9) if i - (i & -i) < 3 <= i]",
+   "nudges": [
+    "Does box 4 cover position 3? Does box 6?",
+    "What do you get when you add the low bit of 3 to 3, and then repeat?"
+   ],
+   "showed": "3, then 3 + 1 = 4, then 4 + 4 = 8: add the low bit instead of subtracting it."
+  },
+  {
+   "id": "ucost",
+   "kind": "number",
+   "prompt": "For an array of $10^6$ positions, at most how many boxes does one total \"positions 1 to $i$\" have to visit?",
+   "answer": 19,
+   "verify": "result = max(bin(i).count(\"1\") for i in (2 ** 19 - 1, 10 ** 6))",
+   "nudges": [
+    "Which number up to $10^6$ has the most binary digits equal to 1?"
+   ],
+   "showed": "$2^{19} - 1$ has nineteen 1s. Changes are just as cheap."
+  },
+  {
+   "id": "box4",
+   "kind": "number",
+   "prompt": "The array is 5, 3, 7, 9, 6, 4, 1, 2 (positions 1 to 8). What number is stored in box 4?",
+   "answer": 24,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\nlow = lambda i: i & -i\nbox = [0] + [sum(a[i - low(i) + 1:i + 1]) for i in range(1, 9)]\nresult = box[4]",
+   "nudges": [
+    "Which positions does box 4 cover?"
+   ],
+   "showed": "5 + 3 + 7 + 9."
+  },
+  {
+   "id": "range",
+   "kind": "number",
+   "prompt": "For the same array, find the sum of positions 3 to 6 using only boxes. What is it?",
+   "answer": 26,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\nlow = lambda i: i & -i\nbox = [0] + [sum(a[i - low(i) + 1:i + 1]) for i in range(1, 9)]\npre = lambda i: 0 if i == 0 else box[i] + pre(i - (i & -i))\nresult = pre(6) - pre(2)",
+   "nudges": [
+    "How do you write a sum over 3 to 6 using totals that start at position 1?",
+    "Which boxes give the total of positions 1 to 6?"
+   ],
+   "showed": "(box 6 + box 4) minus box 2: 10 + 24 - 8."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Box $j$ covers the positions $j - \\text{low}(j) + 1, \\dots, j$, where low$(j)$ is the low bit of $j$. Starting from $i$, visit $i$, then $i - \\text{low}(i)$, and so on until 0. Prove that the visited boxes cover each of the positions $1, \\dots, i$ exactly once.",
+   "claims": [
+    "If the current box is j and the next is j' = j - low(j), then box j covers exactly the positions j' + 1, ..., j.",
+    "So consecutive boxes cover consecutive stretches that touch but do not overlap: the next box ends at j', just below where box j begins.",
+    "Subtracting the low bit removes one binary 1 each time, so the sequence strictly decreases and reaches 0 after finitely many steps.",
+    "The stretches therefore tile everything from position 1 up to position i with no gaps and no overlaps."
+   ],
+   "nudges": [
+    "Where does box $j$ begin, in terms of the next box's number?",
+    "Why does the sequence of box numbers reach 0?"
+   ],
+   "showed": "Each box ends exactly where the previous one began, all the way down to 0."
+  }
+ ],
+ "reveal": {
+  "name": "Fenwick tree",
+  "statement": "Box $i$ holds the sum of the low-bit$(i)$ elements ending at $i$. A prefix sum walks $i \\to i - \\text{low}(i)$; a point update walks $i \\to i + \\text{low}(i)$. Both take $O(\\log n)$.",
+  "remark": "Also called a binary indexed tree. About ten lines of code, and the first thing to reach for when prefix sums must survive point updates: counting inversions, range sums with updates, and (on the difference array) range updates with point queries."
+ }
+}

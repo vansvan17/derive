@@ -1,0 +1,139 @@
+{
+ "idea": "sieve",
+ "opening": "A table of numbers, and a way to take every one of them apart almost for free.",
+ "steps": [
+  {
+   "id": "cross",
+   "kind": "list",
+   "prompt": "Write the numbers 2 to 30. Cross out every multiple of 2 larger than 2, then every multiple of 3 larger than 3, then every multiple of 5 larger than 5. Which numbers are left?",
+   "answer": [
+    2,
+    3,
+    5,
+    7,
+    11,
+    13,
+    17,
+    19,
+    23,
+    29
+   ],
+   "verify": "result = [n for n in range(2, 31) if all(n % d for d in range(2, n))]",
+   "nudges": [
+    "Is 7 crossed out by any of the three passes? Is 21?"
+   ],
+   "showed": "Exactly the primes up to 30, without a single division."
+  },
+  {
+   "id": "stop",
+   "kind": "choice",
+   "prompt": "Why was it enough to stop after 5 for numbers up to 30?",
+   "options": [
+    "A number up to 30 that is not prime has a prime factor at most $\\sqrt{30} < 6$",
+    "Because 5 is the largest prime below 6",
+    "It was not enough; 7 should be used as well"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If $n = a \\cdot b$ with both $a$ and $b$ larger than 5, how big is $n$?"
+   ],
+   "showed": "Two factors both above $\\sqrt{n}$ would multiply to more than $n$."
+  },
+  {
+   "id": "first",
+   "kind": "number",
+   "prompt": "Change the rule: instead of crossing a cell out, write in it the first prime whose pass reaches it. Do this for the numbers up to 100. What is written in cell 91?",
+   "answer": 7,
+   "verify": "N = 100\nspf = list(range(N + 1))\nfor i in range(2, N + 1):\n    if spf[i] == i:\n        for j in range(i * i, N + 1, i):\n            if spf[j] == j: spf[j] = i\nresult = spf[91]",
+   "nudges": [
+    "Do the passes of 2, 3 or 5 reach 91?"
+   ],
+   "showed": "The cell now holds the smallest prime factor of its number: $91 = 7 \\cdot 13$."
+  },
+  {
+   "id": "chainf",
+   "kind": "list",
+   "prompt": "Use only that table. Look up 84, divide by what is written there, look up the result, and continue until you reach 1. List the primes you divided by, in order.",
+   "answer": [
+    2,
+    2,
+    3,
+    7
+   ],
+   "verify": "N = 100\nspf = list(range(N + 1))\nfor i in range(2, N + 1):\n    if spf[i] == i:\n        for j in range(i * i, N + 1, i):\n            if spf[j] == j: spf[j] = i\nn, out = 84, []\nwhile n > 1: out.append(spf[n]); n //= spf[n]\nresult = out",
+   "nudges": [
+    "What is written in cell 84, and which cell do you look at next?"
+   ],
+   "showed": "Four look-ups and the number is fully factorised.",
+   "ordered": true
+  },
+  {
+   "id": "steps",
+   "kind": "number",
+   "prompt": "With such a table up to $10^6$, what is the largest number of look-ups any number below $10^6$ can need?",
+   "answer": 19,
+   "verify": "result = max(n.bit_length() - 1 for n in (2 ** 19, 10 ** 6 - 1))",
+   "nudges": [
+    "Each division removes a factor of at least 2. How many times can a number below $10^6$ be halved?"
+   ],
+   "showed": "Each step at least halves the number, and $2^{19} < 10^6 < 2^{20}$."
+  },
+  {
+   "id": "fill",
+   "kind": "number",
+   "prompt": "How much work is the filling? Suppose for every $i$ from 2 to 100 you visit all multiples of $i$ up to 100 (including $i$ itself). How many visits is that in total?",
+   "answer": 382,
+   "verify": "result = sum(100 // i for i in range(2, 101))",
+   "nudges": [
+    "How many multiples of $i$ are there up to 100?"
+   ],
+   "showed": "$100/2 + 100/3 + \\dots + 100/100$, rounded down term by term."
+  },
+  {
+   "id": "growth",
+   "kind": "choice",
+   "prompt": "For a table up to $n$, that total number of visits grows roughly like:",
+   "options": [
+    "$n \\log n$",
+    "$n^2$",
+    "$n \\sqrt{n}$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "The sum is about $n \\cdot (1/2 + 1/3 + \\dots + 1/n)$. How fast does the bracket grow?"
+   ],
+   "showed": "The bracket is about $\\ln n$. Visiting all multiples of everything is cheap."
+  },
+  {
+   "id": "use",
+   "kind": "number",
+   "prompt": "From the table you read off $360 = 2^3 \\cdot 3^2 \\cdot 5$. How many divisors does 360 have?",
+   "answer": 24,
+   "verify": "result = sum(1 for d in range(1, 361) if 360 % d == 0)",
+   "nudges": [
+    "How many choices are there for the exponent of 2 in a divisor?"
+   ],
+   "showed": "$(3+1)(2+1)(1+1)$."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that if $n > 1$ is not prime, then its smallest prime factor $p$ satisfies $p^2 \\le n$.",
+   "claims": [
+    "Since n is not prime and p divides n, we can write n = p * m with m > 1.",
+    "Every prime factor of m is also a prime factor of n, so it is at least p (p is the smallest); hence m >= p.",
+    "Therefore n = p * m >= p * p."
+   ],
+   "nudges": [
+    "Write $n = p \\cdot m$. What do you know about the prime factors of $m$?",
+    "How does $m$ compare with $p$?"
+   ],
+   "showed": "The cofactor cannot be smaller than the smallest prime factor."
+  }
+ ],
+ "reveal": {
+  "name": "Sieve of smallest prime factors",
+  "statement": "For every $i$ from 2 to $n$ that is still unmarked, mark its unmarked multiples with $i$. Afterwards each cell holds its smallest prime factor, and any $x \\le n$ factorises in at most $\\log_2 x$ look-ups.",
+  "remark": "Building costs $O(n \\log \\log n)$. The same \"loop over all multiples\" pattern, at $O(n \\log n)$, computes divisor counts, divisor sums and many gcd-style counts for every number at once."
+ }
+}

@@ -1,0 +1,129 @@
+{
+ "idea": "ncr-mod",
+ "opening": "Binomial coefficients, asked a hundred thousand times, with only a remainder wanted.",
+ "steps": [
+  {
+   "id": "plain",
+   "kind": "number",
+   "prompt": "How many ways are there to choose 3 things out of 10?",
+   "answer": 120,
+   "verify": "import math\nresult = math.comb(10, 3)",
+   "nudges": [
+    "What is $10 \\cdot 9 \\cdot 8$ divided by $3 \\cdot 2 \\cdot 1$?"
+   ],
+   "showed": "$\\frac{10!}{3!\\,7!} = 120$."
+  },
+  {
+   "id": "target",
+   "kind": "number",
+   "prompt": "What is that number modulo 13?",
+   "answer": 3,
+   "verify": "import math\nresult = math.comb(10, 3) % 13",
+   "nudges": [
+    "What is the largest multiple of 13 below 120?"
+   ],
+   "showed": "$120 = 9 \\cdot 13 + 3$. For large inputs the true value has thousands of digits, so you must work with remainders throughout."
+  },
+  {
+   "id": "fact",
+   "kind": "number",
+   "prompt": "What is $10!$ modulo 13? Reduce as you go.",
+   "answer": 6,
+   "verify": "import math\nresult = math.factorial(10) % 13",
+   "nudges": [
+    "What is $4!$ modulo 13, and how do you continue from there?"
+   ],
+   "showed": "Factorials modulo 13: 1, 2, 6, 11, 3, 5, 9, 7, 11, 6 for 1! to 10!."
+  },
+  {
+   "id": "inv6",
+   "kind": "number",
+   "prompt": "From that list $3! = 6$ and $7! = 9$ modulo 13. You cannot divide remainders, but you can multiply by an inverse. Which number from 1 to 12 gives 1 modulo 13 when multiplied by 6?",
+   "answer": 11,
+   "verify": "result = next(x for x in range(1, 13) if 6 * x % 13 == 1)",
+   "nudges": [
+    "Which multiple of 6 is one more than a multiple of 13?"
+   ],
+   "showed": "$6 \\cdot 11 = 66 = 5 \\cdot 13 + 1$."
+  },
+  {
+   "id": "inv9",
+   "kind": "number",
+   "prompt": "And which number from 1 to 12 is the inverse of 9 modulo 13?",
+   "answer": 3,
+   "verify": "result = next(x for x in range(1, 13) if 9 * x % 13 == 1)",
+   "nudges": [
+    "Which multiple of 9 is one more than a multiple of 13?"
+   ],
+   "showed": "$9 \\cdot 3 = 27 = 2 \\cdot 13 + 1$."
+  },
+  {
+   "id": "combine",
+   "kind": "number",
+   "prompt": "Now multiply: $10!$ times the inverse of $3!$ times the inverse of $7!$, all modulo 13. What do you get?",
+   "answer": 3,
+   "verify": "result = 6 * 11 * 3 % 13",
+   "nudges": [
+    "What is $6 \\cdot 11$ modulo 13?"
+   ],
+   "showed": "The same 3 as before, found without ever knowing the number 120."
+  },
+  {
+   "id": "perquery",
+   "kind": "number",
+   "prompt": "The modulus is now a large prime $p$, and all factorials and all inverses of factorials up to $10^6$ are stored in two tables. How many multiplications does one question \"choose $k$ out of $n$\" cost?",
+   "answer": 2,
+   "verify": "result = 2",
+   "nudges": [
+    "Which three table entries does the formula use?"
+   ],
+   "showed": "Three look-ups, two multiplications."
+  },
+  {
+   "id": "oneinv",
+   "kind": "number",
+   "prompt": "Finding one inverse costs about 60 multiplications. Suppose you know the inverse of $1000000!$. Multiplying it by 1000000 gives the inverse of $999999!$. How many expensive inversions are needed to fill the whole table of inverse factorials?",
+   "answer": 1,
+   "verify": "result = 1",
+   "nudges": [
+    "Once you have the inverse of $k!$, what does one multiplication by $k$ give you?"
+   ],
+   "showed": "One inversion at the top, then walk down with one multiplication per entry."
+  },
+  {
+   "id": "breaks",
+   "kind": "choice",
+   "prompt": "With modulus 13, the same method is asked for 3 out of 15. What goes wrong?",
+   "options": [
+    "$15!$ is a multiple of 13, so it is 0 modulo 13 and has no inverse",
+    "Nothing: it works for every $n$",
+    "The answer is always 0 when $n \\ge 13$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which factor of $15!$ causes trouble modulo 13?"
+   ],
+   "showed": "The tables are only valid for $n$ below the modulus, which is why contest moduli are huge primes."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $p$ be prime and $1 \\le k < p$. Write $I(k)$ for the inverse of $k!$ modulo $p$. Prove that $I(k) \\cdot k$ is the inverse of $(k-1)!$ modulo $p$.",
+   "claims": [
+    "k! = k * (k-1)!, so (I(k) * k) * (k-1)! = I(k) * k! modulo p.",
+    "I(k) * k! is 1 modulo p by the definition of I(k).",
+    "So I(k) * k multiplied by (k-1)! gives 1, which is exactly what it means to be the inverse of (k-1)! (and the inverse modulo a prime is unique)."
+   ],
+   "nudges": [
+    "What do you get when you multiply $I(k) \\cdot k$ by $(k-1)!$?",
+    "What is $k \\cdot (k-1)!$?"
+   ],
+   "showed": "Multiply the candidate by $(k-1)!$ and watch it collapse to 1."
+  }
+ ],
+ "reveal": {
+  "name": "Binomials modulo a prime",
+  "statement": "For a prime $p$ and $0 \\le k \\le n < p$: $\\binom{n}{k} \\equiv n! \\cdot (k!)^{-1} \\cdot ((n-k)!)^{-1} \\pmod p$. Precompute factorials upward, one inverse at the top, and inverse factorials downward.",
+  "remark": "After $O(n)$ set-up each binomial is $O(1)$. Nearly every counting problem with an answer \"modulo $10^9+7$\" or \"modulo 998244353\" starts with these two tables."
+ }
+}

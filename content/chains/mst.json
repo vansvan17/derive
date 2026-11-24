@@ -1,0 +1,128 @@
+{
+ "idea": "mst",
+ "opening": "Villages to be wired together as cheaply as possible, and a greedy rule that looks too simple to be right.",
+ "steps": [
+  {
+   "id": "small",
+   "kind": "number",
+   "prompt": "Four villages A, B, C, D. Possible cables and their costs: A-B 1, B-C 2, A-C 3, C-D 4, B-D 5. What is the smallest total cost that connects all four villages (directly or through others)?",
+   "answer": 7,
+   "verify": "import itertools\nE = [(\"A\", \"B\", 1), (\"B\", \"C\", 2), (\"A\", \"C\", 3), (\"C\", \"D\", 4), (\"B\", \"D\", 5)]\ndef ok(es):\n    seen, grow = {\"A\"}, True\n    while grow:\n        grow = False\n        for a, b, w in es:\n            if (a in seen) != (b in seen): seen |= {a, b}; grow = True\n    return len(seen) == 4\nresult = min(sum(w for *_, w in es) for k in range(6) for es in itertools.combinations(E, k) if ok(es))",
+   "nudges": [
+    "Do you ever need a cable between two villages that are already connected?"
+   ],
+   "showed": "A-B, B-C and C-D."
+  },
+  {
+   "id": "edges",
+   "kind": "number",
+   "prompt": "A set of cables connects 10 villages and contains no wasted cable (removing any one disconnects something). How many cables does it have?",
+   "answer": 9,
+   "verify": "result = 10 - 1",
+   "nudges": [
+    "Start with 10 separate villages. What does each useful cable do to the number of separate groups?"
+   ],
+   "showed": "Each useful cable joins two groups into one, and you go from 10 groups to 1."
+  },
+  {
+   "id": "greedy",
+   "kind": "list",
+   "prompt": "Try this rule on the four villages: go through the cables from cheapest to dearest, and lay a cable only if its two ends are not connected yet. Which costs get laid?",
+   "answer": [
+    1,
+    2,
+    4
+   ],
+   "verify": "p = {v: v for v in \"ABCD\"}\ndef f(x):\n    while p[x] != x: x = p[x]\n    return x\nout = []\nfor w, a, b in sorted([(1, \"A\", \"B\"), (2, \"B\", \"C\"), (3, \"A\", \"C\"), (4, \"C\", \"D\"), (5, \"B\", \"D\")]):\n    if f(a) != f(b): p[f(a)] = f(b); out.append(w)\nresult = out",
+   "nudges": [
+    "When you reach the cable of cost 3, are its two ends already connected?"
+   ],
+   "showed": "The same three cables as the best answer."
+  },
+  {
+   "id": "skip",
+   "kind": "choice",
+   "prompt": "Why did the rule skip the cable A-C of cost 3?",
+   "options": [
+    "A and C were already connected through B, so it would only have closed a loop",
+    "Because 3 is an odd number",
+    "Because A already had a cable"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What route from A to C existed at that moment?"
+   ],
+   "showed": "A cable inside one group adds cost and connects nothing new."
+  },
+  {
+   "id": "swap",
+   "kind": "number",
+   "prompt": "Someone proposes A-B, A-C and C-D instead, total 8. Add the cable B-C (cost 2) to their plan: this closes the loop A, B, C. Now remove the dearest cable on that loop. What is the new total?",
+   "answer": 7,
+   "verify": "result = 1 + 3 + 4 + 2 - 3",
+   "nudges": [
+    "Which cables are on the loop, and which of them costs the most?"
+   ],
+   "showed": "Out goes A-C at 3, in comes B-C at 2, and everything is still connected."
+  },
+  {
+   "id": "cut",
+   "kind": "choice",
+   "prompt": "Split the villages into any two camps. Let $e$ be the cheapest cable running between the camps. A plan that connects everything but does not use $e$ can be changed how?",
+   "options": [
+    "Add $e$, which closes a loop that crosses between the camps a second time on some cable $f$; removing $f$ keeps everything connected and does not raise the cost",
+    "It cannot be changed without disconnecting something",
+    "Replace its dearest cable by $e$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "A loop that crosses from one camp to the other must do what before it closes?"
+   ],
+   "showed": "A loop that leaves a camp must come back, so there is always a second crossing cable to trade away."
+  },
+  {
+   "id": "six",
+   "kind": "number",
+   "prompt": "Six villages. Cables: 1-2 costs 7, 1-3 costs 3, 2-3 costs 1, 2-4 costs 6, 3-4 costs 5, 3-5 costs 8, 4-5 costs 2, 4-6 costs 9, 5-6 costs 4. What is the cheapest total that connects all six?",
+   "answer": 15,
+   "verify": "import itertools\nE = [(1, 2, 7), (1, 3, 3), (2, 3, 1), (2, 4, 6), (3, 4, 5), (3, 5, 8), (4, 5, 2), (4, 6, 9), (5, 6, 4)]\ndef connected(es, n):\n    p = list(range(n + 1))\n    def f(x):\n        while p[x] != x: x = p[x]\n        return x\n    for a, b, w in es: p[f(a)] = f(b)\n    return len({f(v) for v in range(1, n + 1)}) == 1\nresult = min(sum(w for *_, w in es) for es in itertools.combinations(E, 5) if connected(es, 6))",
+   "nudges": [
+    "In what order does the rule look at the cables, and which is the first one it skips?"
+   ],
+   "showed": "Costs 1, 2, 3, 4 and 5; the cable of cost 6 is the first to be skipped."
+  },
+  {
+   "id": "checks",
+   "kind": "number",
+   "prompt": "For $2 \\cdot 10^5$ possible cables, the rule sorts them once and then asks one question per cable: \"are the two ends already connected?\" How many such questions is that?",
+   "answer": 200000,
+   "verify": "result = 2 * 10 ** 5",
+   "nudges": [
+    "How many cables are examined?"
+   ],
+   "showed": "With merged groups kept as pointer trees each question is almost free, so the sort is the expensive part."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "A connected graph has edge costs. Its vertices are split into two non-empty camps, and $e$ is an edge of the smallest cost among those with one end in each camp. Prove that some cheapest spanning tree contains $e$.",
+   "claims": [
+    "Take any cheapest spanning tree T. If it contains e we are done; otherwise adding e to T creates exactly one cycle, which passes through e.",
+    "That cycle goes from one camp to the other along e, so to close up it must cross between the camps on at least one other edge f, and f is in T.",
+    "Removing f from T + e leaves a connected graph with the same number of edges as T, that is, a spanning tree.",
+    "Its cost is cost(T) - cost(f) + cost(e), which is at most cost(T) because e is a cheapest crossing edge; so it is also a cheapest spanning tree, and it contains e."
+   ],
+   "nudges": [
+    "What appears when you add $e$ to a spanning tree that lacks it?",
+    "Why must that cycle contain a second edge between the camps?",
+    "After the trade, why is the result still connected and no dearer?"
+   ],
+   "showed": "Add the edge, find the second crossing on the cycle, and trade."
+  }
+ ],
+ "reveal": {
+  "name": "Minimum spanning tree by sorted edges",
+  "statement": "Sort the edges by cost and take each edge exactly when its ends lie in different components. The result is a spanning tree of minimum total cost, because the cheapest edge across any split of the vertices can always be traded into an optimal tree.",
+  "remark": "This is Kruskal's algorithm: a sort plus a union-find. The trade in the proof is the same move as swapping neighbours in a schedule."
+ }
+}

@@ -1,0 +1,126 @@
+{
+ "idea": "topo-order",
+ "opening": "Tasks that must wait for other tasks, and the question of what order to do them in.",
+ "steps": [
+  {
+   "id": "courses",
+   "kind": "number",
+   "prompt": "Four courses: A must come before B and before C, and both B and C must come before D. In how many different orders can you take the four?",
+   "answer": 2,
+   "verify": "import itertools\nE = [(\"A\", \"B\"), (\"A\", \"C\"), (\"B\", \"D\"), (\"C\", \"D\")]\nresult = sum(1 for p in itertools.permutations(\"ABCD\") if all(p.index(a) < p.index(b) for a, b in E))",
+   "nudges": [
+    "Which course must be first, and which last?"
+   ],
+   "showed": "A, then B and C either way round, then D."
+  },
+  {
+   "id": "free",
+   "kind": "list",
+   "prompt": "Six tasks. Task 1 must be done before 3, 2 before 3, 3 before 4, 3 before 5, and 5 before 6. Which tasks can be done right now, before anything else?",
+   "answer": [
+    1,
+    2
+   ],
+   "verify": "import itertools\nE = [(1, 3), (2, 3), (3, 4), (3, 5), (5, 6)]\nresult = [v for v in range(1, 7) if all(b != v for a, b in E)]",
+   "nudges": [
+    "Which tasks are not waiting for anything?"
+   ],
+   "showed": "The tasks with no arrow pointing into them."
+  },
+  {
+   "id": "orders",
+   "kind": "number",
+   "prompt": "In how many different valid orders can all six tasks be done?",
+   "answer": 6,
+   "verify": "import itertools\nE = [(1, 3), (2, 3), (3, 4), (3, 5), (5, 6)]\nresult = sum(1 for p in itertools.permutations(range(1, 7)) if all(p.index(a) < p.index(b) for a, b in E))",
+   "nudges": [
+    "After 1, 2 and 3 are done, in how many ways can 4, 5, 6 follow?"
+   ],
+   "showed": "Two ways to begin, then three places for task 4 among 5 and 6."
+  },
+  {
+   "id": "next",
+   "kind": "choice",
+   "prompt": "You have just done a task that was waiting for nothing. What is the quickest way to learn which tasks have become available?",
+   "options": [
+    "For each task it points to, lower that task's count of unfinished requirements; any that reach zero are now available",
+    "Scan every task and re-check all of its requirements",
+    "Sort the tasks by number"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which tasks could possibly have changed status because of the task you just did?"
+   ],
+   "showed": "Only the tasks it points to can change, so only they are touched."
+  },
+  {
+   "id": "stuck",
+   "kind": "number",
+   "prompt": "Add one more rule to the six tasks: 6 must be done before 3. Keep doing any available task for as long as you can. How many tasks get done?",
+   "answer": 2,
+   "verify": "import itertools\nE = [(1, 3), (2, 3), (3, 4), (3, 5), (5, 6)]\nE.append((6, 3))\ndone = set()\nwhile True:\n    free = [v for v in range(1, 7) if v not in done and all(a in done for a, b in E if b == v)]\n    if not free: break\n    done.add(free[0])\nresult = len(done)",
+   "nudges": [
+    "After 1 and 2, what is task 3 still waiting for, and what is that task waiting for?"
+   ],
+   "showed": "Only 1 and 2. Tasks 3, 5 and 6 wait for each other in a ring, and 4 waits behind them."
+  },
+  {
+   "id": "means",
+   "kind": "choice",
+   "prompt": "You follow the method and get stuck with tasks left over. What must be true of the leftover tasks?",
+   "options": [
+    "Some of them form a cycle of requirements",
+    "There are too many of them",
+    "One of them has no requirements"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Every leftover task still waits for another leftover task. What happens if you keep following \"waits for\"?"
+   ],
+   "showed": "Getting stuck is exactly how a cycle is detected."
+  },
+  {
+   "id": "work",
+   "kind": "number",
+   "prompt": "There are $10^5$ tasks and $2 \\cdot 10^5$ rules \"a before b\". Using the counting method, how many times in total is a rule looked at?",
+   "answer": 200000,
+   "verify": "result = 2 * 10 ** 5",
+   "nudges": [
+    "When is a particular rule \"a before b\" used?"
+   ],
+   "showed": "Each rule is used once, at the moment its first task is done."
+  },
+  {
+   "id": "longest",
+   "kind": "number",
+   "prompt": "Back to the six tasks without the extra rule. What is the largest number of tasks in a row such that each must wait for the one before it?",
+   "answer": 4,
+   "verify": "import itertools\nE = [(1, 3), (2, 3), (3, 4), (3, 5), (5, 6)]\nbest = {}\ndef go(v):\n    if v not in best: best[v] = 1 + max([go(b) for a, b in E if a == v], default=0)\n    return best[v]\nresult = max(go(v) for v in range(1, 7))",
+   "nudges": [
+    "If you know the answer for every task that comes later, how do you get it for task 3?"
+   ],
+   "showed": "1, 3, 5, 6. Processing tasks in a valid order lets you compute such things in one pass."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "A finite directed graph has at least one vertex and no directed cycle. Prove that some vertex has no incoming edge.",
+   "claims": [
+    "Suppose, for contradiction, that every vertex has at least one incoming edge.",
+    "Start at any vertex and repeatedly step backwards along an incoming edge; by the assumption this walk never has to stop.",
+    "There are finitely many vertices, so the walk eventually visits some vertex a second time.",
+    "The part of the walk between the two visits, read forwards, is a directed cycle, contradicting the assumption that there is none."
+   ],
+   "nudges": [
+    "If every vertex had an incoming edge, what could you do for ever?",
+    "Why must a walk that never stops repeat a vertex, and what have you found when it does?"
+   ],
+   "showed": "Walk backwards; in a finite graph without cycles you must run out."
+  }
+ ],
+ "reveal": {
+  "name": "Topological order",
+  "statement": "A directed graph has an ordering of its vertices in which every edge points forward exactly when it has no directed cycle. Repeatedly removing a vertex with no incoming edges produces one in $O(n + m)$, or gets stuck on a cycle.",
+  "remark": "Also known as Kahn's algorithm. It is the order in which a DP over a graph without cycles can be filled, and \"could not finish\" is the standard cycle test for directed graphs."
+ }
+}

@@ -46,7 +46,7 @@ export async function renderChain(ctx, idea) {
 
   function paint(focus = false) {
     const done = chain.steps.filter(s => s.done).length;
-    const reveal = chain.complete ? `<section class="surface reveal" data-reveal><p class="eyebrow">You have just derived</p><h2>${e(chain.reveal.name)}</h2><div class="reveal-statement">${markdown(chain.reveal.statement)}</div>${chain.reveal.remark ? `<p class="muted">${inline(chain.reveal.remark)}</p>` : ''}<div class="step-actions"><a class="btn btn-primary" href="#/derive">Next chain</a>${chain.reveal.problems ? `<a class="btn btn-secondary" href="#/solve">Use it on a real problem</a>` : ''}<a class="btn btn-ghost" href="#/">See it on the map</a></div><p class="muted small">Want it explained properly now that you have derived it? <button class="link-btn" type="button" data-teach>Have a tutor teach it in full</button></p></section>` : '';
+    const reveal = chain.complete ? `<section class="surface reveal" data-reveal><p class="eyebrow">You have just derived</p><h2>${e(chain.reveal.name)}</h2><div class="reveal-statement">${markdown(chain.reveal.statement)}</div>${chain.reveal.remark ? `<p class="muted">${inline(chain.reveal.remark)}</p>` : ''}<div class="step-actions"><a class="btn btn-primary" href="#/derive">Next chain</a>${chain.reveal.problems ? `<a class="btn btn-secondary" href="#/solve">Use it on a real problem</a>` : ''}<a class="btn btn-ghost" href="#/">See it on the map</a></div>${chain.practice.length ? `<h3>Practise it</h3><p class="muted small">Standard tasks from the CSES problem set that use exactly this. Tick them off as you get them accepted there.</p><ul class="plain-list practice">${chain.practice.map(t => `<li><label class="choice"><input type="checkbox" data-practice="${e(t.url)}" ${t.done ? 'checked' : ''}><span><a href="${e(t.url)}" target="_blank" rel="noopener noreferrer">${e(t.title)}</a> <span class="muted small">· CSES</span></span></label></li>`).join('')}</ul>` : ''}<p class="muted small">Want it explained properly now that you have derived it? <button class="link-btn" type="button" data-teach>Have a tutor teach it in full</button></p></section>` : '';
     root.innerHTML = `<div class="reading"><header class="chain-head"><p class="eyebrow">${e(chain.area)} · ${chain.complete ? 'derived' : `step ${Math.min(done + 1, chain.total)} of ${chain.total}`}</p><h1>${chain.complete ? e(chain.reveal.name) : 'A chain of questions'}</h1><p class="chain-opening">${inline(chain.opening)}</p>
       <div class="dots" role="img" aria-label="${done} of ${chain.total} steps done">${Array.from({length: chain.total}, (_, i) => `<span class="${i < done ? 'is-done' : i === done ? 'is-here' : ''}"></span>`).join('')}</div></header>
       <ol class="steps">${chain.steps.map((s, i) => s.done ? doneStep(s, i) : currentStep(s, i)).join('')}</ol>${reveal}</div>`;
@@ -61,6 +61,9 @@ export async function renderChain(ctx, idea) {
       if (focus) { root.querySelector('[data-current]').scrollIntoView({behavior: 'smooth', block: 'center'}); form.querySelector('input[type=text], textarea')?.focus({preventScroll: true}); }
     }
     root.querySelector('[data-teach]')?.addEventListener('click', () => askTutor(ctx, {scope: 'chain', idea}));
+    root.querySelectorAll('[data-practice]').forEach(box => box.addEventListener('change', async () => {
+      try { await post('/practice', {url: box.dataset.practice, done: box.checked}); } catch (error) { box.checked = !box.checked; toast(error.message, 'error'); }
+    }));
     if (focus && chain.complete) root.querySelector('[data-reveal]').scrollIntoView({behavior: 'smooth', block: 'center'});
   }
 

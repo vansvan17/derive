@@ -192,9 +192,12 @@ class Service:
             if step['id'] not in done:
                 break                                  # later steps stay unseen until this one is right
         complete = idea in derived
+        ticked = set(store.get('practice_done', []))
         info = self.content.ideas[idea]
         return {'idea': idea, 'opening': chain['opening'], 'steps': steps, 'total': len(chain['steps']), 'complete': complete,
                 'reveal': {**chain['reveal'], 'problems': len(self.content.problems_for(idea))} if complete else None,
+                # Practice tasks would give the topic away, so they are listed only once the chain is finished.
+                'practice': [{**t, 'done': t['url'] in ticked} for t in self.content.practice.get(idea, [])] if complete else [],
                 'area': next(a['title'] for a in self.content.areas if a['id'] == info['area'])}
 
     def current_step(self, store, idea, step_id):
@@ -644,6 +647,14 @@ class Service:
                 return {'saved': True}
             if path == '/settings':
                 return {'settings': self.save_settings(store, data)}
+            if path == '/practice':
+                known = {t['url'] for tasks in self.content.practice.values() for t in tasks}
+                if data.get('url') not in known:
+                    raise ApiError('No such practice task.', 404)
+                ticked = set(store.get('practice_done', []))
+                (ticked.add if data.get('done') else ticked.discard)(data['url'])
+                store.set('practice_done', sorted(ticked))
+                return {'done': data['url'] in ticked}
             if path in routes:
                 return routes[path](store, data)
         raise ApiError('Not found.', 404)

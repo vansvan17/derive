@@ -22,6 +22,9 @@ class Content:
             self.chains[chain['idea']] = chain
         path = self.root / 'content/problems.json'
         self.problems = {p['id']: p for p in json.loads(path.read_text())} if path.exists() else {}
+        # Unrated practice tasks (CSES) offered once an idea's chain is finished.
+        path = self.root / 'content/practice.json'
+        self.practice = json.loads(path.read_text()) if path.exists() else {}
 
     def step(self, idea, step_id):
         chain = self.chains.get(idea)
@@ -124,6 +127,12 @@ def problems(content):
                 faults.append(f'{tag}: counterexample needs vars, bounds and a property')
             if kind == 'proof' and not 2 <= len(step.get('claims', [])) <= 6:
                 faults.append(f'{tag}: proof needs two to six required claims')
+    for idea, tasks in content.practice.items():
+        if idea not in content.chains:
+            faults.append(f'practice {idea}: practice is offered after a chain, and this idea has none')
+        for task in tasks:
+            if not (task.get('title') and task.get('checked') and str(task.get('url', '')).startswith('https://cses.fi/problemset/task/')):
+                faults.append(f'practice {idea}: each task needs a title, a CSES link and the date it was read')
     for problem in content.problems.values():
         tag = f'problem {problem.get("id")}'
         if problem.get('site') not in SITES:

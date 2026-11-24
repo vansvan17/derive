@@ -273,6 +273,15 @@ class App(unittest.TestCase):
             self.assertNotIn(later['prompt'], prompt)                                 # nor any later question
         self.assertEqual(self.post('/tutor/prompt', {'scope': 'chain', 'idea': 'residues', 'step': chain['steps'][1]['id']})[0], 409)
 
+    def test_practice_tasks_show_only_after_the_chain_and_can_be_ticked(self):
+        self.assertEqual(self.get('/chain/residues')['practice'], [])               # listing them early would name the topic
+        self.derive('residues')
+        tasks = self.get('/chain/residues')['practice']
+        self.assertTrue(tasks and not tasks[0]['done'])
+        self.assertEqual(self.post('/practice', {'url': tasks[0]['url'], 'done': True})[0], 200)
+        self.assertTrue(self.get('/chain/residues')['practice'][0]['done'])
+        self.assertEqual(self.post('/practice', {'url': 'https://example.com/x', 'done': True})[0], 404)
+
     def test_a_finished_chain_can_be_taught_in_full(self):
         self.derive('residues')
         chain = json.loads((self.root / 'content/chains/residues.json').read_text())

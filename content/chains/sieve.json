@@ -129,6 +129,42 @@
     "How does $m$ compare with $p$?"
    ],
    "showed": "The cofactor cannot be smaller than the smallest prime factor."
+  },
+  {
+   "id": "h-primes",
+   "kind": "number",
+   "prompt": "How many primes are there below 100000?",
+   "answer": 9592,
+   "verify": "N = 100000\ns = bytearray([1]) * N; s[0] = s[1] = 0\nfor i in range(2, 317):\n    if s[i]: s[i * i::i] = bytearray(len(s[i * i::i]))\nresult = sum(s)",
+   "nudges": [
+    "Testing each number separately by trial division costs about how much? What costs less?"
+   ],
+   "showed": "Cross out multiples of each prime up to 316; what survives is prime.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-three",
+   "kind": "number",
+   "prompt": "How many numbers from 2 to 100000 have exactly three different prime factors?",
+   "answer": 38844,
+   "verify": "N = 100000\ncnt = [0] * (N + 1)\nfor i in range(2, N + 1):\n    if cnt[i] == 0:\n        for j in range(i, N + 1, i): cnt[j] += 1\nresult = sum(1 for x in cnt if x == 3)",
+   "nudges": [
+    "Can the marking pass record something more useful than \"crossed out\"?"
+   ],
+   "showed": "Let every prime add 1 to each of its multiples. After the pass each cell holds its number of different prime factors.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-sum",
+   "kind": "number",
+   "prompt": "For every n from 2 to 1000 take its smallest prime factor. What is the sum of these?",
+   "answer": 79189,
+   "verify": "result = sum(next(p for p in range(2, n + 1) if n % p == 0) for n in range(2, 1001))",
+   "nudges": [
+    "Which table gives you all of these at once?"
+   ],
+   "showed": "Fill the smallest-prime-factor table once and add it up.",
+   "tier": "hard"
   }
  ],
  "reveal": {

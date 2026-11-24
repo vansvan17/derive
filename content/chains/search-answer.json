@@ -129,6 +129,45 @@
     "How does that formula for $L$ compare with the same formula for a smaller $L'$?"
    ],
    "showed": "Plank by plank, shorter pieces never give fewer."
+  },
+  {
+   "id": "h-split",
+   "kind": "number",
+   "prompt": "Cut the array 7, 2, 5, 10, 8, 1, 4, 9 into three contiguous parts so that the largest part-sum is as small as possible. What is that largest sum?",
+   "answer": 18,
+   "verify": "import itertools\na = [7, 2, 5, 10, 8, 1, 4, 9]\nresult = min(max(sum(a[:i]), sum(a[i:j]), sum(a[j:])) for i, j in itertools.combinations(range(1, 8), 2))",
+   "nudges": [
+    "Fix a limit x. How do you check whether three parts with sums at most x are enough?",
+    "As x grows, how does the answer to that check behave?"
+   ],
+   "showed": "For a limit x, fill parts greedily from the left and count them; \"at most 3 parts\" is false for small x and true from some point on. Halve on x.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-table",
+   "kind": "number",
+   "prompt": "Write out the 10 by 10 multiplication table (100 entries, with repeats). What is the 50th smallest entry?",
+   "answer": 24,
+   "verify": "result = sorted(i * j for i in range(1, 11) for j in range(1, 11))[49]",
+   "nudges": [
+    "For a given x, how many entries are at most x? Can you count them row by row?",
+    "What is the smallest x for which that count reaches 50?"
+   ],
+   "showed": "Row i contains min(10, x // i) entries that are at most x. The answer is the smallest x whose count is at least 50: a yes-or-no question that switches once.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-machines",
+   "kind": "number",
+   "prompt": "Three machines take 3, 5 and 7 seconds per product and work at the same time. What is the least number of seconds needed to make 100 products?",
+   "answer": 150,
+   "verify": "result = next(t for t in range(1, 1000) if t // 3 + t // 5 + t // 7 >= 100)",
+   "nudges": [
+    "In t seconds, how many products can be made?",
+    "Why is it wrong to solve t/3 + t/5 + t/7 = 100 exactly?"
+   ],
+   "showed": "In t seconds the machines make t//3 + t//5 + t//7 products (rounded down each). That never decreases with t; find the first t reaching 100.",
+   "tier": "hard"
   }
  ],
  "reveal": {

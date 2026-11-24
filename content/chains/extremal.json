@@ -137,6 +137,45 @@
     "Where does the second neighbour of that first vertex have to be, and what does it close?"
    ],
    "showed": "Take a longest path and look at its end: it has nowhere new to go."
+  },
+  {
+   "id": "h-gap3",
+   "kind": "number",
+   "prompt": "What is the largest number of elements you can choose from {1, 2, ..., 20} so that no two chosen numbers differ by exactly 3?",
+   "answer": 11,
+   "verify": "result = max(bin(m).count('1') for m in range(1 << 20) if not m & (m >> 3))",
+   "nudges": [
+    "Which numbers interact with each other at all?",
+    "Along the chain 1, 4, 7, 10, 13, 16, 19, how many can you take?"
+   ],
+   "showed": "The numbers split into three chains by remainder mod 3 (of lengths 7, 7 and 6), and only neighbours in a chain conflict. From a chain of length L take every other one starting from the end: 4 + 4 + 3.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-sums",
+   "kind": "number",
+   "prompt": "You have one coin each of the values 1, 2, 3, 8, 20, 40. What is the smallest positive amount you cannot pay exactly?",
+   "answer": 7,
+   "verify": "import itertools\nsums = {sum(c) for k in range(7) for c in itertools.combinations((1, 2, 3, 8, 20, 40), k)}\nresult = next(x for x in range(1, 100) if x not in sums)",
+   "nudges": [
+    "Take the coins from smallest to largest. If every amount up to R is payable and the next coin is c, what is payable afterwards?",
+    "What happens when the next coin is larger than R + 1?"
+   ],
+   "showed": "With 1, 2, 3 every amount up to 6 is payable. The next coin, 8, is larger than 6 + 1, so 7 is left out for good: the first gap in the sorted order is the answer.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-seats",
+   "kind": "number",
+   "prompt": "A row of 12 seats. People sit so that no two are next to each other, and so that no further person could sit without being next to someone. What is the smallest possible number of people?",
+   "answer": 4,
+   "verify": "result = min(bin(m).count('1') for m in range(1 << 12) if not m & (m >> 1) and all((m >> i & 1) or (i > 0 and m >> (i - 1) & 1) or (i < 11 and m >> (i + 1) & 1) for i in range(12)))",
+   "nudges": [
+    "How many seats can one person block at most?",
+    "Is the resulting bound achievable?"
+   ],
+   "showed": "One person blocks at most three seats (their own and one on each side), so at least 12 / 3 = 4 are needed, and seats 2, 5, 8, 11 do it.",
+   "tier": "hard"
   }
  ],
  "reveal": {

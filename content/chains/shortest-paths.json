@@ -122,6 +122,43 @@
     "Where do you use that lengths are non-negative?"
    ],
    "showed": "Cut the rival route where it first leaves the finished towns; it is already too long there."
+  },
+  {
+   "id": "h-double",
+   "kind": "number",
+   "prompt": "You hold the number 1. In one step you may add 1 or double. What is the smallest number of steps to reach 100?",
+   "answer": 8,
+   "verify": "from collections import deque\nseen, q = {1: 0}, deque([1])\nwhile q:\n    x = q.popleft()\n    for y in (x + 1, 2 * x):\n        if y <= 100 and y not in seen: seen[y] = seen[x] + 1; q.append(y)\nresult = seen[100]",
+   "nudges": [
+    "All steps cost the same. Which search finishes numbers in order of distance?",
+    "Could you also reason backwards from 100?"
+   ],
+   "showed": "With equal costs, breadth-first search settles the nearest first. Backwards from 100: halve when even, subtract 1 when odd.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-costs",
+   "kind": "number",
+   "prompt": "Now adding 1 costs 3, doubling costs 5 and tripling costs 7. What is the cheapest way to get from 1 to 100?",
+   "answer": 33,
+   "verify": "import heapq\ndist, pq = {}, [(0, 1)]\nwhile pq:\n    d, x = heapq.heappop(pq)\n    if x in dist: continue\n    dist[x] = d\n    for y, c in ((x + 1, 3), (2 * x, 5), (3 * x, 7)):\n        if y <= 100 and y not in dist: heapq.heappush(pq, (d + c, y))\nresult = dist[100]",
+   "nudges": [
+    "The steps now have different costs. Which number is safe to finalise first?"
+   ],
+   "showed": "Numbers are vertices and the three operations are edges with non-negative costs: finalise the number with the smallest provisional cost, relax its three edges, repeat.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-grid",
+   "kind": "number",
+   "prompt": "A 5 by 5 grid; the cell in row r, column c (both from 0 to 4) costs (r x c) mod 5 + 1 to enter. Starting on the top-left cell (its cost is not paid), move up, down, left or right. What is the cheapest total to reach the bottom-right cell?",
+   "answer": 18,
+   "verify": "import heapq\ncost = lambda r, c: (r * c) % 5 + 1\ndist, pq = {}, [(0, 0, 0)]\nwhile pq:\n    d, r, c = heapq.heappop(pq)\n    if (r, c) in dist: continue\n    dist[(r, c)] = d\n    for nr, nc in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):\n        if 0 <= nr < 5 and 0 <= nc < 5 and (nr, nc) not in dist: heapq.heappush(pq, (d + cost(nr, nc), nr, nc))\nresult = dist[(4, 4)]",
+   "nudges": [
+    "Moves in all four directions are allowed. Why can a table filled row by row not be trusted here?"
+   ],
+   "showed": "Because the best route may go up or left, there is no fixed order to fill a table in. Treat cells as vertices and settle the nearest first.",
+   "tier": "hard"
   }
  ],
  "reveal": {

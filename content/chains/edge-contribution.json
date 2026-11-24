@@ -135,6 +135,43 @@
     "What is the only way to get from one part to the other?"
    ],
    "showed": "A pair uses the edge exactly when the edge separates it."
+  },
+  {
+   "id": "h-binary",
+   "kind": "number",
+   "prompt": "A tree on 15 vertices numbered 1 to 15, where vertex v (for v at least 2) is joined to vertex v // 2. What is the sum of the distances over all 105 pairs of vertices?",
+   "answer": 368,
+   "verify": "import itertools\ndef dists(n, E):\n    adj = {v: [] for v in range(1, n + 1)}\n    for a, b in E: adj[a].append(b); adj[b].append(a)\n    total = 0\n    for s in range(1, n + 1):\n        d, todo = {s: 0}, [s]\n        for v in todo:\n            for u in adj[v]:\n                if u not in d: d[u] = d[v] + 1; todo.append(u)\n        total += sum(d.values())\n    return total // 2\nresult = dists(15, [(v, v // 2) for v in range(2, 16)])",
+   "nudges": [
+    "For the edge above vertex v, how many vertices lie below it?"
+   ],
+   "showed": "Edges above the 8 leaves split 1 from 14; above the 4 middle vertices, 3 from 12; above the 2 top ones, 7 from 8. Add s(15 - s) over the 14 edges.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-spider",
+   "kind": "number",
+   "prompt": "A centre with five legs, each a path of 3 further vertices (16 vertices in all). What is the sum of the distances over all pairs?",
+   "answer": 410,
+   "verify": "import itertools\ndef dists(n, E):\n    adj = {v: [] for v in range(1, n + 1)}\n    for a, b in E: adj[a].append(b); adj[b].append(a)\n    total = 0\n    for s in range(1, n + 1):\n        d, todo = {s: 0}, [s]\n        for v in todo:\n            for u in adj[v]:\n                if u not in d: d[u] = d[v] + 1; todo.append(u)\n        total += sum(d.values())\n    return total // 2\nE = []\nv = 1\nfor leg in range(5):\n    prev = 1\n    for k in range(3): v += 1; E.append((prev, v)); prev = v\nresult = dists(16, E)",
+   "nudges": [
+    "Along one leg, what are the sizes of the far side for its three edges?"
+   ],
+   "showed": "Each leg has edges cutting off 3, 2 and 1 vertices: 3 x 13 + 2 x 14 + 1 x 15 per leg, times five.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-match",
+   "kind": "number",
+   "prompt": "Ten vertices in a line. They are split into five pairs; the cost is the sum of the distances within the pairs. What is the largest possible cost?",
+   "answer": 25,
+   "verify": "def best(vs):\n    if not vs: return 0\n    a = vs[0]\n    return max(abs(a - b) + best([v for v in vs if v not in (a, b)]) for b in vs[1:])\nresult = best(list(range(10)))",
+   "nudges": [
+    "At most how many pairs can cross the edge that has s vertices on one side?",
+    "Is there a pairing that reaches that limit on every edge at once?"
+   ],
+   "showed": "An edge with s vertices on one side is crossed by at most min(s, 10 - s) pairs: 1 + 2 + 3 + 4 + 5 + 4 + 3 + 2 + 1 = 25. Pairing each of the first five with one of the last five crosses every edge that many times.",
+   "tier": "hard"
   }
  ],
  "reveal": {

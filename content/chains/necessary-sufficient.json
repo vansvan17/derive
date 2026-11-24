@@ -146,6 +146,50 @@
     "Why do your hand-checked cases and that step together reach every $n \\ge 8$?"
    ],
    "showed": "Three base cases and a step of 3."
+  },
+  {
+   "id": "h-perm",
+   "kind": "list",
+   "prompt": "For which n from 1 to 9 can the numbers 1..n be written in a row p_1, ..., p_n so that the n differences |p_i - i| are all different?",
+   "answer": [
+    1,
+    4,
+    5,
+    8,
+    9
+   ],
+   "verify": "import itertools\nresult = [n for n in range(1, 10) if any(len({abs(p[i] - i - 1) for i in range(n)}) == n for p in itertools.permutations(range(1, n + 1)))]",
+   "nudges": [
+    "The differences are n different numbers between 0 and n - 1. What must they add up to?",
+    "What is the parity of the sum of all |p_i - i|, whatever the arrangement?"
+   ],
+   "showed": "The differences must be 0, 1, ..., n-1, with sum n(n-1)/2. But the sum of |p_i - i| is always even (it has the parity of the sum of p_i - i, which is 0). So n(n-1)/2 must be even: n is 0 or 1 mod 4. Constructions exist for all of those.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-three",
+   "kind": "number",
+   "prompt": "With coins worth 6, 10 and 15, what is the largest amount that cannot be paid exactly?",
+   "answer": 29,
+   "verify": "can = [True] + [False] * 200\nfor s in range(1, 201): can[s] = any(s >= c and can[s - c] for c in (6, 10, 15))\nresult = max(s for s in range(201) if not can[s])",
+   "nudges": [
+    "No two of the coins are coprime, yet all three together are. Which amounts are payable in each remainder class mod 6?"
+   ],
+   "showed": "Work mod 6: the smallest payable amount in each class is 0, 25, 20, 15, 10, 35 (classes 0 to 5), built from 10s and 15s. The worst is 35, so 29 is the last unpayable amount.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-lamps",
+   "kind": "number",
+   "prompt": "Ten lamps are off. A move switches exactly three lamps of your choice. What is the smallest number of moves that turns all ten on?",
+   "answer": 4,
+   "verify": "from collections import deque\nseen, q = {0: 0}, deque([0])\nwhile q:\n    h = q.popleft()\n    for a in range(4):\n        if a <= h and 3 - a <= 10 - h:\n            t = h - a + 3 - a\n            if t not in seen: seen[t] = seen[h] + 1; q.append(t)\nresult = seen[10]",
+   "nudges": [
+    "What does a move do to the parity of the number of lit lamps?",
+    "The parity rules out some numbers of moves. Is the smallest remaining number actually achievable?"
+   ],
+   "showed": "Each move changes the parity, so the number of moves is even; two moves switch at most six lamps. Four moves make twelve switches: nine lamps once and one lamp three times.",
+   "tier": "hard"
   }
  ],
  "reveal": {

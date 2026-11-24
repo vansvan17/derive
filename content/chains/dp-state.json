@@ -145,6 +145,42 @@
     "Why does each way of reaching step $n-1$ correspond to exactly one way in the first group?"
    ],
    "showed": "Sort by the last move; each group is a copy of a smaller problem."
+  },
+  {
+   "id": "h-runs",
+   "kind": "number",
+   "prompt": "How many strings of 20 binary digits contain no three equal digits in a row?",
+   "answer": 21892,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef f(n, last, run): return 1 if n == 0 else sum(f(n - 1, d, run + 1 if d == last else 1) for d in (0, 1) if not (d == last and run == 2))\nresult = f(20, -1, 0)",
+   "nudges": [
+    "What do you need to remember about the string so far in order to know which digits may come next?"
+   ],
+   "showed": "Remember the last digit and whether it has just been repeated: four summaries. Each length is computed from the previous one.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-grid",
+   "kind": "number",
+   "prompt": "A 6 by 6 grid of cells. You go from the top-left cell to the bottom-right cell moving right or down, and you may never move down twice in a row. How many routes are there?",
+   "answer": 6,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef g(r, c, lastdown):\n    if (r, c) == (5, 5): return 1\n    return (g(r, c + 1, False) if c < 5 else 0) + (g(r + 1, c, True) if r < 5 and not lastdown else 0)\nresult = g(0, 0, False)",
+   "nudges": [
+    "Is the cell alone enough to decide what is allowed next?"
+   ],
+   "showed": "The summary is (cell, was the last move down?). It happens to equal the number of ways to place 5 downs into the gaps around 5 rights with at most one per gap: C(6, 5).",
+   "tier": "hard"
+  },
+  {
+   "id": "h-tiles",
+   "kind": "number",
+   "prompt": "In how many ways can a 2 by 10 strip be covered using 1 by 2 dominoes (in either direction) and 2 by 2 squares?",
+   "answer": 683,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef t(n): return 1 if n == 0 else 1 if n == 1 else t(n - 1) + 2 * t(n - 2)\nresult = t(10)",
+   "nudges": [
+    "How can the leftmost part of the strip be covered, and what is left in each case?"
+   ],
+   "showed": "The strip begins with one vertical domino (leaving n - 1), or with two horizontal dominoes or one square (leaving n - 2 in two ways): T(n) = T(n-1) + 2 T(n-2).",
+   "tier": "hard"
   }
  ],
  "reveal": {

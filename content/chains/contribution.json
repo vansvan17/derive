@@ -1,166 +1,203 @@
 {
-  "idea": "contribution",
-  "opening": "Add something up over every stretch of an array. Do not list the stretches.",
-  "steps": [
-    {
-      "id": "small",
-      "kind": "number",
-      "prompt": "The array is 2, 5, 1. It has six contiguous subarrays. Add up the sums of all six.",
-      "answer": 29,
-      "verify": "a = [2, 5, 1]\nresult = sum(sum(a[l:r]) for l in range(3) for r in range(l + 1, 4))",
-      "nudges": [
-        "The six are 2; 5; 1; 2,5; 5,1; 2,5,1. What does each one add up to?"
-      ],
-      "showed": "The total is 29."
-    },
-    {
-      "id": "times",
-      "kind": "number",
-      "prompt": "In that total, how many times was the middle element, 5, added?",
-      "answer": 4,
-      "verify": "result = sum(1 for l in range(3) for r in range(l + 1, 4) if l <= 1 < r)",
-      "nudges": [
-        "Which of the six subarrays contain the 5?"
-      ],
-      "showed": "Four of the six subarrays contain it."
-    },
-    {
-      "id": "five",
-      "kind": "list",
-      "prompt": "An array of length 5. For each position 1, 2, 3, 4, 5, how many contiguous subarrays contain that position? Give the five numbers in order.",
-      "answer": [
-        5,
-        8,
-        9,
-        8,
-        5
-      ],
-      "verify": "result = [sum(1 for l in range(1, 6) for r in range(l, 6) if l <= i <= r) for i in range(1, 6)]",
-      "nudges": [
-        "For position 2: where may the subarray start, and where may it end?"
-      ],
-      "showed": "Positions in the middle are counted more often.",
-      "ordered": true
-    },
-    {
-      "id": "general",
-      "kind": "formula",
-      "prompt": "An array of length $n$, positions numbered from 1. How many contiguous subarrays contain position $i$?",
-      "answer": "i*(n-i+1)",
-      "vars": {
-        "n": [
-          1,
-          14
-        ],
-        "i": [
-          1,
-          14
-        ]
-      },
-      "verify": "result = sum(1 for l in range(1, n + 1) for r in range(l, n + 1) if l <= i <= r)",
-      "nudges": [
-        "A subarray containing i is a choice of where to start and where to end. How many choices for each?"
-      ],
-      "showed": "Start: $i$ choices. End: $n-i+1$ choices. They are independent, so multiply.",
-      "verify_when": "i <= n"
-    },
-    {
-      "id": "hundred",
-      "kind": "number",
-      "prompt": "What is the sum of the sums of all contiguous subarrays of $1, 2, 3, \\dots, 100$?",
-      "answer": 8670850,
-      "verify": "p = [0]\nfor x in range(1, 101): p.append(p[-1] + x)\nresult = sum(p[r] - p[l] for l in range(100) for r in range(l + 1, 101))",
-      "nudges": [
-        "How many times is the element in position i added?",
-        "So the total is the sum over $i$ of what?"
-      ],
-      "showed": "Each element times the number of subarrays that contain it: a sum of n terms in place of about n squared over two."
-    },
-    {
-      "id": "min",
-      "kind": "number",
-      "prompt": "The same move with a different quantity. For the array 3, 1, 2: add up the **minimum** of each of the six contiguous subarrays.",
-      "answer": 9,
-      "verify": "a = [3, 1, 2]\nresult = sum(min(a[l:r]) for l in range(3) for r in range(l + 1, 4))",
-      "nudges": [
-        "For how many subarrays is the 1 the minimum?"
-      ],
-      "showed": "Ask of each element: for how many subarrays am I the minimum?"
-    },
-    {
-      "id": "max",
-      "kind": "number",
-      "prompt": "In the array 3, 1, 4, 1, 5, 9, 2, 6, for how many contiguous subarrays is the 9 the maximum?",
-      "answer": 18,
-      "verify": "a = [3, 1, 4, 1, 5, 9, 2, 6]\nresult = sum(1 for l in range(8) for r in range(l + 1, 9) if max(a[l:r]) == 9)",
-      "nudges": [
-        "How far left may such a subarray start? How far right may it end?"
-      ],
-      "showed": "Left end: as far as everything is smaller. Right end: the same. Multiply."
-    },
-    {
-      "id": "pairs",
-      "kind": "number",
-      "prompt": "The sorted array 1, 4, 6, 10. Add up $a_j-a_i$ over all pairs $i<j$.",
-      "answer": 29,
-      "verify": "a = [1, 4, 6, 10]\nresult = sum(a[j] - a[i] for i in range(4) for j in range(i + 1, 4))",
-      "nudges": [
-        "In how many pairs does the 6 appear with a plus sign, and in how many with a minus sign?"
-      ],
-      "showed": "Each element is added once for every element before it and subtracted once for every element after it."
-    },
-    {
-      "id": "coefficient",
-      "kind": "formula",
-      "prompt": "A sorted array of length $n$, positions numbered from 1. In the sum of $a_j-a_i$ over all pairs $i<j$, what is the total coefficient of $a_k$, in terms of $n$ and $k$?",
-      "answer": "2*k-n-1",
-      "vars": {
-        "n": [
-          1,
-          14
-        ],
-        "k": [
-          1,
-          14
-        ]
-      },
-      "verify": "e = [1 if t == k else 0 for t in range(n + 1)]\nresult = sum(e[j] - e[i] for i in range(1, n + 1) for j in range(i + 1, n + 1))",
-      "nudges": [
-        "How many positions come before k? How many after?"
-      ],
-      "showed": "$(k-1)$ times plus, $(n-k)$ times minus.",
-      "verify_when": "k <= n"
-    },
-    {
-      "id": "subsets",
-      "kind": "number",
-      "prompt": "Add up the sizes of all subsets of $\\{1, 2, \\dots, 10\\}$.",
-      "answer": 5120,
-      "verify": "result = sum(bin(m).count('1') for m in range(1 << 10))",
-      "nudges": [
-        "In how many subsets does the element 7 appear?"
-      ],
-      "showed": "Each element lies in half of the subsets: ten elements times 512."
-    },
-    {
-      "id": "argument",
-      "kind": "proof",
-      "prompt": "Prove that the sum of the sums of all contiguous subarrays of $a_1, \\dots, a_n$ equals $\\sum_{i=1}^{n} a_i\\cdot i\\cdot(n-i+1)$.",
-      "claims": [
-        "The total is a sum over all pairs (subarray [l, r], position i inside it) of a_i; regrouping it by position i gives the sum over i of a_i times the number of subarrays containing i.",
-        "Position i lies in the subarray [l, r] exactly when l <= i <= r.",
-        "There are i choices of l and n - i + 1 choices of r, chosen independently, so i(n - i + 1) subarrays contain i."
-      ],
-      "nudges": [
-        "What is the double sum you are rearranging?",
-        "When exactly does a subarray contain position i?"
-      ],
-      "showed": "Swap the order of summation: sum over elements, not over subarrays."
-    }
-  ],
-  "reveal": {
-    "name": "Contribution counting",
-    "statement": "$\\sum_{\\text{objects}}\\ \\sum_{\\text{parts of the object}} w(\\text{part}) \\;=\\; \\sum_{\\text{parts}} w(\\text{part})\\cdot\\#\\{\\text{objects containing it}\\}$.",
-    "remark": "Also called the contribution technique, or swapping the order of summation. It is the first thing to try on \"sum over all subarrays / pairs / subsets\"."
+ "idea": "contribution",
+ "opening": "Add something up over every stretch of an array. Do not list the stretches.",
+ "steps": [
+  {
+   "id": "small",
+   "kind": "number",
+   "prompt": "The array is 2, 5, 1. It has six contiguous subarrays. Add up the sums of all six.",
+   "answer": 29,
+   "verify": "a = [2, 5, 1]\nresult = sum(sum(a[l:r]) for l in range(3) for r in range(l + 1, 4))",
+   "nudges": [
+    "The six are 2; 5; 1; 2,5; 5,1; 2,5,1. What does each one add up to?"
+   ],
+   "showed": "The total is 29."
+  },
+  {
+   "id": "times",
+   "kind": "number",
+   "prompt": "In that total, how many times was the middle element, 5, added?",
+   "answer": 4,
+   "verify": "result = sum(1 for l in range(3) for r in range(l + 1, 4) if l <= 1 < r)",
+   "nudges": [
+    "Which of the six subarrays contain the 5?"
+   ],
+   "showed": "Four of the six subarrays contain it."
+  },
+  {
+   "id": "five",
+   "kind": "list",
+   "prompt": "An array of length 5. For each position 1, 2, 3, 4, 5, how many contiguous subarrays contain that position? Give the five numbers in order.",
+   "answer": [
+    5,
+    8,
+    9,
+    8,
+    5
+   ],
+   "verify": "result = [sum(1 for l in range(1, 6) for r in range(l, 6) if l <= i <= r) for i in range(1, 6)]",
+   "nudges": [
+    "For position 2: where may the subarray start, and where may it end?"
+   ],
+   "showed": "Positions in the middle are counted more often.",
+   "ordered": true
+  },
+  {
+   "id": "general",
+   "kind": "formula",
+   "prompt": "An array of length $n$, positions numbered from 1. How many contiguous subarrays contain position $i$?",
+   "answer": "i*(n-i+1)",
+   "vars": {
+    "n": [
+     1,
+     14
+    ],
+    "i": [
+     1,
+     14
+    ]
+   },
+   "verify": "result = sum(1 for l in range(1, n + 1) for r in range(l, n + 1) if l <= i <= r)",
+   "nudges": [
+    "A subarray containing i is a choice of where to start and where to end. How many choices for each?"
+   ],
+   "showed": "Start: $i$ choices. End: $n-i+1$ choices. They are independent, so multiply.",
+   "verify_when": "i <= n"
+  },
+  {
+   "id": "hundred",
+   "kind": "number",
+   "prompt": "What is the sum of the sums of all contiguous subarrays of $1, 2, 3, \\dots, 100$?",
+   "answer": 8670850,
+   "verify": "p = [0]\nfor x in range(1, 101): p.append(p[-1] + x)\nresult = sum(p[r] - p[l] for l in range(100) for r in range(l + 1, 101))",
+   "nudges": [
+    "How many times is the element in position i added?",
+    "So the total is the sum over $i$ of what?"
+   ],
+   "showed": "Each element times the number of subarrays that contain it: a sum of n terms in place of about n squared over two."
+  },
+  {
+   "id": "min",
+   "kind": "number",
+   "prompt": "The same move with a different quantity. For the array 3, 1, 2: add up the **minimum** of each of the six contiguous subarrays.",
+   "answer": 9,
+   "verify": "a = [3, 1, 2]\nresult = sum(min(a[l:r]) for l in range(3) for r in range(l + 1, 4))",
+   "nudges": [
+    "For how many subarrays is the 1 the minimum?"
+   ],
+   "showed": "Ask of each element: for how many subarrays am I the minimum?"
+  },
+  {
+   "id": "max",
+   "kind": "number",
+   "prompt": "In the array 3, 1, 4, 1, 5, 9, 2, 6, for how many contiguous subarrays is the 9 the maximum?",
+   "answer": 18,
+   "verify": "a = [3, 1, 4, 1, 5, 9, 2, 6]\nresult = sum(1 for l in range(8) for r in range(l + 1, 9) if max(a[l:r]) == 9)",
+   "nudges": [
+    "How far left may such a subarray start? How far right may it end?"
+   ],
+   "showed": "Left end: as far as everything is smaller. Right end: the same. Multiply."
+  },
+  {
+   "id": "pairs",
+   "kind": "number",
+   "prompt": "The sorted array 1, 4, 6, 10. Add up $a_j-a_i$ over all pairs $i<j$.",
+   "answer": 29,
+   "verify": "a = [1, 4, 6, 10]\nresult = sum(a[j] - a[i] for i in range(4) for j in range(i + 1, 4))",
+   "nudges": [
+    "In how many pairs does the 6 appear with a plus sign, and in how many with a minus sign?"
+   ],
+   "showed": "Each element is added once for every element before it and subtracted once for every element after it."
+  },
+  {
+   "id": "coefficient",
+   "kind": "formula",
+   "prompt": "A sorted array of length $n$, positions numbered from 1. In the sum of $a_j-a_i$ over all pairs $i<j$, what is the total coefficient of $a_k$, in terms of $n$ and $k$?",
+   "answer": "2*k-n-1",
+   "vars": {
+    "n": [
+     1,
+     14
+    ],
+    "k": [
+     1,
+     14
+    ]
+   },
+   "verify": "e = [1 if t == k else 0 for t in range(n + 1)]\nresult = sum(e[j] - e[i] for i in range(1, n + 1) for j in range(i + 1, n + 1))",
+   "nudges": [
+    "How many positions come before k? How many after?"
+   ],
+   "showed": "$(k-1)$ times plus, $(n-k)$ times minus.",
+   "verify_when": "k <= n"
+  },
+  {
+   "id": "subsets",
+   "kind": "number",
+   "prompt": "Add up the sizes of all subsets of $\\{1, 2, \\dots, 10\\}$.",
+   "answer": 5120,
+   "verify": "result = sum(bin(m).count('1') for m in range(1 << 10))",
+   "nudges": [
+    "In how many subsets does the element 7 appear?"
+   ],
+   "showed": "Each element lies in half of the subsets: ten elements times 512."
+  },
+  {
+   "id": "argument",
+   "kind": "proof",
+   "prompt": "Prove that the sum of the sums of all contiguous subarrays of $a_1, \\dots, a_n$ equals $\\sum_{i=1}^{n} a_i\\cdot i\\cdot(n-i+1)$.",
+   "claims": [
+    "The total is a sum over all pairs (subarray [l, r], position i inside it) of a_i; regrouping it by position i gives the sum over i of a_i times the number of subarrays containing i.",
+    "Position i lies in the subarray [l, r] exactly when l <= i <= r.",
+    "There are i choices of l and n - i + 1 choices of r, chosen independently, so i(n - i + 1) subarrays contain i."
+   ],
+   "nudges": [
+    "What is the double sum you are rearranging?",
+    "When exactly does a subarray contain position i?"
+   ],
+   "showed": "Swap the order of summation: sum over elements, not over subarrays."
+  },
+  {
+   "id": "h-max",
+   "kind": "number",
+   "prompt": "No pointers from here. For the array 3, 1, 4, 1, 5, 9, 2, 6, add up the largest element of every contiguous block (all 36 blocks).",
+   "answer": 233,
+   "verify": "a = [3, 1, 4, 1, 5, 9, 2, 6]\nresult = sum(max(a[i:j + 1]) for i in range(8) for j in range(i, 8))",
+   "nudges": [
+    "Instead of going block by block, in how many blocks is the 9 the largest element?",
+    "For an element, how far can a block extend to the left and to the right while it stays the largest?"
+   ],
+   "showed": "Each element is the largest of (blocks reaching left until a larger-or-equal element) times (blocks reaching right until a larger element). Multiply the two reaches, times the value, and add over elements.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-diff",
+   "kind": "number",
+   "prompt": "Take the ten squares 1, 4, 9, ..., 100. Add up the difference (larger minus smaller) over all 45 pairs.",
+   "answer": 1815,
+   "verify": "import itertools\nresult = sum(b - a for a, b in itertools.combinations([k * k for k in range(1, 11)], 2))",
+   "nudges": [
+    "In how many pairs is 49 the larger number, and in how many the smaller?"
+   ],
+   "showed": "In sorted order the k-th number is added k - 1 times (as the larger) and subtracted n - k times (as the smaller). One pass with those weights.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-min",
+   "kind": "number",
+   "prompt": "For every non-empty subset of {1, 2, ..., 10} take its smallest element. What is the sum of these 1023 numbers?",
+   "answer": 2036,
+   "verify": "import itertools\nresult = sum(min(c) for k in range(1, 11) for c in itertools.combinations(range(1, 11), k))",
+   "nudges": [
+    "In how many subsets is 3 the smallest element?"
+   ],
+   "showed": "k is the smallest element of exactly 2^(10-k) subsets (any choice of larger elements). Add k times that over k.",
+   "tier": "hard"
   }
+ ],
+ "reveal": {
+  "name": "Contribution counting",
+  "statement": "$\\sum_{\\text{objects}}\\ \\sum_{\\text{parts of the object}} w(\\text{part}) \\;=\\; \\sum_{\\text{parts}} w(\\text{part})\\cdot\\#\\{\\text{objects containing it}\\}$.",
+  "remark": "Also called the contribution technique, or swapping the order of summation. It is the first thing to try on \"sum over all subarrays / pairs / subsets\"."
+ }
 }

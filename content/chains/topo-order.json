@@ -116,6 +116,43 @@
     "Why must a walk that never stops repeat a vertex, and what have you found when it does?"
    ],
    "showed": "Walk backwards; in a finite graph without cycles you must run out."
+  },
+  {
+   "id": "h-orders",
+   "kind": "number",
+   "prompt": "The numbers 1 to 8, with the rule that a must come before b whenever a divides b (and a is not b). In how many orders can all eight be listed?",
+   "answer": 378,
+   "verify": "import itertools\nresult = sum(1 for p in itertools.permutations(range(1, 9)) if all(p.index(a) < p.index(b) for a in range(1, 9) for b in range(a + 1, 9) if b % a == 0))",
+   "nudges": [
+    "Which number must be first? Which numbers have only that one requirement?"
+   ],
+   "showed": "1 is first; 5 and 7 are free after that; the others form the constraints 2 before 4, 6, 8; 3 before 6; 4 before 8. Counting valid orders of a general set of rules is hard, which is why this needs search.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-chain",
+   "kind": "number",
+   "prompt": "Same rule on the numbers 1 to 100. What is the largest number of numbers that can be lined up so that each divides the next?",
+   "answer": 7,
+   "verify": "best = [0] * 101\nfor n in range(1, 101): best[n] = 1 + max([best[d] for d in range(1, n) if n % d == 0], default=0)\nresult = max(best)",
+   "nudges": [
+    "If you know the longest chain ending at each proper divisor of n, what is the longest chain ending at n?",
+    "In what order must the numbers be processed for that to work?"
+   ],
+   "showed": "Process in increasing order (a valid order for \"divides\"): the best chain ending at n is one more than the best among its divisors. 1, 2, 4, 8, 16, 32, 64.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-paths",
+   "kind": "number",
+   "prompt": "Stations 1 to 12. From station i you can go to i + 2 or i + 3 (if it exists). How many different routes lead from station 1 to station 12?",
+   "answer": 9,
+   "verify": "ways = [0] * 16\nways[1] = 1\nfor i in range(1, 13):\n    ways[i + 2] += ways[i]; ways[i + 3] += ways[i]\nresult = ways[12]",
+   "nudges": [
+    "If you know the number of routes to stations 9 and 10, what is the number for 12?"
+   ],
+   "showed": "Every arrow goes forward, so the stations in increasing order are a valid processing order: routes to j = routes to j - 2 plus routes to j - 3.",
+   "tier": "hard"
   }
  ],
  "reveal": {

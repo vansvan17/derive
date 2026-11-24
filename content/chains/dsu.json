@@ -123,6 +123,43 @@
     "What happens to the size of your circle in exactly those merges?"
    ],
    "showed": "Every extra step is paid for by a doubling, and there is only room for $\\log_2 n$ doublings."
+  },
+  {
+   "id": "h-groups",
+   "kind": "number",
+   "prompt": "No pointers from here. The numbers 1 to 100: join a and b whenever a x b is a perfect square. How many separate groups are there?",
+   "answer": 61,
+   "verify": "import math, collections\np = list(range(101))\ndef f(x):\n    while p[x] != x: p[x] = p[p[x]]; x = p[x]\n    return x\nfor a in range(1, 101):\n    for b in range(a + 1, 101):\n        if math.isqrt(a * b) ** 2 == a * b: p[f(a)] = f(b)\nresult = len({f(v) for v in range(1, 101)})",
+   "nudges": [
+    "Do you need the full list of who is joined to whom, or only which group each number is in?",
+    "Afterwards: what do the numbers in one group have in common?"
+   ],
+   "showed": "Merge the two groups for every valid pair and count the leaders. (Each group is the numbers with the same square-free part, so the count is the number of square-free numbers up to 100.)",
+   "tier": "hard"
+  },
+  {
+   "id": "h-largest",
+   "kind": "number",
+   "prompt": "In that same grouping, how many numbers are in the largest group?",
+   "answer": 10,
+   "verify": "import math, collections\np = list(range(101))\ndef f(x):\n    while p[x] != x: p[x] = p[p[x]]; x = p[x]\n    return x\nfor a in range(1, 101):\n    for b in range(a + 1, 101):\n        if math.isqrt(a * b) ** 2 == a * b: p[f(a)] = f(b)\nresult = max(collections.Counter(f(v) for v in range(1, 101)).values())",
+   "nudges": [
+    "What extra number should each leader carry?"
+   ],
+   "showed": "Keep a size with each leader and add sizes on every merge. The largest group is the ten perfect squares.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-cycle",
+   "kind": "number",
+   "prompt": "Thirty points numbered 0 to 29. For i = 0, 1, ..., 29 in order, draw an edge between i and (i x i + 3) mod 30, skipping it if both ends are the same point. How many of the edges drawn join two points that were already connected?",
+   "answer": 4,
+   "verify": "p = list(range(30))\ndef f(x):\n    while p[x] != x: x = p[x]\n    return x\nn = 0\nfor i in range(30):\n    j = (i * i + 3) % 30\n    if i == j: continue\n    if f(i) == f(j): n += 1\n    else: p[f(i)] = f(j)\nresult = n",
+   "nudges": [
+    "At the moment an edge arrives, how do you tell whether its ends are already connected?"
+   ],
+   "showed": "Same leader means already connected: count those and merge the rest.",
+   "tier": "hard"
   }
  ],
  "reveal": {

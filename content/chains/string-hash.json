@@ -124,6 +124,43 @@
     "After shifting $H(l-1)$, what power of $B$ multiplies each of its digits?"
    ],
    "showed": "After the shift, the earlier digits carry the same powers of $B$ as they do inside $H(r)$, so they cancel."
+  },
+  {
+   "id": "h-distinct",
+   "kind": "number",
+   "prompt": "How many different non-empty substrings does \"abracadabra\" have?",
+   "answer": 54,
+   "verify": "s = 'abracadabra'\nresult = len({s[i:j] for i in range(len(s)) for j in range(i + 1, len(s) + 1)})",
+   "nudges": [
+    "For one fixed length, how do you count the different substrings without comparing them letter by letter?"
+   ],
+   "showed": "For each length, collect the hash of every substring of that length in a set and add up the set sizes.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-repeat",
+   "kind": "number",
+   "prompt": "What is the length of the longest piece of \"abracadabra\" that occurs at least twice (the occurrences may overlap)?",
+   "answer": 4,
+   "verify": "s = 'abracadabra'\nresult = max(L for L in range(len(s)) if any(s.count(s[i:i + L]) > 1 or s.find(s[i:i + L], i + 1) >= 0 for i in range(len(s) - L + 1)) and L > 0)",
+   "nudges": [
+    "If some piece of length L occurs twice, what about length L - 1?",
+    "For a fixed length, how do you test \"some piece occurs twice\" in one pass?"
+   ],
+   "showed": "If a piece of length L repeats, so does one of length L - 1: the yes/no answer switches once, so halve on L, testing each length with a set of hashes.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-value",
+   "kind": "number",
+   "prompt": "With a = 1, b = 2, c = 3, base 31 and modulus 1000000007, what is the hash of \"abc\" (first letter in the highest place)?",
+   "answer": 1026,
+   "verify": "result = (1 * 31 * 31 + 2 * 31 + 3) % (10 ** 9 + 7)",
+   "nudges": [
+    "What are the place values in base 31?"
+   ],
+   "showed": "1 x 961 + 2 x 31 + 3.",
+   "tier": "hard"
   }
  ],
  "reveal": {

@@ -118,6 +118,43 @@
     "After the trade, why is the result still connected and no dearer?"
    ],
    "showed": "Add the edge, find the second crossing on the cycle, and trade."
+  },
+  {
+   "id": "h-total",
+   "kind": "number",
+   "prompt": "Ten towns numbered 1 to 10. A cable between towns a and b costs (a x b) mod 11. What is the cheapest total cost that connects all ten?",
+   "answer": 14,
+   "verify": "E = sorted(((a * b) % 11, a, b) for a in range(1, 11) for b in range(a + 1, 11))\np = list(range(11))\ndef f(x):\n    while p[x] != x: x = p[x]\n    return x\ntree = []\nfor w, a, b in E:\n    if f(a) != f(b): p[f(a)] = f(b); tree.append(w)\nresult = sum(tree)",
+   "nudges": [
+    "There are 45 possible cables. In what order should they be considered?"
+   ],
+   "showed": "Sort the 45 costs and take each cable that joins two different groups.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-bottle",
+   "kind": "number",
+   "prompt": "Same ten towns and costs. Among all ways of getting from town 1 to town 10 along cables, what is the smallest possible value of the dearest cable used?",
+   "answer": 2,
+   "verify": "E = sorted(((a * b) % 11, a, b) for a in range(1, 11) for b in range(a + 1, 11))\np = list(range(11))\ndef f(x):\n    while p[x] != x: x = p[x]\n    return x\nresult = None\nfor w, a, b in E:\n    p[f(a)] = f(b)\n    if f(1) == f(10): result = w; break",
+   "nudges": [
+    "If only cables costing at most x were allowed, how would you tell whether 1 and 10 are connected?",
+    "Adding cables from cheapest to dearest, when do 1 and 10 first become connected?"
+   ],
+   "showed": "Add cables in increasing cost and stop at the moment 1 and 10 fall in the same group; the cable just added is the answer. The path inside the cheapest spanning tree always achieves it.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "In the cheapest connecting set from the first question, how many cables cost exactly 1?",
+   "answer": 4,
+   "verify": "E = sorted(((a * b) % 11, a, b) for a in range(1, 11) for b in range(a + 1, 11))\np = list(range(11))\ndef f(x):\n    while p[x] != x: x = p[x]\n    return x\ntree = []\nfor w, a, b in E:\n    if f(a) != f(b): p[f(a)] = f(b); tree.append(w)\nresult = tree.count(1)",
+   "nudges": [
+    "Among cables of equal cost the order is arbitrary. Does the number of cost-1 cables taken depend on that order?"
+   ],
+   "showed": "Whatever order equal-cost cables are tried in, the same number of each cost ends up in the tree, because after all cables of cost at most x have been considered the groups are the same.",
+   "tier": "hard"
   }
  ],
  "reveal": {

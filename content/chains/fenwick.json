@@ -140,6 +140,57 @@
     "Why does the sequence of box numbers reach 0?"
    ],
    "showed": "Each box ends exactly where the previous one began, all the way down to 0."
+  },
+  {
+   "id": "h-up",
+   "kind": "list",
+   "prompt": "An array of 64 positions with the boxes described earlier. Position 37 changes. Which boxes must be corrected, in the order you reach them?",
+   "answer": [
+    37,
+    38,
+    40,
+    48,
+    64
+   ],
+   "verify": "i, out = 37, []\nwhile i <= 64: out.append(i); i += i & -i\nresult = out",
+   "nudges": [
+    "What is the low bit of 37, and where does adding it take you?"
+   ],
+   "showed": "Keep adding the low bit: 37, 38, 40, 48, 64.",
+   "tier": "hard",
+   "ordered": true
+  },
+  {
+   "id": "h-down",
+   "kind": "list",
+   "prompt": "Which boxes are read to get the total of positions 1 to 55, in the order you reach them?",
+   "answer": [
+    55,
+    54,
+    52,
+    48,
+    32
+   ],
+   "verify": "i, out = 55, []\nwhile i: out.append(i); i -= i & -i\nresult = out",
+   "nudges": [
+    "What is 55 in binary?"
+   ],
+   "showed": "55 is 110111: strip the lowest 1 each time.",
+   "tier": "hard",
+   "ordered": true
+  },
+  {
+   "id": "h-inv",
+   "kind": "number",
+   "prompt": "The sequence a_i = (37 x i) mod 101 for i = 1 to 100. How many pairs i < j have a_i > a_j?",
+   "answer": 2448,
+   "verify": "a = [37 * i % 101 for i in range(1, 101)]\nresult = sum(1 for i in range(100) for j in range(i + 1, 100) if a[i] > a[j])",
+   "nudges": [
+    "Going through the sequence from left to right, what do you need to know about the values seen so far when a new value arrives?",
+    "Which structure gives \"how many of the values seen so far are larger than x\" quickly while values keep arriving?"
+   ],
+   "showed": "For each new value, count the earlier values that are larger, then record the new value. With boxes indexed by value, both steps are a handful of look-ups: n log n in all.",
+   "tier": "hard"
   }
  ],
  "reveal": {

@@ -124,6 +124,43 @@
     "What does the remaining distance look like in binary as the jumps are made?"
    ],
    "showed": "The safe jumps spell out the distance in binary, stopping one step short of the meeting point."
+  },
+  {
+   "id": "h-lca",
+   "kind": "number",
+   "prompt": "A company of 1000 people: the boss of person v is person v // 2 (rounded down), and person 1 is the head. Who is the lowest person above (or equal to) both 700 and 715?",
+   "answer": 5,
+   "verify": "anc = lambda v: [] if v == 1 else [v // 2] + anc(v // 2)\nA = [700] + anc(700)\nresult = next(x for x in [715] + anc(715) if x in A)",
+   "nudges": [
+    "How deep are 700 and 715?",
+    "After levelling, which jumps keep the two people different?"
+   ],
+   "showed": "Both are at depth 9. Jumps of 4 and 2 keep them different (43 and 44, then 10 and 11); a jump of 1 would merge them, so the answer is their common boss, 5.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-dist",
+   "kind": "number",
+   "prompt": "In the same company, how many boss-steps separate person 700 from person 715 (up to their lowest common boss and down again)?",
+   "answer": 14,
+   "verify": "anc = lambda v: [] if v == 1 else [v // 2] + anc(v // 2)\nA = [700] + anc(700); B = [715] + anc(715)\nc = next(x for x in B if x in A)\nresult = A.index(c) + B.index(c)",
+   "nudges": [
+    "How can the distance be written using three depths?"
+   ],
+   "showed": "depth(700) + depth(715) - 2 x depth(5) = 9 + 9 - 4.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-kth",
+   "kind": "number",
+   "prompt": "In the same company, who is 5 steps above person 1000?",
+   "answer": 31,
+   "verify": "anc = lambda v: [] if v == 1 else [v // 2] + anc(v // 2)\nresult = anc(1000)[4]",
+   "nudges": [
+    "Which jumps make up 5 steps?"
+   ],
+   "showed": "A jump of 4 and a jump of 1. (In this particular company it is also 1000 // 32.)",
+   "tier": "hard"
   }
  ],
  "reveal": {

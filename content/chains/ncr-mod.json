@@ -119,6 +119,43 @@
     "What is $k \\cdot (k-1)!$?"
    ],
    "showed": "Multiply the candidate by $(k-1)!$ and watch it collapse to 1."
+  },
+  {
+   "id": "h-paths",
+   "kind": "number",
+   "prompt": "How many routes go from one corner of a 1000 by 1000 grid of streets to the opposite corner, moving only right or up (2000 steps)? Give the answer modulo 1000000007.",
+   "answer": 72475738,
+   "verify": "import math\nresult = math.comb(2000, 1000) % (10 ** 9 + 7)",
+   "nudges": [
+    "A route is a choice of which of the 2000 steps go up. Which binomial coefficient is that?"
+   ],
+   "showed": "C(2000, 1000), from the factorial tables: 2000! times the inverse of 1000! twice.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-lucas",
+   "kind": "number",
+   "prompt": "What is $\\binom{15}{5}$ modulo 13? (The factorial tables cannot be used directly, because 15 is not below 13.)",
+   "answer": 0,
+   "verify": "import math\nresult = math.comb(15, 5) % 13",
+   "nudges": [
+    "$\\binom{15}{5} = 3003$. Is it a multiple of 13?",
+    "How many factors of 13 are in 15!, in 5! and in 10!?"
+   ],
+   "showed": "15! contains one factor 13, while 5! and 10! contain none, so the binomial is a multiple of 13. In general, write n and k in base p and multiply the binomials of the digits: here digits (1, 2) over (0, 5) give C(2, 5) = 0.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-big",
+   "kind": "number",
+   "prompt": "What is $\\binom{100000}{50000}$ modulo 1000000007?",
+   "answer": 149033233,
+   "verify": "p = 10 ** 9 + 7\nf = [1] * 100001\nfor i in range(1, 100001): f[i] = f[i - 1] * i % p\nresult = f[100000] * pow(f[50000], p - 2, p) ** 2 % p",
+   "nudges": [
+    "The number has about 30000 digits. What do you actually need to compute?"
+   ],
+   "showed": "Factorials modulo p up to 100000, then one inverse (by fast powering) used twice.",
+   "tier": "hard"
   }
  ],
  "reveal": {

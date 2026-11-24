@@ -138,6 +138,43 @@
     "What would it take to join the two parts again?"
    ],
    "showed": "Two connected pieces, and the only question is whether anything else links them."
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "Ten towns; roads 1-2, 2-3, 3-1, 3-4, 4-5, 5-6, 6-7, 7-5, 7-8, 8-9, 9-10, 10-8. How many roads are critical (closing that one road disconnects something)?",
+   "answer": 3,
+   "verify": "def bridges(n, E):\n    def joined(es):\n        p = list(range(n + 1))\n        def f(x):\n            while p[x] != x: x = p[x]\n            return x\n        for a, b in es: p[f(a)] = f(b)\n        return len({f(v) for v in range(1, n + 1)}) == 1\n    return sum(1 for i in range(len(E)) if not joined(E[:i] + E[i + 1:]))\nresult = bridges(10, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6), (6, 7), (7, 5), (7, 8), (8, 9), (9, 10), (10, 8)])",
+   "nudges": [
+    "Which roads lie on a cycle?"
+   ],
+   "showed": "Three triangles joined in a line by single roads: the roads that are on no cycle are the critical ones.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-path",
+   "kind": "number",
+   "prompt": "Ten towns in a line (nine roads), plus one extra road between the 3rd and the 7th town. How many roads are critical now?",
+   "answer": 5,
+   "verify": "def bridges(n, E):\n    def joined(es):\n        p = list(range(n + 1))\n        def f(x):\n            while p[x] != x: x = p[x]\n            return x\n        for a, b in es: p[f(a)] = f(b)\n        return len({f(v) for v in range(1, n + 1)}) == 1\n    return sum(1 for i in range(len(E)) if not joined(E[:i] + E[i + 1:]))\nresult = bridges(10, [(i, i + 1) for i in range(1, 10)] + [(3, 7)])",
+   "nudges": [
+    "Which roads does the extra road put on a cycle?"
+   ],
+   "showed": "The extra road closes a cycle through the four line roads between towns 3 and 7; the other five line roads stay critical.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-tree",
+   "kind": "number",
+   "prompt": "A network of 100 towns has 99 roads and is connected. One more road is built between two towns that were 37 roads apart. How many critical roads are there afterwards?",
+   "answer": 62,
+   "verify": "result = 99 - 37",
+   "nudges": [
+    "Before the new road, how many roads were critical?",
+    "Which of them stop being critical?"
+   ],
+   "showed": "In a tree every road is critical: 99. The new road puts exactly the 37 roads of the old route on a cycle, and is itself on that cycle.",
+   "tier": "hard"
   }
  ],
  "reveal": {

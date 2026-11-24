@@ -131,6 +131,44 @@
     "Why is the product of the chosen squares equal to $a^e$?"
    ],
    "showed": "Square to build the powers of two, then multiply the ones the binary digits ask for."
+  },
+  {
+   "id": "h-last3",
+   "kind": "number",
+   "prompt": "No pointers from here. What are the last three digits of $7^{10^{12}}$, read as a number?",
+   "answer": 1,
+   "verify": "result = pow(7, 10 ** 12, 1000)",
+   "nudges": [
+    "How many squarings does an exponent of $10^{12}$ need?",
+    "Is there a small power of 7 that ends in 001?"
+   ],
+   "showed": "About 40 squarings modulo 1000 do it. A shortcut: $7^4 = 2401$, and $7^{100}$ ends in 001, so any exponent that is a multiple of 100 gives 001.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-fib",
+   "kind": "number",
+   "prompt": "The sequence 1, 1, 2, 3, 5, ... adds the last two terms. What are the last three digits of its $10^9$-th term, read as a number?",
+   "answer": 875,
+   "verify": "a, b = 0, 1\nfor _ in range(10 ** 9 % 1500): a, b = b, (a + b) % 1000\nresult = a",
+   "nudges": [
+    "One step turns the pair (previous, current) into (current, previous + current). Can that step be written as multiplying by a fixed 2 by 2 table?",
+    "If one step is a multiplication, what are a billion steps?"
+   ],
+   "showed": "One step multiplies the pair by the matrix with rows (0 1) and (1 1), so a billion steps are that matrix to the power $10^9$: about 30 squarings of a 2 by 2 matrix. Doubling works for anything that can be multiplied.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "Using the square-and-multiply method, how many multiplications does $a^{1000}$ take?",
+   "answer": 14,
+   "verify": "e = 1000\nresult = (e.bit_length() - 1) + (bin(e).count('1') - 1)",
+   "nudges": [
+    "What is 1000 in binary?"
+   ],
+   "showed": "1000 is 1111101000: nine squarings to reach $a^{512}$, and five more multiplications to combine the six powers that are needed.",
+   "tier": "hard"
   }
  ],
  "reveal": {

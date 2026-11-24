@@ -134,6 +134,44 @@
     "What happens to your argument when $l = 1$?"
    ],
    "showed": "Split the first $r$ elements at position $l-1$; the left piece is a total you already have."
+  },
+  {
+   "id": "h-zero",
+   "kind": "number",
+   "prompt": "How many contiguous blocks of 1, -1, 2, -2, 3, -3, 1, -1 have sum 0?",
+   "answer": 11,
+   "verify": "a = [1, -1, 2, -2, 3, -3, 1, -1]\nresult = sum(1 for i in range(8) for j in range(i, 8) if sum(a[i:j + 1]) == 0)",
+   "nudges": [
+    "What are the running totals, starting from 0?",
+    "A block sums to 0 exactly when which two running totals are equal?"
+   ],
+   "showed": "The running totals are 0, 1, 0, 2, 0, 3, 0, 1, 0. A zero block is a pair of equal totals: five 0s give 10 pairs, two 1s give 1.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-best",
+   "kind": "number",
+   "prompt": "What is the largest sum of a non-empty contiguous block of 3, -7, 4, -1, 5, -9, 6, 2, -8, 7?",
+   "answer": 8,
+   "verify": "a = [3, -7, 4, -1, 5, -9, 6, 2, -8, 7]\nresult = max(sum(a[i:j + 1]) for i in range(10) for j in range(i, 10))",
+   "nudges": [
+    "A block sum is a difference of two running totals. For a fixed right end, which left end is best?"
+   ],
+   "showed": "For each right end take (running total there) minus (the smallest running total before it). Two candidates tie at 8: 4 - 1 + 5 and 6 + 2.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-div",
+   "kind": "number",
+   "prompt": "The array is 1, 2, 3, ..., 20. How many contiguous blocks have a sum divisible by 5?",
+   "answer": 70,
+   "verify": "a = list(range(1, 21))\nresult = sum(1 for i in range(20) for j in range(i, 20) if sum(a[i:j + 1]) % 5 == 0)",
+   "nudges": [
+    "When is the difference of two running totals divisible by 5?",
+    "How many of the 21 running totals fall in each remainder class?"
+   ],
+   "showed": "A block is divisible by 5 exactly when its two running totals have the same remainder mod 5. Count the running totals in each class and add up the pairs within each class.",
+   "tier": "hard"
   }
  ],
  "reveal": {

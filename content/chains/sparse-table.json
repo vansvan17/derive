@@ -119,6 +119,42 @@
     "What does \"largest $k$\" tell you about $2^{k+1}$, and why does that rule out a gap in the middle?"
    ],
    "showed": "Each stretch is longer than half of the range, so they must meet."
+  },
+  {
+   "id": "h-size",
+   "kind": "number",
+   "prompt": "For an array of 1,000,000 positions, how many entries does the whole table have (one for every stretch whose length is a power of two)?",
+   "answer": 18951445,
+   "verify": "n = 10 ** 6\nresult = sum(n - (1 << k) + 1 for k in range(n.bit_length()) if (1 << k) <= n)",
+   "nudges": [
+    "How many stretches of length $2^k$ are there in an array of n positions?"
+   ],
+   "showed": "n - 2^k + 1 entries for each k from 0 to 19. Close to 20 n, slightly less.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-overlap",
+   "kind": "number",
+   "prompt": "A question asks about a stretch of 1000 positions. By how many positions do the two blocks used to answer it overlap?",
+   "answer": 24,
+   "verify": "result = 2 * 512 - 1000",
+   "nudges": [
+    "Which block length is used for a stretch of 1000?"
+   ],
+   "showed": "Two blocks of 512 cover 1000 positions with 24 to spare.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-gcd",
+   "kind": "number",
+   "prompt": "The array is a_i = 12 x i for i = 1 to 20. Using the same two-block trick with gcd in place of min, what is the gcd of positions 6 to 15?",
+   "answer": 12,
+   "verify": "import math, functools\nresult = functools.reduce(math.gcd, [12 * i for i in range(6, 16)])",
+   "nudges": [
+    "Does it matter to a gcd if some elements are counted twice?"
+   ],
+   "showed": "gcd(x, x) = x, so overlap is harmless and the trick applies. The two blocks of 8 give gcd 12 each.",
+   "tier": "hard"
   }
  ],
  "reveal": {

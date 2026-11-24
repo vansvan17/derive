@@ -132,6 +132,42 @@
     "How many blocks of one size can contain the left end of the stretch?"
    ],
    "showed": "Only the blocks straddling an end of the stretch are ever opened, and each size has at most two of those."
+  },
+  {
+   "id": "h-six",
+   "kind": "number",
+   "prompt": "For 16 positions (blocks of sizes 16, 8, 4, 2, 1), how many of the 136 stretches [l, r] need exactly 6 blocks?",
+   "answer": 1,
+   "verify": "def pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = sum(1 for l in range(1, 17) for r in range(l, 17) if pieces(1, 16, l, r) == 6)",
+   "nudges": [
+    "How many blocks can a stretch use on its left side, and what must the left end look like to use that many?"
+   ],
+   "showed": "A stretch uses at most 3 blocks on each side of the middle (sizes 1, 2, 4). Six blocks needs both sides at their worst, which pins both ends down almost completely.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-thousand",
+   "kind": "number",
+   "prompt": "Now 1000 positions, halving each block at its middle (rounding down). How many blocks make up the stretch from position 2 to position 999?",
+   "answer": 17,
+   "verify": "def pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = pieces(1, 1000, 2, 999)",
+   "nudges": [
+    "Does the argument \"at most two blocks are opened per size\" need the length to be a power of two?"
+   ],
+   "showed": "Nothing in the argument uses powers of two: at each depth at most two blocks straddle an end of the stretch. So the count stays around 2 log n.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-nodes",
+   "kind": "number",
+   "prompt": "With 1000 positions and the same halving, how many blocks are stored in all?",
+   "answer": 1999,
+   "verify": "def count(lo, hi): return 1 if lo == hi else 1 + count(lo, (lo + hi) // 2) + count((lo + hi) // 2 + 1, hi)\nresult = count(1, 1000)",
+   "nudges": [
+    "Every block that is not a single position has exactly two halves. How many single positions are there?"
+   ],
+   "showed": "A tree in which every inner node has two children and there are n leaves has n - 1 inner nodes: 2n - 1 in all.",
+   "tier": "hard"
   }
  ],
  "reveal": {

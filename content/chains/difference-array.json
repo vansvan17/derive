@@ -136,6 +136,42 @@
     "What is special about $i = l$ and $i = r + 1$?"
    ],
    "showed": "Only the two edges of the stretch see one neighbour move and the other stay."
+  },
+  {
+   "id": "h-one",
+   "kind": "number",
+   "prompt": "An array of 1000 zeros. For every k from 1 to 1000, add 1 to all positions from k to min(1000, 2k). What is the value at position 600 afterwards?",
+   "answer": 301,
+   "verify": "a = [0] * 1001\nfor k in range(1, 1001):\n    for i in range(k, min(1000, 2 * k) + 1): a[i] += 1\nresult = a[600]",
+   "nudges": [
+    "Which k have position 600 inside their stretch?"
+   ],
+   "showed": "Position 600 is covered when k <= 600 <= 2k, that is for k from 300 to 600.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-over",
+   "kind": "number",
+   "prompt": "Thirty intervals: the i-th covers the whole numbers from i to i x i, for i = 1 to 30. What is the largest number of intervals covering a single point?",
+   "answer": 25,
+   "verify": "result = max(sum(1 for i in range(1, 31) if i <= x <= i * i) for x in range(1, 901))",
+   "nudges": [
+    "Where do intervals begin and end, and what does the running total of +1 and -1 at those places tell you?"
+   ],
+   "showed": "Put +1 at each start i and -1 just after each end i x i, and take running totals. The total keeps rising until the starts run out at 30, where every interval with i x i >= 30 is still open.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-all",
+   "kind": "number",
+   "prompt": "An array of 50 zeros. For every pair 1 <= l <= r <= 50, add 1 to all positions from l to r. What is the value at position 20?",
+   "answer": 620,
+   "verify": "result = sum(1 for l in range(1, 51) for r in range(l, 51) if l <= 20 <= r)",
+   "nudges": [
+    "How many stretches contain position 20?"
+   ],
+   "showed": "l can be 1..20 and r can be 20..50: 20 x 31.",
+   "tier": "hard"
   }
  ],
  "reveal": {

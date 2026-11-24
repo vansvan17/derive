@@ -128,6 +128,42 @@
     "How do you get from \"every unsorted order can be improved\" to \"the sorted order is best\"?"
    ],
    "showed": "Local improvement by swapping neighbours, plus the fact that only the sorted order has nothing left to improve."
+  },
+  {
+   "id": "h-concat",
+   "kind": "number",
+   "prompt": "Arrange the numbers 3, 30, 34, 5 and 9 in a row and read the digits as one number. What is the largest number you can get?",
+   "answer": 9534330,
+   "verify": "import itertools\nresult = max(int(''.join(p)) for p in itertools.permutations(['3', '30', '34', '5', '9']))",
+   "nudges": [
+    "Sorting the numbers by size fails: 30 would come before 3. For two neighbours x and y, how do you decide which should come first?"
+   ],
+   "showed": "Compare the two neighbours in both orders: x goes before y when \"xy\" is larger than \"yx\". That comparison is the sort key: 9, 5, 34, 3, 30.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-weights",
+   "kind": "number",
+   "prompt": "Six jobs with (length, weight): (3,4), (1,1), (4,2), (2,5), (5,5), (2,2). They are done one after another; the cost is the sum of weight times finishing time. What is the smallest possible cost?",
+   "answer": 151,
+   "verify": "import itertools\njobs = [(3, 4), (1, 1), (4, 2), (2, 5), (5, 5), (2, 2)]\ndef cost(p):\n    t = c = 0\n    for l, w in p: t += l; c += w * t\n    return c\nresult = min(cost(p) for p in itertools.permutations(jobs))",
+   "nudges": [
+    "For two neighbours, write the cost in both orders. What comparison is left after cancelling?"
+   ],
+   "showed": "Swapping neighbours (t1, w1), (t2, w2) changes the cost by t1 w2 - t2 w1, so sort by length divided by weight, smallest first.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-late",
+   "kind": "number",
+   "prompt": "Five tasks with (duration, deadline): (4,7), (2,6), (7,20), (3,8), (5,12), done one after another from time 0. A task finishing after its deadline is late by the difference. What is the smallest possible value of the largest lateness?",
+   "answer": 2,
+   "verify": "import itertools\ntasks = [(4, 7), (2, 6), (7, 20), (3, 8), (5, 12)]\ndef late(p):\n    t = worst = 0\n    for d, dl in p: t += d; worst = max(worst, t - dl)\n    return max(worst, 0)\nresult = min(late(p) for p in itertools.permutations(tasks))",
+   "nudges": [
+    "Two neighbouring tasks are in the order \"later deadline first\". What happens to the larger of their two latenesses if you swap them?"
+   ],
+   "showed": "Swapping two neighbours so that the earlier deadline comes first never increases the larger of their two latenesses. So do the tasks in order of deadline.",
+   "tier": "hard"
   }
  ],
  "reveal": {

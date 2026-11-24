@@ -1,0 +1,147 @@
+{
+ "idea": "extremal",
+ "opening": "A habit of thought: when you do not know where to look, look at the biggest, the smallest, the first or the last.",
+ "steps": [
+  {
+   "id": "circle",
+   "kind": "choice",
+   "prompt": "People of different heights stand in a circle. Someone claims there is always a person taller than both neighbours. Who is certainly such a person?",
+   "options": [
+    "The tallest person",
+    "The person of median height",
+    "There need not be one"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Is there anyone whose neighbours cannot possibly be taller?"
+   ],
+   "showed": "The tallest has nobody taller at all. The claim needed no case analysis, only the right person to look at."
+  },
+  {
+   "id": "peaks",
+   "kind": "number",
+   "prompt": "In the row 3, 8, 2, 9, 4, 7, how many numbers are larger than every neighbour they have? (The end numbers have one neighbour.)",
+   "answer": 3,
+   "verify": "a = [3, 8, 2, 9, 4, 7]\nresult = sum(1 for i, x in enumerate(a) if all(x > a[j] for j in (i - 1, i + 1) if 0 <= j < len(a)))",
+   "nudges": [
+    "Is 7 larger than its only neighbour?"
+   ],
+   "showed": "8, 9 and 7."
+  },
+  {
+   "id": "always",
+   "kind": "choice",
+   "prompt": "Does every non-empty row of different numbers contain such a number?",
+   "options": [
+    "Yes: the largest number in the row is one",
+    "No: an increasing row has none",
+    "Only if the row has odd length"
+   ],
+   "answer": 0,
+   "nudges": [
+    "In the increasing row 1, 2, 3, 4, what about the 4?"
+   ],
+   "showed": "Existence proofs are often one line once you name an extreme object."
+  },
+  {
+   "id": "path",
+   "kind": "choice",
+   "prompt": "In a finite graph every vertex has at least two neighbours. Take a longest possible path $v_1, v_2, \\dots, v_k$ that repeats no vertex. Where are the neighbours of $v_1$?",
+   "options": [
+    "All of them are on the path, because otherwise the path could be made longer",
+    "At least one is off the path",
+    "Nothing can be said"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Suppose $v_1$ had a neighbour $w$ not on the path. What path could you write down?"
+   ],
+   "showed": "A neighbour off the path would extend it at the front, contradicting \"longest\"."
+  },
+  {
+   "id": "cycle",
+   "kind": "choice",
+   "prompt": "So $v_1$ has at least two neighbours, all on the path, and one of them is $v_2$. What does the other one give you?",
+   "options": [
+    "A cycle: from $v_1$ along the path to that neighbour and straight back",
+    "A longer path",
+    "Nothing useful"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If $v_1$ is joined to $v_j$ with $j \\ge 3$, what do $v_1, v_2, \\dots, v_j$ form?"
+   ],
+   "showed": "So a graph in which every vertex has two or more neighbours contains a cycle. The longest path was never computed; merely considering it was enough."
+  },
+  {
+   "id": "leaves",
+   "kind": "number",
+   "prompt": "Turn that around: a tree has no cycle, so some vertex must have fewer than two neighbours. In the tree with edges 1-2, 2-3, 2-4, 4-5, 4-6, how many vertices have exactly one neighbour?",
+   "answer": 4,
+   "verify": "E = [(1, 2), (2, 3), (2, 4), (4, 5), (4, 6)]\nresult = sum(1 for v in range(1, 7) if sum(v in e for e in E) == 1)",
+   "nudges": [
+    "Which vertices appear in only one edge?"
+   ],
+   "showed": "Vertices 1, 3, 5 and 6. Both ends of a longest path in a tree are always such vertices."
+  },
+  {
+   "id": "meetings",
+   "kind": "number",
+   "prompt": "Eleven meetings want one room. Their (start, end) times are (1,4), (3,5), (0,6), (5,7), (3,9), (5,9), (6,10), (8,11), (8,12), (2,14), (12,16). Meetings may touch at an endpoint but not overlap. What is the largest number that can be held?",
+   "answer": 4,
+   "verify": "I = [(1, 4), (3, 5), (0, 6), (5, 7), (3, 9), (5, 9), (6, 10), (8, 11), (8, 12), (2, 14), (12, 16)]\nimport itertools\nresult = max(k for k in range(1, 6) for c in itertools.combinations(sorted(I), k) if all(c[i][1] <= c[i + 1][0] for i in range(k - 1)))",
+   "nudges": [
+    "Which single meeting is the safest one to hold first?"
+   ],
+   "showed": "For example (1,4), (5,7), (8,11), (12,16)."
+  },
+  {
+   "id": "first",
+   "kind": "choice",
+   "prompt": "Which meeting is always safe to include in a best schedule?",
+   "options": [
+    "The one that ends earliest",
+    "The one that starts earliest",
+    "The shortest one"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Take any best schedule and look at its first meeting. Can you replace it with the meeting that ends earliest of all?"
+   ],
+   "showed": "It ends no later than the first meeting of any schedule, so it can replace that meeting without disturbing the rest."
+  },
+  {
+   "id": "closest",
+   "kind": "number",
+   "prompt": "Five points on a line at 1, 4, 6, 9 and 15. To find the two closest points you do not need all 10 pairs. How many pairs is it enough to compare?",
+   "answer": 4,
+   "verify": "result = 5 - 1",
+   "nudges": [
+    "Could the closest pair have another point between them?"
+   ],
+   "showed": "Only neighbours in sorted order: if a point lay between the two, it would be closer to each of them."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "A finite graph has at least one vertex, and every vertex has at least two neighbours. Prove that the graph contains a cycle.",
+   "claims": [
+    "Because the graph is finite, there is a longest path v_1, ..., v_k with no repeated vertex.",
+    "Every neighbour of v_1 lies on this path: a neighbour w not on it would give the longer path w, v_1, ..., v_k, a contradiction.",
+    "v_1 has at least two neighbours, so besides v_2 it is adjacent to some v_j with j >= 3.",
+    "Then v_1, v_2, ..., v_j, back to v_1 is a cycle."
+   ],
+   "nudges": [
+    "Which extreme object would you consider?",
+    "What would a neighbour of its first vertex outside the object allow you to do?",
+    "Where does the second neighbour of that first vertex have to be, and what does it close?"
+   ],
+   "showed": "Take a longest path and look at its end: it has nowhere new to go."
+  }
+ ],
+ "reveal": {
+  "name": "Extremal principle",
+  "statement": "Consider an object that is extreme in some way (largest, smallest, first, last, longest). Its extremeness gives it a property the others lack, and that property is often the whole argument.",
+  "remark": "It is behind most greedy choices (\"take the one that ends first\"), behind \"sort and look only at neighbours\", and behind existence proofs that say \"take a longest path\" or \"take a minimal counterexample\"."
+ }
+}

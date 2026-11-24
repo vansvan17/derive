@@ -1,0 +1,156 @@
+{
+ "idea": "necessary-sufficient",
+ "opening": "Questions of the form \"can it be done?\", and why answering them takes two separate arguments.",
+ "steps": [
+  {
+   "id": "board",
+   "kind": "number",
+   "prompt": "A chessboard has 32 black and 32 white squares. Two opposite corners are cut off; both happen to be black. How many black squares are left?",
+   "answer": 30,
+   "verify": "result = 32 - 2",
+   "nudges": [
+    "What colour are the two removed squares?"
+   ],
+   "showed": "30 black and 32 white."
+  },
+  {
+   "id": "dominoes",
+   "kind": "choice",
+   "prompt": "A domino covers two neighbouring squares. Can 31 dominoes cover the 62 remaining squares?",
+   "options": [
+    "No: each domino covers one black and one white square, so 31 dominoes need 31 of each",
+    "Yes: 62 is even",
+    "It depends on how they are placed"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What colours does a single domino cover, wherever it is put?"
+   ],
+   "showed": "A condition that every tiling must satisfy fails, so no tiling exists. One short argument settles \"impossible\"."
+  },
+  {
+   "id": "converse",
+   "kind": "choice",
+   "prompt": "Now remove one black and one white square instead. The colour count is balanced again. Does that prove the board can be covered?",
+   "options": [
+    "No: passing a test that every solution must pass proves nothing by itself; someone still has to show a covering",
+    "Yes: the only obstacle is gone",
+    "No: it can never be covered"
+   ],
+   "answer": 0,
+   "nudges": [
+    "You showed \"tiling implies balanced colours\". Which direction do you need now?"
+   ],
+   "showed": "A necessary condition rules things out. To rule things in, you must build the answer. (Here it can always be done, but that needs its own construction.)"
+  },
+  {
+   "id": "sums",
+   "kind": "list",
+   "prompt": "You have unlimited coins worth 3 and 5. Which amounts from 1 to 15 can NOT be paid exactly?",
+   "answer": [
+    1,
+    2,
+    4,
+    7
+   ],
+   "verify": "result = [n for n in range(1, 16) if not any((n - 5 * b) % 3 == 0 for b in range(n // 5 + 1))]",
+   "nudges": [
+    "Can you pay 8? 9? 10?"
+   ],
+   "showed": "Only 1, 2, 4 and 7 fail."
+  },
+  {
+   "id": "forever",
+   "kind": "choice",
+   "prompt": "Why is it certain that every amount from 8 upward can be paid, with no further checking?",
+   "options": [
+    "8, 9 and 10 can be paid, and adding one more 3-coin to those reaches every larger amount",
+    "Because 3 and 5 are both odd",
+    "Because large numbers have many divisors"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If $n$ can be paid, what about $n + 3$?"
+   ],
+   "showed": "Three consecutive successes plus a step of 3. That is a construction for every amount that passes the test \"at least 8\"."
+  },
+  {
+   "id": "pairop",
+   "kind": "choice",
+   "prompt": "Two numbers, 1 and 2. An operation adds 1 to both of them. Can they ever become equal?",
+   "options": [
+    "No: their difference never changes",
+    "Yes, after one operation",
+    "Yes, after two operations"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What does one operation do to the difference of the two numbers?"
+   ],
+   "showed": "An invariant gives the obstruction."
+  },
+  {
+   "id": "threeop",
+   "kind": "number",
+   "prompt": "Three numbers: 1, 2, 3. An operation picks two of them and adds 1 to each. What is the smallest number of operations that makes all three equal?",
+   "answer": 3,
+   "verify": "from collections import deque\nseen, q = {(1, 2, 3): 0}, deque([(1, 2, 3)])\nresult = None\nwhile q and result is None:\n    s = q.popleft()\n    if s[0] == s[1] == s[2]: result = seen[s]; break\n    for i, j in ((0, 1), (0, 2), (1, 2)):\n        t = list(s); t[i] += 1; t[j] += 1; t = tuple(t)\n        if t not in seen and max(t) <= 12: seen[t] = seen[s] + 1; q.append(t)",
+   "nudges": [
+    "Each operation adds 2 to the total. If all three end at the value $k$, what is the total, and which $k$ are possible?",
+    "Once you know the target value, how many times must each number be increased?"
+   ],
+   "showed": "The total grows by 2 each time, so the final common value must be even: 4. Then 1 needs three increases, 2 needs two, 3 needs one, and three operations deliver exactly that."
+  },
+  {
+   "id": "order",
+   "kind": "choice",
+   "prompt": "In that last question, which part was the necessary condition and which was the construction?",
+   "options": [
+    "Necessary: the total changes by 2, forcing the common value to be even. Construction: actually choosing pairs that deliver the required increases",
+    "Both parts were constructions",
+    "Both parts were necessary conditions"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which part told you what could not happen, and which part showed something that does happen?"
+   ],
+   "showed": "In a contest: guess the condition from small cases, prove it is forced, then find a construction that works whenever it holds."
+  },
+  {
+   "id": "recipe",
+   "kind": "choice",
+   "prompt": "A problem asks \"for which inputs is it possible?\". Which plan answers it completely?",
+   "options": [
+    "Find a condition every possible case must satisfy, and then give a way to build an answer for every input that satisfies it",
+    "Find one condition that every possible case satisfies",
+    "Build an answer for a few inputs and extrapolate"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What is still unknown if you have done only one of the two halves?"
+   ],
+   "showed": "Two halves, and neither can be skipped."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that every whole number $n \\ge 8$ can be written as $3a + 5b$ with whole numbers $a, b \\ge 0$.",
+   "claims": [
+    "8 = 3 + 5, 9 = 3 + 3 + 3 and 10 = 5 + 5 can be written this way.",
+    "If n can be written this way then so can n + 3, by increasing a by one.",
+    "Every n >= 8 is 8, 9 or 10 plus a non-negative multiple of 3 (according to its remainder mod 3), so it can be written this way."
+   ],
+   "nudges": [
+    "Which few cases would you check by hand?",
+    "How do you get from an amount that works to a larger one?",
+    "Why do your hand-checked cases and that step together reach every $n \\ge 8$?"
+   ],
+   "showed": "Three base cases and a step of 3."
+  }
+ ],
+ "reveal": {
+  "name": "Necessary, then sufficient",
+  "statement": "To decide for which inputs something is possible: (1) find a condition that every solvable input must satisfy, usually an invariant or a count; (2) show how to construct a solution for every input satisfying it.",
+  "remark": "Small cases suggest the condition. If your condition is necessary but you cannot construct, it is probably too weak: brute-force small inputs and compare."
+ }
+}

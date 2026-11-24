@@ -418,6 +418,32 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2201C",
+  "site": "Codeforces",
+  "contest": 2201,
+  "index": "C",
+  "title": "Rigged Bracket Sequence",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2201/problem/C",
+  "editorial": "https://codeforces.com/blog/entry/151515",
+  "ideas": [
+   "prefix-sums",
+   "dp-state"
+  ],
+  "observations": [
+   "Replace ( by +1 and ) by -1 and watch the prefix sums. A prefix that contains none or all of the chosen positions keeps its sum. A prefix that contains only some of them loses its last chosen character and gains the last character of the whole subsequence.",
+   "So if the subsequence ends with (, nothing can go wrong: every such subsequence is fine, 2^(k-1) of them ending at position k.",
+   "If it ends with ), a prefix sum drops by 2 wherever a chosen ( was the last chosen character so far, so the prefix sums from that ( up to the next chosen position must all be at least 2.",
+   "Count those with a table: D(i) = number of ways to choose the part up to i with i chosen; D(j) feeds D(i) if S_j is ) or the prefix sums between j and i stay at least 2. Running totals of D with two pointers make it linear."
+  ],
+  "nudges": [
+   "Turn the brackets into +1 and -1. For one prefix, which characters enter and which leave when the chosen positions are shifted?",
+   "What happens if the last chosen character is an opening bracket?",
+   "If the last chosen character is a closing bracket, between which chosen positions can a prefix sum fall, and by how much?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
   "id": "cf-2267E",
   "site": "Codeforces",
   "contest": 2267,
@@ -493,6 +519,32 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2227H",
+  "site": "Codeforces",
+  "contest": 2227,
+  "index": "H",
+  "title": "Fallen Leaves",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/2227/problem/H",
+  "editorial": "https://codeforces.com/blog/entry/153099",
+  "ideas": [
+   "edge-contribution",
+   "parity-invariant",
+   "tree-dp"
+  ],
+  "observations": [
+   "Look at one edge. If the number of leaves below it is even they can all be paired below it; if odd, exactly one pair must cross it. So with an even number of leaves the answer is the number of edges with an odd count of leaves below.",
+   "With an odd number of leaves one leaf is left out. Leaving out leaf x flips the parity of every edge on the path from the root to x: odd edges are saved, even edges are added.",
+   "So choose the leaf that maximises (odd edges minus even edges) on its root path, computed by one pass up the tree, and subtract that from the count."
+  ],
+  "nudges": [
+   "Fix one edge. How many of the chosen pairs are forced to cross it, in terms of the number of leaves on one side?",
+   "If one leaf is going to be left unpaired, which edges change their answer to the previous question?",
+   "How do you find, for the whole tree at once, the leaf whose removal helps the most?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
   "id": "cf-2252E",
   "site": "Codeforces",
   "contest": 2252,
@@ -514,6 +566,57 @@
    "Use the two conditions to eliminate b. What single equation do a and c satisfy?",
    "How is a + c related to a xor c and a and c?",
    "Reading the bits of a and c from the top, what must you carry from one bit position to the next to check that equation and the bound c <= n?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2207E1",
+  "site": "Codeforces",
+  "contest": 2207,
+  "index": "E1",
+  "title": "N-MEX (Constructive Version)",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/2207/problem/E1",
+  "editorial": "https://codeforces.com/blog/entry/151886",
+  "ideas": [
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "With i numbers written, the (n-i+1)-th missing number is at least n - i and at most n, so n - i <= a_i <= n is forced.",
+   "Appending one number can fill at most one gap while the index of the gap asked for drops by one, so a_i >= a_(i+1) is forced too.",
+   "Those two conditions are enough. Let S be the numbers in 0..n that never appear in a. When a_i < a_(i-1) write a huge number (it fills no gap); when a_i = a_(i-1) write the largest unused element of S."
+  ],
+  "nudges": [
+   "After i numbers are written, what are the smallest and largest possible values of the gap you are asked about?",
+   "How can the answer change when one more number is written and you ask for the gap one place earlier?",
+   "If you only ever write numbers that never appear among the a_i, or numbers too large to matter, which of the two should you write at each step?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2264E1",
+  "site": "Codeforces",
+  "contest": 2264,
+  "index": "E1",
+  "title": "A Prime Flood (Easy Version)",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/2264/problem/E1",
+  "editorial": "https://codeforces.com/blog/entry/156680",
+  "ideas": [
+   "extremal",
+   "dp-state",
+   "contribution"
+  ],
+  "observations": [
+   "An operation never changes the order of two values, so once the smallest and largest of a subsequence are equal, everything between is equal: f(b) depends only on min(b) and max(b).",
+   "Let g(x, y) be the best common value for the pair x <= y, with g(x, x) = x. If some prime divides y but not x, lower y alone: g(x, y) = g(x, y-1). Otherwise every prime of y also divides x and both drop: g(x, y) = g(x-1, y-1).",
+   "Values are at most 3000, so fill the whole table (the second case is x divisible by the product of the distinct primes of y).",
+   "Then count subsequences by their minimum and maximum: with c_v copies of v, the pair x < y has (2^(c_x) - 1)(2^(c_y) - 1) 2^(copies strictly between) subsequences."
+  ],
+  "nudges": [
+   "Can an operation ever make a smaller value overtake a larger one?",
+   "For just two values x < y, which primes let you lower y without touching x, and what if there are none?",
+   "Once you know the answer for every pair (smallest, largest), how many subsequences have a given smallest and largest value?"
   ],
   "checked": "2026-11-24"
  }

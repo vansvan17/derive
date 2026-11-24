@@ -135,11 +135,27 @@ def main():
             faults += verify_step(f'puzzle {puzzle["id"]}', puzzle)
         except Exception as exc:
             faults.append(f'puzzle {puzzle["id"]}: verification crashed: {exc!r}')
+    import random
+    from derive import tasks as task_module
+    for task in course.tasks.values():
+        try:
+            gen, solve, brute_force = task_module.load(task)
+            rng = random.Random(7)
+            for _ in range(150):
+                text = gen(rng, 'small')
+                if solve(text).split() != brute_force(text).split():
+                    faults.append(f'task {task["id"]}: the intended solution and the brute force disagree on {text!r}'); break
+            for sample in task['samples']:
+                if solve(sample[0]).split() != sample[1].split():
+                    faults.append(f'task {task["id"]}: a sample output is wrong')
+            task_module.tests(task)
+        except Exception as exc:
+            faults.append(f'task {task["id"]}: checking crashed: {exc!r}')
     if args.links:
         faults += verify_links(course)
     for fault in faults:
         print('FAULT', fault)
-    print(f'{len(course.ideas)} ideas, {len(course.links)} links, {len(course.chains)} chains, {steps} steps, {len(course.problems)} problems, {len(course.puzzles["puzzles"])} puzzles: '
+    print(f'{len(course.ideas)} ideas, {len(course.links)} links, {len(course.chains)} chains, {steps} steps, {len(course.problems)} problems, {len(course.puzzles["puzzles"])} puzzles, {len(course.tasks)} tasks: '
           + ('all checks passed' if not faults else f'{len(faults)} fault(s)'))
     return 1 if faults else 0
 

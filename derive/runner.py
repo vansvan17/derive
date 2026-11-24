@@ -21,7 +21,7 @@ import sys
 import tempfile
 import time
 
-OUTPUT_LIMIT=1_048_576
+OUTPUT_LIMIT=16_777_216
 
 @dataclass
 class Result:

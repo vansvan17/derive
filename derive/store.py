@@ -49,6 +49,9 @@ CREATE TABLE IF NOT EXISTS contest_mistakes(run INTEGER NOT NULL, submission TEX
 -- puzzles: every answer given, and how each puzzle ended (solved, with how many wrong tries first, or shown)
 CREATE TABLE IF NOT EXISTS puzzle_tries(id INTEGER PRIMARY KEY, at TEXT NOT NULL, puzzle TEXT NOT NULL, answer TEXT NOT NULL, correct INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS puzzles_done(puzzle TEXT PRIMARY KEY, at TEXT NOT NULL, wrong INTEGER NOT NULL, shown INTEGER NOT NULL);
+-- implement tasks: every judged submission, and the tasks that have been accepted
+CREATE TABLE IF NOT EXISTS task_tries(id INTEGER PRIMARY KEY, at TEXT NOT NULL, task TEXT NOT NULL, verdict TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS tasks_done(task TEXT PRIMARY KEY, at TEXT NOT NULL, tries INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 '''
 

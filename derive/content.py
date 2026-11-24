@@ -28,6 +28,11 @@ class Content:
         # Short single-question puzzles, grouped in sets (invariants, games, bits).
         path = self.root / 'content/puzzles.json'
         self.puzzles = json.loads(path.read_text()) if path.exists() else {'sets': [], 'puzzles': []}
+        # Implement tasks: code written by the learner and judged locally.
+        path = self.root / 'content/tasks.json'
+        self.tasks = {t['id']: t for t in json.loads(path.read_text())} if path.exists() else {}
+        self.task_tracks = [{'id': 'core', 'title': 'Arrays and counting', 'about': 'Plain statements, no hint about technique. The obvious loop is too slow.'},
+                            {'id': 'graphs', 'title': 'Graphs and trees, from the adjacency list up', 'about': 'A ladder: each task asks for exactly one thing, and each builds on the one before.'}]
         # Past ICPC regional papers: links only, shown on the contest page.
         path = self.root / 'content/papers.json'
         self.papers = json.loads(path.read_text()) if path.exists() else []
@@ -148,6 +153,13 @@ def problems(content):
         # A judged puzzle is a multiple-choice call about method; it has no computable answer and says so on the page.
         if not puzzle.get('verify') and not (puzzle.get('judged') and puzzle.get('kind') == 'choice'):
             faults.append(f'{tag}: needs brute-force "verify" code')
+    for task in content.tasks.values():
+        tag = f'task {task.get("id")}'
+        for key in ('title', 'statement', 'code'):
+            if not task.get(key):
+                faults.append(f'{tag}: missing {key}')
+        if not task.get('samples'):
+            faults.append(f'{tag}: needs at least one sample')
     for idea, tasks in content.practice.items():
         if idea not in content.chains:
             faults.append(f'practice {idea}: practice is offered after a chain, and this idea has none')

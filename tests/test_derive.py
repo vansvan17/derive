@@ -354,6 +354,32 @@ class App(unittest.TestCase):
             time.sleep(.05)
         self.assertIn('She said: I get two.', seen[-1])
 
+    # ---- implement tasks ----
+    def judged(self, body):
+        reply = self.post('/task/judge', body)[1]
+        for _ in range(600):
+            job = self.get('/jobs/' + reply['job'])
+            if job['status'] not in ('queued', 'running'):
+                return job['result']
+            time.sleep(.05)
+
+    def test_a_task_is_accepted_only_when_every_hidden_test_passes(self):
+        listed = self.get('/tasks')['tasks']
+        self.assertTrue(any(t['id'] == 'equal-pairs' and not t['solved'] for t in listed))
+        page = self.get('/task/equal-pairs')
+        self.assertNotIn('code', page); self.assertTrue(page['samples'])           # the generator and reference are not sent to the page
+        wrong = 'input(); print(0)\n'
+        slow = 'n = int(input()); a = input().split()\nprint(sum(1 for i in range(n) for j in range(i + 1, n) if a[i] == a[j]))\n'
+        right = 'import collections\ninput()\nprint(sum(c * (c - 1) // 2 for c in collections.Counter(input().split()).values()))\n'
+        bad = self.judged({'id': 'equal-pairs', 'language': 'python', 'main': wrong})
+        self.assertEqual((bad['verdict'], bad['passed']), ('WA', 0)); self.assertIn('input', bad)   # a small failing test is shown
+        self.assertEqual(self.judged({'id': 'equal-pairs', 'language': 'python', 'main': slow})['verdict'], 'TLE')
+        self.assertFalse(self.get('/task/equal-pairs')['solved'])
+        good = self.judged({'id': 'equal-pairs', 'language': 'python', 'main': right})
+        self.assertEqual((good['verdict'], good['passed']), ('AC', good['of']))
+        after = self.get('/task/equal-pairs')
+        self.assertEqual((after['solved'], after['tries']), (True, 3))
+
     # ---- puzzles ----
     def test_puzzles_come_one_at_a_time_and_giving_up_is_not_solving(self):
         page = self.get('/puzzles?set=invariants')

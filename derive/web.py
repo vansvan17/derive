@@ -22,7 +22,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import uuid
 import webbrowser
 
-from . import contest, evidence, grader, sync, tutor
+from . import contest, evidence, grader, sync, tasks, tutor
 from .checks import CheckError, check
 from .content import Content
 from .runner import Executable, JudgeError, same_output
@@ -506,6 +506,31 @@ class Service:
         store.run('INSERT INTO puzzles_done VALUES(?,?,?,0)', (puzzle['id'], now(), wrong))
         return {'correct': True, 'showed': puzzle['showed'], 'first_try': wrong == 0}
 
+    # ---------- implement tasks ----------
+    def task(self, store, task_id):
+        task = self.content.tasks.get(task_id)
+        if not task:
+            raise ApiError('No such task.', 404)
+        return {**tasks.public(task, store), 'statement': task['statement'], 'samples': task['samples'], 'seconds': task.get('seconds', 1.0)}
+
+    def task_judge(self, store, data):
+        task = self.content.tasks.get(data.get('id')) if isinstance(data.get('id'), str) else None
+        language = data.get('language')
+        if not task or language not in ('cpp', 'python'):
+            raise ApiError('That cannot be judged.')
+        source = text(data.get('main'), 'Your code', CODE_LIMIT, required=True)
+        self.save_code(store, {'id': task['id'], 'language': language, 'file': 'main', 'code': source})
+        return {'job': self.queue(store, 'judge', {'task': task['id'], 'language': language, 'main': source})}
+
+    def work_judge(self, store, payload):
+        task = self.content.tasks[payload['task']]
+        result = tasks.judge(task, payload['language'], payload['main'])
+        store.run('INSERT INTO task_tries(at,task,verdict) VALUES(?,?,?)', (now(), task['id'], result['verdict']))
+        if result['verdict'] == 'AC':
+            tries = store.one('SELECT COUNT(*) FROM task_tries WHERE task=?', (task['id'],))[0]
+            store.run('INSERT OR IGNORE INTO tasks_done VALUES(?,?,?)', (task['id'], now(), tries))
+        return result
+
     # ---------- the tutor ----------
     def tutor_context(self, store, data):
         """Build the prompt for wherever the learner is. Returns (prompt, gated, scope, owner, step, names to keep out of a reply)."""
@@ -566,7 +591,7 @@ class Service:
 
     # ---------- code and runs ----------
     def code(self, store, owner, language):
-        if owner not in self.content.problems:
+        if owner not in self.content.problems and owner not in self.content.tasks:
             raise ApiError('No such problem.', 404)
         if language not in ('cpp', 'python'):
             raise ApiError('Choose C++ or Python.')
@@ -576,7 +601,7 @@ class Service:
 
     def save_code(self, store, data):
         owner, language, file = data.get('id'), data.get('language'), data.get('file')
-        if owner not in self.content.problems or language not in ('cpp', 'python') or file not in FILES:
+        if (owner not in self.content.problems and owner not in self.content.tasks) or language not in ('cpp', 'python') or file not in FILES:
             raise ApiError('That file cannot be saved.')
         store.run('INSERT OR REPLACE INTO code VALUES(?,?,?,?,?)', (owner, language, file, text(data.get('code'), 'Code', CODE_LIMIT), now()))
         return {'saved': True}
@@ -595,7 +620,7 @@ class Service:
         if kind not in ('run', 'stress'):
             raise ApiError('Choose run or stress.')
         owner, language = data.get('id'), data.get('language')
-        if owner not in self.content.problems or language not in ('cpp', 'python'):
+        if (owner not in self.content.problems and owner not in self.content.tasks) or language not in ('cpp', 'python'):
             raise ApiError('That cannot be run.')
         payload = {'language': language, 'input': text(data.get('input', ''), 'Input', CODE_LIMIT)}
         for file in FILES:
@@ -633,6 +658,8 @@ class Service:
                     result = self.work_grade(store, payload)
                 elif row['kind'] == 'tutor':
                     result = self.work_tutor(payload)
+                elif row['kind'] == 'judge':
+                    result = self.work_judge(store, payload)
                 else:
                     result = self.work_run(row['kind'], payload)
                 status = 'done'
@@ -711,6 +738,10 @@ class Service:
                 return self.proof_prompt(store, path[7:])
             if path == '/mastery':
                 return self.mastery(store)
+            if path == '/tasks':
+                return {'tasks': [tasks.public(t, store) for t in self.content.tasks.values()], 'tracks': self.content.task_tracks}
+            if path.startswith('/task/'):
+                return self.task(store, path[6:])
             if path == '/puzzles':
                 at = query.get('at', [''])[0]
                 return self.puzzles(store, query.get('set', [''])[0], int(at) if at.isdigit() else None)
@@ -725,7 +756,7 @@ class Service:
                   '/problem/commit': self.commit, '/problem/editorial': self.editorial, '/problem/check': self.check_submissions,
                   '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause,
                   '/code': self.save_code, '/run': self.queue_run,
-                  '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer}
+                  '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer, '/task/judge': self.task_judge}
         with self.lock, self.store() as store:
             if path == '/problem/next':
                 return self.open_next(store)

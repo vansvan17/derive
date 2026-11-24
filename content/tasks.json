@@ -1,0 +1,320 @@
+[
+ {
+  "id": "equal-pairs",
+  "title": "Equal pairs",
+  "statement": "You are given $n$ whole numbers. Count the pairs of positions $i < j$ holding equal numbers.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** One number: the count of pairs.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5\n3 1 3 3 1\n",
+    "4"
+   ],
+   [
+    "3\n7 8 9\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    top = 4 if size == 'small' else rng.choice([5, 1000, 10 ** 9])\n    pool = [rng.randint(1, 10 ** 9) for _ in range(top)] if top <= 1000 else None\n    a = [rng.choice(pool) if pool else rng.randint(1, 10 ** 9) for _ in range(n)]\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]\n    cnt = {}\n    for x in a: cnt[x] = cnt.get(x, 0) + 1\n    return str(sum(c * (c - 1) // 2 for c in cnt.values()))\ndef brute(text):\n    v = ints(text); a = v[1:]\n    return str(sum(1 for i in range(len(a)) for j in range(i + 1, len(a)) if a[i] == a[j]))\n"
+ },
+ {
+  "id": "range-sums",
+  "title": "Range totals",
+  "statement": "You are given $n$ whole numbers and $q$ questions. Each question gives $l$ and $r$ and asks for the sum of the numbers in positions $l$ through $r$ (positions are numbered from 1).\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 2 \\cdot 10^5$). The second line contains the $n$ numbers, each between $-10^9$ and $10^9$. Each of the next $q$ lines contains $l$ and $r$ ($1 \\le l \\le r \\le n$).\n\n**Output.** For each question, one line with the sum.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5 3\n2 -1 4 0 3\n1 5\n2 3\n4 4\n",
+    "8\n3\n0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    q = rng.randint(1, 6) if size == 'small' else N[size]\n    a = [rng.randint(-10 ** 9, 10 ** 9) if size != 'small' else rng.randint(-5, 5) for _ in range(n)]\n    lines = [f\"{n} {q}\", ' '.join(map(str, a))]\n    for _ in range(q):\n        if size == 'large' and rng.random() < 0.5: l, r = rng.randint(1, 10), rng.randint(n - 10, n)\n        else:\n            l = rng.randint(1, n); r = rng.randint(l, n)\n        lines.append(f\"{l} {r}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]; rest = v[2 + n:]\n    p = [0]\n    for x in a: p.append(p[-1] + x)\n    return '\\n'.join(str(p[rest[2 * i + 1]] - p[rest[2 * i] - 1]) for i in range(q))\ndef brute(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]; rest = v[2 + n:]\n    return '\\n'.join(str(sum(a[rest[2 * i] - 1:rest[2 * i + 1]])) for i in range(q))\n"
+ },
+ {
+  "id": "busy-moment",
+  "title": "Busiest moment",
+  "statement": "$n$ visitors each stay in a museum from minute $l_i$ to minute $r_i$, both included. What is the largest number of visitors inside during a single minute?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). Each of the next $n$ lines contains $l_i$ and $r_i$ ($1 \\le l_i \\le r_i \\le 10^9$).\n\n**Output.** One number.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "3\n1 4\n2 6\n5 8\n",
+    "2"
+   ],
+   [
+    "2\n1 3\n4 9\n",
+    "1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    top = 8 if size == 'small' else 10 ** 9\n    lines = [str(n)]\n    for _ in range(n):\n        l = rng.randint(1, top); r = rng.randint(l, min(top, l + (3 if size == 'small' else rng.choice([5, 10 ** 6, 10 ** 9]))))\n        lines.append(f\"{l} {r}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); n = v[0]\n    ev = []\n    for i in range(n):\n        ev.append((v[1 + 2 * i], 0)); ev.append((v[2 + 2 * i] + 1, -1))\n    ev.sort(key=lambda e: (e[0], e[1]))\n    cur = best = 0\n    for _, kind in ev:\n        cur += 1 if kind == 0 else -1\n        best = max(best, cur)\n    return str(best)\ndef brute(text):\n    v = ints(text); n = v[0]; iv = [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n)]\n    return str(max(sum(1 for l, r in iv if l <= t <= r) for t in {l for l, r in iv}))\n"
+ },
+ {
+  "id": "pair-sum",
+  "title": "Pairs with a given sum",
+  "statement": "You are given $n$ whole numbers and a target $S$. Count the pairs of positions $i < j$ whose numbers add up to exactly $S$.\n\n**Input.** The first line contains $n$ and $S$ ($1 \\le n \\le 2 \\cdot 10^5$, $1 \\le S \\le 2 \\cdot 10^9$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** One number: the count of pairs.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5 6\n1 5 3 3 5\n",
+    "3"
+   ],
+   [
+    "3 10\n1 2 3\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    top = 6 if size == 'small' else rng.choice([20, 10 ** 9])\n    S = rng.randint(2, 2 * top)\n    a = [rng.randint(1, top) if rng.random() < 0.5 or top > 20 else rng.choice([S // 2, max(1, S - S // 2)]) for _ in range(n)]\n    if top > 20:\n        base = [rng.randint(1, S - 1) for _ in range(50)] if S > 1 else [1]\n        a = [rng.choice(base) if rng.random() < 0.5 else S - rng.choice(base) for _ in range(n)]\n        a = [min(max(x, 1), 10 ** 9) for x in a]\n    return f\"{n} {S}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); n, S = v[0], v[1]; a = v[2:]\n    seen, total = {}, 0\n    for x in a:\n        total += seen.get(S - x, 0)\n        seen[x] = seen.get(x, 0) + 1\n    return str(total)\ndef brute(text):\n    v = ints(text); n, S = v[0], v[1]; a = v[2:]\n    return str(sum(1 for i in range(n) for j in range(i + 1, n) if a[i] + a[j] == S))\n"
+ },
+ {
+  "id": "zero-stretches",
+  "title": "Stretches that cancel",
+  "statement": "You are given $n$ whole numbers, which may be negative. Count the contiguous stretches (of length at least 1) whose sum is exactly 0.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between $-10^9$ and $10^9$.\n\n**Output.** One number.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5\n1 -1 2 -2 0\n",
+    "6"
+   ],
+   [
+    "2\n4 5\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    top = 2 if size == 'small' else rng.choice([1, 3, 10 ** 9])\n    a = [rng.randint(-top, top) for _ in range(n)]\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]\n    seen, cur, total = {0: 1}, 0, 0\n    for x in a:\n        cur += x\n        total += seen.get(cur, 0)\n        seen[cur] = seen.get(cur, 0) + 1\n    return str(total)\ndef brute(text):\n    v = ints(text); a = v[1:]; n = len(a)\n    return str(sum(1 for i in range(n) for j in range(i, n) if sum(a[i:j + 1]) == 0))\n"
+ },
+ {
+  "id": "calm-stretch",
+  "title": "Longest affordable stretch",
+  "statement": "You are given $n$ positive whole numbers and a budget $S$. Find the largest number of consecutive positions whose numbers add up to at most $S$. If no single number fits, the answer is 0.\n\n**Input.** The first line contains $n$ and $S$ ($1 \\le n \\le 2 \\cdot 10^5$, $1 \\le S \\le 10^{14}$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** One number.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "6 6\n2 1 3 2 4 1\n",
+    "3"
+   ],
+   [
+    "2 3\n5 9\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    top = 5 if size == 'small' else rng.choice([10, 10 ** 9])\n    a = [rng.randint(1, top) for _ in range(n)]\n    S = rng.randint(1, 12) if size == 'small' else rng.choice([sum(a) // 3, sum(a) // 1000 + 1, top])\n    return f\"{n} {max(1, S)}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); n, S = v[0], v[1]; a = v[2:]\n    best = cur = l = 0\n    for r in range(n):\n        cur += a[r]\n        while cur > S: cur -= a[l]; l += 1\n        best = max(best, r - l + 1)\n    return str(best)\ndef brute(text):\n    v = ints(text); n, S = v[0], v[1]; a = v[2:]\n    return str(max([j - i + 1 for i in range(n) for j in range(i, n) if sum(a[i:j + 1]) <= S], default=0))\n"
+ },
+ {
+  "id": "taller-left",
+  "title": "Nearest taller to the left",
+  "statement": "$n$ people stand in a row; person $i$ has height $h_i$. For each person, find the nearest person to their left who is strictly taller, and print that person's position (positions are numbered from 1). Print 0 if there is nobody taller to the left.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ heights, each between 1 and $10^9$.\n\n**Output.** $n$ numbers on one line.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "6\n5 3 4 4 6 1\n",
+    "0 1 1 1 0 5"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    kind = rng.choice(['random', 'down', 'up', 'few'])\n    if size == 'small': a = [rng.randint(1, 5) for _ in range(n)]\n    elif kind == 'down': a = [10 ** 9 - i for i in range(n)]\n    elif kind == 'up': a = [i + 1 for i in range(n)]\n    elif kind == 'few': a = [rng.randint(1, 3) for _ in range(n)]\n    else: a = [rng.randint(1, 10 ** 9) for _ in range(n)]\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]\n    out, stack = [], []\n    for i, x in enumerate(a):\n        while stack and a[stack[-1]] <= x: stack.pop()\n        out.append(stack[-1] + 1 if stack else 0)\n        stack.append(i)\n    return ' '.join(map(str, out))\ndef brute(text):\n    v = ints(text); a = v[1:]\n    return ' '.join(str(next((j + 1 for j in range(i - 1, -1, -1) if a[j] > a[i]), 0)) for i in range(len(a)))\n"
+ },
+ {
+  "id": "divisor-partners",
+  "title": "Divisor partners",
+  "statement": "You are given $n$ whole numbers. Count the ordered pairs of different positions $(i, j)$ such that the number in position $i$ divides the number in position $j$. Equal numbers in different positions divide each other, so they count in both orders.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^6$.\n\n**Output.** One number.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "4\n2 4 4 3\n",
+    "4"
+   ],
+   [
+    "3\n1 1 5\n",
+    "4"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    top = 8 if size == 'small' else rng.choice([50, 1000, 10 ** 6])\n    a = [rng.randint(1, top) for _ in range(n)]\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]\n    top = max(a); cnt = [0] * (top + 1)\n    for x in a: cnt[x] += 1\n    total = 0\n    for d in range(1, top + 1):\n        if cnt[d]:\n            s = sum(cnt[d::d])\n            total += cnt[d] * (s - 1)\n    return str(total)\ndef brute(text):\n    v = ints(text); a = v[1:]; n = len(a)\n    return str(sum(1 for i in range(n) for j in range(n) if i != j and a[j] % a[i] == 0))\n"
+ },
+ {
+  "id": "painted-fence",
+  "title": "Coats of paint",
+  "statement": "A fence has $n$ boards, numbered from 1, all unpainted. There are $q$ painting jobs; job $k$ adds $v_k$ coats to every board from $l_k$ to $r_k$. Print the number of coats on each board at the end.\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 2 \\cdot 10^5$). Each of the next $q$ lines contains $l$, $r$ and $v$ ($1 \\le l \\le r \\le n$, $1 \\le v \\le 10^9$).\n\n**Output.** $n$ numbers on one line.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5 3\n1 3 2\n2 5 1\n4 4 10\n",
+    "2 3 3 11 1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    q = rng.randint(1, 5) if size == 'small' else N[size]\n    lines = [f\"{n} {q}\"]\n    for _ in range(q):\n        if size == 'large': l, r = rng.randint(1, n // 3 + 1), rng.randint(2 * n // 3, n)\n        else:\n            l = rng.randint(1, n); r = rng.randint(l, n)\n        lines.append(f\"{l} {r} {rng.randint(1, 4 if size == 'small' else 10 ** 9)}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); n, q = v[0], v[1]\n    d = [0] * (n + 2)\n    for k in range(q):\n        l, r, x = v[2 + 3 * k], v[3 + 3 * k], v[4 + 3 * k]\n        d[l] += x; d[r + 1] -= x\n    out, cur = [], 0\n    for i in range(1, n + 1):\n        cur += d[i]; out.append(cur)\n    return ' '.join(map(str, out))\ndef brute(text):\n    v = ints(text); n, q = v[0], v[1]; a = [0] * (n + 1)\n    for k in range(q):\n        l, r, x = v[2 + 3 * k], v[3 + 3 * k], v[4 + 3 * k]\n        for i in range(l, r + 1): a[i] += x\n    return ' '.join(map(str, a[1:]))\n"
+ },
+ {
+  "id": "fair-split",
+  "title": "Fairest split",
+  "statement": "You are given $n$ positive whole numbers in a row and a number $k$. Cut the row into exactly $k$ non-empty contiguous parts so that the largest part-sum is as small as possible. Print that largest part-sum.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** One number.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5 2\n7 2 5 10 8\n",
+    "18"
+   ],
+   [
+    "4 4\n3 1 4 1\n",
+    "4"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    k = rng.randint(1, n) if size != 'large' else rng.choice([2, 1000, n // 3])\n    a = [rng.randint(1, 6 if size == 'small' else 10 ** 9) for _ in range(n)]\n    return f\"{n} {k}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:]\n    def parts(limit):\n        c, cur = 1, 0\n        for x in a:\n            if cur + x > limit: c += 1; cur = x\n            else: cur += x\n        return c\n    lo, hi = max(a), sum(a)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if parts(mid) <= k: hi = mid\n        else: lo = mid + 1\n    return str(lo)\ndef brute(text):\n    import itertools\n    v = ints(text); n, k = v[0], v[1]; a = v[2:]\n    best = None\n    for cuts in itertools.combinations(range(1, n), k - 1):\n        b = [0] + list(cuts) + [n]\n        m = max(sum(a[b[i]:b[i + 1]]) for i in range(k))\n        best = m if best is None else min(best, m)\n    return str(best)\n"
+ },
+ {
+  "id": "friend-groups",
+  "title": "Circles of friends",
+  "statement": "$n$ people, numbered from 1, start as strangers. Then $m$ friendships are formed one at a time. Friends of friends belong to the same circle. After each friendship, print the number of circles.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n, m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different people $a$ and $b$. The same pair may appear more than once.\n\n**Output.** $m$ lines, one number each.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5 4\n1 2\n3 4\n2 1\n2 3\n",
+    "4\n3\n3\n2"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(2, max(2, N[size])) if size == 'small' else N[size]\n    m = rng.randint(1, 8) if size == 'small' else N[size]\n    lines = [f\"{n} {m}\"]\n    chain = size == 'large' and rng.random() < 0.5\n    for i in range(m):\n        if chain and i < n - 1: a, b = i + 1, i + 2\n        else:\n            a = rng.randint(1, n); b = rng.randint(1, n - 1)\n            if b >= a: b += 1\n        lines.append(f\"{a} {b}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); n, m = v[0], v[1]\n    p = list(range(n + 1)); groups = n; out = []\n    def find(x):\n        while p[x] != x:\n            p[x] = p[p[x]]; x = p[x]\n        return x\n    for k in range(m):\n        a, b = find(v[2 + 2 * k]), find(v[3 + 2 * k])\n        if a != b: p[a] = b; groups -= 1\n        out.append(groups)\n    return '\\n'.join(map(str, out))\ndef brute(text):\n    v = ints(text); n, m = v[0], v[1]; label = list(range(n + 1)); out = []\n    for k in range(m):\n        a, b = label[v[2 + 2 * k]], label[v[3 + 2 * k]]\n        if a != b: label = [b if x == a else x for x in label]\n        out.append(len(set(label[1:])))\n    return '\\n'.join(map(str, out))\n"
+ },
+ {
+  "id": "window-variety",
+  "title": "Variety in every window",
+  "statement": "You are given $n$ whole numbers and a window length $k$. For every window of $k$ consecutive positions, from left to right, print how many different numbers it contains.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** $n - k + 1$ numbers on one line.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "6 3\n1 2 1 3 3 3\n",
+    "2 3 2 1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    k = rng.randint(1, n) if size != 'large' else rng.choice([n // 2, n // 3, 1000])\n    top = 3 if size == 'small' else rng.choice([10, 10 ** 9])\n    pool = [rng.randint(1, 10 ** 9) for _ in range(1000)]\n    a = [rng.randint(1, top) if top <= 10 else rng.choice(pool) for _ in range(n)]\n    return f\"{n} {k}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:]\n    cnt, distinct, out = {}, 0, []\n    for i, x in enumerate(a):\n        c = cnt.get(x, 0)\n        if c == 0: distinct += 1\n        cnt[x] = c + 1\n        if i >= k:\n            y = a[i - k]; cnt[y] -= 1\n            if cnt[y] == 0: distinct -= 1\n        if i >= k - 1: out.append(distinct)\n    return ' '.join(map(str, out))\ndef brute(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:]\n    return ' '.join(str(len(set(a[i:i + k]))) for i in range(n - k + 1))\n"
+ },
+ {
+  "id": "g-adjacency",
+  "title": "1. The adjacency list",
+  "track": "graphs",
+  "statement": "A graph has $n$ vertices numbered from 1 and $m$ edges; edges have no direction. Store it so that you can list the neighbours of any vertex, and print exactly this: for each vertex from 1 to $n$, one line with the number of its neighbours followed by the neighbours in increasing order.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different vertices. No pair appears twice.\n\n**Output.** $n$ lines.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "4 3\n1 2\n3 1\n2 3\n",
+    "2 2 3\n2 1 3\n2 1 2\n0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    m = min(n * (n - 1) // 2, rng.randint(0, 8) if size == 'small' else 2 * N[size])\n    seen = set()\n    if size == 'large' and rng.random() < 0.5:\n        for v in range(2, min(n, m) + 1): seen.add((1, v))\n    while len(seen) < m:\n        a = rng.randint(1, n); b = rng.randint(1, n)\n        if a != b: seen.add((min(a, b), max(a, b)))\n    edges = [e if rng.random() < 0.5 else (e[1], e[0]) for e in seen]; rng.shuffle(edges)\n    return f\"{n} {len(edges)}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n, m = v[0], v[1]\n    adj = adjacency(n, [(v[2 + 2 * i], v[3 + 2 * i]) for i in range(m)])\n    return '\\n'.join(' '.join(map(str, [len(adj[x])] + sorted(adj[x]))) for x in range(1, n + 1))\ndef brute(text):\n    v = ints(text); n, m = v[0], v[1]; E = [(v[2 + 2 * i], v[3 + 2 * i]) for i in range(m)]\n    out = []\n    for x in range(1, n + 1):\n        nb = sorted([b for a, b in E if a == x] + [a for a, b in E if b == x])\n        out.append(' '.join(map(str, [len(nb)] + nb)))\n    return '\\n'.join(out)\n"
+ },
+ {
+  "id": "g-bfs",
+  "title": "2. Distances from vertex 1",
+  "track": "graphs",
+  "statement": "A graph has $n$ vertices and $m$ undirected edges. For each vertex print the smallest number of edges on a route from vertex 1 to it, or $-1$ if it cannot be reached.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different vertices.\n\n**Output.** $n$ numbers on one line.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5 4\n1 2\n2 3\n1 3\n4 5\n",
+    "0 1 1 -1 -1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    m = rng.randint(0, 8) if size == 'small' else rng.choice([N[size] // 2, 2 * N[size]])\n    edges = []\n    if size != 'small' and rng.random() < 0.5: edges = [(i, i + 1) for i in range(1, n // 2)]\n    while len(edges) < m and n > 1:\n        a = rng.randint(1, n); b = rng.randint(1, n)\n        if a != b: edges.append((a, b))\n    rng.shuffle(edges)\n    return f\"{n} {len(edges)}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n, m = v[0], v[1]\n    adj = adjacency(n, [(v[2 + 2 * i], v[3 + 2 * i]) for i in range(m)])\n    d = [-1] * (n + 1); d[1] = 0; q = [1]\n    for x in q:\n        for u in adj[x]:\n            if d[u] < 0: d[u] = d[x] + 1; q.append(u)\n    return ' '.join(map(str, d[1:]))\ndef brute(text):\n    v = ints(text); n, m = v[0], v[1]; E = [(v[2 + 2 * i], v[3 + 2 * i]) for i in range(m)]\n    d = [-1] * (n + 1); d[1] = 0\n    for _ in range(n):\n        for a, b in E:\n            for x, y in ((a, b), (b, a)):\n                if d[x] >= 0 and (d[y] < 0 or d[y] > d[x] + 1): d[y] = d[x] + 1\n    return ' '.join(map(str, d[1:]))\n"
+ },
+ {
+  "id": "g-components",
+  "title": "3. Connected pieces",
+  "track": "graphs",
+  "statement": "A graph has $n$ vertices and $m$ undirected edges. Print the number of connected pieces and the number of vertices in the largest one.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains two different vertices.\n\n**Output.** Two numbers on one line.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "6 3\n1 2\n2 3\n5 6\n",
+    "3 3"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    m = rng.randint(0, 6) if size == 'small' else rng.choice([N[size] // 3, N[size]])\n    edges = []\n    if size != 'small' and rng.random() < 0.5: edges = [(i, i + 1) for i in range(1, n) if i % 1000]\n    while len(edges) < m and n > 1:\n        a = rng.randint(1, n); b = rng.randint(1, n)\n        if a != b: edges.append((a, b))\n    rng.shuffle(edges)\n    return f\"{n} {len(edges)}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n, m = v[0], v[1]\n    adj = adjacency(n, [(v[2 + 2 * i], v[3 + 2 * i]) for i in range(m)])\n    seen = [False] * (n + 1); count = best = 0\n    for s in range(1, n + 1):\n        if not seen[s]:\n            count += 1; seen[s] = True; stack = [s]; size_ = 0\n            while stack:\n                x = stack.pop(); size_ += 1\n                for u in adj[x]:\n                    if not seen[u]: seen[u] = True; stack.append(u)\n            best = max(best, size_)\n    return f\"{count} {best}\"\ndef brute(text):\n    v = ints(text); n, m = v[0], v[1]; label = list(range(n + 1))\n    for i in range(m):\n        a, b = label[v[2 + 2 * i]], label[v[3 + 2 * i]]\n        if a != b: label = [b if x == a else x for x in label]\n    groups = {}\n    for x in label[1:]: groups[x] = groups.get(x, 0) + 1\n    return f\"{len(groups)} {max(groups.values())}\"\n"
+ },
+ {
+  "id": "g-parents",
+  "title": "4. Parents and depths",
+  "track": "graphs",
+  "statement": "A tree has $n$ vertices; it is given by its $n - 1$ edges in no particular order. Hang it from vertex 1. Print, on the first line, the parent of every vertex (0 for vertex 1), and on the second line the depth of every vertex (0 for vertex 1).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** Two lines of $n$ numbers each.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5\n2 1\n3 2\n2 4\n5 1\n",
+    "0 1 2 2 1\n0 1 2 2 1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n, edges = tree_input(rng, size)\n    return f\"{n}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n = v[0]\n    adj = adjacency(n, [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n - 1)])\n    par, order = order_from_root(n, adj)\n    dep = [0] * (n + 1)\n    for x in order[1:]: dep[x] = dep[par[x]] + 1\n    return ' '.join(map(str, par[1:])) + '\\n' + ' '.join(map(str, dep[1:]))\ndef brute(text):\n    v = ints(text); n = v[0]; E = [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n - 1)]\n    par = [None] * (n + 1); dep = [0] * (n + 1); par[1] = 0\n    for _ in range(n):\n        for a, b in E:\n            for x, y in ((a, b), (b, a)):\n                if par[x] is not None and par[y] is None: par[y] = x; dep[y] = dep[x] + 1\n    return ' '.join(map(str, par[1:])) + '\\n' + ' '.join(map(str, dep[1:]))\n"
+ },
+ {
+  "id": "g-subtree",
+  "title": "5. Subtree sizes",
+  "track": "graphs",
+  "statement": "A tree with $n$ vertices is hung from vertex 1. The subtree of a vertex is the vertex itself together with everything below it. Print the number of vertices in the subtree of every vertex.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** $n$ numbers on one line.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5\n2 1\n3 2\n2 4\n5 1\n",
+    "5 3 1 1 1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n, edges = tree_input(rng, size)\n    return f\"{n}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n = v[0]\n    adj = adjacency(n, [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n - 1)])\n    par, order = order_from_root(n, adj)\n    size_ = [1] * (n + 1)\n    for x in reversed(order[1:]): size_[par[x]] += size_[x]\n    return ' '.join(map(str, size_[1:]))\ndef brute(text):\n    v = ints(text); n = v[0]\n    adj = adjacency(n, [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n - 1)])\n    def count(x, p): return 1 + sum(count(u, x) for u in adj[x] if u != p)\n    par, _ = order_from_root(n, adj)\n    return ' '.join(str(count(x, par[x])) for x in range(1, n + 1))\n"
+ },
+ {
+  "id": "g-diameter",
+  "title": "6. The longest route",
+  "track": "graphs",
+  "statement": "A tree has $n$ vertices. Print the largest number of edges on a route between two of its vertices (a route never repeats a vertex).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** One number.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "5\n2 1\n3 2\n2 4\n5 1\n",
+    "3"
+   ],
+   [
+    "1\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n, edges = tree_input(rng, size)\n    return f\"{n}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef far(n, adj, s):\n    d = [-1] * (n + 1); d[s] = 0; q = [s]\n    for x in q:\n        for u in adj[x]:\n            if d[u] < 0: d[u] = d[x] + 1; q.append(u)\n    return q[-1], d\ndef solve(text):\n    v = ints(text); n = v[0]\n    adj = adjacency(n, [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n - 1)])\n    a, _ = far(n, adj, 1); b, d = far(n, adj, a)\n    return str(d[b])\ndef brute(text):\n    v = ints(text); n = v[0]\n    adj = adjacency(n, [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n - 1)])\n    return str(max(max(far(n, adj, s)[1][1:]) for s in range(1, n + 1)))\n"
+ },
+ {
+  "id": "g-peel",
+  "title": "7. Peeling the leaves",
+  "track": "graphs",
+  "statement": "A tree has $n$ vertices. In each round, every vertex that currently has at most one neighbour is removed, all at the same moment. For each vertex print the number of the round in which it is removed (the first round is round 1).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** $n$ numbers on one line.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "6\n1 2\n2 3\n3 4\n4 5\n3 6\n",
+    "1 2 3 2 1 1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n, edges = tree_input(rng, size)\n    return f\"{n}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n = v[0]\n    adj = adjacency(n, [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n - 1)])\n    deg = [len(a) for a in adj]; rnd = [0] * (n + 1)\n    cur = [x for x in range(1, n + 1) if deg[x] <= 1]\n    for x in cur: rnd[x] = 1\n    r = 1\n    while cur:\n        nxt = []\n        for x in cur:\n            for u in adj[x]:\n                if not rnd[u]:\n                    deg[u] -= 1\n                    if deg[u] <= 1: nxt.append(u)\n        r += 1\n        nxt = [u for u in dict.fromkeys(nxt) if not rnd[u]]\n        for u in nxt: rnd[u] = r\n        cur = nxt\n    return ' '.join(map(str, rnd[1:]))\ndef brute(text):\n    v = ints(text); n = v[0]; E = [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(n - 1)]\n    alive = set(range(1, n + 1)); rnd = [0] * (n + 1); r = 0\n    while alive:\n        r += 1\n        gone = [x for x in alive if sum(1 for a, b in E if (a == x and b in alive) or (b == x and a in alive)) <= 1]\n        for x in gone: rnd[x] = r\n        alive -= set(gone)\n    return ' '.join(map(str, rnd[1:]))\n"
+ },
+ {
+  "id": "g-prune",
+  "title": "8. Pruning empty branches",
+  "track": "graphs",
+  "statement": "A tree with $n$ vertices is hung from vertex 1, and some vertices hold a coin. A vertex is kept if its subtree (itself and everything below it) contains at least one coin; all other vertices are cut away. Print the number of vertices kept.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). The second line contains $n$ numbers, each 0 or 1: whether vertex $i$ holds a coin. Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** One number.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "6\n0 0 1 0 0 0\n1 2\n2 3\n1 4\n4 5\n4 6\n",
+    "3"
+   ],
+   [
+    "3\n0 0 0\n1 2\n2 3\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n, edges = tree_input(rng, size)\n    p = rng.choice([0.0, 0.02, 0.3, 1.0]) if size != 'small' else rng.choice([0.0, 0.3, 0.6])\n    coins = [1 if rng.random() < p else 0 for _ in range(n)]\n    return f\"{n}\\n{' '.join(map(str, coins))}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n = v[0]; coin = [0] + v[1:1 + n]\n    adj = adjacency(n, [(v[1 + n + 2 * i], v[2 + n + 2 * i]) for i in range(n - 1)])\n    par, order = order_from_root(n, adj)\n    has = coin[:]\n    for x in reversed(order[1:]):\n        if has[x]: has[par[x]] = 1\n    return str(sum(1 for x in range(1, n + 1) if has[x]))\ndef brute(text):\n    v = ints(text); n = v[0]; coin = [0] + v[1:1 + n]\n    adj = adjacency(n, [(v[1 + n + 2 * i], v[2 + n + 2 * i]) for i in range(n - 1)])\n    par, _ = order_from_root(n, adj)\n    def any_coin(x, p): return bool(coin[x]) or any(any_coin(u, x) for u in adj[x] if u != p)\n    return str(sum(1 for x in range(1, n + 1) if any_coin(x, par[x])))\n"
+ },
+ {
+  "id": "g-collect",
+  "title": "9. Collecting the coins",
+  "track": "graphs",
+  "statement": "A tree with $n$ vertices; some vertices hold a coin. You start at vertex 1, walk along edges, must stand on every vertex that holds a coin at least once, and must finish back at vertex 1. Print the smallest number of edge-steps needed.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). The second line contains $n$ numbers, each 0 or 1: whether vertex $i$ holds a coin. Each of the next $n - 1$ lines contains two vertices joined by an edge.\n\n**Output.** One number.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "6\n0 0 1 0 0 1\n1 2\n2 3\n1 4\n4 5\n4 6\n",
+    "8"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 100000}\ndef tree_edges(rng, n, shape):\n    \"\"\"A random tree on 1..n with shuffled labels; shape decides how deep it is.\"\"\"\n    label = list(range(1, n + 1)); rng.shuffle(label)\n    edges = []\n    for i in range(1, n):\n        if shape == 'path': p = i - 1\n        elif shape == 'star': p = 0\n        elif shape == 'deep': p = rng.randint(max(0, i - 3), i - 1)\n        else: p = rng.randint(0, i - 1)\n        e = (label[p], label[i])\n        edges.append(e if rng.random() < 0.5 else (e[1], e[0]))\n    rng.shuffle(edges)\n    return edges\ndef rooted(rng, n, shape):\n    \"\"\"The same, but vertex 1 is the root end of the construction.\"\"\"\n    edges = tree_edges(rng, n, shape)\n    return edges\ndef tree_input(rng, size, extra=''):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    shape = rng.choice(['random', 'path', 'star', 'deep'])\n    return n, tree_edges(rng, n, shape)\ndef adjacency(n, edges):\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    return adj\ndef order_from_root(n, adj):\n    \"\"\"Parents and a top-down order from vertex 1, without recursion.\"\"\"\n    par = [0] * (n + 1); par[1] = -1; order = [1]\n    for v in order:\n        for u in adj[v]:\n            if u != par[v]: par[u] = v; order.append(u)\n    par[1] = 0\n    return par, order\n\ndef gen(rng, size):\n    n, edges = tree_input(rng, size)\n    p = rng.choice([0.0, 0.02, 0.3, 1.0]) if size != 'small' else rng.choice([0.0, 0.3, 0.6])\n    coins = [1 if rng.random() < p else 0 for _ in range(n)]\n    return f\"{n}\\n{' '.join(map(str, coins))}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n = v[0]; coin = [0] + v[1:1 + n]\n    adj = adjacency(n, [(v[1 + n + 2 * i], v[2 + n + 2 * i]) for i in range(n - 1)])\n    par, order = order_from_root(n, adj)\n    has = coin[:]\n    for x in reversed(order[1:]):\n        if has[x]: has[par[x]] = 1\n    return str(2 * sum(1 for x in range(2, n + 1) if has[x]))\ndef brute(text):\n    import itertools\n    v = ints(text); n = v[0]; coin = [0] + v[1:1 + n]\n    adj = adjacency(n, [(v[1 + n + 2 * i], v[2 + n + 2 * i]) for i in range(n - 1)])\n    need = frozenset(x for x in range(1, n + 1) if coin[x])\n    from collections import deque\n    start = (1, frozenset([1]) & need)\n    seen = {start: 0}; q = deque([start])\n    while q:\n        x, got = q.popleft()\n        if x == 1 and got == need: return str(seen[(x, got)])\n        for u in adj[x]:\n            s = (u, got | (frozenset([u]) & need))\n            if s not in seen: seen[s] = seen[(x, got)] + 1; q.append(s)\n    return '0'\n"
+ }
+]

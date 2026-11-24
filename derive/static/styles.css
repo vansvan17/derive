@@ -310,3 +310,5 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .mistake select{max-width:16rem}
 .puzzle-sets{display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0}
 .puzzle-nav{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.75rem}
+.task-list{display:grid;gap:.4rem;padding-left:1.4rem}
+.task-list li{padding:.15rem 0}

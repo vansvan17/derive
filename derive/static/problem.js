@@ -9,7 +9,7 @@ const CAUSES = [['unknown-fact', 'I did not know the fact it rests on'], ['unrec
 const FILES = [['main', 'Solution'], ['brute', 'Brute force'], ['gen', 'Generator']];
 
 let editorModule;
-async function makeEditor(parent, options) {
+export async function makeEditor(parent, options) {
   if (editorModule === undefined) { try { editorModule = await import('./vendor/editor.js'); } catch { editorModule = null; } }
   if (editorModule) { try { return editorModule.createEditor(parent, options); } catch { /* plain box below */ } }
   const area = document.createElement('textarea');

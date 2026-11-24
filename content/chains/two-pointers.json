@@ -1,0 +1,169 @@
+{
+ "idea": "two-pointers",
+ "opening": "An array of positive numbers and a budget. You want every stretch that fits, without checking every stretch.",
+ "steps": [
+  {
+   "id": "longest",
+   "kind": "number",
+   "prompt": "The array is 2, 1, 3, 2, 4, 1. What is the largest number of neighbouring elements whose sum is at most 6?",
+   "answer": 3,
+   "verify": "a = [2, 1, 3, 2, 4, 1]\nresult = max(j - i + 1 for i in range(6) for j in range(i, 6) if sum(a[i:j + 1]) <= 6)",
+   "nudges": [
+    "Starting at the first element, how far can you extend?"
+   ],
+   "showed": "Three: for example 2, 1, 3."
+  },
+  {
+   "id": "mono",
+   "kind": "choice",
+   "prompt": "A stretch from position l to position r has sum at most 6, and r is as far right as possible for this l. Now move l one step to the right. The furthest possible r:",
+   "options": [
+    "stays where it is or moves right, never left",
+    "may move left",
+    "always moves exactly one step right"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Dropping a positive element from the left does what to the sum of the stretch you already had?"
+   ],
+   "showed": "Removing a positive element only lowers the sum, so the old right end still fits."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "How many stretches of 2, 1, 3, 2, 4, 1 (of any length from 1) have sum at most 6?",
+   "answer": 13,
+   "verify": "a = [2, 1, 3, 2, 4, 1]\nresult = sum(1 for i in range(6) for j in range(i, 6) if sum(a[i:j + 1]) <= 6)",
+   "nudges": [
+    "For each left end, how many right ends work, given the furthest one?"
+   ],
+   "showed": "For each left end l with furthest right end R, the stretches l..l, l..l+1, ..., l..R all fit: R - l + 1 of them. Add over l."
+  },
+  {
+   "id": "work",
+   "kind": "choice",
+   "prompt": "Both ends only ever move right. For an array of n elements, the total number of steps taken by the two ends together is at most:",
+   "options": [
+    "2n",
+    "n squared",
+    "n log n"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How far can each end travel in total?"
+   ],
+   "showed": "Each end travels at most n positions over the whole run, however the steps are interleaved."
+  },
+  {
+   "id": "negative",
+   "kind": "choice",
+   "prompt": "Would the same method work if the array could contain negative numbers?",
+   "options": [
+    "No: extending a stretch could then lower its sum, so the furthest right end need not move right as the left end does",
+    "Yes, unchanged",
+    "Yes, if the budget is positive"
+   ],
+   "answer": 0,
+   "nudges": [
+    "With 5, -4 and budget 3: which stretches fit?"
+   ],
+   "showed": "The argument needed \"removing an element lowers the sum\" and \"extending raises it\". With negatives use running totals and a different tool."
+  },
+  {
+   "id": "pairs",
+   "kind": "number",
+   "prompt": "A different shape. The sorted array 1, 3, 4, 6, 8, 11, 13. How many pairs of two different positions have sum at most 12?",
+   "answer": 10,
+   "verify": "a = [1, 3, 4, 6, 8, 11, 13]\nresult = sum(1 for i in range(7) for j in range(i + 1, 7) if a[i] + a[j] <= 12)",
+   "nudges": [
+    "Put one finger on the smallest and one on the largest. If their sum is too big, which finger must move?",
+    "If their sum fits, how many pairs does the left finger form at once?"
+   ],
+   "showed": "Fingers at both ends: if the sum fits, the left element pairs with everything up to the right finger, then move left finger right; otherwise move the right finger left. One pass."
+  },
+  {
+   "id": "distinct",
+   "kind": "number",
+   "prompt": "What is the largest number of neighbouring elements of 1, 2, 3, 1, 4, 2, 5, 3 that are all different?",
+   "answer": 5,
+   "verify": "a = [1, 2, 3, 1, 4, 2, 5, 3]\nresult = max(j - i + 1 for i in range(8) for j in range(i, 8) if len(set(a[i:j + 1])) == j - i + 1)",
+   "nudges": [
+    "If a stretch has all elements different, what about every shorter stretch inside it?"
+   ],
+   "showed": "\"All different\" is kept when a stretch shrinks and can only be lost when it grows, so the same sweep applies, with a count per value instead of a sum."
+  },
+  {
+   "id": "recipe",
+   "kind": "choice",
+   "prompt": "What property of a condition on stretches makes this sweep valid?",
+   "options": [
+    "If a stretch satisfies it, so does every stretch inside it",
+    "The condition involves a sum",
+    "The array is sorted"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What did \"sum at most 6 with positive numbers\" and \"all different\" have in common?"
+   ],
+   "showed": "Shrinking keeps the property. Then the furthest right end is non-decreasing in the left end."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $a_1, \\dots, a_n$ be positive and $S \\ge 0$. For each $l$ let $R(l)$ be the largest $r \\ge l - 1$ with $a_l + \\dots + a_r \\le S$ (the empty stretch $r = l - 1$ always qualifies). Prove that $R(l+1) \\ge R(l)$ for every $l < n$.",
+   "claims": [
+    "If R(l) <= l then R(l+1) >= l >= R(l), because the empty stretch starting at l+1 has r = l.",
+    "Otherwise R(l) >= l + 1 and the stretch from l+1 to R(l) has sum equal to (sum from l to R(l)) - a_l.",
+    "Since a_l > 0 that sum is less than S, so r = R(l) qualifies for the left end l+1, giving R(l+1) >= R(l)."
+   ],
+   "nudges": [
+    "What is the sum of the stretch from $l+1$ to $R(l)$, in terms of the stretch from $l$?",
+    "Which case needs separate handling?"
+   ],
+   "showed": "The old right end still fits after the left end moves."
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "No pointers from here. The array is a_i = (7 x i mod 10) + 1 for i = 1 to 200. How many stretches have sum at most 50?",
+   "answer": 1687,
+   "verify": "a = [7 * i % 10 + 1 for i in range(1, 201)]\nresult = sum(1 for i in range(200) for j in range(i, 200) if sum(a[i:j + 1]) <= 50)",
+   "nudges": [
+    "All elements are positive. What does that give you about the furthest right end as the left end moves?"
+   ],
+   "showed": "Sweep: for each left end add (furthest right end - left end + 1). Two hundred steps for each end instead of twenty thousand stretches.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-exact",
+   "kind": "number",
+   "prompt": "The array is a_i = i x i mod 7 for i = 1 to 100. How many stretches contain exactly 3 different values?",
+   "answer": 168,
+   "verify": "a = [i * i % 7 for i in range(1, 101)]\nresult = sum(1 for i in range(100) for j in range(i, 100) if len(set(a[i:j + 1])) == 3)",
+   "nudges": [
+    "\"Exactly 3 different values\" is not kept when a stretch shrinks. Which nearby property is?",
+    "How do you get \"exactly 3\" from \"at most 3\" and \"at most 2\"?"
+   ],
+   "showed": "\"At most k different values\" survives shrinking, so it can be swept. Exactly 3 = (at most 3) - (at most 2): two sweeps.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-triangles",
+   "kind": "number",
+   "prompt": "Sticks of lengths 1, 4, 9, ..., 400 (the first twenty squares). How many sets of three sticks can form a triangle (the two shorter ones together strictly longer than the longest)?",
+   "answer": 196,
+   "verify": "import itertools\nresult = sum(1 for x, y, z in itertools.combinations([k * k for k in range(1, 21)], 3) if x + y > z)",
+   "nudges": [
+    "Fix the longest stick. Among the shorter ones, you need pairs with a large enough sum. Where should two fingers start?",
+    "If the smallest and the largest of the remaining sticks are long enough together, how many pairs does that settle at once?"
+   ],
+   "showed": "Fix the longest stick and put fingers at both ends of the shorter ones: if the two fingers add up to more than the longest, every stick between them works with the right finger too; count them and move the right finger left; otherwise move the left finger right.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Two pointers",
+  "statement": "If a property of a stretch survives shrinking, then the furthest valid right end never moves left as the left end moves right. Both ends sweep the array once: $O(n)$ in total.",
+  "remark": "Typical uses: longest or number of stretches with sum, distinct count or maximum within a limit; and pairs in a sorted array, with the two ends moving towards each other."
+ }
+}

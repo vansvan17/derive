@@ -1,0 +1,158 @@
+{
+ "idea": "complement",
+ "opening": "Some things are miserable to count directly and easy to count by what they are not.",
+ "steps": [
+  {
+   "id": "seven",
+   "kind": "number",
+   "prompt": "How many strings of four digits (0000 to 9999) contain at least one 7?",
+   "answer": 3439,
+   "verify": "result = sum(1 for x in range(10000) if '7' in f'{x:04d}')",
+   "nudges": [
+    "How many contain no 7 at all?"
+   ],
+   "showed": "10^4 in all, 9^4 with no 7."
+  },
+  {
+   "id": "apart",
+   "kind": "number",
+   "prompt": "Five people, two of whom are A and B, sit in a row. In how many of the 120 orders are A and B not next to each other?",
+   "answer": 72,
+   "verify": "import itertools\nresult = sum(1 for p in itertools.permutations('ABCDE') if abs(p.index('A') - p.index('B')) != 1)",
+   "nudges": [
+    "Treating A and B as one block, in how many orders are they next to each other?"
+   ],
+   "showed": "120 minus 2 x 24."
+  },
+  {
+   "id": "two",
+   "kind": "number",
+   "prompt": "How many strings of 8 binary digits contain at least two 1s?",
+   "answer": 247,
+   "verify": "result = sum(1 for x in range(256) if bin(x).count('1') >= 2)",
+   "nudges": [
+    "How many contain no 1, and how many exactly one?"
+   ],
+   "showed": "256 - 1 - 8."
+  },
+  {
+   "id": "when",
+   "kind": "choice",
+   "prompt": "When is it worth counting the opposite?",
+   "options": [
+    "When the condition says \"at least one\" (or \"not all\") and the case \"none\" is easy to describe",
+    "Always",
+    "Only when the total is small"
+   ],
+   "answer": 0,
+   "nudges": [
+    "In the three questions so far, which was easier to describe: the wanted objects or the unwanted ones?"
+   ],
+   "showed": "\"At least one\" is a union of many overlapping cases; \"none\" is a single clean case."
+  },
+  {
+   "id": "zeros",
+   "kind": "number",
+   "prompt": "An array of length 10 has zeros exactly at positions 3 and 8. How many of its 55 stretches contain at least one zero?",
+   "answer": 39,
+   "verify": "a = [1, 1, 0, 1, 1, 1, 1, 0, 1, 1]\nresult = sum(1 for i in range(10) for j in range(i, 10) if 0 in a[i:j + 1])",
+   "nudges": [
+    "Which stretches contain no zero, and how are they arranged?"
+   ],
+   "showed": "Stretches with no zero live inside the gaps of lengths 2, 4 and 2: 3 + 10 + 3 = 16. So 55 - 16."
+  },
+  {
+   "id": "paths",
+   "kind": "number",
+   "prompt": "Routes on a grid from (0, 0) to (4, 4) moving right or up. How many avoid the point (2, 2)?",
+   "answer": 34,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef w(x, y): return 0 if (x, y) == (2, 2) else 1 if (x, y) == (0, 0) else (w(x - 1, y) if x else 0) + (w(x, y - 1) if y else 0)\nresult = w(4, 4)",
+   "nudges": [
+    "How many routes are there in all? How many pass through (2, 2)?"
+   ],
+   "showed": "All routes: C(8, 4) = 70. Through (2, 2): C(4, 2) x C(4, 2) = 36."
+  },
+  {
+   "id": "gcd",
+   "kind": "number",
+   "prompt": "How many pairs a < b of numbers from 1 to 30 have a common divisor greater than 1?",
+   "answer": 158,
+   "verify": "import math\nresult = sum(1 for a in range(1, 31) for b in range(a + 1, 31) if math.gcd(a, b) > 1)",
+   "nudges": [
+    "Which is easier to organise: pairs with a common factor, or pairs without one?"
+   ],
+   "showed": "Count all 435 pairs and subtract the pairs with gcd 1."
+  },
+  {
+   "id": "trap",
+   "kind": "choice",
+   "prompt": "What is the usual mistake when counting \"at least one\" directly, case by case?",
+   "options": [
+    "Objects that satisfy several of the cases get counted several times",
+    "Forgetting the empty case",
+    "Counting the total wrongly"
+   ],
+   "answer": 0,
+   "nudges": [
+    "A string with two 7s: in how many of the cases \"position i is a 7\" does it appear?"
+   ],
+   "showed": "The cases overlap. The opposite has no overlaps to worry about."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that the number of strings of $n$ binary digits containing at least one 1 is $2^n - 1$.",
+   "claims": [
+    "There are 2^n strings of n binary digits in all, since each digit is chosen independently in two ways.",
+    "A string contains no 1 exactly when every digit is 0, and there is exactly one such string.",
+    "Every string either contains at least one 1 or contains none, and not both, so the count is 2^n - 1."
+   ],
+   "nudges": [
+    "How many strings are there in all?",
+    "Which strings are you removing?"
+   ],
+   "showed": "Everything minus the single string of zeros."
+  },
+  {
+   "id": "h-all",
+   "kind": "number",
+   "prompt": "How many strings of length 10 over the letters a, b, c contain all three letters?",
+   "answer": 55980,
+   "verify": "import itertools\nresult = sum(1 for s in itertools.product('abc', repeat=10) if len(set(s)) == 3)",
+   "nudges": [
+    "The opposite is \"some letter is missing\". Do those cases overlap?"
+   ],
+   "showed": "All strings minus those missing a letter: 3^10 - 3 x 2^10 + 3. The strings missing two letters were removed twice and must be put back once.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-fixed",
+   "kind": "number",
+   "prompt": "In how many of the 5040 orders of 1 to 7 is at least one number in its own position?",
+   "answer": 3186,
+   "verify": "import itertools\nresult = sum(1 for p in itertools.permutations(range(7)) if any(p[i] == i for i in range(7)))",
+   "nudges": [
+    "How many orders have no number in its own position?"
+   ],
+   "showed": "Count the orders with nobody in place (by the recurrence D(n) = (n - 1)(D(n-1) + D(n-2)): 0, 1, 2, 9, 44, 265, 1854) and subtract from 5040.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-zero",
+   "kind": "number",
+   "prompt": "The array is a_i = i x i mod 10 for i = 1 to 100. How many of its 5050 stretches contain at least one 0?",
+   "answer": 4600,
+   "verify": "a = [i * i % 10 for i in range(1, 101)]\nresult = sum(1 for i in range(100) for j in range(i, 100) if 0 in a[i:j + 1])",
+   "nudges": [
+    "Where are the zeros, and how long are the gaps between them?"
+   ],
+   "showed": "Zeros sit at every multiple of 10. The zero-free stretches lie inside ten gaps of length 9 each: 10 x 45. Subtract from 5050.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Complement counting",
+  "statement": "The number of objects with a property equals the total number minus the number without it. Use it when the opposite of the property is the simpler one to describe.",
+  "remark": "Signals: \"at least one\", \"not all\", \"contains\", \"passes through\". For several conditions at once it grows into inclusion-exclusion."
+ }
+}

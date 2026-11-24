@@ -1,0 +1,159 @@
+{
+ "idea": "inclusion-exclusion",
+ "opening": "Counting things that satisfy at least one of several conditions, when the conditions overlap.",
+ "steps": [
+  {
+   "id": "two",
+   "kind": "number",
+   "prompt": "How many numbers from 1 to 100 are divisible by 2 or by 3 (or both)?",
+   "answer": 67,
+   "verify": "result = sum(1 for x in range(1, 101) if x % 2 == 0 or x % 3 == 0)",
+   "nudges": [
+    "How many are divisible by 2? By 3? What has been counted twice?"
+   ],
+   "showed": "50 + 33 - 16: the multiples of 6 were counted twice."
+  },
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "How many numbers from 1 to 100 are divisible by at least one of 2, 3 and 5?",
+   "answer": 74,
+   "verify": "result = sum(1 for x in range(1, 101) if x % 2 == 0 or x % 3 == 0 or x % 5 == 0)",
+   "nudges": [
+    "After subtracting the three pairwise overlaps, how many times has a multiple of 30 been counted?"
+   ],
+   "showed": "50 + 33 + 20 - 16 - 10 - 6 + 3. A multiple of 30 is added three times, removed three times, and must be put back once."
+  },
+  {
+   "id": "sets",
+   "kind": "number",
+   "prompt": "Three clubs have 10, 12 and 15 members. The pairwise overlaps are 4, 5 and 6 people, and 2 people are in all three. How many people are in at least one club?",
+   "answer": 24,
+   "verify": "result = 10 + 12 + 15 - 4 - 5 - 6 + 2",
+   "nudges": [
+    "Follow one person who is in all three clubs through the calculation. How many times are they counted?"
+   ],
+   "showed": "37 - 15 + 2."
+  },
+  {
+   "id": "sign",
+   "kind": "choice",
+   "prompt": "With many conditions, the overlap of k of them enters the sum with which sign?",
+   "options": [
+    "Plus when k is odd, minus when k is even",
+    "Always minus",
+    "Plus when k is even, minus when k is odd"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What were the signs for single conditions, pairs and triples?"
+   ],
+   "showed": "Singles are added, pairs removed, triples added back, and so on."
+  },
+  {
+   "id": "coprime",
+   "kind": "number",
+   "prompt": "How many numbers from 1 to 1000 have no common factor with 30?",
+   "answer": 266,
+   "verify": "import math\nresult = sum(1 for x in range(1, 1001) if math.gcd(x, 30) == 1)",
+   "nudges": [
+    "Which is easier: sharing no factor with 30, or being divisible by at least one of 2, 3, 5?"
+   ],
+   "showed": "1000 minus (500 + 333 + 200 - 166 - 100 - 66 + 33)."
+  },
+  {
+   "id": "onto",
+   "kind": "number",
+   "prompt": "In how many ways can 4 different gifts be given to 3 children so that every child gets at least one?",
+   "answer": 36,
+   "verify": "import itertools\nresult = sum(1 for g in itertools.product(range(3), repeat=4) if len(set(g)) == 3)",
+   "nudges": [
+    "In how many ways does one particular child get nothing, and how do those cases overlap?"
+   ],
+   "showed": "3^4 - 3 x 2^4 + 3 x 1^4 = 81 - 48 + 3."
+  },
+  {
+   "id": "derange",
+   "kind": "number",
+   "prompt": "Five people hand in their hats and get them back at random. In how many of the 120 ways does nobody get their own hat?",
+   "answer": 44,
+   "verify": "import itertools\nresult = sum(1 for p in itertools.permutations(range(5)) if all(p[i] != i for i in range(5)))",
+   "nudges": [
+    "Condition i: \"person i gets their own hat\". In how many ways do k particular people all get their own?"
+   ],
+   "showed": "120 - 5 x 24 + 10 x 6 - 10 x 2 + 5 x 1 - 1."
+  },
+  {
+   "id": "why1",
+   "kind": "choice",
+   "prompt": "Why does an object that satisfies exactly m of the conditions (m at least 1) end up counted exactly once?",
+   "options": [
+    "It is counted C(m,1) - C(m,2) + C(m,3) - ... times, and that alternating sum is always 1",
+    "Because m is at least 1",
+    "It is not: it is counted m times"
+   ],
+   "answer": 0,
+   "nudges": [
+    "For m = 3, what is 3 - 3 + 1? For m = 4, what is 4 - 6 + 4 - 1?"
+   ],
+   "showed": "The alternating sum of a row of binomial coefficients, without its first entry, is 1."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that for finite sets $A$ and $B$: $|A \\cup B| = |A| + |B| - |A \\cap B|$.",
+   "claims": [
+    "An element in A but not in B is counted once by |A|, not by |B|, and not by |A intersect B|: once in total.",
+    "Likewise an element in B but not in A is counted once in total.",
+    "An element in both is counted once by |A|, once by |B|, and removed once by |A intersect B|: once in total.",
+    "Elements in neither set are not counted, so the right-hand side counts every element of the union exactly once."
+   ],
+   "nudges": [
+    "Split the elements of the union into three kinds. How often does the right-hand side count each kind?"
+   ],
+   "showed": "Check each kind of element separately."
+  },
+  {
+   "id": "h-six",
+   "kind": "number",
+   "prompt": "How many numbers from 1 to 1,000,000 are divisible by none of 2, 3, 5, 7, 11, 13?",
+   "answer": 191808,
+   "verify": "import itertools, math\nN = 10 ** 6\nresult = sum((-1) ** k * (N // math.prod(c)) for k in range(7) for c in itertools.combinations((2, 3, 5, 7, 11, 13), k))",
+   "nudges": [
+    "How many numbers up to N are divisible by all the primes in a given subset?",
+    "How many subsets of the six primes are there?"
+   ],
+   "showed": "For each of the 64 subsets, N divided by the product of its primes (rounded down), with sign plus for even-sized subsets and minus for odd ones.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-succ",
+   "kind": "number",
+   "prompt": "In how many orders of 1 to 8 does no number i stand immediately before i + 1?",
+   "answer": 16687,
+   "verify": "import itertools\nresult = sum(1 for p in itertools.permutations(range(8)) if all(p[i] + 1 != p[i + 1] for i in range(7)))",
+   "nudges": [
+    "Condition i: \"i is immediately followed by i + 1\". If k particular conditions hold, how many orders are there?"
+   ],
+   "showed": "If k of the conditions hold, the affected numbers are glued into blocks, leaving 8 - k objects to arrange: (8 - k)! orders, whichever k conditions they are. So the answer is the alternating sum of C(7, k) (8 - k)!.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-matrix",
+   "kind": "number",
+   "prompt": "How many 4 by 4 tables of 0s and 1s have no row consisting only of 0s and no column consisting only of 0s?",
+   "answer": 41503,
+   "verify": "result = sum(1 for m in range(1 << 16) if all(m >> (4 * r) & 15 for r in range(4)) and all(m & (0x1111 << c) for c in range(4)))",
+   "nudges": [
+    "If a particular set of i rows and j columns is forced to be all zero, how many tables are there?"
+   ],
+   "showed": "Forcing i rows and j columns to zero leaves (4 - i)(4 - j) free cells. Sum over i and j of (-1)^(i+j) C(4,i) C(4,j) 2^((4-i)(4-j)).",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Inclusion-exclusion",
+  "statement": "$|A_1 \\cup \\dots \\cup A_n| = \\sum |A_i| - \\sum |A_i \\cap A_j| + \\sum |A_i \\cap A_j \\cap A_k| - \\dots$ The number of objects with none of the properties is the total minus this.",
+  "remark": "Practical when the size of an overlap depends only on how many conditions are involved (as for hats or gifts), or when there are few conditions (up to about 20, looping over subsets)."
+ }
+}

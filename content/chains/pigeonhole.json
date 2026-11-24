@@ -1,0 +1,163 @@
+{
+ "idea": "pigeonhole",
+ "opening": "Guarantees that hold however unlucky you are.",
+ "steps": [
+  {
+   "id": "socks",
+   "kind": "number",
+   "prompt": "A drawer holds socks of 3 colours. How many must you take, without looking, to be certain of having two of the same colour?",
+   "answer": 4,
+   "verify": "result = 3 + 1",
+   "nudges": [
+    "What is the worst that can happen with three socks?"
+   ],
+   "showed": "Three socks can all be different; a fourth must repeat a colour."
+  },
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "With 4 colours, how many socks guarantee three of the same colour?",
+   "answer": 9,
+   "verify": "result = 4 * 2 + 1",
+   "nudges": [
+    "How many socks can you hold with at most two of each colour?"
+   ],
+   "showed": "Two of each colour is 8 socks with no triple; the ninth forces one."
+  },
+  {
+   "id": "mod",
+   "kind": "number",
+   "prompt": "How many whole numbers must you pick to be certain that two of them leave the same remainder when divided by 7?",
+   "answer": 8,
+   "verify": "result = 7 + 1",
+   "nudges": [
+    "How many different remainders are there?"
+   ],
+   "showed": "Seven possible remainders, so eight numbers."
+  },
+  {
+   "id": "eleven",
+   "kind": "choice",
+   "prompt": "Six different numbers are chosen from 1 to 10. Must two of them add up to 11?",
+   "options": [
+    "Yes: the pairs (1,10), (2,9), (3,8), (4,7), (5,6) are five boxes for six numbers",
+    "No",
+    "Only if 5 or 6 is chosen"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which numbers add up to 11 with which?"
+   ],
+   "showed": "The trick is choosing the boxes: here each box is a pair summing to 11."
+  },
+  {
+   "id": "ten",
+   "kind": "number",
+   "prompt": "What is the smallest k such that any k different numbers from 1 to 20 include two that differ by exactly 10?",
+   "answer": 11,
+   "verify": "import itertools\nresult = next(k for k in range(1, 21) if all(any(abs(x - y) == 10 for x, y in itertools.combinations(c, 2)) for c in itertools.combinations(range(1, 21), k)))",
+   "nudges": [
+    "Which pairs of numbers differ by 10? How many such pairs are there?"
+   ],
+   "showed": "Ten boxes (1,11), (2,12), ..., (10,20): one number from each avoids it, an eleventh cannot."
+  },
+  {
+   "id": "divide",
+   "kind": "number",
+   "prompt": "What is the largest number of different numbers you can choose from 1 to 10 so that none of them divides another?",
+   "answer": 5,
+   "verify": "result = max(bin(m).count('1') for m in range(1 << 10) if not any(m >> i & 1 and m >> j & 1 and (j + 1) % (i + 1) == 0 for i in range(10) for j in range(i + 1, 10)))",
+   "nudges": [
+    "The numbers 6, 7, 8, 9, 10 work. Can six numbers work?"
+   ],
+   "showed": "Five, for example 6 to 10. To see that six is impossible you need the right boxes."
+  },
+  {
+   "id": "boxes",
+   "kind": "choice",
+   "prompt": "Which boxes show that among any six numbers from 1 to 10 one divides another?",
+   "options": [
+    "Group numbers by their largest odd divisor: 1, 3, 5, 7, 9 give five boxes, and within a box each number is a power of two times the next smaller",
+    "Group numbers by parity",
+    "Group numbers by their last digit"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Write each number as an odd number times a power of two. If two numbers share the odd part, how are they related?"
+   ],
+   "showed": "Five odd parts, so five boxes; two numbers in one box differ by a power of two, so one divides the other."
+  },
+  {
+   "id": "recipe",
+   "kind": "choice",
+   "prompt": "When a problem says \"show that some two of them must ...\", what should you look for?",
+   "options": [
+    "A way to sort the objects into fewer boxes than there are objects, such that two in one box have the wanted property",
+    "A clever ordering of the objects",
+    "The largest object"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What did the pairs summing to 11 and the odd parts have in common?"
+   ],
+   "showed": "The whole difficulty is inventing the boxes."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that among any $n + 1$ whole numbers there are two whose difference is divisible by $n$.",
+   "claims": [
+    "Every whole number has one of the n remainders 0, 1, ..., n-1 when divided by n.",
+    "There are n + 1 numbers and only n possible remainders, so two of the numbers have the same remainder.",
+    "Two numbers with the same remainder differ by a multiple of n."
+   ],
+   "nudges": [
+    "What are the boxes?",
+    "Why do two numbers in the same box have the wanted property?"
+   ],
+   "showed": "Boxes are remainders mod $n$."
+  },
+  {
+   "id": "h-divide",
+   "kind": "number",
+   "prompt": "What is the largest number of different numbers you can choose from 1 to 20 so that none of them divides another?",
+   "answer": 10,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef best(i, chosen):\n    if i > 20: return 0\n    skip = best(i + 1, chosen)\n    return max(skip, 1 + best(i + 1, chosen + (i,))) if all(i % c for c in chosen) else skip\nresult = best(1, ())",
+   "nudges": [
+    "11 to 20 is one choice of ten. Which boxes show that eleven is impossible?"
+   ],
+   "showed": "Ten boxes, one for each odd number up to 19 (a number goes in the box of its largest odd divisor); two numbers in one box divide each other. So ten is the most, reached by 11..20.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-gaps",
+   "kind": "number",
+   "prompt": "What is the largest number of different numbers you can choose from 1 to 20 so that no two of them differ by exactly 4 or exactly 7?",
+   "answer": 10,
+   "verify": "result = max(bin(m).count('1') for m in range(1 << 20) if not m & (m >> 4) and not m & (m >> 7))",
+   "nudges": [
+    "Any eleven numbers in a row: can you arrange them in a circle so that neighbours differ by 4 or 7?",
+    "How many can you take from such a circle?"
+   ],
+   "showed": "Any eleven numbers in a row form a single cycle under \"differ by 4 or 7\" (for 1..11: 1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, back to 1), and from a cycle of eleven you can take at most 5. So 1..11 gives at most 5, and 12..20, being part of such a cycle, at most 5 more. Ten is reachable.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-grid",
+   "kind": "number",
+   "prompt": "Nine points form a 3 by 3 grid. What is the smallest k such that any k of the points include three on one straight line?",
+   "answer": 7,
+   "verify": "import itertools\npts = [(x, y) for x in range(3) for y in range(3)]\nline = lambda a, b, c: (b[0] - a[0]) * (c[1] - a[1]) == (b[1] - a[1]) * (c[0] - a[0])\nfree = max(len(c) for k in range(10) for c in itertools.combinations(pts, k) if not any(line(*t) for t in itertools.combinations(c, 3)))\nresult = free + 1",
+   "nudges": [
+    "Each row can contribute at most how many points to a set with no three in line?"
+   ],
+   "showed": "Each of the three rows is a line, so at most two points per row: at most six. Six is possible (two per row, chosen to dodge columns and diagonals), so seven forces a line.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Pigeonhole principle",
+  "statement": "If more than $kn$ objects are placed in $n$ boxes, some box holds more than $k$ of them. In particular $n + 1$ objects in $n$ boxes force two into one box.",
+  "remark": "In problems it usually appears as \"there are only so many possible values, so something repeats\": remainders, states of a process, prefix sums mod n."
+ }
+}

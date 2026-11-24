@@ -1,0 +1,75 @@
+{
+  "areas": [
+    {"id": "nt", "title": "Numbers and remainders"},
+    {"id": "inv", "title": "What a move cannot change"},
+    {"id": "con", "title": "Building an answer"},
+    {"id": "cnt", "title": "Counting"},
+    {"id": "grd", "title": "Greedy choices"},
+    {"id": "bs", "title": "Searching for the answer"},
+    {"id": "seq", "title": "Sequences and windows"},
+    {"id": "dp", "title": "States and transitions"},
+    {"id": "gr", "title": "Graphs"},
+    {"id": "bit", "title": "Bits"}
+  ],
+  "ideas": [
+    {"id": "residues", "area": "nt", "name": "Arithmetic of remainders", "statement": "Sums and products mod m depend only on the remainders of the parts; a factor c can be cancelled when gcd(c, m) = 1.", "needs": []},
+    {"id": "mult-permutes", "area": "nt", "name": "Multiplication permutes residues mod a prime", "statement": "For a prime p and a not divisible by p, the residues of a, 2a, ..., (p-1)a are 1, ..., p-1 in some order.", "needs": ["residues"]},
+    {"id": "fermat", "area": "nt", "name": "Fermat's little theorem", "statement": "For a prime p and a not divisible by p, a^(p-1) = 1 (mod p).", "needs": ["mult-permutes"]},
+    {"id": "mod-inverse", "area": "nt", "name": "Modular inverse", "statement": "Mod a prime p, every a not divisible by p has exactly one x with ax = 1, and x = a^(p-2).", "needs": ["fermat"]},
+    {"id": "gcd-subtraction", "area": "nt", "name": "The gcd survives subtraction", "statement": "gcd(a, b) = gcd(a - b, b): the pairs have the same common divisors.", "needs": []},
+    {"id": "euclid", "area": "nt", "name": "Euclid's algorithm", "statement": "gcd(a, b) = gcd(b, a mod b), and a mod b < a/2, so it finishes in O(log) steps.", "needs": ["gcd-subtraction"]},
+    {"id": "bezout", "area": "nt", "name": "Bézout's identity", "statement": "ax + by = c has integer solutions exactly when gcd(a, b) divides c.", "needs": ["euclid"]},
+    {"id": "divisor-count", "area": "nt", "name": "Divisors from prime exponents", "statement": "If n is the product of p_i^e_i, its divisors correspond to independent choices of exponents: there are prod(e_i + 1) of them.", "needs": []},
+    {"id": "harmonic-multiples", "area": "nt", "name": "Harmonic sum over multiples", "statement": "Visiting every multiple of every i up to n costs n/1 + n/2 + ... + n/n = O(n log n).", "needs": ["divisor-count"]},
+    {"id": "gcd-chain", "area": "nt", "name": "A running gcd changes few times", "statement": "Each time a running gcd changes it at least halves, so it takes at most log2(a) different values.", "needs": ["gcd-subtraction"]},
+    {"id": "crt", "area": "nt", "name": "Chinese remainder theorem", "statement": "For coprime m and n, the pair (x mod m, x mod n) determines x mod mn, and every pair occurs.", "needs": ["bezout"]},
+
+    {"id": "parity-invariant", "area": "inv", "name": "Parity invariant", "statement": "If every move changes a count by an even amount, its parity is fixed forever; a target of the other parity is unreachable.", "needs": []},
+    {"id": "sum-invariant", "area": "inv", "name": "Invariants modulo m", "statement": "A quantity that every move changes by a multiple of m keeps its remainder mod m; some are preserved exactly.", "needs": ["parity-invariant", "residues"]},
+    {"id": "monovariant", "area": "inv", "name": "Monovariant", "statement": "A non-negative integer that strictly decreases with every move forces the process to stop, and bounds the number of moves.", "needs": []},
+    {"id": "colouring", "area": "inv", "name": "Colouring argument", "statement": "Colour the cells so that every piece covers a fixed colour pattern; an unbalanced board cannot be covered.", "needs": ["parity-invariant"]},
+    {"id": "permutation-parity", "area": "inv", "name": "Parity of a permutation", "statement": "Every swap flips the parity of the number of inversions, so the parity of the number of swaps is determined.", "needs": ["parity-invariant", "monovariant"]},
+    {"id": "extremal", "area": "inv", "name": "Extremal principle", "statement": "Look at the smallest, largest, first or last object: its extremeness gives a property that others lack.", "needs": []},
+
+    {"id": "small-cases", "area": "con", "name": "Extend a small construction", "statement": "Solve n = 1, 2, 3 by hand and find the step that turns a solution for n into one for n + 1 or n + 2.", "needs": []},
+    {"id": "necessary-sufficient", "area": "con", "name": "Necessary, then sufficient", "statement": "Find the obstruction that rules out some inputs, then construct an answer for every input that passes it.", "needs": ["parity-invariant"]},
+    {"id": "pigeonhole", "area": "con", "name": "Pigeonhole principle", "statement": "More objects than boxes forces two objects into one box.", "needs": []},
+    {"id": "prefix-pigeonhole", "area": "con", "name": "Two equal prefix remainders", "statement": "Among n + 1 prefix sums two share a remainder mod n, so some block of consecutive elements sums to a multiple of n.", "needs": ["pigeonhole", "residues", "prefix-sums"]},
+
+    {"id": "contribution", "area": "cnt", "name": "Contribution counting", "statement": "A sum over all objects of a sum over their parts equals a sum over parts of how many objects contain each.", "needs": []},
+    {"id": "complement", "area": "cnt", "name": "Complement counting", "statement": "Count everything, then subtract what fails: often the failures are far easier to describe.", "needs": []},
+    {"id": "stars-bars", "area": "cnt", "name": "Stars and bars", "statement": "The number of ways to write n as an ordered sum of k non-negative integers is C(n + k - 1, k - 1).", "needs": []},
+    {"id": "lattice-paths", "area": "cnt", "name": "Lattice paths and binomials", "statement": "Paths of r right steps and u up steps number C(r + u, r); many counts are such paths in disguise.", "needs": ["stars-bars"]},
+    {"id": "inclusion-exclusion", "area": "cnt", "name": "Inclusion-exclusion", "statement": "The size of a union is the alternating sum of the sizes of the intersections.", "needs": ["complement"]},
+    {"id": "linearity", "area": "cnt", "name": "Linearity of expectation", "statement": "The expected value of a sum is the sum of the expected values, whether or not the parts are independent.", "needs": ["contribution"]},
+
+    {"id": "exchange", "area": "grd", "name": "Exchange argument", "statement": "If swapping two adjacent out-of-order choices never makes the answer worse, the sorted order is optimal.", "needs": []},
+    {"id": "stays-ahead", "area": "grd", "name": "Greedy stays ahead", "statement": "Show by induction that after every step the greedy choice is at least as good as any other solution's.", "needs": ["exchange"]},
+    {"id": "regret-greedy", "area": "grd", "name": "Greedy with undo", "statement": "Take every option, and when a constraint breaks, undo the worst choice so far (a heap finds it).", "needs": ["exchange"]},
+
+    {"id": "search-answer", "area": "bs", "name": "Binary search on the answer", "statement": "If 'can it be done with x?' is false then true as x grows, the smallest workable x is found by halving.", "needs": []},
+    {"id": "kth-by-counting", "area": "bs", "name": "k-th value by counting", "statement": "The k-th smallest value is the least x for which at least k values are <= x.", "needs": ["search-answer"]},
+
+    {"id": "prefix-sums", "area": "seq", "name": "Prefix sums", "statement": "With P[i] = a[1] + ... + a[i], any block sum is P[r] - P[l - 1].", "needs": []},
+    {"id": "prefix-pairs", "area": "seq", "name": "Blocks as pairs of prefixes", "statement": "Counting blocks with a given sum is counting pairs of prefix values with a given difference.", "needs": ["prefix-sums"]},
+    {"id": "difference-array", "area": "seq", "name": "Difference array", "statement": "Adding v to a whole block is two point updates on the array of differences.", "needs": ["prefix-sums"]},
+    {"id": "two-pointers", "area": "seq", "name": "Two pointers", "statement": "If moving the left end right can only move the best right end right, both ends sweep once: O(n).", "needs": []},
+    {"id": "prefix-xor", "area": "seq", "name": "Prefix XOR", "statement": "The XOR of a block is the XOR of two prefix XORs, because x xor x = 0.", "needs": ["prefix-sums", "xor-cancels"]},
+
+    {"id": "dp-state", "area": "dp", "name": "What a state must remember", "statement": "A state is a summary of the past that is enough to decide the future; two histories with the same summary can be merged.", "needs": []},
+    {"id": "knapsack", "area": "dp", "name": "Knapsack and the order of loops", "statement": "Looping capacity downward uses each item once; upward allows it again and again.", "needs": ["dp-state"]},
+    {"id": "bitmask-dp", "area": "dp", "name": "Subsets as states", "statement": "When order matters only through which items are used, the set of used items is the state: 2^n of them.", "needs": ["dp-state", "masks"]},
+    {"id": "interval-dp", "area": "dp", "name": "Intervals as states", "statement": "Solve every block [l, r] from shorter blocks by choosing the last operation or a split point.", "needs": ["dp-state"]},
+    {"id": "digit-dp", "area": "dp", "name": "Digit by digit", "statement": "Counting numbers up to N: build digits from the top, remembering only whether the prefix is still equal to N's.", "needs": ["dp-state"]},
+    {"id": "tree-dp", "area": "dp", "name": "Answers for every root", "statement": "Compute each subtree's answer, then push the answer of 'everything outside the subtree' down from the parent.", "needs": ["dp-state"]},
+
+    {"id": "state-graph", "area": "gr", "name": "Configurations as a graph", "statement": "Make each configuration a vertex and each move an edge; fewest moves is a shortest path.", "needs": []},
+    {"id": "reverse-time", "area": "gr", "name": "Run time backwards", "statement": "Deletions are hard, insertions are easy: process the operations in reverse and merge.", "needs": []},
+    {"id": "odd-cycle", "area": "gr", "name": "Two-colourable means no odd cycle", "statement": "A graph can be split into two sides with all edges across exactly when it has no cycle of odd length.", "needs": ["parity-invariant"]},
+
+    {"id": "xor-cancels", "area": "bit", "name": "XOR undoes itself", "statement": "x xor x = 0 and XOR is associative and commutative, so anything XORed twice disappears.", "needs": []},
+    {"id": "bits-independent", "area": "bit", "name": "Each bit on its own", "statement": "For AND, OR and XOR every bit position behaves independently; solve for one bit and add up 2^b times the count.", "needs": ["contribution"]},
+    {"id": "masks", "area": "bit", "name": "Subsets as bitmasks", "statement": "A subset of n items is an n-bit number; going through every subset of every subset costs 3^n.", "needs": []},
+    {"id": "sum-xor-and", "area": "bit", "name": "Sum, XOR and AND", "statement": "a + b = (a xor b) + 2 (a and b): XOR adds without carries, AND is the carries.", "needs": ["xor-cancels"]}
+  ]
+}

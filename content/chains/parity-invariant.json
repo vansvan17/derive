@@ -1,0 +1,150 @@
+{
+  "idea": "parity-invariant",
+  "opening": "A row of coins and one allowed move. Before trying moves, ask what no move can change.",
+  "steps": [
+    {
+      "id": "try",
+      "kind": "choice",
+      "prompt": "Seven coins, all heads up. A move turns over exactly two coins. Play it by hand for a while. Can you reach seven tails?",
+      "options": [
+        "Yes, in four moves",
+        "Yes, but it needs more than four moves",
+        "No"
+      ],
+      "answer": 2,
+      "nudges": [
+        "After one move there are how many tails? After two moves, which numbers are possible?"
+      ],
+      "showed": "You could not. Now find out why."
+    },
+    {
+      "id": "from3",
+      "kind": "list",
+      "prompt": "A position has 3 tails. List every number of tails it can have after one move.",
+      "answer": [
+        1,
+        3,
+        5
+      ],
+      "verify": "result = sorted({bin(m ^ (1 << i) ^ (1 << j)).count('1') for m in range(128) if bin(m).count('1') == 3 for i in range(7) for j in range(i)})",
+      "nudges": [
+        "The two coins turned over might be both tails, both heads, or one of each. What happens in each case?"
+      ],
+      "showed": "From 3 tails you can only get 1, 3 or 5."
+    },
+    {
+      "id": "change",
+      "kind": "choice",
+      "prompt": "In general, one move changes the number of tails by:",
+      "options": [
+        "always $+1$ or $-1$",
+        "$-2$, $0$ or $+2$",
+        "any amount"
+      ],
+      "answer": 1,
+      "nudges": [
+        "What happens to the number of tails in each case: both tails, both heads, one of each?"
+      ],
+      "showed": "The number of tails changes by an even amount, so whether it is odd or even never changes."
+    },
+    {
+      "id": "ten",
+      "kind": "list",
+      "prompt": "Ten coins, all heads, same move. List every number of tails that can be reached.",
+      "answer": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "verify": "seen, todo = {0}, [0]\nwhile todo:\n    m = todo.pop()\n    for i in range(10):\n        for j in range(i):\n            t = m ^ (1 << i) ^ (1 << j)\n            if t not in seen:\n                seen.add(t); todo.append(t)\nresult = sorted({bin(m).count('1') for m in seen})",
+      "nudges": [
+        "Which numbers are ruled out by the last step?",
+        "Can every number that is not ruled out actually be reached?"
+      ],
+      "showed": "Every even number is reachable and no odd one: the obstruction you found is the only one."
+    },
+    {
+      "id": "board",
+      "kind": "number",
+      "prompt": "A new game. The numbers $1,2,\\dots,10$ are written on a board. A move rubs out two numbers $a$ and $b$ and writes $|a-b|$. After nine moves one number is left. Type 1 if it must be odd, 0 if it must be even.",
+      "answer": 1,
+      "verify": "import random\nends = set()\nfor seed in range(400):\n    r = random.Random(seed); xs = list(range(1, 11))\n    while len(xs) > 1:\n        r.shuffle(xs); a, b = xs.pop(), xs.pop(); xs.append(abs(a - b))\n    ends.add(xs[0] % 2)\nresult = ends.pop() if len(ends) == 1 else None",
+      "nudges": [
+        "Compare $a+b$ with $|a-b|$. Can one be odd while the other is even?",
+        "What does a move do to the oddness of the total of all the numbers on the board?"
+      ],
+      "showed": "The total keeps its oddness, because $a+b$ and $|a-b|$ differ by $2\\min(a,b)$. It starts at 55."
+    },
+    {
+      "id": "which-n",
+      "kind": "number",
+      "prompt": "Play the same game with $1,2,\\dots,n$. A final 0 is ruled out unless the starting total is even. For how many $n$ from 1 to 100 is the total $1+2+\\dots+n$ even?",
+      "answer": 50,
+      "verify": "result = sum(1 for n in range(1, 101) if sum(range(1, n + 1)) % 2 == 0)",
+      "nudges": [
+        "The total is $n(n+1)/2$. For $n=1,2,3,4,5,6,7,8$, is it odd or even?"
+      ],
+      "showed": "It depends only on n mod 4: the total is even when n leaves remainder 0 or 3."
+    },
+    {
+      "id": "domino",
+      "kind": "number",
+      "prompt": "A chessboard, $8\\times8$, coloured in the usual way. A domino covers two squares that share a side. How many black squares does one domino cover?",
+      "answer": 1,
+      "verify": "result = (lambda s: s.pop() if len(s) == 1 else None)({sum((r + c) % 2 for r, c in cells) for cells in [((r, c), (r, c + 1)) for r in range(8) for c in range(7)] + [((r, c), (r + 1, c)) for r in range(7) for c in range(8)]})",
+      "nudges": [
+        "What colours are two squares that share a side?"
+      ],
+      "showed": "Always one black and one white."
+    },
+    {
+      "id": "corners",
+      "kind": "number",
+      "prompt": "Remove two opposite corner squares from the board. Among the 62 squares left, how many more are there of one colour than the other?",
+      "answer": 2,
+      "verify": "cells = [(r, c) for r in range(8) for c in range(8) if (r, c) not in ((0, 0), (7, 7))]\nresult = abs(sum(1 for r, c in cells if (r + c) % 2) - sum(1 for r, c in cells if (r + c) % 2 == 0))",
+      "nudges": [
+        "What colour is each of the two removed corners?"
+      ],
+      "showed": "The two removed corners have the same colour, leaving 32 of one colour and 30 of the other."
+    },
+    {
+      "id": "cover",
+      "kind": "choice",
+      "prompt": "Can 31 dominoes cover those 62 squares?",
+      "options": [
+        "Yes",
+        "No",
+        "Only if dominoes may be placed diagonally"
+      ],
+      "answer": 1,
+      "nudges": [
+        "How many squares of each colour would 31 dominoes cover?"
+      ],
+      "showed": "No: 31 dominoes cover 31 of each colour, and the board has 32 and 30."
+    },
+    {
+      "id": "argument",
+      "kind": "proof",
+      "prompt": "Prove that from seven heads you can never reach seven tails by turning over exactly two coins per move.",
+      "claims": [
+        "A move changes the number of tails by -2, 0 or +2 (two tails turned, one of each, or two heads turned).",
+        "Therefore the parity of the number of tails is the same after every move.",
+        "The start has 0 tails (even) and the target has 7 (odd), so the target can never be reached."
+      ],
+      "nudges": [
+        "What are the possible changes in the number of tails in one move?",
+        "Which property of the number of tails is therefore fixed?"
+      ],
+      "showed": "A quantity whose oddness cannot change separates the reachable from the unreachable."
+    }
+  ],
+  "reveal": {
+    "name": "Parity invariant",
+    "statement": "If every move changes some count by an even amount, the parity of that count is the same in every reachable position. A target of the other parity is unreachable.",
+    "remark": "When a problem asks \"is it possible?\", looking for something no move can change is the first thing to try."
+  }
+}

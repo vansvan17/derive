@@ -1,0 +1,160 @@
+{
+  "idea": "fermat",
+  "opening": "You are going to multiply the same list of numbers in two different ways.",
+  "steps": [
+    {
+      "id": "one",
+      "kind": "number",
+      "prompt": "Compute $3^6 \\bmod 7$.",
+      "answer": 1,
+      "verify": "result = pow(3, 6, 7)",
+      "nudges": [
+        "What is $3^2$ mod 7, and then $3^3$?"
+      ],
+      "showed": "It came out as 1."
+    },
+    {
+      "id": "all",
+      "kind": "list",
+      "prompt": "Compute $a^6 \\bmod 7$ for $a=1,2,3,4,5,6$, in that order.",
+      "answer": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "verify": "result = [pow(a, 6, 7) for a in range(1, 7)]",
+      "nudges": [
+        "Reduce after every multiplication. What is $2^3$ mod 7?"
+      ],
+      "showed": "Every one of them is 1. That needs a reason.",
+      "ordered": true,
+      "multiset": true
+    },
+    {
+      "id": "nine",
+      "kind": "list",
+      "prompt": "Try a modulus that is not prime: $a^8 \\bmod 9$ for $a=1,2,4,5,7,8$, in that order.",
+      "answer": [
+        1,
+        4,
+        7,
+        7,
+        4,
+        1
+      ],
+      "verify": "result = [pow(a, 8, 9) for a in (1, 2, 4, 5, 7, 8)]",
+      "nudges": [
+        "What is $2^8$, and what does it leave on division by 9?"
+      ],
+      "showed": "Not all 1. Whatever is happening needs the modulus to be prime.",
+      "ordered": true,
+      "multiset": true
+    },
+    {
+      "id": "count",
+      "kind": "formula",
+      "prompt": "Back to a prime $p$ and $a$ not divisible by $p$. Multiply the numbers $a\\cdot1, a\\cdot2, \\dots, a\\cdot(p-1)$ together, without reducing. The product is $a^{e}\\cdot(p-1)!$. What is $e$, in terms of $p$?",
+      "answer": "p-1",
+      "vars": {
+        "p": [
+          2,
+          60
+        ]
+      },
+      "verify": "result = len([k for k in range(1, p)])",
+      "nudges": [
+        "How many numbers are being multiplied, and how many factors of a does each one bring?"
+      ],
+      "showed": "The product is $a^{p-1}(p-1)!$."
+    },
+    {
+      "id": "two-ways",
+      "kind": "choice",
+      "prompt": "You know from an earlier chain that those same numbers, reduced mod $p$, are $1, 2, \\dots, p-1$ in some order, whose product is $(p-1)!$. Reducing both descriptions mod $p$ gives which statement?",
+      "options": [
+        "$a^{p-1}\\,(p-1)! \\equiv (p-1)! \\pmod p$",
+        "$a^{p}\\,(p-1)! \\equiv 0 \\pmod p$",
+        "$a^{p-1} \\equiv (p-1)! \\pmod p$"
+      ],
+      "answer": 0,
+      "nudges": [
+        "A product may be reduced factor by factor. What does each description of the product become?"
+      ],
+      "showed": "$a^{p-1}(p-1)! \\equiv (p-1)! \\pmod p$."
+    },
+    {
+      "id": "cancel",
+      "kind": "choice",
+      "prompt": "You want to cancel $(p-1)!$ from both sides. Why is that allowed here?",
+      "options": [
+        "Because $(p-1)!$ is smaller than $p^p$",
+        "Because $p$ is prime and divides none of $1, 2, \\dots, p-1$, so it does not divide their product",
+        "Because cancelling is always allowed with remainders"
+      ],
+      "answer": 1,
+      "nudges": [
+        "In the first chain, when was cancelling a factor unsafe?"
+      ],
+      "showed": "$p$ shares no factor with $(p-1)!$, so it can be cancelled."
+    },
+    {
+      "id": "result",
+      "kind": "number",
+      "prompt": "So what is $a^{p-1} \\bmod p$, for every prime $p$ and every $a$ not divisible by $p$?",
+      "answer": 1,
+      "verify": "result = (lambda s: s.pop() if len(s) == 1 else None)({pow(a, p - 1, p) for p in (2, 3, 5, 7, 11, 13, 17, 19, 23, 29) for a in range(1, p)})",
+      "nudges": [
+        "What is left on each side after cancelling?"
+      ],
+      "showed": "$a^{p-1}\\equiv1 \\pmod p$. That is why every entry in your table mod 7 was 1."
+    },
+    {
+      "id": "use",
+      "kind": "number",
+      "prompt": "Use it. What is $2^{1000} \\bmod 13$?",
+      "answer": 3,
+      "verify": "result = pow(2, 1000, 13)",
+      "nudges": [
+        "What is $2^{12}$ mod 13?",
+        "Write $1000 = 12q + r$. What is $r$?"
+      ],
+      "showed": "Twelve factors at a time collapse to 1."
+    },
+    {
+      "id": "huge",
+      "kind": "number",
+      "prompt": "What is $5^{10^{18}} \\bmod 7$?",
+      "answer": 2,
+      "verify": "result = pow(5, 10**18, 7)",
+      "nudges": [
+        "By which number may the exponent be reduced?",
+        "What do $10, 100, 1000$ leave on division by 6, and so what does $10^{18}$ leave?"
+      ],
+      "showed": "Mod a prime $p$, exponents can be reduced mod $p-1$."
+    },
+    {
+      "id": "argument",
+      "kind": "proof",
+      "prompt": "Write the full proof that $a^{p-1}\\equiv1 \\pmod p$ for every prime $p$ and every $a$ not divisible by $p$. You may quote the rearrangement fact from the earlier chain.",
+      "claims": [
+        "The remainders of a, 2a, ..., (p-1)a mod p are 1, 2, ..., p-1 in some order (quoted or proved).",
+        "Multiplying all of them: a^(p-1) (p-1)! is congruent to (p-1)! mod p, since the two sides are products of the same remainders.",
+        "(p-1)! may be cancelled because p is prime and divides none of its factors 1..p-1, so gcd((p-1)!, p) = 1.",
+        "Cancelling gives a^(p-1) congruent to 1 mod p."
+      ],
+      "nudges": [
+        "Which two products are equal mod p, and why?",
+        "What has to be true before a factor may be cancelled?"
+      ],
+      "showed": "The whole theorem, proved from a rearrangement."
+    }
+  ],
+  "reveal": {
+    "name": "Fermat's little theorem",
+    "statement": "If $p$ is prime and $p\\nmid a$, then $a^{p-1}\\equiv1 \\pmod p$. Equivalently $a^p\\equiv a \\pmod p$ for every integer $a$.",
+    "remark": "You proved it the way it is usually proved. In contests it is why exponents are reduced mod p-1 and why a^(p-2) acts as division."
+  }
+}

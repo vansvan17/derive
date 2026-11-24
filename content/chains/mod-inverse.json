@@ -1,0 +1,159 @@
+{
+  "idea": "mod-inverse",
+  "opening": "Division is the one operation that did not work with remainders. Time to repair it.",
+  "steps": [
+    {
+      "id": "undo",
+      "kind": "number",
+      "prompt": "Find $x$ between 1 and 6 with $3x\\equiv1 \\pmod 7$.",
+      "answer": 5,
+      "verify": "result = [x for x in range(1, 7) if 3*x % 7 == 1][0]",
+      "nudges": [
+        "Which of 3, 6, 9, 12, 15, 18 is one more than a multiple of 7?"
+      ],
+      "showed": "Mod 7, multiplying by 5 undoes multiplying by 3."
+    },
+    {
+      "id": "solve",
+      "kind": "number",
+      "prompt": "Use that $x$ to solve $3y\\equiv4 \\pmod 7$ for $y$ between 0 and 6.",
+      "answer": 6,
+      "verify": "result = [y for y in range(7) if 3*y % 7 == 4][0]",
+      "nudges": [
+        "Multiply both sides by the number from the last step. What does the left side become?"
+      ],
+      "showed": "\"Dividing by 3\" mod 7 means multiplying by 5."
+    },
+    {
+      "id": "twelve",
+      "kind": "list",
+      "prompt": "Modulus 12. List every $a$ from 1 to 11 for which some $x$ has $ax\\equiv1 \\pmod{12}$.",
+      "answer": [
+        1,
+        5,
+        7,
+        11
+      ],
+      "verify": "result = [a for a in range(1, 12) if any(a*x % 12 == 1 for x in range(12))]",
+      "nudges": [
+        "If a and 12 share a factor d greater than 1, what can you say about ax mod 12 and d?"
+      ],
+      "showed": "Only numbers sharing no factor with the modulus can be undone."
+    },
+    {
+      "id": "unique",
+      "kind": "number",
+      "prompt": "Mod a prime every nonzero $a$ should have one. How many $x$ between 1 and 12 satisfy $5x\\equiv1 \\pmod{13}$?",
+      "answer": 1,
+      "verify": "result = sum(1 for x in range(1, 13) if 5*x % 13 == 1)",
+      "nudges": [
+        "Multiplying 1 to 12 by 5 produces each nonzero remainder how many times?"
+      ],
+      "showed": "Exactly one: multiplying by a rearranges 1 to p-1, so the value 1 is hit once and only once."
+    },
+    {
+      "id": "exponent",
+      "kind": "formula",
+      "prompt": "You know $a^{p-1}\\equiv1 \\pmod p$. Split one factor off: $a^{p-1} = a\\cdot a^{e}$. What is $e$, in terms of $p$?",
+      "answer": "p-2",
+      "vars": {
+        "p": [
+          3,
+          60
+        ]
+      },
+      "verify": "result = next(e for e in range(p) if 1 + e == p - 1)",
+      "nudges": [
+        "How many factors of a remain after one is split off?"
+      ],
+      "showed": "So $a\\cdot a^{p-2}\\equiv1$. The number that undoes $a$ is $a^{p-2}$."
+    },
+    {
+      "id": "compute",
+      "kind": "number",
+      "prompt": "Find the $x$ between 1 and 12 with $10x\\equiv1 \\pmod{13}$, by computing a power.",
+      "answer": 4,
+      "verify": "result = [x for x in range(1, 13) if 10*x % 13 == 1][0]",
+      "nudges": [
+        "Which power of 10 is it? Square repeatedly: what are $10^2$, $10^4$, $10^8$ mod 13?"
+      ],
+      "showed": "A power computed by repeated squaring gives it in about log p multiplications."
+    },
+    {
+      "id": "fraction",
+      "kind": "number",
+      "prompt": "\"$7/10$ mod 13\" means $7x$ with that $x$. What is it, between 0 and 12?",
+      "answer": 2,
+      "verify": "result = [y for y in range(13) if 10*y % 13 == 7][0]",
+      "nudges": [
+        "What did the last step give for x?"
+      ],
+      "showed": "A fraction mod p is the numerator times the undo-number of the denominator."
+    },
+    {
+      "id": "binomial",
+      "kind": "number",
+      "prompt": "$\\binom{10}{3} = \\dfrac{10\\cdot9\\cdot8}{3!}$. Compute it mod 13 without ever leaving remainders: multiply the top, then multiply by the number that undoes $3!$. Give the result between 0 and 12.",
+      "answer": 3,
+      "verify": "import math\nresult = math.comb(10, 3) % 13",
+      "nudges": [
+        "What is 3! and what undoes it mod 13?"
+      ],
+      "showed": "This is how binomial coefficients are computed mod a prime: factorials, and undo-numbers of factorials."
+    },
+    {
+      "id": "breaks",
+      "kind": "counterexample",
+      "prompt": "That method breaks when the bottom is a multiple of the prime. Take $p=7$. Find $n$ and $k$ ($0\\le k\\le n\\le30$) where $k!$ is divisible by 7 but $\\binom nk$ is not. Answer as $n$, $k$.",
+      "vars": [
+        "n",
+        "k"
+      ],
+      "bounds": {
+        "n": [
+          0,
+          30
+        ],
+        "k": [
+          0,
+          30
+        ]
+      },
+      "property": "fact(k) % 7 == 0 and C(n, k) % 7 != 0",
+      "verify": {
+        "works": [
+          [
+            7,
+            7
+          ],
+          [
+            8,
+            7
+          ]
+        ],
+        "fails": [
+          [
+            5,
+            2
+          ],
+          [
+            7,
+            3
+          ]
+        ]
+      },
+      "nudges": [
+        "What is the smallest k for which k! is a multiple of 7?",
+        "What is the binomial coefficient when k equals n?"
+      ],
+      "showed": "When k is at least p, the bottom has no undo-number although the binomial is a perfectly good integer. The factors of p must be handled separately.",
+      "require": "k <= n",
+      "require_message": "Keep k at most n."
+    }
+  ],
+  "reveal": {
+    "name": "Modular inverse",
+    "statement": "For a prime $p$ and $p\\nmid a$ there is exactly one $x$ mod $p$ with $ax\\equiv1$, written $a^{-1}$, and $a^{-1}\\equiv a^{p-2} \\pmod p$.",
+    "remark": "For a modulus that is not prime, the inverse exists exactly when gcd(a, m) = 1, and comes from a different chain."
+  }
+}

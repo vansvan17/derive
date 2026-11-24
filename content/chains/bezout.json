@@ -1,0 +1,198 @@
+{
+  "idea": "bezout",
+  "opening": "Two jugs, 21 litres and 15 litres, and a large tank. Pouring in adds, pouring out subtracts. Which amounts can you measure?",
+  "steps": [
+    {
+      "id": "smallest",
+      "kind": "number",
+      "prompt": "Over all whole numbers $x$ and $y$ (negatives allowed), what is the smallest positive value of $21x+15y$?",
+      "answer": 3,
+      "verify": "result = min(v for x in range(-30, 31) for y in range(-30, 31) for v in [21*x + 15*y] if v > 0)",
+      "nudges": [
+        "What number divides both 21x and 15y, whatever x and y are?"
+      ],
+      "showed": "The smallest positive amount is 3."
+    },
+    {
+      "id": "find",
+      "kind": "counterexample",
+      "prompt": "Give whole numbers $x$ and $y$, each between $-20$ and $20$, with $21x+15y=3$.",
+      "vars": [
+        "x",
+        "y"
+      ],
+      "bounds": {
+        "x": [
+          -20,
+          20
+        ],
+        "y": [
+          -20,
+          20
+        ]
+      },
+      "property": "21*x + 15*y == 3",
+      "verify": {
+        "works": [
+          [
+            -2,
+            3
+          ],
+          [
+            3,
+            -4
+          ]
+        ],
+        "fails": [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            -3
+          ]
+        ]
+      },
+      "nudges": [
+        "21 and 15 differ by 6. How can 15 and 6 make 3?"
+      ],
+      "showed": "A combination of 21 and 15 really does reach 3."
+    },
+    {
+      "id": "four",
+      "kind": "choice",
+      "prompt": "Can $21x+15y$ ever equal 4?",
+      "options": [
+        "Yes",
+        "No: every value is a multiple of 3",
+        "No: every value is odd"
+      ],
+      "answer": 1,
+      "nudges": [
+        "What divides 21x + 15y for every x and y?"
+      ],
+      "showed": "Every combination is a multiple of 3, the gcd of 21 and 15."
+    },
+    {
+      "id": "which",
+      "kind": "list",
+      "prompt": "Which of 6, 9, 10, 300, 1000 can be written as $21x+15y$? List them.",
+      "answer": [
+        6,
+        9,
+        300
+      ],
+      "verify": "result = [v for v in (6, 9, 10, 300, 1000) if any((v - 21*x) % 15 == 0 for x in range(-200, 200))]",
+      "nudges": [
+        "You have x and y that make 3. What do 2x and 2y make?"
+      ],
+      "showed": "Exactly the multiples of 3: scale a solution for 3 by any whole number."
+    },
+    {
+      "id": "machine",
+      "kind": "list",
+      "prompt": "Find the solution by method, not by luck. The division steps on 21 and 15 are $21 = 1\\cdot15 + 6$ and $15 = 2\\cdot6 + 3$. The second says $3 = 15 - 2\\cdot6$. Replace 6 using the first line and collect terms. Give $x$ then $y$ in $3 = 21x + 15y$.",
+      "answer": [
+        -2,
+        3
+      ],
+      "verify": "x, y = -2, 1 + 2\nresult = [x, y] if 21*x + 15*y == 3 and (x, y) == (0 - 2*1, 1 - 2*(-1)) else None",
+      "nudges": [
+        "The first line says $6 = 21 - 15$. What do you get when you put that into $3 = 15 - 2\\cdot6$?"
+      ],
+      "showed": "Reading the division steps backwards produces the coefficients.",
+      "ordered": true
+    },
+    {
+      "id": "again",
+      "kind": "counterexample",
+      "prompt": "Do the same for 240 and 46. The division steps give remainders 10, 6, 4, 2. Work backwards to find $x$, $y$ with $240x+46y=2$ (each between $-300$ and $300$).",
+      "vars": [
+        "x",
+        "y"
+      ],
+      "bounds": {
+        "x": [
+          -300,
+          300
+        ],
+        "y": [
+          -300,
+          300
+        ]
+      },
+      "property": "240*x + 46*y == 2",
+      "verify": {
+        "works": [
+          [
+            -9,
+            47
+          ],
+          [
+            14,
+            -73
+          ]
+        ],
+        "fails": [
+          [
+            1,
+            -5
+          ],
+          [
+            -9,
+            46
+          ]
+        ]
+      },
+      "nudges": [
+        "The steps are $240=5\\cdot46+10$, $46=4\\cdot10+6$, $10=1\\cdot6+4$, $6=1\\cdot4+2$. Start from the last: $2 = 6 - 4$. What replaces 4?"
+      ],
+      "showed": "The same back-substitution works for any pair, in as many steps as the division took."
+    },
+    {
+      "id": "undo",
+      "kind": "number",
+      "prompt": "$ax\\equiv1 \\pmod m$ says exactly that $ax+my=1$ for some $y$. Use the method to find $x$ between 1 and 96 with $35x\\equiv1 \\pmod{97}$.",
+      "answer": 61,
+      "verify": "result = [x for x in range(1, 97) if 35*x % 97 == 1][0]",
+      "nudges": [
+        "What are the division steps on 97 and 35, and what do they give when read backwards to $1 = 97y + 35x$?",
+        "If the x you find is negative, what can you add to it?"
+      ],
+      "showed": "A number can be undone mod m whenever it shares no factor with m; m need not be prime."
+    },
+    {
+      "id": "coins",
+      "kind": "number",
+      "prompt": "Now forbid negatives. Coins of 6 and 10 rupees, any number of each. Every payable amount is even. What is the largest **even** amount that cannot be paid?",
+      "answer": 14,
+      "verify": "result = max(v for v in range(0, 200, 2) if not any(v - 6*a >= 0 and (v - 6*a) % 10 == 0 for a in range(40)))",
+      "nudges": [
+        "Halve everything: which amounts can coins of 3 and 5 make?"
+      ],
+      "showed": "With negatives every multiple of the gcd is reachable. Without them, every large enough multiple still is."
+    },
+    {
+      "id": "argument",
+      "kind": "proof",
+      "prompt": "Let $d=\\gcd(a,b)$ for positive whole numbers $a,b$. Prove that $ax+by=c$ has a solution in whole numbers $x,y$ exactly when $d$ divides $c$.",
+      "claims": [
+        "d divides ax + by for all integers x, y, so if a solution exists then d divides c.",
+        "There exist integers x0, y0 with a*x0 + b*y0 = d (for example by back-substitution through the division steps, each remainder being a combination of a and b).",
+        "If d divides c, multiplying x0 and y0 by c/d gives a solution, so the condition is also sufficient."
+      ],
+      "nudges": [
+        "Why must d divide c if a solution exists?",
+        "Why can d itself be written as a combination?",
+        "How does a solution for d give one for a multiple of d?"
+      ],
+      "showed": "Necessary because d divides every combination; sufficient because d itself is a combination."
+    }
+  ],
+  "reveal": {
+    "name": "Bézout's identity",
+    "statement": "For integers $a,b$ not both zero there are integers $x,y$ with $ax+by=\\gcd(a,b)$. Hence $ax+by=c$ is solvable exactly when $\\gcd(a,b)\\mid c$.",
+    "remark": "The back-substitution you did by hand is the extended Euclidean algorithm."
+  }
+}

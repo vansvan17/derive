@@ -1,0 +1,138 @@
+{
+  "idea": "monovariant",
+  "opening": "Some processes cannot go on for ever. The trick is to find a number that every step pushes the same way.",
+  "steps": [
+    {
+      "id": "play",
+      "kind": "number",
+      "prompt": "A row of digits: 1101001. A move picks a 1 that has a 0 immediately to its right and swaps the two. Keep going until no move is possible. How many moves did you make?",
+      "answer": 8,
+      "verify": "def run(s, pick):\n    s, n = list(s), 0\n    while True:\n        spots = [i for i in range(len(s) - 1) if s[i] == '1' and s[i + 1] == '0']\n        if not spots: return n\n        i = pick(spots); s[i], s[i + 1] = s[i + 1], s[i]; n += 1\nresult = (lambda a: a.pop() if len(a) == 1 else None)({run('1101001', min), run('1101001', max), run('1101001', lambda v: v[len(v) // 2])})",
+      "nudges": [
+        "What does the row look like when no move is possible?"
+      ],
+      "showed": "Eight moves, and then all the 0s are on the left."
+    },
+    {
+      "id": "order",
+      "kind": "choice",
+      "prompt": "Start again from 1101001 and choose your moves in a different order. The total number of moves is:",
+      "options": [
+        "the same",
+        "sometimes larger",
+        "sometimes smaller"
+      ],
+      "answer": 0,
+      "nudges": [
+        "Count the pairs made of a 1 and a 0 somewhere to its right. What does one move do to that count?"
+      ],
+      "showed": "Always the same, whatever order you choose."
+    },
+    {
+      "id": "pairs",
+      "kind": "number",
+      "prompt": "In 1101001, count the pairs (a 1, a 0 somewhere to its right).",
+      "answer": 8,
+      "verify": "s = '1101001'\nresult = sum(1 for i in range(7) for j in range(i + 1, 7) if s[i] == '1' and s[j] == '0')",
+      "nudges": [
+        "For each 0, how many 1s stand to its left?"
+      ],
+      "showed": "Each move lowers this count by exactly 1 and it cannot go below 0. So the process must stop, after exactly that many moves."
+    },
+    {
+      "id": "worst",
+      "kind": "formula",
+      "prompt": "A row has $k$ ones and $z$ zeros. What is the largest number of moves the process can take, in terms of $k$ and $z$?",
+      "answer": "k*z",
+      "vars": {
+        "k": [
+          0,
+          6
+        ],
+        "z": [
+          0,
+          6
+        ]
+      },
+      "verify": "import itertools\nbest = 0\nfor ones in itertools.combinations(range(k + z), k):\n    row = ['1' if i in ones else '0' for i in range(k + z)]\n    best = max(best, sum(1 for i in range(k + z) for j in range(i + 1, k + z) if row[i] == '1' and row[j] == '0'))\nresult = best",
+      "nudges": [
+        "Which starting row makes the count of (1, later 0) pairs as large as possible?"
+      ],
+      "showed": "All the 1s first: every 1 is paired with every 0."
+    },
+    {
+      "id": "split",
+      "kind": "number",
+      "prompt": "A new game. Start with one pile of 10 stones. A move splits a pile into two non-empty piles and scores the product of their two sizes. Continue until every pile has one stone. What is the total score?",
+      "answer": 45,
+      "verify": "import random\nends = set()\nfor seed in range(300):\n    r = random.Random(seed); piles, score = [10], 0\n    while any(p > 1 for p in piles):\n        i = r.choice([i for i, p in enumerate(piles) if p > 1]); p = piles.pop(i); a = r.randint(1, p - 1)\n        score += a * (p - a); piles += [a, p - a]\n    ends.add(score)\nresult = ends.pop() if len(ends) == 1 else None",
+      "nudges": [
+        "Watch the sum of the squares of the pile sizes. What does splitting a pile of $a+b$ into $a$ and $b$ do to it?",
+        "What is the sum of squares at the start, and at the end?"
+      ],
+      "showed": "The sum of squares falls by exactly $2ab$ each time you score $ab$. It goes from 100 down to 10, so the score is always 45."
+    },
+    {
+      "id": "houses",
+      "kind": "choice",
+      "prompt": "Ten people, some pairs of whom are enemies; nobody has more than three enemies. They are split between two houses. A move: someone with at least two enemies in their own house moves to the other house. Which quantity goes down with every move?",
+      "options": [
+        "The number of pairs of enemies living in the same house",
+        "The size of the larger house",
+        "The number of people who have never moved"
+      ],
+      "answer": 0,
+      "nudges": [
+        "The mover leaves at least two enemies behind. How many enemies can be waiting in the other house?"
+      ],
+      "showed": "The mover leaves at least 2 enemies and joins at most 1, so same-house enemy pairs drop by at least 1."
+    },
+    {
+      "id": "why",
+      "kind": "choice",
+      "prompt": "Why does \"it goes down with every move\" prove that the moving stops?",
+      "options": [
+        "Because the quantity is a whole number that cannot go below 0, and such a number can only go down finitely many times",
+        "Because anything that goes down reaches 0",
+        "It does not prove it"
+      ],
+      "answer": 0,
+      "nudges": [
+        "The sequence $1, 1/2, 1/4, \\dots$ goes down for ever. What is different about a count?"
+      ],
+      "showed": "Going down is not enough; it must be a whole number with a floor."
+    },
+    {
+      "id": "swaps",
+      "kind": "number",
+      "prompt": "A list is sorted by repeatedly swapping two neighbours that are in the wrong order. For 3, 1, 4, 5, 2, how many swaps does that take, whatever order you choose them in?",
+      "answer": 4,
+      "verify": "def run(xs, pick):\n    xs, n = list(xs), 0\n    while True:\n        spots = [i for i in range(len(xs) - 1) if xs[i] > xs[i + 1]]\n        if not spots: return n\n        i = pick(spots); xs[i], xs[i + 1] = xs[i + 1], xs[i]; n += 1\nresult = (lambda a: a.pop() if len(a) == 1 else None)({run([3, 1, 4, 5, 2], min), run([3, 1, 4, 5, 2], max)})",
+      "nudges": [
+        "Which pairs of values are in the wrong order relative to each other, wherever they stand?"
+      ],
+      "showed": "The number of out-of-order pairs: each neighbour swap fixes exactly one."
+    },
+    {
+      "id": "argument",
+      "kind": "proof",
+      "prompt": "For the first game (swap a 1 with the 0 immediately to its right), prove that the process always stops, and say after exactly how many moves.",
+      "claims": [
+        "Let I be the number of pairs of positions i < j with a 1 at i and a 0 at j.",
+        "A move swaps an adjacent 1, 0 into 0, 1: that pair stops being counted and no other pair changes, because every other position sees the same two digits on the same side. So I drops by exactly 1.",
+        "I is a whole number and never negative, so there are at most I moves; and while I > 0 some 1 has a 0 somewhere to its right, hence some 1 is immediately followed by a 0, so a move is still available. The process stops after exactly the starting value of I moves."
+      ],
+      "nudges": [
+        "Which number are you tracking, precisely?",
+        "Why does one move change it by exactly 1 and not more?",
+        "Why can the process not get stuck while that number is still positive?"
+      ],
+      "showed": "A whole number that drops by one each move both forces the end and counts the moves."
+    }
+  ],
+  "reveal": {
+    "name": "Monovariant",
+    "statement": "If some whole-number quantity that is bounded below strictly decreases with every move, the process must terminate, and the number of moves is at most the starting value minus the bound.",
+    "remark": "An invariant says where you cannot go; a monovariant says you cannot keep going."
+  }
+}

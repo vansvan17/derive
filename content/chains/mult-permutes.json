@@ -1,0 +1,191 @@
+{
+  "idea": "mult-permutes",
+  "opening": "Take the numbers 1 to 6. Multiply each by 3 and keep only the remainder mod 7.",
+  "steps": [
+    {
+      "id": "seven",
+      "kind": "list",
+      "prompt": "Write $3\\cdot1, 3\\cdot2, \\dots, 3\\cdot6$ reduced mod 7, in that order.",
+      "answer": [
+        3,
+        6,
+        2,
+        5,
+        1,
+        4
+      ],
+      "verify": "result = [3*k % 7 for k in range(1, 7)]",
+      "nudges": [
+        "What is $3\\cdot3$ mod 7?"
+      ],
+      "showed": "Each of 1 to 6 appeared exactly once, in a new order.",
+      "ordered": true
+    },
+    {
+      "id": "six",
+      "kind": "choice",
+      "prompt": "Now multiplier 4, modulus 6: compute $4\\cdot1, \\dots, 4\\cdot5$ mod 6. What happens?",
+      "options": [
+        "Each of 1 to 5 appears exactly once",
+        "Some value repeats, and 0 appears",
+        "All five values are equal"
+      ],
+      "answer": 1,
+      "nudges": [
+        "Compute the five values. Is 0 among them?"
+      ],
+      "showed": "With modulus 6 the pattern breaks: two nonzero remainders multiplied to give 0."
+    },
+    {
+      "id": "zero",
+      "kind": "counterexample",
+      "prompt": "Find a modulus $m$ ($2\\le m\\le30$) and two nonzero remainders $1\\le a,b<m$ with $ab\\equiv0 \\pmod m$. Answer as $m$, $a$, $b$.",
+      "vars": [
+        "m",
+        "a",
+        "b"
+      ],
+      "bounds": {
+        "m": [
+          2,
+          30
+        ],
+        "a": [
+          1,
+          29
+        ],
+        "b": [
+          1,
+          29
+        ]
+      },
+      "property": "(a*b) % m == 0",
+      "verify": {
+        "works": [
+          [
+            6,
+            2,
+            3
+          ],
+          [
+            4,
+            2,
+            2
+          ]
+        ],
+        "fails": [
+          [
+            7,
+            2,
+            3
+          ],
+          [
+            9,
+            2,
+            4
+          ]
+        ]
+      },
+      "nudges": [
+        "Can you write m itself as a product of two smaller numbers?"
+      ],
+      "showed": "Whenever m splits as a product of two smaller numbers, two nonzero remainders multiply to 0.",
+      "require": "a < m and b < m",
+      "require_message": "Keep a and b smaller than m."
+    },
+    {
+      "id": "primes",
+      "kind": "list",
+      "prompt": "For which $m$ from 2 to 20 is that impossible: no two nonzero remainders ever multiply to 0 mod $m$?",
+      "answer": [
+        2,
+        3,
+        5,
+        7,
+        11,
+        13,
+        17,
+        19
+      ],
+      "verify": "result = [m for m in range(2, 21) if not any(a*b % m == 0 for a in range(1, m) for b in range(1, m))]",
+      "nudges": [
+        "By the last step, which m are certainly possible?",
+        "For the others: if m divides a product ab, what must m divide?"
+      ],
+      "showed": "For a prime p: if p divides ab, then p divides a or p divides b. So nonzero times nonzero is never 0 mod p."
+    },
+    {
+      "id": "collide",
+      "kind": "number",
+      "prompt": "Take $p=13$ and multiplier 5. Suppose $5x\\equiv5y \\pmod{13}$ with $1\\le x,y\\le12$. Then 13 divides $5(x-y)$. How many different values can $x-y$ have?",
+      "answer": 1,
+      "verify": "result = len({x - y for x in range(1, 13) for y in range(1, 13) if (5*x - 5*y) % 13 == 0})",
+      "nudges": [
+        "By the last step, 13 must divide which of the two factors?",
+        "Which multiples of 13 lie between $-11$ and $11$?"
+      ],
+      "showed": "Different x give different 5x mod 13. No two of the twelve products collide."
+    },
+    {
+      "id": "slots",
+      "kind": "number",
+      "prompt": "So $5\\cdot1, 5\\cdot2, \\dots, 5\\cdot12$ mod 13 are twelve values, all different, none equal to 0. How many nonzero remainders mod 13 are there altogether?",
+      "answer": 12,
+      "verify": "result = len([r for r in range(13) if r != 0])",
+      "nudges": [
+        "What are the possible nonzero remainders on division by 13?"
+      ],
+      "showed": "Twelve different values in twelve possible places: they are all of 1 to 12, each exactly once."
+    },
+    {
+      "id": "sum",
+      "kind": "number",
+      "prompt": "Without computing any of them: what is the sum of $5\\cdot1, 5\\cdot2, \\dots, 5\\cdot12$ after each is reduced mod 13?",
+      "answer": 78,
+      "verify": "result = sum(5*k % 13 for k in range(1, 13))",
+      "nudges": [
+        "After reducing, the twelve values are which set of numbers?"
+      ],
+      "showed": "A rearrangement has the same sum, and the same product, as the original list."
+    },
+    {
+      "id": "general",
+      "kind": "formula",
+      "prompt": "For any prime $p$ and any $a$ not divisible by $p$: the sum of $a\\cdot1, a\\cdot2, \\dots, a\\cdot(p-1)$, each reduced mod $p$. Give it as a formula in $p$.",
+      "answer": "p*(p-1)/2",
+      "vars": {
+        "p": [
+          2,
+          60
+        ]
+      },
+      "verify": "result = sum(3*k % p for k in range(1, p))",
+      "nudges": [
+        "Which numbers are being added, once they are reduced?"
+      ],
+      "showed": "The answer does not depend on a at all.",
+      "verify_when": "isprime(p) and p != 3"
+    },
+    {
+      "id": "argument",
+      "kind": "proof",
+      "prompt": "Write the whole argument. For a prime $p$ and $a$ not divisible by $p$, show that the remainders of $a, 2a, \\dots, (p-1)a$ mod $p$ are exactly $1, 2, \\dots, p-1$ in some order.",
+      "claims": [
+        "None of the products is 0 mod p: if p divides ak then, p being prime, p divides a or k, and neither is possible for 1 <= k <= p-1.",
+        "No two products are equal mod p: ax = ay (mod p) gives p | a(x-y), hence p | (x-y), which is impossible for distinct x, y in 1..p-1 because |x-y| < p.",
+        "There are p-1 products, all different and all nonzero, and only p-1 nonzero remainders, so every nonzero remainder occurs exactly once."
+      ],
+      "nudges": [
+        "Why can none of the products be 0?",
+        "Why can two of the products not be equal?",
+        "How many different nonzero values are there room for?"
+      ],
+      "showed": "Multiplying by a only shuffles the nonzero remainders mod a prime."
+    }
+  ],
+  "reveal": {
+    "name": "Multiplication permutes residues mod a prime",
+    "statement": "Let $p$ be prime and $p\\nmid a$. Then $a\\cdot1, a\\cdot2, \\dots, a\\cdot(p-1)$ reduced mod $p$ are $1, 2, \\dots, p-1$ in some order.",
+    "remark": "The fact you met on the way, that a prime dividing a product divides one of the factors, is called Euclid's lemma."
+  }
+}

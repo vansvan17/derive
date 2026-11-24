@@ -1,0 +1,18 @@
+{
+  "name": "derive-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild derive/static/editor-entry.js --bundle --format=esm --minify --outfile=derive/static/vendor/editor.js && esbuild derive/static/math-entry.js --bundle --format=esm --minify --outfile=derive/static/vendor/math.js",
+    "check": "for f in derive/static/*.js; do node --check $f || exit 1; done"
+  },
+  "dependencies": {
+    "@codemirror/lang-cpp": "6.0.3",
+    "@codemirror/lang-python": "6.2.1",
+    "@codemirror/state": "6.5.2",
+    "@codemirror/view": "6.38.1",
+    "codemirror": "6.0.2",
+    "katex": "0.16.22"
+  },
+  "devDependencies": {"esbuild": "0.25.11"}
+}

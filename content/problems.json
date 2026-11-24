@@ -619,5 +619,32 @@
    "Once you know the answer for every pair (smallest, largest), how many subsequences have a given smallest and largest value?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2096E",
+  "site": "Codeforces",
+  "contest": 2096,
+  "index": "E",
+  "title": "Wonderful Teddy Bears",
+  "rating": 2400,
+  "url": "https://codeforces.com/contest/2096/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/142070",
+  "ideas": [
+   "monovariant",
+   "parity-invariant",
+   "matching-bounds"
+  ],
+  "observations": [
+   "Write black as 0 and pink as 1. Sorting three neighbours is one of four moves: 010 to 001 and 101 to 011 remove one inversion; 100 to 001 and 110 to 011 remove two.",
+   "So with x inversions at least x/2 instructions are needed, and ideally only the two-inversion moves are used. Using only those, you get stuck at 0...0 1010...10 1...1.",
+   "The two-inversion moves shift a 0 by two places, so they never change b, the number of 0s on even positions; the one-inversion moves change b by exactly 1. In the sorted row b must be floor(a/2), where a is the number of 0s.",
+   "So at least d = |floor(a/2) - b| one-inversion moves are needed, the remaining x - d inversions go two at a time, and (x + d) / 2 is achievable."
+  ],
+  "nudges": [
+   "List the different things one instruction can do to three neighbours. How many inversions does each remove?",
+   "Suppose you only ever used the instructions that remove two inversions. What pattern can they not fix?",
+   "The best instructions move a 0 two places. What property of the positions of the 0s do they leave unchanged, and what must that property be at the end?"
+  ],
+  "checked": "2026-11-24"
  }
 ]

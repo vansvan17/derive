@@ -1,11 +1,22 @@
 {
  "2061C": "kept",
  "2094E": "kept",
+ "2126E": "kept",
  "2135A": "kept",
+ "2149E": "dropped: editorial link is not a blog post; retry by hand",
+ "2152B": "dropped: matching lower and upper bounds for a chase; no idea on the map fits",
+ "2160C": "kept",
  "2182C": "dropped: symmetry and independent choices; no idea on the map fits",
  "2196A": "kept",
+ "2204D": "kept",
  "2217C": "kept",
  "2218E": "dropped: editorial section not found yet; retry",
+ "2222C": "kept",
+ "2225D": "kept",
+ "2254D": "kept",
+ "2266E": "kept",
  "2267C": "kept",
- "2268A": "dropped: forced symmetric pairs; no idea on the map fits"
+ "2268A": "dropped: forced symmetric pairs; no idea on the map fits",
+ "2271C": "kept",
+ "2276D": "kept"
 }

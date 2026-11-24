@@ -1,0 +1,142 @@
+{
+ "idea": "segment-tree",
+ "opening": "Totals over stretches of an array that keeps changing: neither running totals nor plain addition is fast enough.",
+ "steps": [
+  {
+   "id": "blocks",
+   "kind": "number",
+   "prompt": "Take 8 positions. Keep a stored answer for the whole array, for each half, for each quarter, and for each single position. How many stored blocks is that?",
+   "answer": 15,
+   "verify": "result = 1 + 2 + 4 + 8",
+   "nudges": [
+    "How many blocks are there of each size?"
+   ],
+   "showed": "1 + 2 + 4 + 8."
+  },
+  {
+   "id": "split",
+   "kind": "number",
+   "prompt": "Using only those blocks (whole, halves, quarters, singles), what is the smallest number of non-overlapping blocks that together make exactly positions 2 to 7?",
+   "answer": 4,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\ndef pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = pieces(1, 8, 2, 7)",
+   "nudges": [
+    "Is the quarter covering positions 3 and 4 usable? What about the quarter covering 1 and 2?"
+   ],
+   "showed": "Position 2, the quarter 3-4, the quarter 5-6, and position 7."
+  },
+  {
+   "id": "sum",
+   "kind": "number",
+   "prompt": "The array is 5, 3, 7, 9, 6, 4, 1, 2 (positions 1 to 8). The quarter 3-4 stores 16 and the half 5-8 stores 13. What is the sum of positions 3 to 8?",
+   "answer": 29,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\ndef pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = sum(a[3:9])",
+   "nudges": [
+    "Which stored blocks make up positions 3 to 8 exactly?"
+   ],
+   "showed": "Two stored numbers instead of six elements."
+  },
+  {
+   "id": "touch",
+   "kind": "number",
+   "prompt": "The element at position 6 changes. How many of the 15 stored blocks contain position 6 and must be corrected?",
+   "answer": 4,
+   "verify": "result = 4",
+   "nudges": [
+    "Which single, which quarter, which half?"
+   ],
+   "showed": "The single 6, the quarter 5-6, the half 5-8 and the whole."
+  },
+  {
+   "id": "levels",
+   "kind": "formula",
+   "prompt": "For an array of $2^k$ positions, how many stored blocks contain one given position?",
+   "answer": "k+1",
+   "vars": {
+    "k": [
+     0,
+     12
+    ]
+   },
+   "verify": "result = k + 1",
+   "nudges": [
+    "How many different block sizes are there?"
+   ],
+   "showed": "One block of each size, and there are $k + 1$ sizes."
+  },
+  {
+   "id": "total",
+   "kind": "formula",
+   "prompt": "For an array of $2^k$ positions, how many blocks are stored in all?",
+   "answer": "2^(k+1)-1",
+   "vars": {
+    "k": [
+     0,
+     12
+    ]
+   },
+   "verify": "result = sum(2 ** j for j in range(k + 1))",
+   "nudges": [
+    "What is $1 + 2 + 4 + \\dots + 2^k$?"
+   ],
+   "showed": "Fewer than twice the array length."
+  },
+  {
+   "id": "worst",
+   "kind": "number",
+   "prompt": "For 16 positions, some stretch needs more blocks than any other. How many blocks does the worst stretch need?",
+   "answer": 6,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\ndef pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = max(pieces(1, 16, l, r) for l in range(1, 17) for r in range(l, 17))",
+   "nudges": [
+    "How many blocks does the stretch from position 2 to position 15 need?"
+   ],
+   "showed": "Positions 2 to 15: one single, one pair and one block of four on each side. Never more than two blocks of each size."
+  },
+  {
+   "id": "min",
+   "kind": "number",
+   "prompt": "The array is 5, 3, 7, 9, 6, 4, 1, 2 (positions 1 to 8). Store minimums instead of sums. What is the minimum of positions 2 to 7?",
+   "answer": 1,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\ndef pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = min(a[2:8])",
+   "nudges": [
+    "Which four blocks make up positions 2 to 7, and what does each store?"
+   ],
+   "showed": "The blocks store 3, 7, 4 and 1."
+  },
+  {
+   "id": "which",
+   "kind": "choice",
+   "prompt": "For which kinds of question does this block scheme work?",
+   "options": [
+    "Any where the answer for a block can be combined from the answers of its two halves: sum, minimum, maximum, gcd",
+    "Only sums",
+    "Only questions where an element can be removed again"
+   ],
+   "answer": 0,
+   "nudges": [
+    "To correct a block after a change, what do you need from its two halves?"
+   ],
+   "showed": "Unlike running totals, nothing has to be undone, so minimum and gcd are fine."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "An array of $n = 2^k$ positions has the blocks described above. A stretch $[l, r]$ is split by the rule: starting from the whole array, a block entirely inside the stretch is taken, a block entirely outside is dropped, and any other block is replaced by its two halves. Prove that at each size at most two blocks are replaced by their halves, so that $O(k)$ blocks are examined in all.",
+   "claims": [
+    "A block is replaced by its halves only if it is partly inside and partly outside the stretch.",
+    "Such a block must contain the left edge of the stretch (positions l-1 and l both, with l-1 outside) or the right edge (positions r and r+1).",
+    "Blocks of one size do not overlap, so at most one block of each size contains the left edge and at most one contains the right edge: at most two are replaced per size.",
+    "Each replaced block produces two blocks of the next size, so at most four blocks are examined per size, and there are k + 1 sizes."
+   ],
+   "nudges": [
+    "What must be true of a block for it to be neither taken nor dropped?",
+    "How many blocks of one size can contain the left end of the stretch?"
+   ],
+   "showed": "Only the blocks straddling an end of the stretch are ever opened, and each size has at most two of those."
+  }
+ ],
+ "reveal": {
+  "name": "Segment tree",
+  "statement": "Store the answer for the whole array, its halves, their halves, and so on ($2n - 1$ blocks). Any range is the union of $O(\\log n)$ stored blocks, and a point change affects $O(\\log n)$ of them.",
+  "remark": "Works for any combining operation (sum, min, max, gcd, even matrices). With a pending-change mark on each block it also handles changes to whole ranges."
+ }
+}

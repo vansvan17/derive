@@ -1,0 +1,134 @@
+{
+ "idea": "string-hash",
+ "opening": "Comparing pieces of a long text without reading them letter by letter.",
+ "steps": [
+  {
+   "id": "digits",
+   "kind": "number",
+   "prompt": "Replace letters by digits: a = 1, b = 2, c = 3. Read the word \"abc\" as a number in base 10. Which number is it?",
+   "answer": 123,
+   "verify": "result = int(\"abc\".translate(str.maketrans(\"abc\", \"123\")))",
+   "nudges": [
+    "What are the three digits, in order?"
+   ],
+   "showed": "A word becomes one number; equal words give equal numbers."
+  },
+  {
+   "id": "piece",
+   "kind": "number",
+   "prompt": "The text is \"abcab\", which is 12312. Let $H(i)$ be the number formed by its first $i$ letters, so $H(2) = 12$ and $H(5) = 12312$. Compute $H(5) - H(2) \\cdot 10^3$.",
+   "answer": 312,
+   "verify": "result = 12312 - 12 * 10 ** 3",
+   "nudges": [
+    "What is $12 \\cdot 1000$?"
+   ],
+   "showed": "312 is \"cab\": exactly letters 3 to 5."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "In base $B$, the number spelled by letters $l$ through $r$ is:",
+   "options": [
+    "$H(r) - H(l-1) \\cdot B^{\\,r-l+1}$",
+    "$H(r) - H(l-1)$",
+    "$H(r) - H(l) \\cdot B^{\\,r-l}$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "By how many places must the earlier part be shifted so that it lines up under $H(r)$?"
+   ],
+   "showed": "Shift the part before the piece past the piece, then subtract it away."
+  },
+  {
+   "id": "same",
+   "kind": "number",
+   "prompt": "In \"abcab\", use the rule to get the number for letters 4 to 5. ($H(3) = 123$.)",
+   "answer": 12,
+   "verify": "result = 12312 - 123 * 10 ** 2",
+   "nudges": [
+    "What is $123 \\cdot 100$?"
+   ],
+   "showed": "12, the same as $H(2)$ for letters 1 to 2: the two pieces are equal, found with one subtraction."
+  },
+  {
+   "id": "mod",
+   "kind": "number",
+   "prompt": "Real texts are long, so the numbers are kept only modulo a number $p$. What is 12312 modulo 7?",
+   "answer": 6,
+   "verify": "result = 12312 % 7",
+   "nudges": [
+    "What is the largest multiple of 7 below 12312?"
+   ],
+   "showed": "Only remainders are stored: $H(5) = 6$, and likewise $H(2) = 12 = 5$ modulo 7."
+  },
+  {
+   "id": "piecemod",
+   "kind": "number",
+   "prompt": "Working only with remainders modulo 7: $H(5) = 6$, $H(2) = 5$ and $10^3 = 6$. What is $H(5) - H(2) \\cdot 10^3$ modulo 7, as a number from 0 to 6?",
+   "answer": 4,
+   "verify": "result = (6 - 5 * 6) % 7",
+   "nudges": [
+    "What is $6 - 30$, and what do you add to make it lie between 0 and 6?"
+   ],
+   "showed": "$-24 = 4$ modulo 7, and indeed $312 = 4$ modulo 7. The rule survives because remainders respect addition and multiplication."
+  },
+  {
+   "id": "risk",
+   "kind": "choice",
+   "prompt": "Equal pieces always get equal remainders. Can two different pieces get the same remainder?",
+   "options": [
+    "Yes, but with a large modulus and a base chosen at random it is very unlikely",
+    "No, never",
+    "Yes, about half the time"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How many different remainders are there, and how many different pieces could there be?"
+   ],
+   "showed": "It is called a collision. A modulus near $10^{18}$, or two moduli at once, makes it negligible."
+  },
+  {
+   "id": "collide",
+   "kind": "number",
+   "prompt": "With modulus 7, how many of the numbers 0, 1, ..., 20 have remainder 3?",
+   "answer": 3,
+   "verify": "result = sum(1 for x in range(21) if x % 7 == 3)",
+   "nudges": [
+    "Which numbers are 3 more than a multiple of 7?"
+   ],
+   "showed": "3, 10 and 17. A tiny modulus collides constantly, which is why the real one is huge."
+  },
+  {
+   "id": "distinct",
+   "kind": "number",
+   "prompt": "How many different pieces of length 2 does \"abcab\" contain?",
+   "answer": 3,
+   "verify": "s = \"abcab\"\nresult = len({s[i:i + 2] for i in range(4)})",
+   "nudges": [
+    "List the four pieces of length 2. Which are equal?"
+   ],
+   "showed": "ab, bc, ca, ab. With one number per piece, counting distinct pieces of a given length is counting distinct numbers."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $s_1 s_2 \\dots s_n$ be digits in base $B$ and $H(i) = s_1 B^{i-1} + s_2 B^{i-2} + \\dots + s_i$, with $H(0) = 0$. Prove that $H(r) - H(l-1) \\cdot B^{\\,r-l+1} = s_l B^{\\,r-l} + \\dots + s_r$, and explain why the same holds for remainders modulo any $p$.",
+   "claims": [
+    "H(r) is the sum over i from 1 to r of s_i * B^(r-i).",
+    "H(l-1) * B^(r-l+1) is the sum over i from 1 to l-1 of s_i * B^(l-1-i) * B^(r-l+1), which is the sum over i from 1 to l-1 of s_i * B^(r-i).",
+    "Subtracting removes exactly the terms with i < l, leaving the sum over i from l to r of s_i * B^(r-i), the number spelled by the piece.",
+    "The identity uses only addition, subtraction and multiplication, and remainders modulo p respect all three, so it holds modulo p as well."
+   ],
+   "nudges": [
+    "What power of $B$ multiplies $s_i$ inside $H(r)$?",
+    "After shifting $H(l-1)$, what power of $B$ multiplies each of its digits?"
+   ],
+   "showed": "After the shift, the earlier digits carry the same powers of $B$ as they do inside $H(r)$, so they cancel."
+  }
+ ],
+ "reveal": {
+  "name": "Polynomial hashing",
+  "statement": "With $H(i) = H(i-1) \\cdot B + s_i \\pmod p$, the hash of $s_l..s_r$ is $H(r) - H(l-1) \\cdot B^{\\,r-l+1} \\pmod p$. Equal substrings have equal hashes; different ones collide with probability about $1/p$.",
+  "remark": "It turns \"are these two substrings equal?\" into an $O(1)$ comparison, and with halving on the length it finds longest common prefixes. Pick the base at random at run time so that nobody can prepare a colliding test."
+ }
+}

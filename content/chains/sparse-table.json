@@ -1,0 +1,129 @@
+{
+ "idea": "sparse-table",
+ "opening": "The array never changes, the questions are about minimums, and each one should take two look-ups.",
+ "steps": [
+  {
+   "id": "plain",
+   "kind": "number",
+   "prompt": "The array is 5, 3, 7, 9, 6, 4, 1, 2 (positions 1 to 8). What is the minimum of positions 2 to 5?",
+   "answer": 3,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\ndef pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = min(a[2:6])",
+   "nudges": [
+    "Which four numbers are in positions 2 to 5?"
+   ],
+   "showed": "Four comparisons for a stretch of four."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "Make a table: $M_k(i)$ is the minimum of the $2^k$ positions starting at position $i$. For 8 positions, how many entries does the row $k = 1$ (stretches of length 2) have?",
+   "answer": 7,
+   "verify": "result = 8 - 2 + 1",
+   "nudges": [
+    "What is the last position at which a stretch of length 2 can start?"
+   ],
+   "showed": "Starts 1 to 7."
+  },
+  {
+   "id": "entry",
+   "kind": "number",
+   "prompt": "The array is 5, 3, 7, 9, 6, 4, 1, 2 (positions 1 to 8). What is $M_2(4)$, the minimum of the four positions starting at 4?",
+   "answer": 1,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\ndef pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = min(a[4:8])",
+   "nudges": [
+    "Which positions does it cover?"
+   ],
+   "showed": "Positions 4 to 7: 9, 6, 4, 1."
+  },
+  {
+   "id": "build",
+   "kind": "choice",
+   "prompt": "How can $M_k(i)$ be filled in from the row below?",
+   "options": [
+    "$\\min\\big(M_{k-1}(i),\\ M_{k-1}(i + 2^{k-1})\\big)$",
+    "$\\min\\big(M_{k-1}(i),\\ M_{k-1}(i + 1)\\big)$",
+    "$M_{k-1}(i) + M_{k-1}(i + 2^{k-1})$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "A stretch of length $2^k$ is two stretches of what length, starting where?"
+   ],
+   "showed": "Each entry is one comparison of two entries from the previous row."
+  },
+  {
+   "id": "power",
+   "kind": "number",
+   "prompt": "A question asks for the minimum of positions 2 to 7, a stretch of length 6. What is the largest power of two that is at most 6?",
+   "answer": 4,
+   "verify": "result = 4",
+   "nudges": [
+    "Which of 1, 2, 4, 8 fit inside 6?"
+   ],
+   "showed": "So use stretches of length 4."
+  },
+  {
+   "id": "overlap",
+   "kind": "number",
+   "prompt": "Take the stretch of length 4 starting at position 2 and the stretch of length 4 ending at position 7. In how many positions do they overlap?",
+   "answer": 2,
+   "verify": "result = len(set(range(2, 6)) & set(range(4, 8)))",
+   "nudges": [
+    "Which positions does each stretch cover?"
+   ],
+   "showed": "Positions 4 and 5 are in both. Together they cover exactly 2 to 7."
+  },
+  {
+   "id": "answer",
+   "kind": "number",
+   "prompt": "The array is 5, 3, 7, 9, 6, 4, 1, 2 (positions 1 to 8). So the minimum of positions 2 to 7 is the smaller of $M_2(2)$ and $M_2(4)$. What is it?",
+   "answer": 1,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\ndef pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = min(min(a[2:6]), min(a[4:8]))",
+   "nudges": [
+    "What are the two table entries?"
+   ],
+   "showed": "min(3, 1). Two look-ups, whatever the length of the stretch."
+  },
+  {
+   "id": "sumfail",
+   "kind": "number",
+   "prompt": "The array is 5, 3, 7, 9, 6, 4, 1, 2 (positions 1 to 8). Try the same trick with sums: add the sum of positions 2 to 5 and the sum of positions 4 to 7. By how much does this exceed the true sum of positions 2 to 7?",
+   "answer": 15,
+   "verify": "a = [0, 5, 3, 7, 9, 6, 4, 1, 2]\ndef pieces(lo, hi, l, r):\n    if r < lo or hi < l: return 0\n    if l <= lo and hi <= r: return 1\n    m = (lo + hi) // 2\n    return pieces(lo, m, l, r) + pieces(m + 1, hi, l, r)\nresult = sum(a[2:6]) + sum(a[4:8]) - sum(a[2:8])",
+   "nudges": [
+    "Which elements were counted twice?"
+   ],
+   "showed": "The overlap, 9 + 6, is counted twice. A minimum does not care about seeing an element twice; a sum does."
+  },
+  {
+   "id": "rows",
+   "kind": "number",
+   "prompt": "For an array of $10^5$ positions, how many rows does the table have (stretch lengths 1, 2, 4, ... up to the largest that fits)?",
+   "answer": 17,
+   "verify": "result = (10 ** 5).bit_length()",
+   "nudges": [
+    "What is the largest power of two not above $10^5$?"
+   ],
+   "showed": "Lengths $2^0$ to $2^{16}$: seventeen rows of at most $10^5$ entries."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $1 \\le l \\le r \\le n$, let $L = r - l + 1$, and let $k$ be the largest integer with $2^k \\le L$. Prove that the stretch of length $2^k$ starting at $l$ and the stretch of length $2^k$ ending at $r$ both lie inside $[l, r]$ and together cover all of it.",
+   "claims": [
+    "Since 2^k <= L, the first stretch ends at l + 2^k - 1 <= r and the second starts at r - 2^k + 1 >= l, so both lie inside [l, r].",
+    "Since k is the largest such integer, 2^(k+1) > L, that is 2 * 2^k > L.",
+    "From 2 * 2^k > L we get L - 2^k < 2^k. The second stretch starts at r - 2^k + 1 = l + (L - 2^k), which is at most l + 2^k - 1, the last position of the first stretch. So the two stretches meet with no gap, and together they cover l to r."
+   ],
+   "nudges": [
+    "Why does each stretch fit inside $[l, r]$?",
+    "What does \"largest $k$\" tell you about $2^{k+1}$, and why does that rule out a gap in the middle?"
+   ],
+   "showed": "Each stretch is longer than half of the range, so they must meet."
+  }
+ ],
+ "reveal": {
+  "name": "Sparse table",
+  "statement": "Precompute the answer for every stretch whose length is a power of two ($O(n \\log n)$ entries). For an operation where overlap is harmless (min, max, gcd), any range is answered from two overlapping stretches in $O(1)$.",
+  "remark": "No updates are possible. It is the usual tool for range-minimum queries on a fixed array, including lowest common ancestors through an Euler tour."
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "idea": "bridges",
+ "opening": "A road network, and the question of which single closures would cut it in two.",
+ "steps": [
+  {
+   "id": "critical",
+   "kind": "list",
+   "prompt": "Seven towns and eight roads, numbered in this order: road 1 joins towns 1-2, road 2 joins 2-3, road 3 joins 3-1, road 4 joins 3-4, road 5 joins 4-5, road 6 joins 5-6, road 7 joins 6-4, road 8 joins 6-7. Call a road critical if closing it alone leaves some town unreachable from another. Which roads are critical? Give their numbers.",
+   "answer": [
+    4,
+    8
+   ],
+   "verify": "R = [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6), (6, 4), (6, 7)]\ndef joined(rs, n=7):\n    p = list(range(n + 1))\n    def f(x):\n        while p[x] != x: x = p[x]\n        return x\n    for a, b in rs: p[f(a)] = f(b)\n    return len({f(v) for v in range(1, n + 1)}) == 1\ndef dfs():\n    seen, tree = {1}, []\n    def go(v):\n        for i, (a, b) in enumerate(R, 1):\n            u = b if a == v else a if b == v else None\n            if u and u not in seen: seen.add(u); tree.append(i); go(u)\n    go(1); return tree\nresult = [i for i in range(1, 9) if not joined(R[:i - 1] + R[i:])]",
+   "nudges": [
+    "Close road 1. Can you still get from town 1 to town 2?",
+    "Which roads have no detour around them?"
+   ],
+   "showed": "Roads 4 and 8. Every other road has a way round."
+  },
+  {
+   "id": "oncycle",
+   "kind": "choice",
+   "prompt": "A road lies on a cycle of roads. Can it be critical?",
+   "options": [
+    "No: the rest of the cycle is a detour between its two ends",
+    "Yes, if the cycle is long",
+    "Only if it is the last road of the cycle"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If the road from $a$ to $b$ is closed, how else does the cycle connect $a$ and $b$?"
+   ],
+   "showed": "On a cycle means never critical."
+  },
+  {
+   "id": "nocycle",
+   "kind": "choice",
+   "prompt": "A road lies on no cycle at all. Is it critical?",
+   "options": [
+    "Yes: any other route between its ends would form a cycle together with it",
+    "No",
+    "It depends on the rest of the map"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Suppose closing it left its two ends connected. What would that other route and the road make together?"
+   ],
+   "showed": "So critical means exactly: on no cycle. The question is how to find these roads without trying each closure."
+  },
+  {
+   "id": "leftover",
+   "kind": "list",
+   "prompt": "Explore from town 1 depth-first: from each town, try its roads in order of road number, and walk a road only if it leads to a town not yet visited. The roads you walk form a tree. Which road numbers were never walked?",
+   "answer": [
+    3,
+    7
+   ],
+   "verify": "R = [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6), (6, 4), (6, 7)]\ndef joined(rs, n=7):\n    p = list(range(n + 1))\n    def f(x):\n        while p[x] != x: x = p[x]\n        return x\n    for a, b in rs: p[f(a)] = f(b)\n    return len({f(v) for v in range(1, n + 1)}) == 1\ndef dfs():\n    seen, tree = {1}, []\n    def go(v):\n        for i, (a, b) in enumerate(R, 1):\n            u = b if a == v else a if b == v else None\n            if u and u not in seen: seen.add(u); tree.append(i); go(u)\n    go(1); return tree\nt = dfs()\nresult = [i for i in range(1, 9) if i not in t]",
+   "nudges": [
+    "From town 3, where does road 3 lead, and has that town been visited?"
+   ],
+   "showed": "Roads 3 and 7: each leads back to a town already visited."
+  },
+  {
+   "id": "upward",
+   "kind": "choice",
+   "prompt": "In a depth-first exploration of a two-way road map, a road that was not walked always joins a town to:",
+   "options": [
+    "one of its own ancestors in the tree of walked roads",
+    "a town in a different branch of the tree",
+    "any earlier town at all"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If it led into a different, finished branch, why would that branch not have walked it first?"
+   ],
+   "showed": "Unwalked roads only go straight up the tree. This is what makes the next step work."
+  },
+  {
+   "id": "test",
+   "kind": "choice",
+   "prompt": "A walked road goes from town $p$ down to its child $v$. It is critical exactly when:",
+   "options": [
+    "no unwalked road leads from $v$ or anything below $v$ to $p$ or anything above $p$",
+    "$v$ has no children",
+    "$p$ has only one child"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Close the road. What is the only way the part below it could still be attached to the rest?"
+   ],
+   "showed": "The subtree of $v$ either has its own way up past the road, or hangs by that road alone."
+  },
+  {
+   "id": "low5",
+   "kind": "number",
+   "prompt": "Number the towns in the order they were first visited (here that is just 1 to 7). For a town $v$, let low($v$) be the smallest number you can reach from $v$ or anything below it in the tree by using at most one unwalked road. What is low(5)?",
+   "answer": 4,
+   "verify": "result = 4",
+   "nudges": [
+    "Which towns are below 5 in the tree, and which unwalked road starts among them?"
+   ],
+   "showed": "Below 5 are 6 and 7, and road 7 leads from 6 up to 4."
+  },
+  {
+   "id": "low7",
+   "kind": "number",
+   "prompt": "What is low(7)?",
+   "answer": 7,
+   "verify": "result = 7",
+   "nudges": [
+    "Does any unwalked road touch town 7?"
+   ],
+   "showed": "Town 7 can reach nothing but itself. Its parent is 6, and low(7) = 7 is larger than 6: so the road from 6 to 7 is critical. For town 5, low(5) = 4 is not larger than its parent 4, so that road is safe."
+  },
+  {
+   "id": "shape",
+   "kind": "number",
+   "prompt": "A different map: five towns joined in a ring, and from one of them a tail of three more towns in a line. How many critical roads does it have?",
+   "answer": 3,
+   "verify": "R2 = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1), (5, 6), (6, 7), (7, 8)]\ndef joined(rs, n=8):\n    p = list(range(n + 1))\n    def f(x):\n        while p[x] != x: x = p[x]\n        return x\n    for a, b in rs: p[f(a)] = f(b)\n    return len({f(v) for v in range(1, n + 1)}) == 1\nresult = sum(1 for i in range(8) if not joined(R2[:i] + R2[i + 1:]))",
+   "nudges": [
+    "Which roads lie on a cycle?"
+   ],
+   "showed": "The three tail roads. The five ring roads protect each other."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "A connected graph is explored depth-first, giving a tree of walked edges. Let the tree edge $e$ join $p$ to its child $v$, and let $S$ be the set of $v$ and all its descendants. Prove that removing $e$ disconnects the graph exactly when no other edge has one end in $S$ and the other outside $S$.",
+   "claims": [
+    "Without e, the tree edges inside S still connect all of S, and the remaining tree edges still connect everything outside S.",
+    "So after removing e the graph is connected exactly when some remaining edge joins S to the outside.",
+    "The only tree edge between S and the outside is e itself, so such an edge would have to be a non-tree edge with one end in S and one outside; if there is none, S is cut off, and if there is one, the two parts are joined."
+   ],
+   "nudges": [
+    "After removing $e$, is $S$ still connected within itself? Is the rest?",
+    "What would it take to join the two parts again?"
+   ],
+   "showed": "Two connected pieces, and the only question is whether anything else links them."
+  }
+ ],
+ "reveal": {
+  "name": "Bridges",
+  "statement": "An edge is a bridge (its removal disconnects the graph) exactly when it lies on no cycle. With DFS entry times tin and low($v$) = the smallest tin reachable from the subtree of $v$ by at most one non-tree edge, the tree edge $p \\to v$ is a bridge exactly when low($v$) > tin($p$).",
+  "remark": "One DFS, $O(n + m)$. Contracting everything that is not a bridge turns any graph into a tree, which is how \"edges every path must use\" questions are usually answered."
+ }
+}

@@ -1,0 +1,134 @@
+{
+ "idea": "lca-lifting",
+ "opening": "A company hierarchy, and a fast way to find the lowest person who is above two given people.",
+ "steps": [
+  {
+   "id": "first",
+   "kind": "number",
+   "prompt": "A company: person 1 is the head. The direct boss of 2 and of 3 is 1; of 4 and 5 it is 2; of 6 and 7 it is 4; of 8 it is 6; of 9 it is 3. Who is the lowest person in the hierarchy who is above (or equal to) both 8 and 5?",
+   "answer": 2,
+   "verify": "par = {2: 1, 3: 1, 4: 2, 5: 2, 6: 4, 7: 4, 8: 6, 9: 3}\ndef chain(v):\n    out = [v]\n    while v in par: v = par[v]; out.append(v)\n    return out\ndef lca(a, b):\n    A = chain(a)\n    return next(x for x in chain(b) if x in A)\ndepth = lambda v: len(chain(v)) - 1\nresult = lca(8, 5)",
+   "nudges": [
+    "Write the chain of bosses above 8, and the chain above 5. Where do they first meet?"
+   ],
+   "showed": "8, 6, 4, 2, 1 and 5, 2, 1 first meet at 2."
+  },
+  {
+   "id": "depth",
+   "kind": "number",
+   "prompt": "How many steps is person 8 below the head?",
+   "answer": 4,
+   "verify": "par = {2: 1, 3: 1, 4: 2, 5: 2, 6: 4, 7: 4, 8: 6, 9: 3}\ndef chain(v):\n    out = [v]\n    while v in par: v = par[v]; out.append(v)\n    return out\ndef lca(a, b):\n    A = chain(a)\n    return next(x for x in chain(b) if x in A)\ndepth = lambda v: len(chain(v)) - 1\nresult = depth(8)",
+   "nudges": [
+    "How many bosses are on the way up from 8?"
+   ],
+   "showed": "Call this the depth: 8 has depth 4, the head has depth 0."
+  },
+  {
+   "id": "jump",
+   "kind": "number",
+   "prompt": "Store for every person their boss, their boss's boss (2 steps up), the person 4 steps up, 8 steps up, and so on. For person 8, who is 2 steps up?",
+   "answer": 4,
+   "verify": "par = {2: 1, 3: 1, 4: 2, 5: 2, 6: 4, 7: 4, 8: 6, 9: 3}\ndef chain(v):\n    out = [v]\n    while v in par: v = par[v]; out.append(v)\n    return out\ndef lca(a, b):\n    A = chain(a)\n    return next(x for x in chain(b) if x in A)\ndepth = lambda v: len(chain(v)) - 1\nresult = chain(8)[2]",
+   "nudges": [
+    "Who is the boss of the boss of 8?"
+   ],
+   "showed": "And the person 4 steps up from 8 is the head."
+  },
+  {
+   "id": "table",
+   "kind": "choice",
+   "prompt": "How do you fill in \"the person $2^k$ steps above $v$\" from entries you already have?",
+   "options": [
+    "Take the person $2^{k-1}$ steps above $v$, then the person $2^{k-1}$ steps above them",
+    "Follow single bosses $2^k$ times",
+    "Add 1 to the entry for $2^{k-1}$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "$2^k$ steps is two jumps of what size?"
+   ],
+   "showed": "Each entry is two look-ups in the previous column."
+  },
+  {
+   "id": "thirteen",
+   "kind": "number",
+   "prompt": "In a very tall company you need the person exactly 13 steps above someone. With jumps of sizes 1, 2, 4, 8, ... available, how many jumps do you make?",
+   "answer": 3,
+   "verify": "result = bin(13).count(\"1\")",
+   "nudges": [
+    "How do you write 13 as a sum of different powers of two?"
+   ],
+   "showed": "8 + 4 + 1: one jump per binary digit 1."
+  },
+  {
+   "id": "level",
+   "kind": "number",
+   "prompt": "To compare 8 (depth 4) with 5 (depth 2), first lift the deeper one until both have the same depth. Who do you reach from 8?",
+   "answer": 4,
+   "verify": "par = {2: 1, 3: 1, 4: 2, 5: 2, 6: 4, 7: 4, 8: 6, 9: 3}\ndef chain(v):\n    out = [v]\n    while v in par: v = par[v]; out.append(v)\n    return out\ndef lca(a, b):\n    A = chain(a)\n    return next(x for x in chain(b) if x in A)\ndepth = lambda v: len(chain(v)) - 1\nresult = chain(8)[depth(8) - depth(5)]",
+   "nudges": [
+    "By how many steps must 8 be lifted?"
+   ],
+   "showed": "Two steps up from 8 is person 4, at depth 2 like person 5."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Now two different people are at the same depth, and you try jump sizes from the largest down to 1. For a given size, when should both of them jump?",
+   "options": [
+    "Only when the two people they would land on are different",
+    "Only when the two people they would land on are the same",
+    "Always"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If both land on the same person, could that person be higher than the one you are looking for?"
+   ],
+   "showed": "Landing on the same person might overshoot. Landing on different people is always safe, and never skips the target."
+  },
+  {
+   "id": "finish",
+   "kind": "number",
+   "prompt": "A company: person 1 is the head. The direct boss of 2 and of 3 is 1; of 4 and 5 it is 2; of 6 and 7 it is 4; of 8 it is 6; of 9 it is 3. Apply the method to 8 and 7. After lifting to equal depth and making every safe jump, you stand on two different people with the same boss. Who is that boss?",
+   "answer": 4,
+   "verify": "par = {2: 1, 3: 1, 4: 2, 5: 2, 6: 4, 7: 4, 8: 6, 9: 3}\ndef chain(v):\n    out = [v]\n    while v in par: v = par[v]; out.append(v)\n    return out\ndef lca(a, b):\n    A = chain(a)\n    return next(x for x in chain(b) if x in A)\ndepth = lambda v: len(chain(v)) - 1\nresult = lca(8, 7)",
+   "nudges": [
+    "After lifting 8 by one step, who are the two people?",
+    "Is the jump of size 1 safe for 6 and 7?"
+   ],
+   "showed": "8 is lifted to 6; then 6 and 7 have the same boss, so no jump is made, and that boss, 4, is the answer."
+  },
+  {
+   "id": "cols",
+   "kind": "number",
+   "prompt": "For a company of $2 \\cdot 10^5$ people, how many jump sizes (1, 2, 4, ...) are needed so that any number of steps below $2 \\cdot 10^5$ can be made?",
+   "answer": 18,
+   "verify": "result = (2 * 10 ** 5).bit_length()",
+   "nudges": [
+    "What is the largest power of two below $2 \\cdot 10^5$?"
+   ],
+   "showed": "Sizes $2^0$ to $2^{17}$: eighteen columns."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Two different vertices $a$ and $b$ of a rooted tree have the same depth, and their lowest common ancestor is $d + 1$ steps above each of them (so $d \\ge 0$). For $k$ from large to small, both jump $2^k$ steps up whenever they would land on different vertices. Prove that afterwards $a$ and $b$ are the two children of the lowest common ancestor on those paths, i.e. different vertices with the same parent.",
+   "claims": [
+    "Jumping j steps up from both lands on different vertices exactly when j <= d (the remaining distance to the vertices just below the lowest common ancestor), and on the same vertex when j > d.",
+    "So a jump of 2^k is made exactly when 2^k <= d, and after it d decreases by 2^k; going from large k to small, this subtracts exactly the binary digits of d.",
+    "At the end d = 0: the two vertices are still different, and one step above each is the lowest common ancestor, so they have the same parent."
+   ],
+   "nudges": [
+    "For which jump lengths do the two vertices land on different vertices?",
+    "What does the remaining distance look like in binary as the jumps are made?"
+   ],
+   "showed": "The safe jumps spell out the distance in binary, stopping one step short of the meeting point."
+  }
+ ],
+ "reveal": {
+  "name": "Lowest common ancestor by doubling",
+  "statement": "Store up$_k(v)$, the ancestor $2^k$ steps above $v$, with up$_k(v)$ = up$_{k-1}$(up$_{k-1}(v))$. To find the lowest common ancestor: lift the deeper vertex to equal depth, then for $k$ from large to small jump both while they land on different vertices; the answer is the parent.",
+  "remark": "Also called binary lifting: $O(n \\log n)$ to build, $O(\\log n)$ per query. With it, the distance between two vertices of a tree is depth + depth minus twice the depth of their lowest common ancestor."
+ }
+}

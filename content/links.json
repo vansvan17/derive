@@ -316,5 +316,11 @@
   "to": "divisor-count",
   "kind": "used to prove",
   "note": "The exponents needed for the divisor formula come from repeatedly dividing by the smallest prime factor."
+ },
+ {
+  "from": "bridges",
+  "to": "odd-cycle",
+  "kind": "combines with",
+  "note": "Both are read off one depth-first search: which edges close cycles, and of what parity."
  }
 ]

@@ -468,6 +468,31 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2132F",
+  "site": "Codeforces",
+  "contest": 2132,
+  "index": "F",
+  "title": "Rada and the Chamomile Valley",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/2132/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/145692",
+  "ideas": [
+   "bridges",
+   "multi-source"
+  ],
+  "observations": [
+   "A lane that every walk from 1 to n must use disconnects 1 from n when removed, so it is a bridge; and it lies on any one path from 1 to n you care to pick.",
+   "Conversely a bridge that lies on one chosen path from 1 to n is used by every walk: removing it splits the graph with 1 and n on different sides. So the forced lanes are exactly (bridges) intersected with (one path from 1 to n).",
+   "For the queries, start one breadth-first search from all endpoints of forced lanes at distance 0; each house then knows its nearest forced lane (carry the smallest lane index along for ties)."
+  ],
+  "nudges": [
+   "If the walkers can avoid a lane, what does removing that lane do to the connection between house 1 and house n?",
+   "Take one particular path from 1 to n. Which of its lanes could the walkers have avoided by going another way?",
+   "How can every house learn its distance to the nearest of many special houses in a single pass?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
   "id": "cf-2252E",
   "site": "Codeforces",
   "contest": 2252,

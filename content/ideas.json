@@ -587,6 +587,20 @@
     "residues",
     "prefix-sums"
    ]
+  },
+  {
+   "id": "bridges",
+   "area": "gr",
+   "name": "Bridges",
+   "statement": "An edge is a bridge exactly when it lies on no cycle. In a DFS tree, the tree edge down to v is a bridge exactly when no other edge leaves the subtree of v.",
+   "needs": []
+  },
+  {
+   "id": "multi-source",
+   "area": "gr",
+   "name": "Many starting points at once",
+   "statement": "To find the distance from every vertex to the nearest of several special vertices, start one breadth-first search with all of them at distance 0.",
+   "needs": []
   }
  ]
 }

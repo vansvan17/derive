@@ -474,7 +474,7 @@ class Service:
         public = None
         if position < len(mine):
             todo = mine[position]
-            public = {'id': todo['id'], 'kind': todo['kind'], 'prompt': todo['prompt'], 'options': todo.get('options'),
+            public = {'id': todo['id'], 'kind': todo['kind'], 'prompt': todo['prompt'], 'options': todo.get('options'), 'judged': bool(todo.get('judged')),
                       'wrong': store.one('SELECT COUNT(*) FROM puzzle_tries WHERE puzzle=? AND correct=0', (todo['id'],))[0]}
             if todo['id'] in done:
                 row = done[todo['id']]

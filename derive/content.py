@@ -145,7 +145,8 @@ def problems(content):
             faults.append(f'{tag}: a puzzle is a number, a list or a choice')
         if not puzzle.get('prompt') or not puzzle.get('showed'):
             faults.append(f'{tag}: needs a prompt and the one-line reason shown afterwards')
-        if not puzzle.get('verify'):
+        # A judged puzzle is a multiple-choice call about method; it has no computable answer and says so on the page.
+        if not puzzle.get('verify') and not (puzzle.get('judged') and puzzle.get('kind') == 'choice'):
             faults.append(f'{tag}: needs brute-force "verify" code')
     for idea, tasks in content.practice.items():
         if idea not in content.chains:

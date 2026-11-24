@@ -6,6 +6,11 @@
    "about": "Counting and classifying, where a yes or no would be a guess. You need the complete invariant, not a hint of one."
   },
   {
+   "id": "moves",
+   "title": "Moves",
+   "about": "The habits editorials assume: what the constraints are telling you, and which first move to make. Judgement calls, not computed answers."
+  },
+  {
    "id": "invariants",
    "title": "Invariants",
    "about": "Can it be done, or what must the answer be? Look for the quantity no move can change."
@@ -1852,6 +1857,426 @@
    "answer": 4,
    "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\npal = lambda s: s == s[::-1]\nresult = sum(1 for s in strs(9, 'ab') if pal(s) and pal(s[:6]))",
    "showed": "If a palindrome of length n has a palindromic prefix of length m, then n - m is a period of it. Here the period is 3, so the string is a block of length 3 repeated, and the block must itself be a palindrome: 2 x 2."
+  },
+  {
+   "id": "m-n20",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "The statement says n is at most 20, and you must choose some of the n items subject to a complicated condition. What do the constraints suggest?",
+   "options": [
+    "Look for a greedy rule",
+    "Go through all 2^n subsets (about a million), or a table indexed by subsets",
+    "It must be solvable in linear time, so look for a formula"
+   ],
+   "answer": 1,
+   "showed": "n up to 20 (sometimes 22) is the setter telling you that subsets are affordable. n up to 15 or 16 allows subsets of subsets; n up to 40 suggests splitting into two halves of 20."
+  },
+  {
+   "id": "m-sum",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "A problem has up to 10^4 test cases and says \"the sum of n over all test cases does not exceed 2 x 10^5\". What should you make sure of?",
+   "options": [
+    "That the work per test depends only on its own n, including clearing arrays: never reset an array of size 2 x 10^5 for every test",
+    "That each test runs in under a millisecond",
+    "That the answers are printed in one line"
+   ],
+   "answer": 0,
+   "showed": "The sum bound means an O(n) or O(n log n) pass per test is fine in total, but anything that costs \"maximum n\" per test (clearing a big array, a sieve) is multiplied by 10^4 tests."
+  },
+  {
+   "id": "m-values",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "n is up to 10^5, the values are up to 10^6, and the question is about divisors or multiples of the values. What is the standard move?",
+   "options": [
+    "For every pair of elements compute their gcd",
+    "Factorise every element by trial division up to its square root for each query",
+    "Index by value: count how often each value occurs, then for every d loop over its multiples"
+   ],
+   "answer": 2,
+   "showed": "Looping over all multiples of every d up to V costs V/1 + V/2 + ... which is about V log V. Small values are an invitation to work on the value axis instead of the index axis."
+  },
+  {
+   "id": "m-n500",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "n is at most 500 and the problem is about choosing the best way to combine neighbouring elements. Which complexity is the setter pointing at?",
+   "options": [
+    "n log n",
+    "About n^3: a table over all pairs (l, r) with a split point inside",
+    "2^n"
+   ],
+   "answer": 1,
+   "showed": "500^3 is 1.25 x 10^8, which is fine. A cubic bound with \"neighbouring elements merge\" almost always means a table over intervals."
+  },
+  {
+   "id": "m-huge",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "The input is a single number n up to 10^18 and the answer is some count. What can the solution not do?",
+   "options": [
+    "Anything that loops up to n, or even up to the square root of n in the worst cases; expect a formula, or work on the digits or bits of n",
+    "Use 64-bit integers",
+    "Use recursion"
+   ],
+   "answer": 0,
+   "showed": "With 10^18 you get about 60 steps (the bits), or about 18 (the decimal digits), or a closed form. Square root is 10^9, usually too slow."
+  },
+  {
+   "id": "m-minmax",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "The task says: \"make the largest of the group sums as small as possible\". What is the first thing to try?",
+   "options": [
+    "Sort the groups by sum",
+    "Try all ways of forming groups",
+    "Guess the answer x and ask \"can it be done with every group at most x?\"; that yes/no question switches once, so halve on x"
+   ],
+   "answer": 2,
+   "showed": "\"Minimise the maximum\" and \"maximise the minimum\" are the classic signals. The check for a fixed x is usually a simple greedy."
+  },
+  {
+   "id": "m-mod",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "The statement ends with \"print the answer modulo 998244353\". What does that tell you about the problem?",
+   "options": [
+    "The answer fits in 32 bits",
+    "It is a counting problem (or an expected value written as a fraction): think combinatorics or a table of counts, and take the remainder at every step",
+    "It needs big-number arithmetic"
+   ],
+   "answer": 1,
+   "showed": "A prime modulus means the true answer is astronomically large. For expected values it also means \"divide\" becomes \"multiply by the modular inverse\"."
+  },
+  {
+   "id": "m-reach",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "You are given a start configuration, an allowed operation, and asked whether a target configuration can be reached. What do you look for first?",
+   "options": [
+    "Something no operation can change (a parity, a sum, a remainder, a count on certain positions), and check whether start and target agree on it",
+    "A shortest sequence of operations by search",
+    "A way to sort both configurations"
+   ],
+   "answer": 0,
+   "showed": "If start and target differ on an invariant, the answer is no at once. If they agree, the next question is whether that invariant is the only obstacle, which needs a construction."
+  },
+  {
+   "id": "m-reverse",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "Edges are deleted from a graph one at a time, and after each deletion you must report the number of connected components. All deletions are known in advance. What is the move?",
+   "options": [
+    "Recompute the components from scratch after each deletion",
+    "Process the deletions backwards as insertions, merging components, and reverse the answers",
+    "Keep the graph sorted by degree"
+   ],
+   "answer": 1,
+   "showed": "Merging is easy and splitting is hard. Whenever everything is known in advance and \"undo\" is easier than \"do\", run time backwards."
+  },
+  {
+   "id": "m-pairs",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "Count the pairs i < j for which some relation between a_i and a_j holds. n is 2 x 10^5. What is the usual shape of the solution?",
+   "options": [
+    "Check all pairs",
+    "Sort and take the middle element",
+    "Go through j from left to right, and for each j count the earlier i that match, using a map or a counting structure of what has been seen"
+   ],
+   "answer": 2,
+   "showed": "Fix one end, and turn \"how many partners\" into a look-up. The relation usually rearranges into \"a_i equals something computed from a_j\"."
+  },
+  {
+   "id": "m-contrib",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "The answer is the sum of f(subarray) over all subarrays, and n is 2 x 10^5, so there are about 2 x 10^10 subarrays. What do you do?",
+   "options": [
+    "Swap the order: for each element (or each pair, or each bit), count in how many subarrays it contributes, and add value times count",
+    "Sample subarrays at random",
+    "Use a table over all (l, r)"
+   ],
+   "answer": 0,
+   "showed": "A sum over structures of a sum over their parts equals a sum over parts of the number of structures containing them. This is the first thing to try on any \"sum over all\"."
+  },
+  {
+   "id": "m-diff",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "An operation adds 1 to every element of a chosen stretch of an array. Reasoning about the array directly is getting nowhere. What change of view usually helps?",
+   "options": [
+    "Sort the array",
+    "Look at the differences between neighbours: the operation changes only two of them",
+    "Look at the largest element"
+   ],
+   "answer": 1,
+   "showed": "Stretch operations become two point changes on the difference array; equally, questions about stretch sums become questions about pairs of prefix sums."
+  },
+  {
+   "id": "m-game",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "A two-player game on a pile of n stones with unusual move rules, and n can be 10^9. You have no idea who wins. What do you do?",
+   "options": [
+    "Write a brute force that labels positions as winning or losing for n up to 50 or so, print it, and look for the pattern",
+    "Guess that the first player wins when n is odd",
+    "Simulate the game for the given n"
+   ],
+   "answer": 0,
+   "showed": "Small cases by machine, then a pattern (a period, a parity, a special family of numbers), then a proof or at least a check against the brute force."
+  },
+  {
+   "id": "m-construct",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "The task: \"print any permutation of 1..n with property P, or say none exists\". You do not see the structure. What is the most reliable start?",
+   "options": [
+    "Prove that an answer always exists",
+    "Start with the identity and apply random swaps until it works",
+    "Find answers for n = 1 to 8 by hand or brute force, note which n are impossible, and look for a rule that grows one answer into the next"
+   ],
+   "answer": 2,
+   "showed": "The impossible small cases suggest the necessary condition; the possible ones suggest the construction."
+  },
+  {
+   "id": "m-lower",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "An operation can reduce a certain count by at most 2, and the goal is to bring that count to 0 in as few operations as possible. What is the natural plan?",
+   "options": [
+    "Search over all sequences of operations",
+    "The answer is at least half the count; now look for operations that always remove exactly 2, and for what can prevent that",
+    "Always pick the operation that touches the most elements"
+   ],
+   "answer": 1,
+   "showed": "Lower bound first. Then either you can always meet it, or the cases where you cannot reveal a second quantity, and the answer becomes the larger of two bounds."
+  },
+  {
+   "id": "m-small",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "You suspect that the answer to a minimisation problem is never more than 2. How do you use that?",
+   "options": [
+    "Prove that 2 operations always suffice, then you only need to recognise when 0 works and when 1 works",
+    "Print 2 always",
+    "Ignore it and write the general algorithm"
+   ],
+   "answer": 0,
+   "showed": "Many problems rated around 1600 to 2000 are exactly this: a short argument caps the answer at a tiny constant, and the remaining work is a check for each smaller value."
+  },
+  {
+   "id": "m-cycle",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "A process is applied k times with k up to 10^18, but its state is a small object (say one of at most 10^5 possibilities). What makes this tractable?",
+   "options": [
+    "Fast exponentiation of k",
+    "Binary search on k",
+    "The states must repeat: find where the cycle starts and its length, then jump ahead using k modulo the cycle length"
+   ],
+   "answer": 2,
+   "showed": "A deterministic process on finitely many states is eventually periodic. (When the step is a fixed map on positions, doubling also works: precompute where 1, 2, 4, 8, ... steps lead.)"
+  },
+  {
+   "id": "m-sort",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "The answer does not depend on the order of the input elements, and you need to pair them up or choose a subset. What is almost always the first step?",
+   "options": [
+    "Hash them",
+    "Sort them, and then ask what the best choice is for the smallest or largest element",
+    "Reverse them"
+   ],
+   "answer": 1,
+   "showed": "Sorting gives structure for free: the extreme element usually has an obviously best partner, and after sorting most choices become \"a prefix\", \"a suffix\" or \"neighbours\"."
+  },
+  {
+   "id": "m-canon",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "You must count how many of n given lines (each as two points with integer coordinates) are parallel to each other. Comparing slopes as decimals is failing. What is the fix?",
+   "options": [
+    "Give each direction a canonical form: divide (dx, dy) by their gcd and fix the sign, then compare the pairs exactly",
+    "Use more decimal places",
+    "Compare angles with a tolerance"
+   ],
+   "answer": 0,
+   "showed": "Whenever \"the same\" is not literal equality (directions, fractions, rotations of a string, sets), normalise each object to one representative and compare those."
+  },
+  {
+   "id": "m-amort",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "A loop keeps replacing an element by half of itself until it reaches 0, and this may happen to every element after each of q queries. It looks like q x n work. Why is it actually fine?",
+   "options": [
+    "Halving is a fast operation",
+    "The queries are processed offline",
+    "Each element can be halved only about 30 times in total, so the total work over the whole run is about 30 n"
+   ],
+   "answer": 2,
+   "showed": "Count the total over the whole run instead of per query: each element is pushed and popped once, each value halves or grows by a constant factor only log times, a pointer only moves forward."
+  },
+  {
+   "id": "m-reset",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "Your solution passes when you run each sample test alone, but gives wrong answers when several tests are in one input. What is the first thing to check?",
+   "options": [
+    "Integer overflow",
+    "State left over from the previous test: global arrays, counters, maps or flags that were not cleared, or input that was not fully read",
+    "The time limit"
+   ],
+   "answer": 1,
+   "showed": "It is the most common multi-test bug. A habit that prevents it: declare everything inside the per-test function, and always read the entire test before printing an early answer."
+  },
+  {
+   "id": "m-overflow",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "n is 2 x 10^5 and the values are up to 10^9. You add up products of pairs of values. The samples pass but the judge says wrong answer. What is the likely cause?",
+   "options": [
+    "Overflow: a product of two such values needs 64 bits, and a sum of many of them needs a modulus or even more care",
+    "A wrong algorithm",
+    "Slow input"
+   ],
+   "answer": 0,
+   "showed": "Estimate the largest intermediate value before coding: 10^9 x 10^9 = 10^18 just fits in 64 bits signed, and one more addition may not."
+  },
+  {
+   "id": "m-io",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "A correct O(n log n) solution with n = 10^6 gets \"time limit exceeded\" in C++. It reads with cin and prints each answer with endl. What should you change first?",
+   "options": [
+    "Rewrite the algorithm",
+    "Use recursion instead of loops",
+    "Turn off stream synchronisation, untie cin, and print with a newline character instead of endl, which flushes every time"
+   ],
+   "answer": 2,
+   "showed": "Flushing a million times and synchronised streams can cost more than the algorithm. Two lines at the top of main and \"\\n\" fix it."
+  },
+  {
+   "id": "m-graph",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "There are n items and m statements of the form \"items a and b must be in different groups\", with two groups available. What is this, in standard terms?",
+   "options": [
+    "A sorting problem",
+    "A graph with the items as vertices and the statements as edges: the question is whether it can be two-coloured, that is, has no odd cycle",
+    "A shortest-path problem"
+   ],
+   "answer": 1,
+   "showed": "Pairwise constraints are edges. \"Must differ\" gives two-colouring; \"must be equal\" gives components; a mixture gives components with a parity."
+  },
+  {
+   "id": "m-tree",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "On a tree with 2 x 10^5 vertices you need the sum, over all pairs of vertices, of the distance between them. What is the standard move?",
+   "options": [
+    "For each edge, count the pairs it separates (size of one side times size of the other) and add those up",
+    "Run a search from every vertex",
+    "Find the diameter"
+   ],
+   "answer": 0,
+   "showed": "Sums over all paths of a tree are computed edge by edge (or vertex by vertex) from subtree sizes."
+  },
+  {
+   "id": "m-01",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "A grid where stepping onto some cells is free and onto others costs 1; you need the cheapest route. Which tool fits exactly?",
+   "options": [
+    "A table filled row by row",
+    "Sorting the cells by cost",
+    "A breadth-first search with a double-ended queue: free steps go to the front, costly steps to the back"
+   ],
+   "answer": 2,
+   "showed": "With only costs 0 and 1 the priority queue of the general method can be replaced by a deque, giving linear time."
+  },
+  {
+   "id": "m-bottleneck",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "For many pairs of vertices you are asked for a route whose largest edge is as small as possible. What structure answers all of them?",
+   "options": [
+    "Shortest paths from every vertex",
+    "Add edges in increasing order with a union-find: two vertices become connected exactly when the threshold reaches their answer (equivalently, use the minimum spanning tree)",
+    "A two-colouring"
+   ],
+   "answer": 1,
+   "showed": "\"Smallest possible largest edge\" is about connectivity under a threshold, not about sums of lengths."
+  },
+  {
+   "id": "m-xor",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "Many queries ask for the XOR of a stretch of an array. What is the standard preparation?",
+   "options": [
+    "Prefix XORs: the XOR of a stretch is the XOR of two prefix values, because equal parts cancel",
+    "A sorted copy of the array",
+    "The sum of the array"
+   ],
+   "answer": 0,
+   "showed": "Anything with an \"undo\" (addition, XOR, multiplication modulo a prime) works with prefixes; things without one (minimum, gcd) need a different structure."
+  },
+  {
+   "id": "m-bits",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "You must choose numbers to make some bitwise result (AND, OR or XOR) as large as possible. How should you think about it?",
+   "options": [
+    "Maximise the sum instead",
+    "Try the largest numbers first",
+    "Decide the bits from the highest down: a higher bit is worth more than all lower bits together, so secure it if you can and then restrict to the choices that keep it"
+   ],
+   "answer": 2,
+   "showed": "Greedy from the top bit is correct because 2^k exceeds the sum of all lower powers. Each bit becomes a yes/no feasibility question."
+  },
+  {
+   "id": "m-stress",
+   "set": "moves",
+   "kind": "choice",
+   "judged": true,
+   "prompt": "Your solution gets a wrong answer on a hidden test and you cannot find the bug by reading the code. What is the most effective next step?",
+   "options": [
+    "Submit again with small changes",
+    "Write a slow, obviously correct brute force and a random generator for tiny inputs, and compare the two until they differ",
+    "Rewrite everything from scratch"
+   ],
+   "answer": 1,
+   "showed": "A failing input with n = 5 usually shows the bug in a minute. It also catches wrong ideas, not only typing mistakes. The app has this built in on every problem page."
   }
  ]
 }

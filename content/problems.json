@@ -270,6 +270,79 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2117G",
+  "site": "Codeforces",
+  "contest": 2117,
+  "index": "G",
+  "title": "Omg Graph",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2117/problem/G",
+  "editorial": "https://codeforces.com/blog/entry/143362",
+  "ideas": [
+   "shortest-paths"
+  ],
+  "observations": [
+   "Pick any edge j on the path and use (its weight + the largest weight) as the cost. That is never less than the true cost and equals it when j is the smallest edge, so minimising over all choices of j gives the answer.",
+   "For a fixed edge (u, v, w) you may walk 1 to u, cross it, then v to n (paths need not be simple), so you need the smallest possible largest-edge from 1 to every vertex and from n to every vertex.",
+   "Smallest largest-edge is found by the settle-the-nearest method with max in place of +; the same proof works. Then take the minimum over edges of w + max(to u, w, from v), trying both directions."
+  ],
+  "nudges": [
+   "Suppose you were told which edge is the smallest on the best path. What would be left to minimise?",
+   "What happens to the cost if you pretend some other edge of the path is the smallest?",
+   "How do you find, for every vertex, the path from 1 whose largest edge is as small as possible?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2133D",
+  "site": "Codeforces",
+  "contest": 2133,
+  "index": "D",
+  "title": "Chicken Jockey",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2133/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/145785",
+  "ideas": [
+   "dp-state"
+  ],
+  "observations": [
+   "A mob that takes fall damage lands at the bottom of a stack, so no mob takes fall damage twice.",
+   "If a mob takes more than 1 fall damage, the mob directly below it was killed by attacks alone (otherwise that mob was itself at the bottom, and the fall would be 1). So it is best done in the original stack, where the fall is as large as possible: i - 1.",
+   "So for each mob there are two cases. Let best(i) be the fewest attacks for the first i mobs: either mob i falls 1 when the mob below dies, best(i-1) + h_i - 1, or mob i-1 is killed by hand and mob i falls i - 1, best(i-2) + h_(i-1) + max(0, h_i - (i-1))."
+  ],
+  "nudges": [
+   "After a mob has taken fall damage, where is it in its stack, and can it fall again?",
+   "If a mob takes more than one point of fall damage, how did the mob just below it die?",
+   "What are the only ways mob i can be dealt with, given what happens to mob i-1?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2184G",
+  "site": "Codeforces",
+  "contest": 2184,
+  "index": "G",
+  "title": "Nastiness of Segments",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2184/problem/G",
+  "editorial": "https://codeforces.com/blog/entry/150033",
+  "ideas": [
+   "search-answer",
+   "segment-tree"
+  ],
+  "observations": [
+   "Fix l. As d grows, d itself strictly increases while min(a_l..a_(l+d)) never increases, so they can be equal for at most one d: the answer to a query is 0 or 1.",
+   "If there is such a d, it is the smallest d with d >= min(a_l..a_(l+d)), because 'd minus the minimum' only ever grows. Find that d by halving and check for equality.",
+   "Each test needs a range minimum under point updates: a segment tree. Halving over it costs log^2 per query; walking down the tree once brings it to log."
+  ],
+  "nudges": [
+   "For a fixed left end, how do d and the minimum of the first d + 1 elements each change as d grows?",
+   "How many times can a strictly increasing sequence meet a non-increasing one?",
+   "Which d would you test first, and what does the result of the test tell you about where the meeting point is?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
   "id": "cf-2217D",
   "site": "Codeforces",
   "contest": 2217,

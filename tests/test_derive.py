@@ -356,7 +356,7 @@ class App(unittest.TestCase):
 
     # ---- puzzles ----
     def test_puzzles_come_one_at_a_time_and_giving_up_is_not_solving(self):
-        page = self.get('/puzzles')
+        page = self.get('/puzzles?set=invariants')
         first = page['puzzle']
         self.assertEqual((page['set'], first['id']), ('invariants', 'i-sum'))
         self.assertNotIn('answer', first); self.assertNotIn('showed', first)

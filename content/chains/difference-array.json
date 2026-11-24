@@ -1,0 +1,146 @@
+{
+ "idea": "difference-array",
+ "opening": "Now the other way round: many changes to whole stretches, and only at the end does anyone look at the array.",
+ "steps": [
+  {
+   "id": "apply",
+   "kind": "list",
+   "prompt": "Start with six zeros. Add 5 to positions 2 through 4, then add 3 to positions 3 through 6. Write the final array.",
+   "answer": [
+    0,
+    5,
+    8,
+    8,
+    3,
+    3
+   ],
+   "verify": "a = [0] * 6\nfor l, r, v in [(2, 4, 5), (3, 6, 3)]:\n    for i in range(l - 1, r): a[i] += v\nresult = a",
+   "nudges": [
+    "Which positions were touched by both changes?"
+   ],
+   "showed": "Seven individual additions for two changes.",
+   "ordered": true
+  },
+  {
+   "id": "gaps",
+   "kind": "list",
+   "prompt": "For that final array $0, 5, 8, 8, 3, 3$ write the jumps: $d_1 = a_1$ and $d_i = a_i - a_{i-1}$ for $i = 2, \\dots, 6$.",
+   "answer": [
+    0,
+    5,
+    3,
+    0,
+    -5,
+    0
+   ],
+   "verify": "a = [0, 5, 8, 8, 3, 3]\nresult = [a[0]] + [a[i] - a[i - 1] for i in range(1, 6)]",
+   "nudges": [
+    "What is $a_5 - a_4$?"
+   ],
+   "showed": "Mostly zeros. The non-zero jumps sit where a change began or just after one ended.",
+   "ordered": true
+  },
+  {
+   "id": "one",
+   "kind": "list",
+   "prompt": "Start again from six zeros and make only the first change (add 5 to positions 2 through 4). Which positions $i$ have a non-zero jump $d_i$?",
+   "answer": [
+    2,
+    5
+   ],
+   "verify": "a = [0, 5, 5, 5, 0, 0]\nd = [a[0]] + [a[i] - a[i - 1] for i in range(1, 6)]\nresult = [i + 1 for i in range(6) if d[i]]",
+   "nudges": [
+    "Where does the array step up, and where does it step back down?"
+   ],
+   "showed": "Up at position 2, down at position 5: one past the end of the stretch."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Adding $v$ to every position from $l$ to $r$ does what to the jumps?",
+   "options": [
+    "$d_l$ goes up by $v$, $d_{r+1}$ goes down by $v$, nothing else changes",
+    "every $d_i$ with $l \\le i \\le r$ goes up by $v$",
+    "$d_l$ and $d_r$ both go up by $v$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Inside the stretch, both $a_i$ and $a_{i-1}$ grew by $v$. What happened to their difference?"
+   ],
+   "showed": "Two entries change, however long the stretch is."
+  },
+  {
+   "id": "cost",
+   "kind": "number",
+   "prompt": "$10^5$ changes are made, each to a stretch of up to $10^5$ positions. If you only keep the jumps up to date, at most how many entries do you change in total?",
+   "answer": 200000,
+   "verify": "result = 2 * 10**5",
+   "nudges": [
+    "How many jumps does one change touch?"
+   ],
+   "showed": "Two per change, instead of up to $10^{10}$ individual additions."
+  },
+  {
+   "id": "rebuild",
+   "kind": "list",
+   "prompt": "The jumps are $2, 0, -1, 4, 0, -5$. Rebuild the array.",
+   "answer": [
+    2,
+    2,
+    1,
+    5,
+    5,
+    0
+   ],
+   "verify": "import itertools\nresult = list(itertools.accumulate([2, 0, -1, 4, 0, -5]))",
+   "nudges": [
+    "$a_1 = d_1$. How do you get $a_2$ from $a_1$ and $d_2$?"
+   ],
+   "showed": "The array is the running total of its jumps: one pass at the very end.",
+   "ordered": true
+  },
+  {
+   "id": "max",
+   "kind": "number",
+   "prompt": "Ten zeros. Add 1 to positions 1 to 10, add 2 to positions 3 to 7, add 4 to position 5 only, add 3 to positions 6 to 9. What is the largest value in the final array?",
+   "answer": 7,
+   "verify": "a = [0] * 11\nfor l, r, v in [(1, 10, 1), (3, 7, 2), (5, 5, 4), (6, 9, 3)]:\n    for i in range(l, r + 1): a[i] += v\nresult = max(a)",
+   "nudges": [
+    "Which eight jump updates do these four changes make?"
+   ],
+   "showed": "Eight updates to the jumps, one pass of running totals, then look."
+  },
+  {
+   "id": "overlap",
+   "kind": "number",
+   "prompt": "Five trains occupy a station during the minutes 1 to 4, 2 to 6, 5 to 8, 3 to 5 and 7 to 9 (both ends included). What is the largest number of trains in the station in the same minute?",
+   "answer": 3,
+   "verify": "spans = [(1, 4), (2, 6), (5, 8), (3, 5), (7, 9)]\nresult = max(sum(1 for l, r in spans if l <= t <= r) for t in range(1, 10))",
+   "nudges": [
+    "Treat each train as \"add 1 to every minute of its stay\". Where do the jumps go?"
+   ],
+   "showed": "Each train is +1 at its first minute and -1 just after its last; the running total is the number present."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $d_1 = a_1$ and $d_i = a_i - a_{i-1}$. Prove that adding $v$ to $a_l, \\dots, a_r$ (with $r < n$) changes $d_l$ by $+v$, changes $d_{r+1}$ by $-v$, and changes no other $d_i$.",
+   "claims": [
+    "For l < i <= r both a_i and a_(i-1) increase by v, so their difference d_i is unchanged.",
+    "For d_l: a_l increases by v while a_(l-1) (or nothing, if l = 1) does not, so d_l increases by v.",
+    "For d_(r+1): a_(r+1) does not change while a_r increases by v, so d_(r+1) decreases by v.",
+    "For i < l or i > r + 1 neither a_i nor a_(i-1) changes, so d_i is unchanged."
+   ],
+   "nudges": [
+    "Into which groups do the positions $i$ fall, according to whether $i$ and $i-1$ lie inside the stretch?",
+    "What is special about $i = l$ and $i = r + 1$?"
+   ],
+   "showed": "Only the two edges of the stretch see one neighbour move and the other stay."
+  }
+ ],
+ "reveal": {
+  "name": "Difference array",
+  "statement": "With $d_1 = a_1$ and $d_i = a_i - a_{i-1}$: adding $v$ to $a_l..a_r$ is $d_l \\mathrel{+}= v$ and $d_{r+1} \\mathrel{-}= v$, and $a$ is the running total of $d$.",
+  "remark": "It is the mirror image of running totals: there, build once and answer many blocks; here, apply many block changes and build once. Looking at the jumps also turns \"flip a whole stretch\" into \"toggle two boundaries\"."
+ }
+}

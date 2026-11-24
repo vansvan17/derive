@@ -1,0 +1,144 @@
+{
+ "idea": "prefix-sums",
+ "opening": "You will be asked about many stretches of the same array. Find a way to answer each one without walking along it.",
+ "steps": [
+  {
+   "id": "walk",
+   "kind": "number",
+   "prompt": "The array is 3, 1, 4, 1, 5, 9, 2, 6. Add up the 3rd through the 6th elements.",
+   "answer": 19,
+   "verify": "a = [3, 1, 4, 1, 5, 9, 2, 6]\nresult = sum(a[2:6])",
+   "nudges": [
+    "Which four numbers are in positions 3, 4, 5 and 6?"
+   ],
+   "showed": "Four additions for a stretch of four. A stretch of a million would take a million."
+  },
+  {
+   "id": "totals",
+   "kind": "list",
+   "prompt": "For the same array, write the running totals: the total after 1 element, after 2 elements, and so on up to all 8.",
+   "answer": [
+    3,
+    4,
+    8,
+    9,
+    14,
+    23,
+    25,
+    31
+   ],
+   "verify": "a = [3, 1, 4, 1, 5, 9, 2, 6]\nimport itertools\nresult = list(itertools.accumulate(a))",
+   "nudges": [
+    "What is the total after two elements, and how do you get the total after three from it?"
+   ],
+   "showed": "Eight totals, each from the one before with a single addition.",
+   "ordered": true
+  },
+  {
+   "id": "subtract",
+   "kind": "number",
+   "prompt": "Using only your list of running totals: take the total after 6 elements and subtract the total after 2 elements. What do you get?",
+   "answer": 19,
+   "verify": "a = [3, 1, 4, 1, 5, 9, 2, 6]\nimport itertools\np = list(itertools.accumulate(a))\nresult = p[5] - p[1]",
+   "nudges": [
+    "Which entries of your list are the 6th and the 2nd?"
+   ],
+   "showed": "The same 19 as before: everything up to position 6, minus everything up to position 2, leaves positions 3 to 6."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Let $T(i)$ be the total of the first $i$ elements, with $T(0) = 0$. The sum of the elements in positions $l$ through $r$ is:",
+   "options": [
+    "$T(r) - T(l-1)$",
+    "$T(r) - T(l)$",
+    "$T(r-1) - T(l-1)$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Position $l$ itself must stay in the answer. Which total stops just before it?"
+   ],
+   "showed": "Subtract the total that ends just before the stretch begins."
+  },
+  {
+   "id": "first",
+   "kind": "number",
+   "prompt": "With the same array and the same rule, what is the sum of positions 1 through 5? Use $T(0)$.",
+   "answer": 14,
+   "verify": "a = [3, 1, 4, 1, 5, 9, 2, 6]\nresult = sum(a[:5])",
+   "nudges": [
+    "What is $T(0)$, and why is it convenient to have it?"
+   ],
+   "showed": "$T(5) - T(0) = 14$. The extra entry $T(0) = 0$ means a stretch starting at position 1 needs no special case."
+  },
+  {
+   "id": "cost",
+   "kind": "number",
+   "prompt": "An array has $10^5$ elements and you are asked $10^5$ questions of the form \"sum of positions $l$ through $r$\". Once the running totals are built, how many subtractions answer all the questions?",
+   "answer": 100000,
+   "verify": "result = 10**5",
+   "nudges": [
+    "How many subtractions does one question need?"
+   ],
+   "showed": "One subtraction per question, instead of up to $10^5$ additions per question."
+  },
+  {
+   "id": "formula",
+   "kind": "number",
+   "prompt": "The array is $1, 2, 3, \\dots, 100$. Here $T(i) = i(i+1)/2$. What is the sum of positions 37 through 64?",
+   "answer": 1414,
+   "verify": "result = sum(range(37, 65))",
+   "nudges": [
+    "Which two values of $T$ do you need?"
+   ],
+   "showed": "$T(64) - T(36) = 2080 - 666$."
+  },
+  {
+   "id": "grid",
+   "kind": "number",
+   "prompt": "Now a grid. Entry $(i, j)$ is $i \\cdot j$. Let $S(i, j)$ be the total of the rectangle from $(1,1)$ to $(i,j)$. You are told $S(3,3) = 36$, $S(1,3) = 6$, $S(3,1) = 6$ and $S(1,1) = 1$. What is the total of the square with rows 2 to 3 and columns 2 to 3?",
+   "answer": 25,
+   "verify": "result = sum(i * j for i in (2, 3) for j in (2, 3))",
+   "nudges": [
+    "From the big rectangle, which strip must go to remove row 1, and which to remove column 1?",
+    "The two strips share the corner cell. How many times have you removed it?"
+   ],
+   "showed": "Take the big rectangle, remove the top strip and the left strip, and put back the corner that was removed twice."
+  },
+  {
+   "id": "gridrule",
+   "kind": "choice",
+   "prompt": "In general, the total of rows $r_1$ to $r_2$ and columns $c_1$ to $c_2$ is:",
+   "options": [
+    "$S(r_2,c_2) - S(r_1-1,c_2) - S(r_2,c_1-1) + S(r_1-1,c_1-1)$",
+    "$S(r_2,c_2) - S(r_1-1,c_2) - S(r_2,c_1-1) - S(r_1-1,c_1-1)$",
+    "$S(r_2,c_2) - S(r_1,c_1)$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which option gives 25 for the square you just computed?"
+   ],
+   "showed": "Two strips out, one corner back in."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that for any $1 \\le l \\le r \\le n$, with $T(0) = 0$ and $T(i) = a_1 + \\dots + a_i$, the sum $a_l + \\dots + a_r$ equals $T(r) - T(l-1)$.",
+   "claims": [
+    "T(r) is a_1 + ... + a_r, which splits into (a_1 + ... + a_(l-1)) + (a_l + ... + a_r) because l <= r.",
+    "The first part is exactly T(l-1), including the case l = 1 where it is the empty sum T(0) = 0.",
+    "Subtracting T(l-1) from T(r) therefore leaves a_l + ... + a_r."
+   ],
+   "nudges": [
+    "Into which two pieces can you split the first $r$ elements?",
+    "What happens to your argument when $l = 1$?"
+   ],
+   "showed": "Split the first $r$ elements at position $l-1$; the left piece is a total you already have."
+  }
+ ],
+ "reveal": {
+  "name": "Prefix sums",
+  "statement": "With $P_0 = 0$ and $P_i = a_1 + \\dots + a_i$, every block sum is a difference of two of them: $a_l + \\dots + a_r = P_r - P_{l-1}$.",
+  "remark": "Build once in $O(n)$, answer each block in $O(1)$. The same idea works for any operation that can be undone (XOR, counts, products modulo a prime), and in two dimensions with one corner added back."
+ }
+}

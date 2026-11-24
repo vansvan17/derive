@@ -1,0 +1,139 @@
+{
+ "idea": "search-answer",
+ "opening": "Two guessing games and two puzzles that turn out to be the same game.",
+ "steps": [
+  {
+   "id": "guess",
+   "kind": "number",
+   "prompt": "I am thinking of a whole number from 1 to 1000. You may ask \"is it at least $x$?\" for any $x$. With the best strategy, how many questions are always enough?",
+   "answer": 10,
+   "verify": "import math\nresult = math.ceil(math.log2(1000))",
+   "nudges": [
+    "After one well-chosen question, how many candidates can remain at most?",
+    "How many times can 1000 be halved before one candidate is left?"
+   ],
+   "showed": "Each question can halve the candidates, and $2^{10} = 1024 \\ge 1000$."
+  },
+  {
+   "id": "cut200",
+   "kind": "number",
+   "prompt": "Four planks have lengths 802, 743, 457 and 539. You cut them into pieces of one equal whole length $L$, throwing away leftovers. With $L = 200$, how many pieces do you get?",
+   "answer": 11,
+   "verify": "planks = [802, 743, 457, 539]\nresult = sum(p // 200 for p in planks)",
+   "nudges": [
+    "How many pieces of 200 fit in 802?"
+   ],
+   "showed": "4 + 3 + 2 + 2."
+  },
+  {
+   "id": "cut201",
+   "kind": "number",
+   "prompt": "Same planks, $L = 201$. How many pieces?",
+   "answer": 10,
+   "verify": "planks = [802, 743, 457, 539]\nresult = sum(p // 201 for p in planks)",
+   "nudges": [
+    "Which plank loses a piece?"
+   ],
+   "showed": "The 802 plank now gives only 3."
+  },
+  {
+   "id": "mono",
+   "kind": "choice",
+   "prompt": "Suppose some length $L$ gives at least 11 pieces. Then any shorter length:",
+   "options": [
+    "also gives at least 11 pieces",
+    "may give fewer than 11",
+    "gives exactly 11"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Can shortening the piece length reduce the number of pieces cut from one plank?"
+   ],
+   "showed": "Shorter pieces never give fewer of them. So the workable lengths are exactly 1 up to some limit."
+  },
+  {
+   "id": "best",
+   "kind": "number",
+   "prompt": "What is the largest $L$ that gives at least 11 pieces from those planks?",
+   "answer": 200,
+   "verify": "planks = [802, 743, 457, 539]\nresult = max(L for L in range(1, 803) if sum(p // L for p in planks) >= 11)",
+   "nudges": [
+    "Which length do you already know works, and what happens one above it?"
+   ],
+   "showed": "200 works and 201 does not, and by the previous step nothing above 201 works either."
+  },
+  {
+   "id": "tests",
+   "kind": "number",
+   "prompt": "Now the planks can be up to $10^9$ long, so $L$ ranges from 1 to $10^9$. You can test any single $L$ quickly. How many tests are always enough to find the largest workable $L$?",
+   "answer": 30,
+   "verify": "import math\nresult = math.ceil(math.log2(10**9))",
+   "nudges": [
+    "A test of the middle length tells you which half the limit is in. Which earlier step is this?"
+   ],
+   "showed": "It is the guessing game: \"does $L$ work?\" plays the part of \"is it at least $x$?\", and $2^{30} > 10^9$."
+  },
+  {
+   "id": "stalls",
+   "kind": "number",
+   "prompt": "Five stalls stand at positions 1, 2, 4, 8 and 9. Put 3 cows in different stalls so that the smallest distance between two cows is as large as possible. What is that distance?",
+   "answer": 3,
+   "verify": "import itertools\nresult = max(min(b - a for a, b in zip(c, c[1:])) for c in itertools.combinations([1, 2, 4, 8, 9], 3))",
+   "nudges": [
+    "Pick a distance $d$. How would you check, left to right, whether 3 cows can be placed at least $d$ apart?",
+    "If distance $d$ is possible, what about $d - 1$?"
+   ],
+   "showed": "Stalls 1, 4 and 8 (or 9). Asking \"can I keep them $d$ apart?\" is easy to check greedily, and yes for small $d$, no for large $d$."
+  },
+  {
+   "id": "shape",
+   "kind": "choice",
+   "prompt": "What did the planks and the cows have in common that made the guessing strategy work?",
+   "options": [
+    "As $x$ grows, the answer to \"is $x$ achievable?\" changes only once",
+    "The answer is a whole number",
+    "The input was sorted"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Write yes or no under $x = 1, 2, 3, \\dots$ for the planks. What does the row look like?"
+   ],
+   "showed": "A row of yes followed by a row of no. Finding the answer means finding where the row changes."
+  },
+  {
+   "id": "fails",
+   "kind": "choice",
+   "prompt": "For some other puzzle, \"is $x$ achievable?\" is yes for $x = 1, 2, 3, 7, 8$ and no for $x = 4, 5, 6, 9, 10$. Does testing the middle and keeping one half find the largest achievable $x$?",
+   "options": [
+    "Not reliably: a no in the middle does not rule out everything above it",
+    "Yes, always",
+    "Yes, but it needs twice as many tests"
+   ],
+   "answer": 0,
+   "nudges": [
+    "You test $x = 5$ and hear no. Which half would you keep, and where is the true answer?"
+   ],
+   "showed": "Testing 5 says no, yet 8 is achievable. Without the single change from yes to no, halving has nothing to stand on."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "There are planks of lengths $a_1, \\dots, a_n$ and a target of $k$ pieces. Prove that if a whole length $L$ gives at least $k$ pieces, then every whole length $L'$ with $1 \\le L' < L$ also gives at least $k$ pieces.",
+   "claims": [
+    "A plank of length a gives floor(a / L) pieces of length L.",
+    "If L' < L then a / L' >= a / L, so floor(a / L') >= floor(a / L): no plank gives fewer pieces.",
+    "Adding over all planks, the total for L' is at least the total for L, which is at least k."
+   ],
+   "nudges": [
+    "How many pieces does one plank give, as a formula?",
+    "How does that formula for $L$ compare with the same formula for a smaller $L'$?"
+   ],
+   "showed": "Plank by plank, shorter pieces never give fewer."
+  }
+ ],
+ "reveal": {
+  "name": "Binary search on the answer",
+  "statement": "If the answer to \"can it be done with $x$?\" switches only once as $x$ grows, the boundary can be found with about $\\log_2(\\text{range})$ tests of single values.",
+  "remark": "The work moves into two places: proving the single switch, and writing the test for one fixed $x$, which is usually a simple greedy. Typical phrasing in problems: \"maximise the minimum\" or \"minimise the maximum\"."
+ }
+}

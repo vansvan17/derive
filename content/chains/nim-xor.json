@@ -1,0 +1,145 @@
+{
+ "idea": "nim-xor",
+ "opening": "A game with piles of stones whose winner can be read off from the binary digits of the pile sizes.",
+ "steps": [
+  {
+   "id": "equal",
+   "kind": "choice",
+   "prompt": "The game: several piles of stones; a move removes any positive number of stones from a single pile; whoever takes the last stone wins. With two piles of 6 and 6, who wins?",
+   "options": [
+    "The second player, by copying each move in the other pile",
+    "The first player",
+    "It depends on the first move"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Whatever the first player does to one pile, what can the second do to the other?"
+   ],
+   "showed": "Equal piles are lost for the player to move."
+  },
+  {
+   "id": "p123",
+   "kind": "choice",
+   "prompt": "Same game with piles of 1, 2 and 3. Who wins with perfect play?",
+   "options": [
+    "The second player",
+    "The first player",
+    "Neither can force a win"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Try each first move. Can the second player always leave two equal piles (and nothing else)?"
+   ],
+   "showed": "Every first move can be answered by leaving two equal piles."
+  },
+  {
+   "id": "x123",
+   "kind": "number",
+   "prompt": "What is 1 XOR 2 XOR 3?",
+   "answer": 0,
+   "verify": "result = 1 ^ 2 ^ 3",
+   "nudges": [
+    "In binary, how many of 1, 2, 3 have a 1 in the 1s place, and how many in the 2s place?"
+   ],
+   "showed": "Zero. And 6 XOR 6 is also zero. Both were lost positions for the player to move."
+  },
+  {
+   "id": "x345",
+   "kind": "number",
+   "prompt": "What is 3 XOR 4 XOR 5?",
+   "answer": 2,
+   "verify": "result = 3 ^ 4 ^ 5",
+   "nudges": [
+    "What is 3 XOR 4?"
+   ],
+   "showed": "Not zero, so perhaps this position is good for the player to move."
+  },
+  {
+   "id": "fix",
+   "kind": "list",
+   "prompt": "From piles 3, 4, 5, the player to move wants to leave piles whose XOR is 0 by reducing one pile. What are the three pile sizes afterwards?",
+   "answer": [
+    1,
+    4,
+    5
+   ],
+   "verify": "out = None\nfor i, p in enumerate((3, 4, 5)):\n    for q in range(p):\n        t = [3, 4, 5]; t[i] = q\n        if t[0] ^ t[1] ^ t[2] == 0: out = t\nresult = out",
+   "nudges": [
+    "The XOR is 2. Which pile becomes smaller when you XOR it with 2?"
+   ],
+   "showed": "Reduce the 3 to 3 XOR 2 = 1. The other piles would grow if XORed with 2, which is not allowed."
+  },
+  {
+   "id": "break",
+   "kind": "choice",
+   "prompt": "The piles have XOR 0 and you must move. Can your move leave XOR 0 again?",
+   "options": [
+    "No: changing one pile changes the total XOR",
+    "Yes, by taking an even number of stones",
+    "Yes, if two piles are equal"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If only one pile changes from $p$ to $q$, what is the new XOR in terms of the old one?"
+   ],
+   "showed": "From XOR 0 you are forced to hand over a non-zero XOR."
+  },
+  {
+   "id": "restore",
+   "kind": "choice",
+   "prompt": "The piles have XOR $X \\ne 0$. Is there always a pile $p$ with $p$ XOR $X$ smaller than $p$?",
+   "options": [
+    "Yes: any pile that has a 1 in the highest binary place of $X$",
+    "No",
+    "Only if some pile is larger than $X$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Look at the highest place where $X$ has a 1. Does some pile have a 1 there? What happens to that pile when XORed with $X$?"
+   ],
+   "showed": "That place is 1 in an odd number of piles, so in at least one. XOR with $X$ turns it to 0 and only changes lower places, so the pile gets smaller."
+  },
+  {
+   "id": "moves",
+   "kind": "number",
+   "prompt": "Piles of 7, 9, 12 and 14. How many different winning first moves are there?",
+   "answer": 3,
+   "verify": "def win(s, memo={}):\n    s = tuple(sorted(s))\n    if s not in memo: memo[s] = any(not win(s[:i] + (p - k,) + s[i + 1:]) for i, p in enumerate(s) for k in range(1, p + 1))\n    return memo[s]\nresult = sum(1 for i, p in enumerate((7, 9, 12, 14)) for q in range(p) if not win((7, 9, 12, 14)[:i] + (q,) + (7, 9, 12, 14)[i + 1:]))",
+   "nudges": [
+    "What is the XOR of the four piles, and which piles have a 1 in its highest place?"
+   ],
+   "showed": "The XOR is 12, whose highest place is the 8s place. Piles 9, 12 and 14 have it: reduce 9 to 5, or 12 to 0, or 14 to 2."
+  },
+  {
+   "id": "take",
+   "kind": "number",
+   "prompt": "Piles of 5, 5, 7, 7 and 9. How many stones should the first player take?",
+   "answer": 9,
+   "verify": "def win(s, memo={}):\n    s = tuple(sorted(s))\n    if s not in memo: memo[s] = any(not win(s[:i] + (p - k,) + s[i + 1:]) for i, p in enumerate(s) for k in range(1, p + 1))\n    return memo[s]\nresult = next(9 - q for q in range(9) if not win((5, 5, 7, 7, q)))",
+   "nudges": [
+    "Which piles already cancel each other?"
+   ],
+   "showed": "The pairs cancel; remove the odd pile out entirely and copy from then on."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "In the game above, prove that if the XOR of all pile sizes is 0, then after any move it is not 0.",
+   "claims": [
+    "A move changes exactly one pile, from p to some q with q < p; all other piles stay the same.",
+    "The new XOR equals the old XOR, XOR p, XOR q (remove the old pile, put in the new one), which is 0 XOR p XOR q = p XOR q.",
+    "p XOR q is 0 only when p = q, and here q < p, so the new XOR is not 0."
+   ],
+   "nudges": [
+    "How many piles does a move change?",
+    "How do you update a XOR when one of its terms changes?"
+   ],
+   "showed": "Swap one term of the XOR for a different one and the total cannot stay 0."
+  }
+ ],
+ "reveal": {
+  "name": "Nim and the XOR of the piles",
+  "statement": "In Nim (take any number from one pile, last stone wins) the player to move loses exactly when the XOR of the pile sizes is 0. From XOR 0 every move makes it non-zero; from XOR $X \\ne 0$, reduce a pile $p$ having the top bit of $X$ to $p \\oplus X$.",
+  "remark": "Many games are Nim in disguise. When a game splits into independent parts, compute a \"pile size\" for each part by brute force on small cases and XOR them."
+ }
+}

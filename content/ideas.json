@@ -639,6 +639,16 @@
    "needs": [
     "contribution"
    ]
+  },
+  {
+   "id": "nim-xor",
+   "area": "game",
+   "name": "Nim and the XOR of the piles",
+   "statement": "In Nim the player to move loses exactly when the XOR of the pile sizes is 0: from XOR 0 every move breaks it, and from any other value some move restores it.",
+   "needs": [
+    "win-lose-states",
+    "xor-cancels"
+   ]
   }
  ]
 }

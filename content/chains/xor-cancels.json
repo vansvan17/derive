@@ -1,0 +1,129 @@
+{
+ "idea": "xor-cancels",
+ "opening": "One operation on binary digits with an unusual property: doing it twice is the same as not doing it.",
+ "steps": [
+  {
+   "id": "self",
+   "kind": "number",
+   "prompt": "XOR compares two numbers digit by digit in binary: the result has a 1 where they differ and a 0 where they agree. What is 6 XOR 6?",
+   "answer": 0,
+   "verify": "result = 6 ^ 6",
+   "nudges": [
+    "In which binary places do 6 and 6 differ?"
+   ],
+   "showed": "A number never differs from itself."
+  },
+  {
+   "id": "twice",
+   "kind": "number",
+   "prompt": "What is 13 XOR 7 XOR 7?",
+   "answer": 13,
+   "verify": "result = 13 ^ 7 ^ 7",
+   "nudges": [
+    "What is 7 XOR 7, and what does XOR with that do?"
+   ],
+   "showed": "The two 7s cancel and 13 is back."
+  },
+  {
+   "id": "list",
+   "kind": "number",
+   "prompt": "XOR together the numbers 4, 9, 4, 2, 9.",
+   "answer": 2,
+   "verify": "result = 4 ^ 9 ^ 4 ^ 2 ^ 9",
+   "nudges": [
+    "Which numbers appear twice?"
+   ],
+   "showed": "The 4s cancel, the 9s cancel, 2 is left."
+  },
+  {
+   "id": "order",
+   "kind": "choice",
+   "prompt": "Does the result of XOR-ing a list of numbers depend on the order, or on how you group them?",
+   "options": [
+    "No: each binary place only counts whether an odd number of the inputs have a 1 there",
+    "Yes, the order matters",
+    "The grouping matters but not the order"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What decides whether the 4s place of the result is 1?"
+   ],
+   "showed": "Each place is 1 exactly when an odd number of inputs have a 1 there, and that does not depend on order."
+  },
+  {
+   "id": "solve",
+   "kind": "number",
+   "prompt": "Some number XOR 6 equals 10. What is the number?",
+   "answer": 12,
+   "verify": "result = next(a for a in range(64) if a ^ 6 == 10)",
+   "nudges": [
+    "What happens if you XOR both sides with 6?"
+   ],
+   "showed": "XOR both sides with 6: the unknown is 10 XOR 6. XOR is its own undo."
+  },
+  {
+   "id": "missing",
+   "kind": "number",
+   "prompt": "The list 0, 1, 2, 3, 5, 6, 7, 8 is the numbers 0 to 8 with one missing. XOR everything in the list with all of 0, 1, ..., 8. What do you get?",
+   "answer": 4,
+   "verify": "import functools, operator\nresult = functools.reduce(operator.xor, [0, 1, 2, 3, 5, 6, 7, 8] + list(range(9)))",
+   "nudges": [
+    "Which numbers appear twice in the combined collection?"
+   ],
+   "showed": "Everything present appears twice and cancels; the missing number appears once."
+  },
+  {
+   "id": "swap",
+   "kind": "number",
+   "prompt": "Start with x = 5 and y = 9. Do these three steps in order: x becomes x XOR y; y becomes x XOR y; x becomes x XOR y. What is x at the end?",
+   "answer": 9,
+   "verify": "x, y = 5, 9\nx ^= y; y ^= x; x ^= y\nresult = x",
+   "nudges": [
+    "After the first step x holds 5 XOR 9. What does the second step put into y?"
+   ],
+   "showed": "The two values have traded places, with no spare variable."
+  },
+  {
+   "id": "block",
+   "kind": "number",
+   "prompt": "The array is 3, 5, 6, 2. Let $X(i)$ be the XOR of its first $i$ elements, so $X(1) = 3$ and $X(4) = 2$. What is $X(4)$ XOR $X(1)$?",
+   "answer": 1,
+   "verify": "result = (3 ^ 5 ^ 6 ^ 2) ^ 3",
+   "nudges": [
+    "Which elements are in $X(4)$ but not in $X(1)$?"
+   ],
+   "showed": "It is 5 XOR 6 XOR 2: the first element cancelled, leaving the XOR of elements 2 to 4."
+  },
+  {
+   "id": "zero",
+   "kind": "number",
+   "prompt": "How many contiguous blocks of the array 1, 2, 3 have XOR equal to 0?",
+   "answer": 1,
+   "verify": "import functools, operator\na = [1, 2, 3]\nresult = sum(1 for i in range(3) for j in range(i, 3) if functools.reduce(operator.xor, a[i:j + 1]) == 0)",
+   "nudges": [
+    "A block has XOR 0 exactly when two running XORs are what?"
+   ],
+   "showed": "Only the whole array: the running XORs are 0, 1, 3, 0 and the two equal values are at the ends."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that for all whole numbers $a, b \\ge 0$: $(a \\text{ XOR } b) \\text{ XOR } b = a$.",
+   "claims": [
+    "XOR works on each binary place separately, so it is enough to prove it for single bits.",
+    "For a single bit b, b XOR b = 0 whether b is 0 or 1.",
+    "XOR of bits is associative (it is addition mod 2), so (a XOR b) XOR b = a XOR (b XOR b) = a XOR 0 = a."
+   ],
+   "nudges": [
+    "Why is it enough to look at one binary place?",
+    "What is a bit XOR itself, and how do you regroup the three terms?"
+   ],
+   "showed": "Place by place, it is addition mod 2, where adding the same thing twice does nothing."
+  }
+ ],
+ "reveal": {
+  "name": "XOR undoes itself",
+  "statement": "$x \\oplus x = 0$ and $x \\oplus 0 = x$; XOR is commutative and associative. So anything XORed in twice disappears, and $a \\oplus b = c$ can be rearranged to $a = c \\oplus b$.",
+  "remark": "It gives prefix XORs (a block is two prefixes), \"find the element without a partner\", and reversible toggling. Think of it as addition without carries."
+ }
+}

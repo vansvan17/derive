@@ -1,0 +1,139 @@
+{
+ "idea": "bits-independent",
+ "opening": "Sums of AND, OR and XOR over many pairs look expensive. They fall apart into thirty tiny problems.",
+ "steps": [
+  {
+   "id": "and",
+   "kind": "number",
+   "prompt": "What is 12 AND 10? (AND has a 1 only where both numbers have a 1.)",
+   "answer": 8,
+   "verify": "result = 12 & 10",
+   "nudges": [
+    "Write both in binary. In which places do both have a 1?"
+   ],
+   "showed": "1100 and 1010 share only the 8s place."
+  },
+  {
+   "id": "or",
+   "kind": "number",
+   "prompt": "What is 12 OR 10? (OR has a 1 where at least one number has a 1.)",
+   "answer": 14,
+   "verify": "result = 12 | 10",
+   "nudges": [
+    "In which places does at least one of them have a 1?"
+   ],
+   "showed": "1110."
+  },
+  {
+   "id": "local",
+   "kind": "choice",
+   "prompt": "To know the 4s place of $a$ AND $b$, which digits of $a$ and $b$ do you need?",
+   "options": [
+    "Only their 4s places",
+    "Their 4s places and everything below",
+    "All of their digits"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Is there any carrying from one place to the next?"
+   ],
+   "showed": "No carries: each place of the result depends only on the same place of the inputs. That is true of AND, OR and XOR, and false for addition."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "Among the numbers 1, 2, 3, 4, how many have a 1 in the 1s place?",
+   "answer": 2,
+   "verify": "result = sum(x & 1 for x in (1, 2, 3, 4))",
+   "nudges": [
+    "Which of them are odd?"
+   ],
+   "showed": "1 and 3. In the 2s place it is 2 and 3; in the 4s place only 4."
+  },
+  {
+   "id": "oneplace",
+   "kind": "number",
+   "prompt": "Take the six pairs you can form from 1, 2, 3, 4. In how many pairs do the two numbers differ in the 1s place?",
+   "answer": 4,
+   "verify": "import itertools\nresult = sum(1 for a, b in itertools.combinations((1, 2, 3, 4), 2) if (a ^ b) & 1)",
+   "nudges": [
+    "A pair differs in that place when one number has the bit and the other does not. How many of each kind are there?"
+   ],
+   "showed": "Two numbers have the bit and two do not: 2 times 2 pairs."
+  },
+  {
+   "id": "rule",
+   "kind": "formula",
+   "prompt": "Among $n$ numbers, $c$ have a 1 in a certain binary place. In how many pairs do the two numbers differ in that place?",
+   "answer": "c*(n-c)",
+   "vars": {
+    "c": [
+     0,
+     6
+    ],
+    "n": [
+     6,
+     12
+    ]
+   },
+   "verify": "import itertools\nbits = [1] * c + [0] * (n - c)\nresult = sum(1 for a, b in itertools.combinations(bits, 2) if a != b)",
+   "nudges": [
+    "How many ways are there to pick one number with the bit and one without?"
+   ],
+   "showed": "One from each group."
+  },
+  {
+   "id": "xorsum",
+   "kind": "number",
+   "prompt": "Add up a XOR b over all six pairs from 1, 2, 3, 4.",
+   "answer": 24,
+   "verify": "import itertools\nresult = sum(a ^ b for a, b in itertools.combinations((1, 2, 3, 4), 2))",
+   "nudges": [
+    "For each place, how many pairs differ there, and what is that place worth?"
+   ],
+   "showed": "1s place: 4 pairs worth 1. 2s place: 4 pairs worth 2. 4s place: 3 pairs worth 4. Total 4 + 8 + 12."
+  },
+  {
+   "id": "andsum",
+   "kind": "number",
+   "prompt": "Add up a AND b over all six pairs from 1, 2, 3, 4.",
+   "answer": 3,
+   "verify": "import itertools\nresult = sum(a & b for a, b in itertools.combinations((1, 2, 3, 4), 2))",
+   "nudges": [
+    "In a given place, which pairs contribute to an AND?"
+   ],
+   "showed": "A place contributes when both numbers have the bit: 1 pair in the 1s place, 1 pair in the 2s place, none in the 4s place."
+  },
+  {
+   "id": "cost",
+   "kind": "number",
+   "prompt": "For $2 \\cdot 10^5$ numbers below $2^{30}$, going pair by pair would take about $2 \\cdot 10^{10}$ steps. Counting bits place by place instead, how many (number, place) checks are needed?",
+   "answer": 6000000,
+   "verify": "result = 2 * 10 ** 5 * 30",
+   "nudges": [
+    "How many places are there, and how many numbers?"
+   ],
+   "showed": "Thirty passes over the array."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $a_1, \\dots, a_n$ be whole numbers below $2^{30}$ and let $c_k$ be how many of them have a 1 in place $k$. Prove that the sum of $a_i \\text{ XOR } a_j$ over all pairs $i < j$ equals $\\sum_{k=0}^{29} 2^k \\cdot c_k (n - c_k)$.",
+   "claims": [
+    "a_i XOR a_j equals the sum over places k of 2^k times (1 if a_i and a_j differ in place k, else 0), because XOR has no carries.",
+    "Summing over all pairs and swapping the order of summation, the total is the sum over k of 2^k times the number of pairs that differ in place k.",
+    "A pair differs in place k exactly when one number has the bit and the other does not, and there are c_k (n - c_k) such pairs."
+   ],
+   "nudges": [
+    "How do you write one XOR as a sum over binary places?",
+    "After swapping the two sums, what are you counting for each place?"
+   ],
+   "showed": "Split each XOR into its places, then count pairs place by place."
+  }
+ ],
+ "reveal": {
+  "name": "Each bit on its own",
+  "statement": "AND, OR and XOR have no carries: bit $k$ of the result depends only on bit $k$ of the inputs. So a sum of such values over many pairs or subsets can be computed one bit position at a time, by counting how many inputs have that bit.",
+  "remark": "Thirty (or sixty) independent yes-or-no problems. When a problem mixes bitwise operations with sums, ask what a single bit contributes."
+ }
+}

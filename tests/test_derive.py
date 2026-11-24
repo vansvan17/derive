@@ -108,6 +108,11 @@ class App(unittest.TestCase):
         shutil.copytree(REPO / 'content', cls.root / 'content')
         shutil.copytree(REPO / 'templates', cls.root / 'templates')
         (cls.root / 'content/problems.json').write_text(json.dumps(PROBLEMS))
+        # The proof-gate tests want a chain that ends on its proof, so this copy of one chain has no hard part.
+        plain = cls.root / 'content/chains/mult-permutes.json'
+        chain = json.loads(plain.read_text())
+        chain['steps'] = [s for s in chain['steps'] if s.get('tier') != 'hard']
+        plain.write_text(json.dumps(chain))
 
     @classmethod
     def tearDownClass(cls):
@@ -267,8 +272,9 @@ class App(unittest.TestCase):
         current = next(s for s in after['steps'] if not s['done'])
         self.assertEqual((current['id'], current['hard'], after['complete'], after['can_skip']), (hard[0], True, False, False))
         self.assertIsNone(after['reveal'])                                        # skipping reveals nothing
-        plain = self.post('/chain/skip', {'idea': 'residues'})[1]                 # no hard part: only the last step is left
-        self.assertEqual(next(s for s in plain['steps'] if not s['done'])['id'], json.loads((self.root / 'content/chains/residues.json').read_text())['steps'][-1]['id'])
+        self.derive('residues')
+        plain = self.post('/chain/skip', {'idea': 'mult-permutes'})[1]            # no hard part in this copy: only the last step is left
+        self.assertEqual(next(s for s in plain['steps'] if not s['done'])['id'], 'argument')
 
     # ---- the tutor ----
     def test_a_tutor_prompt_for_an_unfinished_step_holds_nothing_hidden(self):

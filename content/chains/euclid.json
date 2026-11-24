@@ -1,162 +1,201 @@
 {
-  "idea": "euclid",
-  "opening": "Taking away one small pile at a time is too slow. Take many away at once.",
-  "steps": [
-    {
-      "id": "many",
-      "kind": "number",
-      "prompt": "Piles of 100 and 7. How many times in a row is 7 taken from the first pile before it becomes smaller than 7?",
-      "answer": 14,
-      "verify": "result = 100 // 7",
-      "nudges": [
-        "How many sevens fit into 100?"
-      ],
-      "showed": "Fourteen moves in a row do the same thing."
-    },
-    {
-      "id": "left",
-      "kind": "number",
-      "prompt": "And how many stones are left in that pile then?",
-      "answer": 2,
-      "verify": "result = 100 % 7",
-      "nudges": [
-        "What is 100 minus fourteen sevens?"
-      ],
-      "showed": "Many subtractions at once are one division with remainder: $(a,b)$ becomes $(a \\bmod b,\\ b)$."
-    },
-    {
-      "id": "run",
-      "kind": "list",
-      "prompt": "Run the fast version on 1071 and 462: replace $(a,b)$ by $(b,\\ a\\bmod b)$ until the second number is 0. List the remainders you get, in order, ending with 0.",
-      "answer": [
-        147,
-        21,
-        0
-      ],
-      "verify": "out, a, b = [], 1071, 462\nwhile b:\n    a, b = b, a % b\n    out.append(b)\nresult = out",
-      "nudges": [
-        "What is $1071 \\bmod 462$?"
-      ],
-      "showed": "Three steps where subtraction took dozens. The last nonzero remainder is the gcd.",
-      "ordered": true
-    },
-    {
-      "id": "half-b",
-      "kind": "counterexample",
-      "prompt": "How fast is it? A first guess: the remainder $a\\bmod b$ is always less than half of $b$. That is false. Find $a\\ge b\\ge1$ (both at most 50) with $a\\bmod b\\ge b/2$. Answer as $a$, $b$.",
-      "vars": [
-        "a",
-        "b"
-      ],
-      "bounds": {
-        "a": [
-          1,
-          50
-        ],
-        "b": [
-          1,
-          50
-        ]
-      },
-      "property": "2*(a % b) >= b",
-      "verify": {
-        "works": [
-          [
-            5,
-            3
-          ],
-          [
-            7,
-            4
-          ]
-        ],
-        "fails": [
-          [
-            6,
-            3
-          ],
-          [
-            9,
-            4
-          ]
-        ]
-      },
-      "nudges": [
-        "Try b = 3. Which remainders are possible?"
-      ],
-      "showed": "A remainder can be nearly as large as b. So compare it with a instead.",
-      "require": "a >= b",
-      "require_message": "Keep a at least b."
-    },
-    {
-      "id": "half-a",
-      "kind": "number",
-      "prompt": "Count the pairs $1\\le b\\le a\\le60$ for which $a\\bmod b\\ge a/2$.",
-      "answer": 0,
-      "verify": "result = sum(1 for a in range(1, 61) for b in range(1, a + 1) if 2*(a % b) >= a)",
-      "nudges": [
-        "Case $b\\le a/2$: how large can a remainder on division by $b$ be?",
-        "Case $b>a/2$: what is $a\\bmod b$ exactly?"
-      ],
-      "showed": "None. $a\\bmod b<a/2$ always, so every two steps the larger number at least halves."
-    },
-    {
-      "id": "steps",
-      "kind": "choice",
-      "prompt": "Each pair of steps at least halves the first number. For numbers below $2^k$, the number of steps is therefore at most about:",
-      "options": [
-        "$2k$",
-        "$2^k$",
-        "$k^2$"
-      ],
-      "answer": 0,
-      "nudges": [
-        "How many times can a number below 2^k be halved before it reaches 0?"
-      ],
-      "showed": "About 2 log2 of the input: at most a couple of hundred steps even for 60-digit numbers."
-    },
-    {
-      "id": "worst",
-      "kind": "number",
-      "prompt": "How many division steps does the pair 89, 55 take until the second number is 0?",
-      "answer": 9,
-      "verify": "n, a, b = 0, 89, 55\nwhile b:\n    a, b, n = b, a % b, n + 1\nresult = n",
-      "nudges": [
-        "What are the first three remainders? Do you recognise the sequence?"
-      ],
-      "showed": "Neighbouring Fibonacci numbers are the slowest inputs: every quotient is 1."
-    },
-    {
-      "id": "exponents",
-      "kind": "number",
-      "prompt": "What is $\\gcd(2^{40}-1,\\ 2^{24}-1)$?",
-      "answer": 255,
-      "verify": "import math\nresult = math.gcd(2**40 - 1, 2**24 - 1)",
-      "nudges": [
-        "Compute $(2^{40}-1) - 2^{16}(2^{24}-1)$. What simple form does it have?",
-        "So the pair of exponents (40, 24) turns into which pair?"
-      ],
-      "showed": "The same steps happen in the exponents: $\\gcd(2^a-1,\\,2^b-1)=2^{\\gcd(a,b)}-1$."
-    },
-    {
-      "id": "argument",
-      "kind": "proof",
-      "prompt": "Prove that $a\\bmod b<a/2$ whenever $a\\ge b\\ge1$.",
-      "claims": [
-        "Case b <= a/2: the remainder is less than b, and b <= a/2, so it is less than a/2.",
-        "Case b > a/2: then b fits into a exactly once (since 2b > a >= b), so a mod b = a - b < a - a/2 = a/2.",
-        "The two cases cover every b with 1 <= b <= a."
-      ],
-      "nudges": [
-        "Which two cases for the size of b compared with a/2 are worth separating?",
-        "When b is more than half of a, how many times does b fit into a?"
-      ],
-      "showed": "The remainder is always under half of the number being divided."
-    }
-  ],
-  "reveal": {
-    "name": "Euclid's algorithm",
-    "statement": "$\\gcd(a,b)=\\gcd(b,\\ a\\bmod b)$ and $\\gcd(a,0)=a$. Since $a\\bmod b<a/2$, the algorithm ends after $O(\\log\\min(a,b))$ steps.",
-    "remark": "In C++ this is std::gcd (or __gcd). Knowing why it is logarithmic is what lets you call it inside a loop without fear."
+ "idea": "euclid",
+ "opening": "Taking away one small pile at a time is too slow. Take many away at once.",
+ "steps": [
+  {
+   "id": "many",
+   "kind": "number",
+   "prompt": "Piles of 100 and 7. How many times in a row is 7 taken from the first pile before it becomes smaller than 7?",
+   "answer": 14,
+   "verify": "result = 100 // 7",
+   "nudges": [
+    "How many sevens fit into 100?"
+   ],
+   "showed": "Fourteen moves in a row do the same thing."
+  },
+  {
+   "id": "left",
+   "kind": "number",
+   "prompt": "And how many stones are left in that pile then?",
+   "answer": 2,
+   "verify": "result = 100 % 7",
+   "nudges": [
+    "What is 100 minus fourteen sevens?"
+   ],
+   "showed": "Many subtractions at once are one division with remainder: $(a,b)$ becomes $(a \\bmod b,\\ b)$."
+  },
+  {
+   "id": "run",
+   "kind": "list",
+   "prompt": "Run the fast version on 1071 and 462: replace $(a,b)$ by $(b,\\ a\\bmod b)$ until the second number is 0. List the remainders you get, in order, ending with 0.",
+   "answer": [
+    147,
+    21,
+    0
+   ],
+   "verify": "out, a, b = [], 1071, 462\nwhile b:\n    a, b = b, a % b\n    out.append(b)\nresult = out",
+   "nudges": [
+    "What is $1071 \\bmod 462$?"
+   ],
+   "showed": "Three steps where subtraction took dozens. The last nonzero remainder is the gcd.",
+   "ordered": true
+  },
+  {
+   "id": "half-b",
+   "kind": "counterexample",
+   "prompt": "How fast is it? A first guess: the remainder $a\\bmod b$ is always less than half of $b$. That is false. Find $a\\ge b\\ge1$ (both at most 50) with $a\\bmod b\\ge b/2$. Answer as $a$, $b$.",
+   "vars": [
+    "a",
+    "b"
+   ],
+   "bounds": {
+    "a": [
+     1,
+     50
+    ],
+    "b": [
+     1,
+     50
+    ]
+   },
+   "property": "2*(a % b) >= b",
+   "verify": {
+    "works": [
+     [
+      5,
+      3
+     ],
+     [
+      7,
+      4
+     ]
+    ],
+    "fails": [
+     [
+      6,
+      3
+     ],
+     [
+      9,
+      4
+     ]
+    ]
+   },
+   "nudges": [
+    "Try b = 3. Which remainders are possible?"
+   ],
+   "showed": "A remainder can be nearly as large as b. So compare it with a instead.",
+   "require": "a >= b",
+   "require_message": "Keep a at least b."
+  },
+  {
+   "id": "half-a",
+   "kind": "number",
+   "prompt": "Count the pairs $1\\le b\\le a\\le60$ for which $a\\bmod b\\ge a/2$.",
+   "answer": 0,
+   "verify": "result = sum(1 for a in range(1, 61) for b in range(1, a + 1) if 2*(a % b) >= a)",
+   "nudges": [
+    "Case $b\\le a/2$: how large can a remainder on division by $b$ be?",
+    "Case $b>a/2$: what is $a\\bmod b$ exactly?"
+   ],
+   "showed": "None. $a\\bmod b<a/2$ always, so every two steps the larger number at least halves."
+  },
+  {
+   "id": "steps",
+   "kind": "choice",
+   "prompt": "Each pair of steps at least halves the first number. For numbers below $2^k$, the number of steps is therefore at most about:",
+   "options": [
+    "$2k$",
+    "$2^k$",
+    "$k^2$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How many times can a number below 2^k be halved before it reaches 0?"
+   ],
+   "showed": "About 2 log2 of the input: at most a couple of hundred steps even for 60-digit numbers."
+  },
+  {
+   "id": "worst",
+   "kind": "number",
+   "prompt": "How many division steps does the pair 89, 55 take until the second number is 0?",
+   "answer": 9,
+   "verify": "n, a, b = 0, 89, 55\nwhile b:\n    a, b, n = b, a % b, n + 1\nresult = n",
+   "nudges": [
+    "What are the first three remainders? Do you recognise the sequence?"
+   ],
+   "showed": "Neighbouring Fibonacci numbers are the slowest inputs: every quotient is 1."
+  },
+  {
+   "id": "exponents",
+   "kind": "number",
+   "prompt": "What is $\\gcd(2^{40}-1,\\ 2^{24}-1)$?",
+   "answer": 255,
+   "verify": "import math\nresult = math.gcd(2**40 - 1, 2**24 - 1)",
+   "nudges": [
+    "Compute $(2^{40}-1) - 2^{16}(2^{24}-1)$. What simple form does it have?",
+    "So the pair of exponents (40, 24) turns into which pair?"
+   ],
+   "showed": "The same steps happen in the exponents: $\\gcd(2^a-1,\\,2^b-1)=2^{\\gcd(a,b)}-1$."
+  },
+  {
+   "id": "argument",
+   "kind": "proof",
+   "prompt": "Prove that $a\\bmod b<a/2$ whenever $a\\ge b\\ge1$.",
+   "claims": [
+    "Case b <= a/2: the remainder is less than b, and b <= a/2, so it is less than a/2.",
+    "Case b > a/2: then b fits into a exactly once (since 2b > a >= b), so a mod b = a - b < a - a/2 = a/2.",
+    "The two cases cover every b with 1 <= b <= a."
+   ],
+   "nudges": [
+    "Which two cases for the size of b compared with a/2 are worth separating?",
+    "When b is more than half of a, how many times does b fit into a?"
+   ],
+   "showed": "The remainder is always under half of the number being divided."
+  },
+  {
+   "id": "h-steps",
+   "kind": "number",
+   "prompt": "Run the division process (replace the pair by the smaller number and the remainder) on 6765 and 4181. How many divisions are performed before the remainder is 0?",
+   "answer": 18,
+   "verify": "a, b, n = 6765, 4181, 0\nwhile b: a, b, n = b, a % b, n + 1\nresult = n",
+   "nudges": [
+    "What is the first quotient? And the next?",
+    "These two numbers are neighbouring terms of which sequence?"
+   ],
+   "showed": "Every quotient is 1 (until the last), so the pair walks down the sequence 1, 1, 2, 3, 5, 8, ... one term at a time. Neighbouring terms of that sequence are the slowest possible inputs.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-worst",
+   "kind": "number",
+   "prompt": "Among all pairs of positive whole numbers up to 100, what is the largest number of divisions the process can take?",
+   "answer": 9,
+   "verify": "best = 0\nfor a in range(1, 101):\n    for b in range(1, a + 1):\n        x, y, n = a, b, 0\n        while y: x, y, n = y, x % y, n + 1\n        best = max(best, n)\nresult = best",
+   "nudges": [
+    "To make the process slow, what should every quotient be?",
+    "Which pair up to 100 does that lead to?"
+   ],
+   "showed": "All quotients equal to 1 is slowest, giving the pair (89, 55). Because those numbers grow by a factor of about 1.6 per step, the number of steps is at most about 5 times the number of decimal digits.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-lcm",
+   "kind": "number",
+   "prompt": "What is the smallest positive number divisible by every number from 1 to 20?",
+   "answer": 232792560,
+   "verify": "import math\nresult = math.lcm(*range(1, 21))",
+   "nudges": [
+    "How is the least common multiple of two numbers related to their gcd?",
+    "For each prime, which power of it is needed?"
+   ],
+   "showed": "lcm(a, b) = ab / gcd(a, b), folded over 1..20. Equivalently take the highest power of each prime up to 20: 16 x 9 x 5 x 7 x 11 x 13 x 17 x 19.",
+   "tier": "hard"
   }
+ ],
+ "reveal": {
+  "name": "Euclid's algorithm",
+  "statement": "$\\gcd(a,b)=\\gcd(b,\\ a\\bmod b)$ and $\\gcd(a,0)=a$. Since $a\\bmod b<a/2$, the algorithm ends after $O(\\log\\min(a,b))$ steps.",
+  "remark": "In C++ this is std::gcd (or __gcd). Knowing why it is logarithmic is what lets you call it inside a loop without fear."
+ }
 }

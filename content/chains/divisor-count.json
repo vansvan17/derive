@@ -1,139 +1,188 @@
 {
-  "idea": "divisor-count",
-  "opening": "A divisor of a number is assembled from its prime factors. Count the ways to assemble one.",
-  "steps": [
-    {
-      "id": "list",
-      "kind": "list",
-      "prompt": "List all divisors of 72.",
-      "answer": [
-        1,
-        2,
-        3,
-        4,
-        6,
-        8,
-        9,
-        12,
-        18,
-        24,
-        36,
-        72
-      ],
-      "verify": "result = [d for d in range(1, 73) if 72 % d == 0]",
-      "nudges": [
-        "They come in pairs d and 72/d. Which pairs are there?"
-      ],
-      "showed": "Twelve of them."
-    },
-    {
-      "id": "i",
-      "kind": "number",
-      "prompt": "$72=2^3\\cdot3^2$, so every divisor is $2^i\\cdot3^j$. How many values can $i$ take?",
-      "answer": 4,
-      "verify": "result = len({i for i in range(10) if 72 % 2**i == 0})",
-      "nudges": [
-        "Is i = 0 allowed?"
-      ],
-      "showed": "i can be 0, 1, 2 or 3."
-    },
-    {
-      "id": "j",
-      "kind": "number",
-      "prompt": "And how many values can $j$ take?",
-      "answer": 3,
-      "verify": "result = len({j for j in range(10) if 72 % 3**j == 0})",
-      "nudges": [
-        "Is j = 0 allowed?"
-      ],
-      "showed": "Four choices times three choices: twelve divisors, matching your list."
-    },
-    {
-      "id": "bigger",
-      "kind": "number",
-      "prompt": "How many divisors has $2^4\\cdot3^2\\cdot5\\cdot7^3$?",
-      "answer": 120,
-      "verify": "n = 2**4 * 3**2 * 5 * 7**3\nresult = sum(1 for d in range(1, n + 1) if n % d == 0)",
-      "nudges": [
-        "How many choices are there for the exponent of each prime?"
-      ],
-      "showed": "Each prime contributes its exponent plus one, and the choices are independent."
-    },
-    {
-      "id": "general",
-      "kind": "formula",
-      "prompt": "$n=p^a q^b$ for two different primes $p$ and $q$. How many divisors does $n$ have, in terms of $a$ and $b$?",
-      "answer": "(a+1)*(b+1)",
-      "vars": {
-        "a": [
-          0,
-          5
-        ],
-        "b": [
-          0,
-          5
-        ]
-      },
-      "verify": "n = 2**a * 3**b\nresult = sum(1 for d in range(1, n + 1) if n % d == 0)",
-      "nudges": [
-        "How many choices for the exponent of p in a divisor?"
-      ],
-      "showed": "The count is a product over the primes of (exponent + 1)."
-    },
-    {
-      "id": "squares",
-      "kind": "number",
-      "prompt": "How many divisors of $10^9$ are perfect squares?",
-      "answer": 25,
-      "verify": "import math\nresult = sum(1 for i in range(10) for j in range(10) if math.isqrt(2**i * 5**j)**2 == 2**i * 5**j)",
-      "nudges": [
-        "A divisor is $2^i5^j$. When is that a perfect square?"
-      ],
-      "showed": "A condition on a divisor becomes a condition on each exponent separately."
-    },
-    {
-      "id": "odd",
-      "kind": "choice",
-      "prompt": "Which numbers have an odd number of divisors?",
-      "options": [
-        "The primes",
-        "The perfect squares",
-        "The powers of two",
-        "The even numbers"
-      ],
-      "answer": 1,
-      "nudges": [
-        "The count is a product of (exponent + 1). When is a product odd?"
-      ],
-      "showed": "All exponents even: exactly the perfect squares. Another view: divisors pair off as d and n/d, except the square root."
-    },
-    {
-      "id": "smallest",
-      "kind": "number",
-      "prompt": "What is the smallest positive whole number with exactly 12 divisors?",
-      "answer": 60,
-      "verify": "result = next(n for n in range(1, 2000) if sum(1 for d in range(1, n + 1) if n % d == 0) == 12)",
-      "nudges": [
-        "Which lists of exponents have (e1 + 1)(e2 + 1)... = 12?",
-        "Should the big exponents sit on the small primes or the large ones?"
-      ],
-      "showed": "Choose the exponent pattern first, then give the largest exponents to the smallest primes."
-    },
-    {
-      "id": "sum",
-      "kind": "number",
-      "prompt": "The same idea adds as well as counts. What is the sum of all divisors of 72?",
-      "answer": 195,
-      "verify": "result = sum(d for d in range(1, 73) if 72 % d == 0)",
-      "nudges": [
-        "Multiply out $(1+2+4+8)(1+3+9)$. What are the twelve terms?"
-      ],
-      "showed": "Independent choices factor a sum: $(1+2+4+8)(1+3+9)$."
-    }
-  ],
-  "reveal": {
-    "name": "Divisors from prime exponents",
-    "statement": "If $n=p_1^{e_1}\\cdots p_k^{e_k}$, the divisors of $n$ are the numbers $p_1^{f_1}\\cdots p_k^{f_k}$ with $0\\le f_i\\le e_i$. There are $\\prod(e_i+1)$ of them, and their sum is $\\prod(1+p_i+\\dots+p_i^{e_i})$.",
-    "remark": "These are the functions usually written d(n) (or tau) and sigma(n). Both are multiplicative."
+ "idea": "divisor-count",
+ "opening": "A divisor of a number is assembled from its prime factors. Count the ways to assemble one.",
+ "steps": [
+  {
+   "id": "list",
+   "kind": "list",
+   "prompt": "List all divisors of 72.",
+   "answer": [
+    1,
+    2,
+    3,
+    4,
+    6,
+    8,
+    9,
+    12,
+    18,
+    24,
+    36,
+    72
+   ],
+   "verify": "result = [d for d in range(1, 73) if 72 % d == 0]",
+   "nudges": [
+    "They come in pairs d and 72/d. Which pairs are there?"
+   ],
+   "showed": "Twelve of them."
+  },
+  {
+   "id": "i",
+   "kind": "number",
+   "prompt": "$72=2^3\\cdot3^2$, so every divisor is $2^i\\cdot3^j$. How many values can $i$ take?",
+   "answer": 4,
+   "verify": "result = len({i for i in range(10) if 72 % 2**i == 0})",
+   "nudges": [
+    "Is i = 0 allowed?"
+   ],
+   "showed": "i can be 0, 1, 2 or 3."
+  },
+  {
+   "id": "j",
+   "kind": "number",
+   "prompt": "And how many values can $j$ take?",
+   "answer": 3,
+   "verify": "result = len({j for j in range(10) if 72 % 3**j == 0})",
+   "nudges": [
+    "Is j = 0 allowed?"
+   ],
+   "showed": "Four choices times three choices: twelve divisors, matching your list."
+  },
+  {
+   "id": "bigger",
+   "kind": "number",
+   "prompt": "How many divisors has $2^4\\cdot3^2\\cdot5\\cdot7^3$?",
+   "answer": 120,
+   "verify": "n = 2**4 * 3**2 * 5 * 7**3\nresult = sum(1 for d in range(1, n + 1) if n % d == 0)",
+   "nudges": [
+    "How many choices are there for the exponent of each prime?"
+   ],
+   "showed": "Each prime contributes its exponent plus one, and the choices are independent."
+  },
+  {
+   "id": "general",
+   "kind": "formula",
+   "prompt": "$n=p^a q^b$ for two different primes $p$ and $q$. How many divisors does $n$ have, in terms of $a$ and $b$?",
+   "answer": "(a+1)*(b+1)",
+   "vars": {
+    "a": [
+     0,
+     5
+    ],
+    "b": [
+     0,
+     5
+    ]
+   },
+   "verify": "n = 2**a * 3**b\nresult = sum(1 for d in range(1, n + 1) if n % d == 0)",
+   "nudges": [
+    "How many choices for the exponent of p in a divisor?"
+   ],
+   "showed": "The count is a product over the primes of (exponent + 1)."
+  },
+  {
+   "id": "squares",
+   "kind": "number",
+   "prompt": "How many divisors of $10^9$ are perfect squares?",
+   "answer": 25,
+   "verify": "import math\nresult = sum(1 for i in range(10) for j in range(10) if math.isqrt(2**i * 5**j)**2 == 2**i * 5**j)",
+   "nudges": [
+    "A divisor is $2^i5^j$. When is that a perfect square?"
+   ],
+   "showed": "A condition on a divisor becomes a condition on each exponent separately."
+  },
+  {
+   "id": "odd",
+   "kind": "choice",
+   "prompt": "Which numbers have an odd number of divisors?",
+   "options": [
+    "The primes",
+    "The perfect squares",
+    "The powers of two",
+    "The even numbers"
+   ],
+   "answer": 1,
+   "nudges": [
+    "The count is a product of (exponent + 1). When is a product odd?"
+   ],
+   "showed": "All exponents even: exactly the perfect squares. Another view: divisors pair off as d and n/d, except the square root."
+  },
+  {
+   "id": "smallest",
+   "kind": "number",
+   "prompt": "What is the smallest positive whole number with exactly 12 divisors?",
+   "answer": 60,
+   "verify": "result = next(n for n in range(1, 2000) if sum(1 for d in range(1, n + 1) if n % d == 0) == 12)",
+   "nudges": [
+    "Which lists of exponents have (e1 + 1)(e2 + 1)... = 12?",
+    "Should the big exponents sit on the small primes or the large ones?"
+   ],
+   "showed": "Choose the exponent pattern first, then give the largest exponents to the smallest primes."
+  },
+  {
+   "id": "sum",
+   "kind": "number",
+   "prompt": "The same idea adds as well as counts. What is the sum of all divisors of 72?",
+   "answer": 195,
+   "verify": "result = sum(d for d in range(1, 73) if 72 % d == 0)",
+   "nudges": [
+    "Multiply out $(1+2+4+8)(1+3+9)$. What are the twelve terms?"
+   ],
+   "showed": "Independent choices factor a sum: $(1+2+4+8)(1+3+9)$."
+  },
+  {
+   "id": "h-twelve",
+   "kind": "number",
+   "prompt": "What is the smallest positive number with exactly 12 divisors?",
+   "answer": 60,
+   "verify": "result = next(n for n in range(1, 1000) if sum(1 for d in range(1, n + 1) if n % d == 0) == 12)",
+   "nudges": [
+    "In how many ways can 12 be written as a product of numbers that are each at least 2?",
+    "For each way, which primes should get the larger exponents?"
+   ],
+   "showed": "12 = 12 = 6x2 = 4x3 = 3x2x2, giving exponent patterns (11), (5,1), (3,2), (2,1,1). Put the largest exponents on the smallest primes: 2048, 96, 72, 60.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-odd",
+   "kind": "number",
+   "prompt": "How many numbers from 1 to 1000 have an odd number of divisors?",
+   "answer": 31,
+   "verify": "result = sum(1 for n in range(1, 1001) if sum(1 for d in range(1, n + 1) if n % d == 0) % 2)",
+   "nudges": [
+    "When is a product of (exponent + 1) factors odd?"
+   ],
+   "showed": "Every exponent must be even: the number is a perfect square. There are 31 squares up to 1000.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-total",
+   "kind": "number",
+   "prompt": "Add up the number of divisors of $n$ for every $n$ from 1 to 100.",
+   "answer": 482,
+   "verify": "result = sum(1 for n in range(1, 101) for d in range(1, n + 1) if n % d == 0)",
+   "nudges": [
+    "Instead of asking how many divisors $n$ has, how many numbers up to 100 does each $d$ divide?"
+   ],
+   "showed": "Count pairs (d, multiple of d): $\\lfloor 100/1 \\rfloor + \\lfloor 100/2 \\rfloor + \\dots + \\lfloor 100/100 \\rfloor$.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-fact",
+   "kind": "number",
+   "prompt": "How many divisors does $20!$ have?",
+   "answer": 41040,
+   "verify": "import math\nn, total, p = math.factorial(20), 1, 2\nwhile n > 1:\n    e = 0\n    while n % p == 0: n //= p; e += 1\n    total *= e + 1; p += 1\nresult = total",
+   "nudges": [
+    "Which primes divide 20!, and how do you find the exponent of 2 without multiplying anything out?"
+   ],
+   "showed": "The exponent of $p$ in 20! is $\\lfloor 20/p \\rfloor + \\lfloor 20/p^2 \\rfloor + \\dots$: 18, 8, 4, 2, 1, 1, 1, 1 for 2, 3, 5, 7, 11, 13, 17, 19. Multiply (exponent + 1).",
+   "tier": "hard"
   }
+ ],
+ "reveal": {
+  "name": "Divisors from prime exponents",
+  "statement": "If $n=p_1^{e_1}\\cdots p_k^{e_k}$, the divisors of $n$ are the numbers $p_1^{f_1}\\cdots p_k^{f_k}$ with $0\\le f_i\\le e_i$. There are $\\prod(e_i+1)$ of them, and their sum is $\\prod(1+p_i+\\dots+p_i^{e_i})$.",
+  "remark": "These are the functions usually written d(n) (or tau) and sigma(n). Both are multiplicative."
+ }
 }

@@ -1,0 +1,134 @@
+{
+ "idea": "linearity",
+ "opening": "Averages of complicated totals, found without ever working out how the total is distributed.",
+ "steps": [
+  {
+   "id": "two",
+   "kind": "number",
+   "prompt": "You roll two fair dice. One die shows 3.5 on average. What is the average of the sum of the two?",
+   "answer": 7,
+   "verify": "import itertools\nfrom fractions import Fraction\nresult = Fraction(sum(a + b for a, b in itertools.product(range(1, 7), repeat=2)), 36)",
+   "nudges": [
+    "What is the average of each die on its own?"
+   ],
+   "showed": "3.5 + 3.5."
+  },
+  {
+   "id": "ten",
+   "kind": "number",
+   "prompt": "And the average of the sum of ten dice?",
+   "answer": 35,
+   "verify": "result = 10 * 7 // 2",
+   "nudges": [
+    "Did you need to know how likely each total from 10 to 60 is?"
+   ],
+   "showed": "Ten times 3.5, with no table of probabilities for the totals."
+  },
+  {
+   "id": "heads",
+   "kind": "number",
+   "prompt": "Ten fair coins are flipped. What is the average number of heads?",
+   "answer": 5,
+   "verify": "import itertools\nfrom fractions import Fraction\nresult = Fraction(sum(sum(c) for c in itertools.product((0, 1), repeat=10)), 2 ** 10)",
+   "nudges": [
+    "Give each coin a counter that is 1 for heads and 0 for tails. What is the average of one counter?"
+   ],
+   "showed": "Each coin contributes 1/2. A 0-or-1 counter has average equal to the probability that it is 1."
+  },
+  {
+   "id": "hats",
+   "kind": "number",
+   "prompt": "Six people throw their hats in a pile and each takes one at random (every way of handing them back is equally likely). On average, how many people get their own hat?",
+   "answer": 1,
+   "verify": "import itertools\nfrom fractions import Fraction\nresult = Fraction(sum(sum(1 for i, x in enumerate(p) if i == x) for p in itertools.permutations(range(6))), 720)",
+   "nudges": [
+    "What is the probability that person 1 gets their own hat?",
+    "Give each person a 0-or-1 counter. What is the average of one counter, and how many counters are there?"
+   ],
+   "showed": "Six people, each with probability 1/6."
+  },
+  {
+   "id": "depend",
+   "kind": "choice",
+   "prompt": "In the hat problem, \"person 1 gets their own hat\" and \"person 2 gets their own hat\" are not independent events. Did that matter?",
+   "options": [
+    "No: the average of a sum is the sum of the averages whether or not the parts are independent",
+    "Yes: the answer above is only approximate",
+    "It matters only for more than six people"
+   ],
+   "answer": 0,
+   "nudges": [
+    "The exhaustive count over all 720 ways gave exactly 1. What does that say?"
+   ],
+   "showed": "This is the whole point: no independence is needed, so you can split a total into parts however you like."
+  },
+  {
+   "id": "inversions",
+   "kind": "number",
+   "prompt": "A random order of the numbers 1 to 5 is chosen. A pair is \"out of order\" if the larger number comes first. On average, how many of the 10 pairs are out of order?",
+   "answer": 5,
+   "verify": "import itertools\nfrom fractions import Fraction\nresult = Fraction(sum(sum(1 for i in range(5) for j in range(i + 1, 5) if p[i] > p[j]) for p in itertools.permutations(range(5))), 120)",
+   "nudges": [
+    "For one particular pair of numbers, how likely is it that the larger one comes first?"
+   ],
+   "showed": "Each of the 10 pairs is out of order with probability 1/2."
+  },
+  {
+   "id": "changes",
+   "kind": "number",
+   "prompt": "A string of 11 random bits is chosen (each bit 0 or 1 with equal chance). On average, how many of the 10 neighbouring pairs consist of two different bits?",
+   "answer": 5,
+   "verify": "import itertools\nfrom fractions import Fraction\nresult = Fraction(sum(sum(1 for i in range(10) if s[i] != s[i + 1]) for s in itertools.product((0, 1), repeat=11)), 2 ** 11)",
+   "nudges": [
+    "What is the chance that two particular neighbours differ?"
+   ],
+   "showed": "Ten pairs, each different with probability 1/2, even though overlapping pairs share a bit."
+  },
+  {
+   "id": "total",
+   "kind": "number",
+   "prompt": "Now a count instead of an average: add up the number of out-of-order pairs over all 120 orders of the numbers 1 to 5. What is the total?",
+   "answer": 600,
+   "verify": "import itertools\nresult = sum(sum(1 for i in range(5) for j in range(i + 1, 5) if p[i] > p[j]) for p in itertools.permutations(range(5)))",
+   "nudges": [
+    "How is a total over all orders related to the average over a random order?"
+   ],
+   "showed": "120 times the average of 5. An average over all equally likely cases is just a total divided by the number of cases."
+  },
+  {
+   "id": "recipe",
+   "kind": "choice",
+   "prompt": "A problem asks for the expected value of some complicated count. What is the first thing to try?",
+   "options": [
+    "Write the count as a sum of 0-or-1 counters, find the probability that each is 1, and add those up",
+    "Find the probability of every possible value of the count",
+    "Simulate it many times"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What did the dice, the hats and the out-of-order pairs have in common?"
+   ],
+   "showed": "Break the count into the smallest events you can and add their probabilities."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "An experiment has finitely many outcomes $\\omega$, each with probability $p(\\omega)$. $X$ and $Y$ are two numbers determined by the outcome. Prove that the average of $X + Y$ equals the average of $X$ plus the average of $Y$, and point out where independence would have been used if it were needed.",
+   "claims": [
+    "The average of a quantity Z is the sum over all outcomes of p(outcome) * Z(outcome).",
+    "So the average of X + Y is the sum over outcomes of p * (X + Y), which splits term by term into (sum of p * X) + (sum of p * Y).",
+    "These two sums are the averages of X and of Y. The argument only rearranges a finite sum; at no point is anything assumed about how X and Y relate, so independence is never used."
+   ],
+   "nudges": [
+    "How is an average defined as a sum over outcomes?",
+    "What happens to that sum when the quantity is $X + Y$?"
+   ],
+   "showed": "It is nothing more than splitting one finite sum into two."
+  }
+ ],
+ "reveal": {
+  "name": "Linearity of expectation",
+  "statement": "$E[X_1 + X_2 + \\dots + X_n] = E[X_1] + \\dots + E[X_n]$ for any random variables, independent or not. For a 0-or-1 variable, the expectation is the probability that it is 1.",
+  "remark": "The expected-value twin of contribution counting. In problems the answer is usually wanted modulo a prime, so each probability becomes a modular fraction."
+ }
+}

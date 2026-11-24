@@ -1,0 +1,145 @@
+{
+ "idea": "edge-contribution",
+ "opening": "Adding up distances between all pairs of towns in a tree, without looking at a single pair.",
+ "steps": [
+  {
+   "id": "one",
+   "kind": "number",
+   "prompt": "A tree on six towns with roads 1-2, 2-3, 2-4, 4-5 and 4-6, each of length 1. How far is town 3 from town 6?",
+   "answer": 3,
+   "verify": "import itertools\nE = [(1, 2), (2, 3), (2, 4), (4, 5), (4, 6)]\nadj = {v: [] for v in range(1, 7)}\nfor a, b in E: adj[a].append(b); adj[b].append(a)\ndef dist(a, b, seen=None):\n    if a == b: return 0\n    seen = (seen or set()) | {a}\n    return min([1 + dist(u, b, seen) for u in adj[a] if u not in seen] or [99])\ndef matchings(vs):\n    if not vs: yield []; return\n    a = vs[0]\n    for b in vs[1:]:\n        rest = [v for v in vs if v not in (a, b)]\n        for m in matchings(rest): yield [(a, b)] + m\nresult = dist(3, 6)",
+   "nudges": [
+    "Which roads does the route from 3 to 6 use?"
+   ],
+   "showed": "3 to 2, 2 to 4, 4 to 6."
+  },
+  {
+   "id": "all",
+   "kind": "number",
+   "prompt": "Same tree. Add up the distances over all 15 pairs of towns.",
+   "answer": 29,
+   "verify": "import itertools\nE = [(1, 2), (2, 3), (2, 4), (4, 5), (4, 6)]\nadj = {v: [] for v in range(1, 7)}\nfor a, b in E: adj[a].append(b); adj[b].append(a)\ndef dist(a, b, seen=None):\n    if a == b: return 0\n    seen = (seen or set()) | {a}\n    return min([1 + dist(u, b, seen) for u in adj[a] if u not in seen] or [99])\ndef matchings(vs):\n    if not vs: yield []; return\n    a = vs[0]\n    for b in vs[1:]:\n        rest = [v for v in vs if v not in (a, b)]\n        for m in matchings(rest): yield [(a, b)] + m\nresult = sum(dist(a, b) for a, b in itertools.combinations(range(1, 7), 2))",
+   "nudges": [
+    "Instead of going pair by pair, how many pairs use the road 1-2?"
+   ],
+   "showed": "Fifteen routes if you do it pair by pair. There is a much shorter way to the same 29."
+  },
+  {
+   "id": "middle",
+   "kind": "number",
+   "prompt": "How many of the 15 pairs of towns have their route passing along the road 2-4?",
+   "answer": 9,
+   "verify": "import itertools\nE = [(1, 2), (2, 3), (2, 4), (4, 5), (4, 6)]\nadj = {v: [] for v in range(1, 7)}\nfor a, b in E: adj[a].append(b); adj[b].append(a)\ndef dist(a, b, seen=None):\n    if a == b: return 0\n    seen = (seen or set()) | {a}\n    return min([1 + dist(u, b, seen) for u in adj[a] if u not in seen] or [99])\ndef matchings(vs):\n    if not vs: yield []; return\n    a = vs[0]\n    for b in vs[1:]:\n        rest = [v for v in vs if v not in (a, b)]\n        for m in matchings(rest): yield [(a, b)] + m\nresult = sum(1 for a, b in itertools.combinations(range(1, 7), 2) if (a in (1, 2, 3)) != (b in (1, 2, 3)))",
+   "nudges": [
+    "If the road 2-4 were closed, which towns would be on each side?"
+   ],
+   "showed": "Towns 1, 2, 3 on one side and 4, 5, 6 on the other: every pair with one town on each side, 3 times 3."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "In a tree of $n$ towns, closing one road leaves $s$ towns on one side. How many pairs of towns have their route along that road?",
+   "options": [
+    "$s\\,(n - s)$",
+    "$s + (n - s)$",
+    "$s\\,(s-1)/2$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which pairs are forced to use the road?"
+   ],
+   "showed": "One town from each side, in every possible way."
+  },
+  {
+   "id": "again",
+   "kind": "number",
+   "prompt": "Use the rule on all five roads of the six-town tree and add the results. What do you get?",
+   "answer": 29,
+   "verify": "result = 5 + 5 + 9 + 5 + 5",
+   "nudges": [
+    "What is $s$ for each road?"
+   ],
+   "showed": "5 + 5 + 9 + 5 + 5: the same 29, from five multiplications. The sum of all distances is the sum over roads of how many pairs use the road."
+  },
+  {
+   "id": "line",
+   "kind": "number",
+   "prompt": "Ten towns in a line, neighbouring towns 1 apart. What is the sum of distances over all pairs?",
+   "answer": 165,
+   "verify": "import itertools\nresult = sum(b - a for a, b in itertools.combinations(range(10), 2))",
+   "nudges": [
+    "Closing the road after the $s$-th town leaves $s$ towns on the left. What does that road contribute?"
+   ],
+   "showed": "$1 \\cdot 9 + 2 \\cdot 8 + \\dots + 9 \\cdot 1$."
+  },
+  {
+   "id": "star",
+   "kind": "number",
+   "prompt": "A star: one central town joined directly to each of 100 outer towns. What is the sum of distances over all pairs of the 101 towns?",
+   "answer": 10000,
+   "verify": "result = 100 * 1 + (100 * 99 // 2) * 2",
+   "nudges": [
+    "Each road has one outer town on its far side. What does it contribute?"
+   ],
+   "showed": "Each of the 100 roads is used by $1 \\cdot 100$ pairs."
+  },
+  {
+   "id": "pairing",
+   "kind": "choice",
+   "prompt": "The towns of a tree are to be split into pairs, and each pair travels to meet along its route. A certain road has $s$ towns on one side. At least how many pairs must travel along it?",
+   "options": [
+    "$s \\bmod 2$: if $s$ is odd, one town on that side has no partner there",
+    "$s$",
+    "none"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Can an odd number of towns be paired up among themselves?"
+   ],
+   "showed": "An odd side forces at least one pair across; an even side forces none."
+  },
+  {
+   "id": "minpair",
+   "kind": "number",
+   "prompt": "In the six-town tree, split the towns into three pairs so that the total distance travelled is as small as possible. What is that total?",
+   "answer": 5,
+   "verify": "import itertools\nE = [(1, 2), (2, 3), (2, 4), (4, 5), (4, 6)]\nadj = {v: [] for v in range(1, 7)}\nfor a, b in E: adj[a].append(b); adj[b].append(a)\ndef dist(a, b, seen=None):\n    if a == b: return 0\n    seen = (seen or set()) | {a}\n    return min([1 + dist(u, b, seen) for u in adj[a] if u not in seen] or [99])\ndef matchings(vs):\n    if not vs: yield []; return\n    a = vs[0]\n    for b in vs[1:]:\n        rest = [v for v in vs if v not in (a, b)]\n        for m in matchings(rest): yield [(a, b)] + m\nresult = min(sum(dist(a, b) for a, b in m) for m in matchings(list(range(1, 7))))",
+   "nudges": [
+    "For each road, is the number of towns on one side odd or even?"
+   ],
+   "showed": "Every road has an odd side, so each is crossed at least once, and pairing 1 with 3, 2 with 4, 5 with 6 crosses each exactly once."
+  },
+  {
+   "id": "maxpair",
+   "kind": "number",
+   "prompt": "And the largest possible total distance for a split into three pairs?",
+   "answer": 7,
+   "verify": "import itertools\nE = [(1, 2), (2, 3), (2, 4), (4, 5), (4, 6)]\nadj = {v: [] for v in range(1, 7)}\nfor a, b in E: adj[a].append(b); adj[b].append(a)\ndef dist(a, b, seen=None):\n    if a == b: return 0\n    seen = (seen or set()) | {a}\n    return min([1 + dist(u, b, seen) for u in adj[a] if u not in seen] or [99])\ndef matchings(vs):\n    if not vs: yield []; return\n    a = vs[0]\n    for b in vs[1:]:\n        rest = [v for v in vs if v not in (a, b)]\n        for m in matchings(rest): yield [(a, b)] + m\nresult = max(sum(dist(a, b) for a, b in m) for m in matchings(list(range(1, 7))))",
+   "nudges": [
+    "At most how many pairs can cross a road with $s$ towns on one side and $n - s$ on the other?"
+   ],
+   "showed": "A road can be crossed by at most min($s$, $n - s$) pairs: 1 + 1 + 3 + 1 + 1."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "In a tree with $n$ vertices, removing an edge $e$ leaves two parts with $s$ and $n - s$ vertices. Prove that exactly $s(n - s)$ unordered pairs of vertices have their path passing through $e$.",
+   "claims": [
+    "In a tree the path between two vertices is unique, and removing e splits the tree into exactly two connected parts.",
+    "If u and v are in the same part, they are connected inside that part, and by uniqueness that is their path, which does not use e.",
+    "If u and v are in different parts, their path must leave one part and enter the other, and e is the only edge joining the parts, so the path uses e.",
+    "So the pairs using e are exactly those with one vertex in each part, and there are s * (n - s) of them."
+   ],
+   "nudges": [
+    "Where can the path between two vertices of the same part run?",
+    "What is the only way to get from one part to the other?"
+   ],
+   "showed": "A pair uses the edge exactly when the edge separates it."
+  }
+ ],
+ "reveal": {
+  "name": "Each edge splits the tree",
+  "statement": "Removing an edge of a tree leaves parts of sizes $s$ and $n - s$, and exactly $s(n-s)$ pairs of vertices are separated by it. So any sum over pairs of a path quantity can be computed edge by edge from subtree sizes.",
+  "remark": "Contribution counting on trees. The same split gives bounds for pairings: an edge is crossed by at least $s \\bmod 2$ and at most $\\min(s, n-s)$ pairs."
+ }
+}

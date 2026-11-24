@@ -1,0 +1,147 @@
+{
+ "idea": "win-lose-states",
+ "opening": "Two players, a pile of stones, and the question of who wins if nobody makes a mistake.",
+ "steps": [
+  {
+   "id": "three",
+   "kind": "choice",
+   "prompt": "A pile of stones. Two players take turns removing 1 or 2 stones; whoever takes the last stone wins. There are 3 stones and it is your move. Can you force a win?",
+   "options": [
+    "No: whatever I take, my opponent takes the rest",
+    "Yes, by taking 1",
+    "Yes, by taking 2"
+   ],
+   "answer": 0,
+   "nudges": [
+    "After each of your two possible moves, what can your opponent do?"
+   ],
+   "showed": "Both of your moves hand your opponent a win."
+  },
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "Same game with 4 stones and your move. How many stones should you take to be sure of winning?",
+   "answer": 1,
+   "verify": "def losing(n, moves, memo={}):\n    key = (n, moves)\n    if key not in memo: memo[key] = not any(m <= n and losing(n - m, moves) for m in moves)\n    return memo[key]\nresult = next(m for m in (1, 2) if losing(4 - m, (1, 2)))",
+   "nudges": [
+    "Which pile size would you like to hand to your opponent?"
+   ],
+   "showed": "Take 1 and leave them the hopeless pile of 3."
+  },
+  {
+   "id": "pattern",
+   "kind": "list",
+   "prompt": "For which pile sizes from 1 to 12 does the player about to move lose (if the opponent plays perfectly)?",
+   "answer": [
+    3,
+    6,
+    9,
+    12
+   ],
+   "verify": "def losing(n, moves, memo={}):\n    key = (n, moves)\n    if key not in memo: memo[key] = not any(m <= n and losing(n - m, moves) for m in moves)\n    return memo[key]\nresult = [n for n in range(1, 13) if losing(n, (1, 2))]",
+   "nudges": [
+    "You know 3 is bad for the mover, and 4 and 5 are good. What about 6?"
+   ],
+   "showed": "Every multiple of 3."
+  },
+  {
+   "id": "lose",
+   "kind": "choice",
+   "prompt": "In any game of this kind, a position is losing for the player to move exactly when:",
+   "options": [
+    "every available move leads to a position that is winning for the opponent",
+    "some move leads to a position that is winning for the opponent",
+    "there are fewer moves available than the opponent has"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What must be true of all your options if you cannot avoid defeat?"
+   ],
+   "showed": "No escape: every door leads to a room where the opponent wins."
+  },
+  {
+   "id": "win",
+   "kind": "choice",
+   "prompt": "And a position is winning for the player to move exactly when:",
+   "options": [
+    "some available move leads to a position that is losing for the opponent",
+    "every available move leads to a position that is losing for the opponent",
+    "the number of available moves is odd"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How many good moves do you need?"
+   ],
+   "showed": "One good door is enough. These two rules let you label every position, starting from the end of the game."
+  },
+  {
+   "id": "hundred",
+   "kind": "number",
+   "prompt": "Back to taking 1 or 2 stones. The pile has 100 stones and it is your move. How many do you take?",
+   "answer": 1,
+   "verify": "def losing(n, moves, memo={}):\n    key = (n, moves)\n    if key not in memo: memo[key] = not any(m <= n and losing(n - m, moves) for m in moves)\n    return memo[key]\nresult = next(m for m in (1, 2) if losing(100 - m, (1, 2)))",
+   "nudges": [
+    "Which pile sizes are losing for the player to move, and which of them can you reach from 100?"
+   ],
+   "showed": "Leave 99, a multiple of 3, and keep answering so that each round removes 3."
+  },
+  {
+   "id": "other",
+   "kind": "number",
+   "prompt": "Change the rule: a move removes 1, 3 or 4 stones. Label the piles from the bottom up. How many pile sizes from 1 to 20 are losing for the player to move?",
+   "answer": 5,
+   "verify": "def losing(n, moves, memo={}):\n    key = (n, moves)\n    if key not in memo: memo[key] = not any(m <= n and losing(n - m, moves) for m in moves)\n    return memo[key]\nresult = sum(1 for n in range(1, 21) if losing(n, (1, 3, 4)))",
+   "nudges": [
+    "Is a pile of 2 winning or losing? And what follows for 3, 4, 5 in turn?"
+   ],
+   "showed": "Piles 2, 7, 9, 14 and 16: the pattern repeats every 7. You find such patterns by computing small cases, not by guessing."
+  },
+  {
+   "id": "chocolate",
+   "kind": "number",
+   "prompt": "A different game: a chocolate bar of 4 by 6 squares. A move takes one piece and breaks it along a line into two pieces. The player who makes the last possible break wins. How many breaks are made in the whole game, however it is played?",
+   "answer": 23,
+   "verify": "result = 4 * 6 - 1",
+   "nudges": [
+    "How many pieces are there at the start, at the end, and after each break?"
+   ],
+   "showed": "Each break adds exactly one piece, from 1 piece to 24."
+  },
+  {
+   "id": "fixed",
+   "kind": "choice",
+   "prompt": "So who wins the chocolate game?",
+   "options": [
+    "The first player, whatever either of them does: the number of moves is always odd",
+    "Whoever plays better",
+    "The second player"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If the total number of moves is fixed in advance, who makes the last one?"
+   ],
+   "showed": "When every play has the same length, only its parity matters. Check for this before analysing strategy."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "In the game where a move removes 1 or 2 stones and taking the last stone wins, prove that the player to move loses (against perfect play) exactly when the number of stones is a multiple of 3.",
+   "claims": [
+    "With 0 stones the player to move has already lost (the opponent took the last stone); 0 is a multiple of 3. This is the base of an induction on the number of stones.",
+    "If n is not a multiple of 3, the mover can take n mod 3 stones (which is 1 or 2), leaving a multiple of 3, which by the induction hypothesis is losing for the opponent: so n is winning.",
+    "If n > 0 is a multiple of 3, every move leaves n - 1 or n - 2 stones, neither a multiple of 3, hence by the induction hypothesis winning for the opponent: so n is losing."
+   ],
+   "nudges": [
+    "What is the smallest position, and who has lost there?",
+    "From a pile that is not a multiple of 3, which move would you make?",
+    "From a multiple of 3, where can a move take you?"
+   ],
+   "showed": "Label from the bottom up: multiples of 3 can only move to non-multiples, and non-multiples can always move to a multiple."
+  }
+ ],
+ "reveal": {
+  "name": "Winning and losing positions",
+  "statement": "In a finite two-player game with no draws: a position is losing for the mover if every move leads to a winning position, and winning if some move leads to a losing position. Labelling from the end of the game upward decides every position.",
+  "remark": "In contests: compute the labels by brute force for small cases, spot the pattern, then prove or trust it. First check whether the game has a fixed number of moves, in which case parity alone decides it."
+ }
+}

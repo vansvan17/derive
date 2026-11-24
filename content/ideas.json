@@ -43,6 +43,10 @@
   {
    "id": "alg",
    "title": "Standard machinery"
+  },
+  {
+   "id": "game",
+   "title": "Two-player games"
   }
  ],
  "ideas": [
@@ -601,6 +605,40 @@
    "name": "Many starting points at once",
    "statement": "To find the distance from every vertex to the nearest of several special vertices, start one breadth-first search with all of them at distance 0.",
    "needs": []
+  },
+  {
+   "id": "win-lose-states",
+   "area": "game",
+   "name": "Winning and losing positions",
+   "statement": "A position is losing if every move leads to a winning position, and winning if some move leads to a losing one; work backwards from the end and look for the pattern.",
+   "needs": []
+  },
+  {
+   "id": "fixed-length-game",
+   "area": "game",
+   "name": "Games of fixed length",
+   "statement": "If every way of playing takes the same number of moves, nobody has a real choice: the winner is decided by the parity of that number.",
+   "needs": [
+    "parity-invariant"
+   ]
+  },
+  {
+   "id": "mirror-strategy",
+   "area": "game",
+   "name": "Copy the opponent",
+   "statement": "If you can always answer a move with its mirror image, you never run out of moves before your opponent does.",
+   "needs": [
+    "symmetry"
+   ]
+  },
+  {
+   "id": "edge-contribution",
+   "area": "gr",
+   "name": "Each edge splits the tree",
+   "statement": "Removing an edge of a tree leaves parts of sizes s and n - s; exactly s(n - s) pairs of vertices have their path through that edge.",
+   "needs": [
+    "contribution"
+   ]
   }
  ]
 }

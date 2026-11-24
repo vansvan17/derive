@@ -135,6 +135,52 @@
     "What does the position look like when nobody can move?"
    ],
    "showed": "Count heaps: one more each move, from 1 up to n."
+  },
+  {
+   "id": "h-rooks",
+   "kind": "choice",
+   "prompt": "A board of 5 rows and 7 columns. A move places a rook on a square that no rook already on the board attacks (rooks attack along rows and columns). The player who cannot move loses. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef win(free_rows, free_cols): return bool(free_rows and free_cols) and not win(free_rows - 1, free_cols - 1)\nresult = 0 if win(5, 7) else 1",
+   "nudges": [
+    "After a rook is placed, which squares are no longer available?",
+    "Does it matter where the rooks are placed?"
+   ],
+   "showed": "Each rook uses up one row and one column, wherever it goes, so exactly five rooks are placed. Five is odd.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-parity",
+   "kind": "choice",
+   "prompt": "The numbers 1 to 8 are on a board. A move erases one odd and one even number and writes their sum. The player who cannot move loses. Who wins?",
+   "options": [
+    "The second player",
+    "The first player"
+   ],
+   "answer": 0,
+   "verify": "import functools, itertools, operator, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\ndef pm(s):\n    out = set()\n    for i in range(len(s)):\n        for j in range(i + 1, len(s)):\n            if (s[i] + s[j]) % 2: out.add(tuple(sorted(s[:i] + s[i + 1:j] + s[j + 1:] + (s[i] + s[j],))))\n    return tuple(out)\nresult = 0 if not solver(pm)(tuple(range(1, 9))) else 1",
+   "nudges": [
+    "What does a move do to the number of even numbers on the board, and to the number of odd ones?",
+    "When exactly is no move possible?"
+   ],
+   "showed": "The sum of an odd and an even number is odd, so each move removes exactly one even number and keeps the count of odd numbers. The game lasts exactly as many moves as there are even numbers: four.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-heaps",
+   "kind": "number",
+   "prompt": "Heaps of 3, 5, 8 and 13 stones. A move splits one heap into two non-empty heaps; the player who cannot move loses. How many moves does the whole game last?",
+   "answer": 25,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef lengths(h):\n    nxt = {tuple(sorted(h[:i] + (a, x - a) + h[i + 1:])) for i, x in enumerate(h) for a in range(1, x // 2 + 1)}\n    return frozenset({0}) if not nxt else frozenset(1 + l for n in nxt for l in lengths(n))\ne = lengths((3, 5, 8))\nassert e == {13}\nresult = (3 - 1) + (5 - 1) + (8 - 1) + (13 - 1)",
+   "nudges": [
+    "How many heaps are there at the start and at the end?"
+   ],
+   "showed": "Each move adds one heap: from 4 heaps to 29 heaps, 25 moves. The first player makes the last one.",
+   "tier": "hard"
   }
  ],
  "reveal": {

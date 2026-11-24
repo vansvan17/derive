@@ -135,6 +135,49 @@
     "How do you update a XOR when one of its terms changes?"
    ],
    "showed": "Swap one term of the XOR for a different one and the total cannot stay 0."
+  },
+  {
+   "id": "h-moves",
+   "kind": "number",
+   "prompt": "Piles of 7, 11, 13 and 14 stones; a move removes any positive number from one pile; last stone wins. How many different winning first moves are there?",
+   "answer": 3,
+   "verify": "import functools, itertools, operator, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nnim = solver(lambda s: tuple(tuple(sorted(s[:i] + (p - k,) + s[i + 1:])) for i, p in enumerate(s) for k in range(1, p + 1)))\nP = (7, 11, 13, 14)\nresult = sum(1 for i, p in enumerate(P) for q in range(p) if not nim(tuple(sorted(P[:i] + (q,) + P[i + 1:]))))",
+   "nudges": [
+    "What is the XOR of the four piles?",
+    "Which piles get smaller when XORed with that value?"
+   ],
+   "showed": "The XOR is 15, whose top bit is the 8s place. Exactly the piles with that bit (11, 13, 14) can be lowered to make the XOR 0: to 4, 2 and 1.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-triples",
+   "kind": "number",
+   "prompt": "How many sets of three different pile sizes a < b < c, all at most 15, are losing for the player to move?",
+   "answer": 35,
+   "verify": "import itertools\nresult = sum(1 for a, b, c in itertools.combinations(range(1, 16), 3) if a ^ b ^ c == 0)",
+   "nudges": [
+    "Once a and b are chosen, how many values of c make the position losing?",
+    "Each losing set is found from how many choices of (a, b)?"
+   ],
+   "showed": "c must equal a XOR b, which is automatically between 1 and 15 and different from both. There are 15 x 14 / 2 = 105 pairs, and each losing set is produced by 3 of them: 35.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-misere",
+   "kind": "choice",
+   "prompt": "Reverse the goal: whoever takes the last stone LOSES. With piles of 1, 2 and 3, who wins?",
+   "options": [
+    "The second player",
+    "The first player"
+   ],
+   "answer": 0,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef mis(s):\n    if sum(s) == 0: return True\n    return any(not mis(tuple(sorted(s[:i] + (p - k,) + s[i + 1:]))) for i, p in enumerate(s) for k in range(1, p + 1))\nresult = 0 if not mis((1, 2, 3)) else 1",
+   "nudges": [
+    "With piles of 1 and 1, who wins under the reversed goal? And with a single pile of 5?",
+    "Can the player with the normal winning strategy keep following it until the position is only piles of size 1 and at most one bigger pile, and then choose how to finish?"
+   ],
+   "showed": "Still the second player. Play exactly as in the normal game (keep the XOR at 0) until a move would leave only piles of size 1; at that moment leave an odd number of them instead of an even number. Only positions made entirely of single stones behave differently.",
+   "tier": "hard"
   }
  ],
  "reveal": {

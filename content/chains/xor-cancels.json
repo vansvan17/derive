@@ -119,6 +119,45 @@
     "What is a bit XOR itself, and how do you regroup the three terms?"
    ],
    "showed": "Place by place, it is addition mod 2, where adding the same thing twice does nothing."
+  },
+  {
+   "id": "h-blocks",
+   "kind": "number",
+   "prompt": "No pointers from here. How many contiguous blocks of the array 3, 1, 2, 3, 1, 2, 0, 5, 5 have XOR equal to 0?",
+   "answer": 12,
+   "verify": "import functools, operator\na = [3, 1, 2, 3, 1, 2, 0, 5, 5]\nresult = sum(1 for i in range(9) for j in range(i, 9) if functools.reduce(operator.xor, a[i:j + 1]) == 0)",
+   "nudges": [
+    "What are the running XORs of the array, starting from 0 before the first element?",
+    "A block has XOR 0 exactly when two running values are what? How many such pairs are there?"
+   ],
+   "showed": "The running XORs are 0, 3, 2, 0, 3, 2, 0, 0, 5, 0. A block is a pair of equal running values: five 0s give 10 pairs, two 3s give 1, two 2s give 1.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-range",
+   "kind": "number",
+   "prompt": "What is the XOR of all the whole numbers from 57 to 2025?",
+   "answer": 57,
+   "verify": "import functools, operator\nresult = functools.reduce(operator.xor, range(57, 2026))",
+   "nudges": [
+    "Can you write it using the XOR of 0..2025 and the XOR of 0..56?",
+    "What is the XOR of 0, 1, ..., n for n = 0 to 8? Is there a pattern?"
+   ],
+   "showed": "With F(n) the XOR of 0..n, the answer is F(2025) XOR F(56), and F(n) is n, 1, n + 1, 0 as n mod 4 is 0, 1, 2, 3. F(2025) = 1 and F(56) = 56, so the answer is 57.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-pairs",
+   "kind": "number",
+   "prompt": "How many pairs a < b of numbers from 1 to 100 have a XOR b = 6?",
+   "answer": 48,
+   "verify": "result = sum(1 for a in range(1, 101) for b in range(a + 1, 101) if a ^ b == 6)",
+   "nudges": [
+    "Given a, how many values of b are possible at all?",
+    "For which a does the partner fall outside 1 to 100?"
+   ],
+   "showed": "The partner of a is a XOR 6, which stays inside the same block of eight (8k to 8k+7), four pairs per block. Blocks 8..15 up to 88..95 are complete: 11 blocks, 44 pairs. From 0..7 the pair (0, 6) is lost, leaving 3. From 96..103 only (98, 100) lies within range. 44 + 3 + 1.",
+   "tier": "hard"
   }
  ],
  "reveal": {

@@ -138,6 +138,45 @@
     "What is the identity for two single bits?"
    ],
    "showed": "Four cases for one place, then add the places up."
+  },
+  {
+   "id": "h-values",
+   "kind": "number",
+   "prompt": "Two non-negative whole numbers add up to 1000. How many different values can their XOR take?",
+   "answer": 39,
+   "verify": "result = len({a ^ (1000 - a) for a in range(1001)})",
+   "nudges": [
+    "If the XOR is X, what is the AND, and which conditions must it satisfy?",
+    "Write H for the AND. What does the condition say about H and 1000 - 2H?"
+   ],
+   "showed": "XOR = 1000 - 2H where H is the AND, and the only condition is that H and 1000 - 2H share no binary place. Going through H from 0 to 500 leaves 39 possibilities. The three conditions (XOR not larger than the sum, same parity, no shared place) are the whole story.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-maxand",
+   "kind": "number",
+   "prompt": "Two non-negative whole numbers add up to 1001. What is the largest possible value of their AND?",
+   "answer": 500,
+   "verify": "result = max(a & (1001 - a) for a in range(1002))",
+   "nudges": [
+    "How is the AND determined by the sum and the XOR?",
+    "The XOR must have the same parity as the sum. What is the smallest XOR you can hope for, and is it achievable?"
+   ],
+   "showed": "AND = (1001 - XOR) / 2, so make the XOR as small as possible. It must be odd; XOR = 1 gives AND = 500, which does not use the 1s place, so it is allowed: the numbers are 501 and 500.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "How many ordered pairs (a, b) of non-negative whole numbers have a + b = 100 and a XOR b = 68?",
+   "answer": 4,
+   "verify": "result = sum(1 for a in range(101) if a ^ (100 - a) == 68)",
+   "nudges": [
+    "What is the AND, and does it share a binary place with the XOR?",
+    "In the places where the XOR has a 1, in how many ways can the bits be shared out?"
+   ],
+   "showed": "AND = (100 - 68) / 2 = 16, and 68 is 1000100, which does not use the 16s place. Each of the two 1s of 68 goes to a or to b: 4 pairs. Try XOR = 36 instead: the AND would be 32, clashing with the 32 inside 36, and there are none.",
+   "tier": "hard"
   }
  ],
  "reveal": {

@@ -148,6 +148,49 @@
     "After whose move can both piles be empty?"
    ],
    "showed": "Keep the piles equal; the empty position is an equal position."
+  },
+  {
+   "id": "h-rows",
+   "kind": "number",
+   "prompt": "Coins lie in a row. A move removes one coin, or two coins with no gap between them; whoever removes the last coin wins. For how many row lengths from 1 to 30 does the first player win?",
+   "answer": 30,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef g(n):\n    seen = {g(a) ^ g(n - k - a) for k in (1, 2) for a in range(n - k + 1)}\n    return next(x for x in range(len(seen) + 1) if x not in seen)\nresult = sum(1 for n in range(1, 31) if g(n) != 0)",
+   "nudges": [
+    "Is there a first move that leaves two identical halves?",
+    "Does that work for odd lengths as well as even ones?"
+   ],
+   "showed": "All thirty. Remove the middle coin (odd length) or the middle two (even length), then answer every move with its mirror image in the other half.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-pairs",
+   "kind": "number",
+   "prompt": "Two piles of a and b stones with 1 <= a, b <= 10 (the piles are distinguishable). A move removes any positive number from one pile; last stone wins. For how many of the 100 pairs (a, b) does the first player win?",
+   "answer": 90,
+   "verify": "import functools, itertools, operator, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nnim = solver(lambda s: tuple(tuple(sorted(s[:i] + (p - k,) + s[i + 1:])) for i, p in enumerate(s) for k in range(1, p + 1)))\nresult = sum(1 for a in range(1, 11) for b in range(1, 11) if nim(tuple(sorted((a, b)))))",
+   "nudges": [
+    "Which positions can the second player win by copying?",
+    "From any other position, what should the first player do?"
+   ],
+   "showed": "Equal piles are lost for the mover (the opponent copies); from unequal piles the mover equalises them and becomes the copier. Only the 10 equal pairs lose.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-board",
+   "kind": "choice",
+   "prompt": "Two players take turns placing dominoes on a board, each on two neighbouring empty squares; the player who cannot move loses. On a 4 by 4 board the second player wins by copying each domino under a half-turn about the centre. Who wins on a board of 3 rows and 4 columns?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "import functools\ndoms = [(1 << (4 * x + y)) | (1 << (4 * x + y + 1)) for x in range(3) for y in range(3)] + [(1 << (4 * x + y)) | (1 << (4 * (x + 1) + y)) for x in range(2) for y in range(4)]\n@functools.lru_cache(None)\ndef win(m): return any(not win(m | d) for d in doms if not m & d)\nresult = 0 if win(0) else 1",
+   "nudges": [
+    "Where is the centre of a 3 by 4 board: inside a square, or on the edge between two squares?",
+    "Is there a domino that the half-turn maps onto itself, and who gets to place it?"
+   ],
+   "showed": "The centre is the midpoint of the edge between the two middle squares of the middle row, and the domino on those two squares is its own half-turn image. The first player places it and then copies every move. Always check for a self-symmetric move before deciding who the copier is.",
+   "tier": "hard"
   }
  ],
  "reveal": {

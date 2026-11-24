@@ -129,6 +129,45 @@
     "After swapping the two sums, what are you counting for each place?"
    ],
    "showed": "Split each XOR into its places, then count pairs place by place."
+  },
+  {
+   "id": "h-pairs",
+   "kind": "number",
+   "prompt": "Add up a XOR b over all pairs a < b of numbers from 1 to 100.",
+   "answer": 301176,
+   "verify": "result = sum(a ^ b for a in range(1, 101) for b in range(a + 1, 101))",
+   "nudges": [
+    "How many of the numbers 1 to 100 have a 1 in the 1s place? In the 2s place?",
+    "For one binary place, how many pairs differ there?"
+   ],
+   "showed": "For each place k, count c_k numbers with that bit; the place contributes 2^k x c_k x (100 - c_k). Seven places, seven small counts.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-subsets",
+   "kind": "number",
+   "prompt": "For every subset of {1, 2, ..., 10} (including the empty one, worth 0) take the XOR of its elements. What is the sum of these 1024 values?",
+   "answer": 7680,
+   "verify": "import functools, operator, itertools\nresult = sum(functools.reduce(operator.xor, c, 0) for k in range(11) for c in itertools.combinations(range(1, 11), k))",
+   "nudges": [
+    "Fix one binary place. In how many subsets is that bit of the XOR equal to 1?",
+    "Does the answer for a place depend on how many elements have that bit, as long as at least one does?"
+   ],
+   "showed": "If at least one element has the bit, exactly half of all subsets have an odd number of such elements (toggle that one element). Every place from 1 to 8 occurs, so the sum is (1 + 2 + 4 + 8) x 512.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-triples",
+   "kind": "number",
+   "prompt": "Add up a AND b AND c over all triples a < b < c of numbers from 1 to 20.",
+   "answer": 1304,
+   "verify": "import itertools\nresult = sum(a & b & c for a, b, c in itertools.combinations(range(1, 21), 3))",
+   "nudges": [
+    "When does a triple have a 1 in a given place of its AND?",
+    "If c numbers have the bit, how many triples is that?"
+   ],
+   "showed": "A place survives the AND only if all three numbers have it: C(c_k, 3) triples for place k. With c = 10, 10, 9, 8, 5 for the places 1, 2, 4, 8, 16: 120 + 240 + 336 + 448 + 160.",
+   "tier": "hard"
   }
  ],
  "reveal": {

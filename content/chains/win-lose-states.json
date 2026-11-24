@@ -137,6 +137,62 @@
     "From a multiple of 3, where can a move take you?"
    ],
    "showed": "Label from the bottom up: multiples of 3 can only move to non-multiples, and non-multiples can always move to a multiple."
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "Nothing here says which pattern to look for. A move removes 1, 3 or 4 stones from a pile; whoever takes the last stone wins. For how many pile sizes from 1 to 1000 does the player to move lose?",
+   "answer": 285,
+   "verify": "import functools, itertools, operator, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nw = solver(lambda n: tuple(n - k for k in (1, 3, 4) if k <= n))\nresult = sum(1 for n in range(1, 1001) if not w(n))",
+   "nudges": [
+    "What are the labels for piles 0 to 14?",
+    "Once the labels repeat with some period, how do you count up to 1000?"
+   ],
+   "showed": "Labelling from 0 gives L W L W W W W and then repeats with period 7: the losing piles are those with remainder 0 or 2. From 1 to 1000 there are 142 with remainder 0 and 143 with remainder 2.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-huge",
+   "kind": "choice",
+   "prompt": "Same game (remove 1, 3 or 4). The pile has 1,000,000,000 stones. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "import functools, itertools, operator, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nw = solver(lambda n: tuple(n - k for k in (1, 3, 4) if k <= n))\nassert all(w(n) == (n % 7 not in (0, 2)) for n in range(400))\nresult = 0 if 10 ** 9 % 7 not in (0, 2) else 1",
+   "nudges": [
+    "You cannot label a billion piles. What do you need to know about the labels instead?",
+    "What is the remainder of 1,000,000,000 when divided by 7?"
+   ],
+   "showed": "Only the remainder mod 7 matters. 10^9 leaves remainder 6, which is a winning pile: take 4, leaving remainder 2.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-divisor",
+   "kind": "number",
+   "prompt": "A number n is on the board. A move subtracts a divisor of the current number other than the number itself; the player who cannot move (the number is 1) loses. For how many n from 2 to 100 does the first player win?",
+   "answer": 50,
+   "verify": "import functools, itertools, operator, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nw = solver(lambda n: tuple(n - d for d in range(1, n) if n % d == 0))\nresult = sum(1 for n in range(2, 101) if w(n))",
+   "nudges": [
+    "Label 1 to 10 by hand. What separates the winning numbers from the losing ones?",
+    "What kind of number does every move from an odd number produce?"
+   ],
+   "showed": "Exactly the even numbers. An odd number has only odd divisors, so it always becomes even; from an even number subtract 1 and hand back an odd one. The player on even numbers never faces 1.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-wythoff",
+   "kind": "number",
+   "prompt": "Two piles. A move removes any positive number from one pile, or the same positive number from both; whoever takes the last stone wins. How many positions (a, b) with 1 <= a <= b <= 20 are losing for the player to move?",
+   "answer": 8,
+   "verify": "import functools, itertools, operator, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nwy = solver(lambda s: tuple({tuple(sorted(t)) for t in [(s[0] - k, s[1]) for k in range(1, s[0] + 1)] + [(s[0], s[1] - k) for k in range(1, s[1] + 1)] + [(s[0] - k, s[1] - k) for k in range(1, min(s) + 1)]}))\nresult = sum(1 for a in range(1, 21) for b in range(a, 21) if not wy((a, b)))",
+   "nudges": [
+    "Find the losing positions with the smallest numbers first. Once (1, 2) is losing, which positions does it make winning?",
+    "In the list of losing pairs, what are the differences b - a, and which numbers have been used so far?"
+   ],
+   "showed": "They are (1,2), (3,5), (4,7), (6,10), (8,13), (9,15), (11,18), (12,20). The k-th pair has difference k, and its smaller number is the smallest number not used in any earlier pair.",
+   "tier": "hard"
   }
  ],
  "reveal": {

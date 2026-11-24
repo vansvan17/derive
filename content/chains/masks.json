@@ -128,6 +128,45 @@
     "Why can the items be decided independently?"
    ],
    "showed": "Three states per item, chosen independently."
+  },
+  {
+   "id": "h-disjoint",
+   "kind": "number",
+   "prompt": "How many ordered pairs (A, B) of subsets of {1, 2, ..., 8} have no element in common?",
+   "answer": 6561,
+   "verify": "result = sum(1 for A in range(256) for B in range(256) if A & B == 0)",
+   "nudges": [
+    "For one element, in how many ways can it relate to A and B?",
+    "Do the elements constrain one another?"
+   ],
+   "showed": "Each element is in A only, in B only, or in neither: 3^8.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-split",
+   "kind": "number",
+   "prompt": "In how many ways can the numbers 1 to 12 be split into two groups with equal sums? (The two groups are not labelled.)",
+   "answer": 62,
+   "verify": "result = sum(1 for m in range(1 << 12) if sum(i + 1 for i in range(12) if m >> i & 1) == 39) // 2",
+   "nudges": [
+    "What must each group add up to?",
+    "With only 12 numbers, how many subsets are there to try?"
+   ],
+   "showed": "The total is 78, so each group sums to 39. Going through all 4096 subsets as bitmasks finds 124 with sum 39; each split is counted twice.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-assign",
+   "kind": "number",
+   "prompt": "Four people, four tasks; the cost of person i doing task j is the entry in row i, column j of: 9 2 7 8 / 6 4 3 7 / 5 8 1 8 / 7 6 9 4. Each person does one task and each task is done once. What is the smallest total cost?",
+   "answer": 13,
+   "verify": "import itertools\nC = [[9, 2, 7, 8], [6, 4, 3, 7], [5, 8, 1, 8], [7, 6, 9, 4]]\nresult = min(sum(C[i][p[i]] for i in range(4)) for p in itertools.permutations(range(4)))",
+   "nudges": [
+    "If the first two people have been assigned, what do you need to know about them to finish optimally: who took what, or only which tasks are gone?",
+    "How many different sets of used tasks are there, against how many orders?"
+   ],
+   "showed": "Person 1 takes task 2, person 2 task 1, person 3 task 3, person 4 task 4: 2 + 6 + 1 + 4. For larger sizes, process people in order and remember only the set of tasks already used: 2^n states instead of n! orders.",
+   "tier": "hard"
   }
  ],
  "reveal": {

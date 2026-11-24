@@ -1,158 +1,197 @@
 {
-  "idea": "sum-invariant",
-  "opening": "An island has chameleons of three colours. When two of different colours meet, both change to the third colour.",
-  "steps": [
-    {
-      "id": "move",
-      "kind": "list",
-      "prompt": "There are 13 grey, 15 brown and 17 crimson. A grey and a brown meet. Give the new numbers of grey, brown, crimson, in that order.",
-      "answer": [
-        12,
-        14,
-        19
-      ],
-      "verify": "result = [13 - 1, 15 - 1, 17 + 2]",
-      "nudges": [
-        "Which two counts go down, and by how much does the third go up?"
-      ],
-      "showed": "Two counts drop by 1 and the third rises by 2.",
-      "ordered": true
-    },
-    {
-      "id": "diffs",
-      "kind": "list",
-      "prompt": "Before that meeting the differences brown − grey, crimson − brown, crimson − grey were 2, 2, 4. What are they afterwards, in the same order?",
-      "answer": [
-        2,
-        5,
-        7
-      ],
-      "verify": "g, b, c = 12, 14, 19\nresult = [b - g, c - b, c - g]",
-      "nudges": [
-        "What are the three counts after the meeting?"
-      ],
-      "showed": "One difference stayed and two grew by 3.",
-      "ordered": true
-    },
-    {
-      "id": "by3",
-      "kind": "choice",
-      "prompt": "In general a meeting lowers two counts by 1 and raises the third by 2. So the difference between any two counts changes by:",
-      "options": [
-        "$0$, $+3$ or $-3$",
-        "$0$, $+2$ or $-2$",
-        "$+1$ or $-1$"
-      ],
-      "answer": 0,
-      "nudges": [
-        "How does the difference change between two counts that both drop by 1? And between one that drops by 1 and the one that rises by 2?"
-      ],
-      "showed": "Every difference changes by 0 or 3, so each difference keeps its remainder mod 3."
-    },
-    {
-      "id": "start",
-      "kind": "list",
-      "prompt": "Give the remainders mod 3 of the starting counts 13, 15, 17, in that order.",
-      "answer": [
-        1,
-        0,
-        2
-      ],
-      "verify": "result = [13 % 3, 15 % 3, 17 % 3]",
-      "nudges": [
-        "What is 17 minus 15?"
-      ],
-      "showed": "The three remainders are all different.",
-      "ordered": true
-    },
-    {
-      "id": "goal",
-      "kind": "choice",
-      "prompt": "If all 45 chameleons were one colour, two of the counts would be 0 and the third 45. The remainders mod 3 of those three counts would be:",
-      "options": [
-        "all equal",
-        "all different",
-        "two equal and one different"
-      ],
-      "answer": 0,
-      "nudges": [
-        "What is 45 mod 3?"
-      ],
-      "showed": "All three remainders would be equal."
-    },
-    {
-      "id": "shift",
-      "kind": "choice",
-      "prompt": "A meeting changes the counts by $-1$, $-1$, $+2$. What does it do to the three remainders mod 3?",
-      "options": [
-        "It subtracts 1 from each of them (mod 3), so three different remainders stay different",
-        "It leaves all three unchanged",
-        "It makes two of them equal"
-      ],
-      "answer": 0,
-      "nudges": [
-        "What is $+2$ the same as, mod 3?"
-      ],
-      "showed": "Every meeting shifts all three remainders by the same amount. \"All different\" is permanent, so one colour is impossible."
-    },
-    {
-      "id": "which",
-      "kind": "list",
-      "prompt": "Number these starting counts 1 to 4: (1) 1, 2, 3  (2) 2, 5, 8  (3) 1, 1, 1  (4) 4, 4, 7. List the ones from which all the chameleons can become one colour.",
-      "answer": [
-        2,
-        3,
-        4
-      ],
-      "verify": "def can(start):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if sorted(s)[:2] == [0, 0]: return True\n        for i in range(3):\n            for j in range(i):\n                if s[i] and s[j]:\n                    t = list(s); t[i] -= 1; t[j] -= 1; t[3 - i - j] += 2; t = tuple(t)\n                    if t not in seen: seen.add(t); todo.append(t)\n    return False\nresult = [k + 1 for k, s in enumerate([(1, 2, 3), (2, 5, 8), (1, 1, 1), (4, 4, 7)]) if can(s)]",
-      "nudges": [
-        "For each, are the three remainders mod 3 all different?",
-        "When two counts have the same remainder, how can they both be brought to 0?"
-      ],
-      "showed": "Two counts with equal remainders mod 3 is what is needed, and then it can actually be done."
-    },
-    {
-      "id": "exact",
-      "kind": "number",
-      "prompt": "A different game. The numbers $1,2,\\dots,20$ are on a board. A move replaces two numbers $a$ and $b$ by $a+b-1$. What is the last number left?",
-      "answer": 191,
-      "verify": "import random\nends = set()\nfor seed in range(200):\n    r = random.Random(seed); xs = list(range(1, 21))\n    while len(xs) > 1:\n        r.shuffle(xs); a, b = xs.pop(), xs.pop(); xs.append(a + b - 1)\n    ends.add(xs[0])\nresult = ends.pop() if len(ends) == 1 else None",
-      "nudges": [
-        "What does one move do to (the total of the numbers) minus (how many numbers there are)?"
-      ],
-      "showed": "Total minus count never changes at all: an exact invariant, not only a remainder."
-    },
-    {
-      "id": "product",
-      "kind": "number",
-      "prompt": "Now a move replaces $a$ and $b$ by $ab+a+b$. Starting from 1, 2, 3, 4, what is the last number left?",
-      "answer": 119,
-      "verify": "import random\nends = set()\nfor seed in range(200):\n    r = random.Random(seed); xs = [1, 2, 3, 4]\n    while len(xs) > 1:\n        r.shuffle(xs); a, b = xs.pop(), xs.pop(); xs.append(a*b + a + b)\n    ends.add(xs[0])\nresult = ends.pop() if len(ends) == 1 else None",
-      "nudges": [
-        "Add 1 to the new number. Does it factor?"
-      ],
-      "showed": "The product of (each number + 1) is preserved. Finding the right quantity is the whole problem."
-    },
-    {
-      "id": "argument",
-      "kind": "proof",
-      "prompt": "Prove that from 13 grey, 15 brown and 17 crimson, the chameleons can never all be the same colour.",
-      "claims": [
-        "A meeting changes the three counts by -1, -1, +2 in some order, so the difference of any two counts changes by 0 or by 3 (equivalently, all three counts shift by the same amount mod 3).",
-        "Hence the difference of any two counts keeps its remainder mod 3 throughout.",
-        "At the start the differences are 2, 2 and 4, none of which is a multiple of 3.",
-        "If all were one colour, two counts would be 0, giving a difference of 0, a multiple of 3: a contradiction."
-      ],
-      "nudges": [
-        "By how much can the difference between two counts change in one meeting?",
-        "What would the difference between the two vanished colours be at the end?"
-      ],
-      "showed": "A remainder that no meeting can change rules the target out."
-    }
-  ],
-  "reveal": {
-    "name": "Invariants modulo m",
-    "statement": "If every move changes a quantity by a multiple of $m$, its remainder mod $m$ is the same in every reachable position. Some quantities (total minus count, a product of shifted values) are preserved exactly.",
-    "remark": "Typical candidates: a sum, a sum mod m, an alternating sum, a product, or a difference between counts."
+ "idea": "sum-invariant",
+ "opening": "An island has chameleons of three colours. When two of different colours meet, both change to the third colour.",
+ "steps": [
+  {
+   "id": "move",
+   "kind": "list",
+   "prompt": "There are 13 grey, 15 brown and 17 crimson. A grey and a brown meet. Give the new numbers of grey, brown, crimson, in that order.",
+   "answer": [
+    12,
+    14,
+    19
+   ],
+   "verify": "result = [13 - 1, 15 - 1, 17 + 2]",
+   "nudges": [
+    "Which two counts go down, and by how much does the third go up?"
+   ],
+   "showed": "Two counts drop by 1 and the third rises by 2.",
+   "ordered": true
+  },
+  {
+   "id": "diffs",
+   "kind": "list",
+   "prompt": "Before that meeting the differences brown − grey, crimson − brown, crimson − grey were 2, 2, 4. What are they afterwards, in the same order?",
+   "answer": [
+    2,
+    5,
+    7
+   ],
+   "verify": "g, b, c = 12, 14, 19\nresult = [b - g, c - b, c - g]",
+   "nudges": [
+    "What are the three counts after the meeting?"
+   ],
+   "showed": "One difference stayed and two grew by 3.",
+   "ordered": true
+  },
+  {
+   "id": "by3",
+   "kind": "choice",
+   "prompt": "In general a meeting lowers two counts by 1 and raises the third by 2. So the difference between any two counts changes by:",
+   "options": [
+    "$0$, $+3$ or $-3$",
+    "$0$, $+2$ or $-2$",
+    "$+1$ or $-1$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How does the difference change between two counts that both drop by 1? And between one that drops by 1 and the one that rises by 2?"
+   ],
+   "showed": "Every difference changes by 0 or 3, so each difference keeps its remainder mod 3."
+  },
+  {
+   "id": "start",
+   "kind": "list",
+   "prompt": "Give the remainders mod 3 of the starting counts 13, 15, 17, in that order.",
+   "answer": [
+    1,
+    0,
+    2
+   ],
+   "verify": "result = [13 % 3, 15 % 3, 17 % 3]",
+   "nudges": [
+    "What is 17 minus 15?"
+   ],
+   "showed": "The three remainders are all different.",
+   "ordered": true
+  },
+  {
+   "id": "goal",
+   "kind": "choice",
+   "prompt": "If all 45 chameleons were one colour, two of the counts would be 0 and the third 45. The remainders mod 3 of those three counts would be:",
+   "options": [
+    "all equal",
+    "all different",
+    "two equal and one different"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What is 45 mod 3?"
+   ],
+   "showed": "All three remainders would be equal."
+  },
+  {
+   "id": "shift",
+   "kind": "choice",
+   "prompt": "A meeting changes the counts by $-1$, $-1$, $+2$. What does it do to the three remainders mod 3?",
+   "options": [
+    "It subtracts 1 from each of them (mod 3), so three different remainders stay different",
+    "It leaves all three unchanged",
+    "It makes two of them equal"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What is $+2$ the same as, mod 3?"
+   ],
+   "showed": "Every meeting shifts all three remainders by the same amount. \"All different\" is permanent, so one colour is impossible."
+  },
+  {
+   "id": "which",
+   "kind": "list",
+   "prompt": "Number these starting counts 1 to 4: (1) 1, 2, 3  (2) 2, 5, 8  (3) 1, 1, 1  (4) 4, 4, 7. List the ones from which all the chameleons can become one colour.",
+   "answer": [
+    2,
+    3,
+    4
+   ],
+   "verify": "def can(start):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if sorted(s)[:2] == [0, 0]: return True\n        for i in range(3):\n            for j in range(i):\n                if s[i] and s[j]:\n                    t = list(s); t[i] -= 1; t[j] -= 1; t[3 - i - j] += 2; t = tuple(t)\n                    if t not in seen: seen.add(t); todo.append(t)\n    return False\nresult = [k + 1 for k, s in enumerate([(1, 2, 3), (2, 5, 8), (1, 1, 1), (4, 4, 7)]) if can(s)]",
+   "nudges": [
+    "For each, are the three remainders mod 3 all different?",
+    "When two counts have the same remainder, how can they both be brought to 0?"
+   ],
+   "showed": "Two counts with equal remainders mod 3 is what is needed, and then it can actually be done."
+  },
+  {
+   "id": "exact",
+   "kind": "number",
+   "prompt": "A different game. The numbers $1,2,\\dots,20$ are on a board. A move replaces two numbers $a$ and $b$ by $a+b-1$. What is the last number left?",
+   "answer": 191,
+   "verify": "import random\nends = set()\nfor seed in range(200):\n    r = random.Random(seed); xs = list(range(1, 21))\n    while len(xs) > 1:\n        r.shuffle(xs); a, b = xs.pop(), xs.pop(); xs.append(a + b - 1)\n    ends.add(xs[0])\nresult = ends.pop() if len(ends) == 1 else None",
+   "nudges": [
+    "What does one move do to (the total of the numbers) minus (how many numbers there are)?"
+   ],
+   "showed": "Total minus count never changes at all: an exact invariant, not only a remainder."
+  },
+  {
+   "id": "product",
+   "kind": "number",
+   "prompt": "Now a move replaces $a$ and $b$ by $ab+a+b$. Starting from 1, 2, 3, 4, what is the last number left?",
+   "answer": 119,
+   "verify": "import random\nends = set()\nfor seed in range(200):\n    r = random.Random(seed); xs = [1, 2, 3, 4]\n    while len(xs) > 1:\n        r.shuffle(xs); a, b = xs.pop(), xs.pop(); xs.append(a*b + a + b)\n    ends.add(xs[0])\nresult = ends.pop() if len(ends) == 1 else None",
+   "nudges": [
+    "Add 1 to the new number. Does it factor?"
+   ],
+   "showed": "The product of (each number + 1) is preserved. Finding the right quantity is the whole problem."
+  },
+  {
+   "id": "argument",
+   "kind": "proof",
+   "prompt": "Prove that from 13 grey, 15 brown and 17 crimson, the chameleons can never all be the same colour.",
+   "claims": [
+    "A meeting changes the three counts by -1, -1, +2 in some order, so the difference of any two counts changes by 0 or by 3 (equivalently, all three counts shift by the same amount mod 3).",
+    "Hence the difference of any two counts keeps its remainder mod 3 throughout.",
+    "At the start the differences are 2, 2 and 4, none of which is a multiple of 3.",
+    "If all were one colour, two counts would be 0, giving a difference of 0, a multiple of 3: a contradiction."
+   ],
+   "nudges": [
+    "By how much can the difference between two counts change in one meeting?",
+    "What would the difference between the two vanished colours be at the end?"
+   ],
+   "showed": "A remainder that no meeting can change rules the target out."
+  },
+  {
+   "id": "h-cham",
+   "kind": "number",
+   "prompt": "From here on nothing points at what to look for. An island has red, green and blue chameleons, 12 in all. When two of different colours meet, both turn into the third colour. For how many ordered triples (red, green, blue) of non-negative numbers adding up to 12 can the whole island end up one colour (triples that already are one colour count)?",
+   "answer": 31,
+   "verify": "import functools, itertools, operator, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\ndef cham(s):\n    for i in range(3):\n        for j in range(i + 1, 3):\n            if s[i] and s[j]:\n                t = list(s); t[i] -= 1; t[j] -= 1; t[3 - i - j] += 2; yield tuple(t)\nresult = sum(1 for a in range(13) for b in range(13 - a) if any(sorted(t)[1] == 0 for t in reach_set((a, b, 12 - a - b), cham)))",
+   "nudges": [
+    "What does one meeting do to the difference between two of the counts?",
+    "For everyone to end up blue, which two counts must reach 0 together, and what does that require of their difference at the start?"
+   ],
+   "showed": "A meeting changes each pairwise difference by 0 or 3. All one colour needs two counts to be equal mod 3 at the start; since the total is 12, that forces all three to be equal mod 3 or exactly two. Counting the triples with at least two equal residues gives 31, and each of them really works.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-lattice",
+   "kind": "number",
+   "prompt": "A token starts at (0, 0). A move adds (3, 1), (1, 3) or (-2, -2) to its position; it may wander anywhere. How many of the 36 points with both coordinates from 0 to 5 can it visit?",
+   "answer": 9,
+   "verify": "import functools, itertools, operator, sys\nsys.setrecursionlimit(100000)\ndef solver(moves):\n    @functools.lru_cache(None)\n    def win(s): return any(not win(t) for t in moves(s))\n    return win\ndef reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\npts = reach_set((0, 0), lambda s: [(s[0] + a, s[1] + b) for a, b in ((3, 1), (1, 3), (-2, -2)) if -12 <= s[0] + a <= 18 and -12 <= s[1] + b <= 18])\nresult = sum(1 for x in range(6) for y in range(6) if (x, y) in pts)",
+   "nudges": [
+    "What does each move do to x + y?",
+    "Your condition is necessary. Which small steps can you build by combining moves, to show every point satisfying it is reached?"
+   ],
+   "showed": "Every move changes x + y by a multiple of 4, so x + y stays a multiple of 4. That is the only restriction: (3,1) followed by (-2,-2) is the step (1,-1), which moves freely along each line x + y = constant. The points with x + y equal to 0, 4 or 8: 1 + 5 + 3.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-product",
+   "kind": "number",
+   "prompt": "The numbers 1, 2, ..., 10 are on a board. A move erases two numbers a and b and writes a + b + ab. What is the last number?",
+   "answer": 39916799,
+   "verify": "import math\ns = list(range(1, 11))\nwhile len(s) > 1:\n    a, b = s.pop(), s.pop(0); s.append(a + b + a * b)\nresult = s[0]\nassert result == math.factorial(11) - 1",
+   "nudges": [
+    "Try it with 1, 2, 3 in two different orders. What do you notice?",
+    "Can you rewrite a + b + ab as something minus 1?"
+   ],
+   "showed": "a + b + ab = (a + 1)(b + 1) - 1, so the product of (number + 1) over the board never changes. It is 2 x 3 x ... x 11 = 11!, and the last number is 11! - 1.",
+   "tier": "hard"
   }
+ ],
+ "reveal": {
+  "name": "Invariants modulo m",
+  "statement": "If every move changes a quantity by a multiple of $m$, its remainder mod $m$ is the same in every reachable position. Some quantities (total minus count, a product of shifted values) are preserved exactly.",
+  "remark": "Typical candidates: a sum, a sum mod m, an alternating sum, a product, or a difference between counts."
+ }
 }

@@ -457,7 +457,7 @@ class Service:
         return self.problem(store, problem['id'])
 
     # ---------- puzzles ----------
-    def puzzles(self, store, which):
+    def puzzles(self, store, which, at=None):
         """The sets with their progress, and the next unsolved puzzle of the chosen set."""
         done = {r['puzzle']: r for r in store.all('SELECT * FROM puzzles_done')}
         sets = []
@@ -467,12 +467,21 @@ class Service:
                          'done': sum(1 for p in mine if p['id'] in done),
                          'first_try': sum(1 for p in mine if p['id'] in done and not done[p['id']]['wrong'] and not done[p['id']]['shown'])})
         chosen = which if any(s['id'] == which for s in sets) else (sets[0]['id'] if sets else None)
-        todo = next((p for p in self.content.puzzles['puzzles'] if p['set'] == chosen and p['id'] not in done), None)
+        mine = [p for p in self.content.puzzles['puzzles'] if p['set'] == chosen]
+        # The frontier is the first unfinished puzzle. You may look back at anything before it, not ahead of it.
+        frontier = next((i for i, p in enumerate(mine) if p['id'] not in done), len(mine))
+        position = at if isinstance(at, int) and 0 <= at <= min(frontier, len(mine) - 1) else frontier
         public = None
-        if todo:
+        if position < len(mine):
+            todo = mine[position]
             public = {'id': todo['id'], 'kind': todo['kind'], 'prompt': todo['prompt'], 'options': todo.get('options'),
                       'wrong': store.one('SELECT COUNT(*) FROM puzzle_tries WHERE puzzle=? AND correct=0', (todo['id'],))[0]}
-        return {'sets': sets, 'set': chosen, 'puzzle': public}
+            if todo['id'] in done:
+                row = done[todo['id']]
+                last = store.one('SELECT answer FROM puzzle_tries WHERE puzzle=? AND correct=1 ORDER BY id DESC LIMIT 1', (todo['id'],))
+                public['finished'] = {'shown': bool(row['shown']), 'first_try': not row['wrong'] and not row['shown'], 'showed': todo['showed'],
+                                      'yours': last['answer'] if last else None}
+        return {'sets': sets, 'set': chosen, 'puzzle': public, 'position': position, 'frontier': frontier, 'count': len(mine)}
 
     def puzzle_answer(self, store, data):
         puzzle = next((p for p in self.content.puzzles['puzzles'] if p['id'] == data.get('id')), None)
@@ -703,7 +712,8 @@ class Service:
             if path == '/mastery':
                 return self.mastery(store)
             if path == '/puzzles':
-                return self.puzzles(store, query.get('set', [''])[0])
+                at = query.get('at', [''])[0]
+                return self.puzzles(store, query.get('set', [''])[0], int(at) if at.isdigit() else None)
             if path == '/contests':
                 return contest.overview(store)
         raise ApiError('Not found.', 404)

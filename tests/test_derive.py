@@ -369,6 +369,12 @@ class App(unittest.TestCase):
         self.assertNotEqual(second['id'], first['id'])
         shown = self.post('/puzzle/answer', {'id': second['id'], 'show': True})[1]
         self.assertTrue(shown['shown'] and not shown['correct'])
+        back = self.get('/puzzles?set=invariants&at=0')                              # going back shows a finished puzzle with its reason
+        self.assertEqual((back['position'], back['puzzle']['id'], back['puzzle']['finished']['yours']), (0, first['id'], '55'))
+        self.assertTrue(back['puzzle']['finished']['showed'] and not back['puzzle']['finished']['first_try'])
+        ahead = self.get('/puzzles?set=invariants&at=9')                             # but not past the first unfinished one
+        self.assertEqual((ahead['position'], ahead['frontier']), (2, 2))
+        self.assertNotIn('finished', ahead['puzzle'])
         stats = next(s for s in self.get('/puzzles')['sets'] if s['id'] == 'invariants')
         self.assertEqual((stats['done'], stats['first_try']), (2, 0))
         self.assertEqual(self.get('/puzzles?set=bits')['puzzle']['id'], 'b-xor')

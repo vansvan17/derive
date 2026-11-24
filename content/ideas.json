@@ -47,6 +47,10 @@
   {
    "id": "game",
    "title": "Two-player games"
+  },
+  {
+   "id": "str",
+   "title": "Strings"
   }
  ],
  "ideas": [
@@ -648,6 +652,76 @@
    "needs": [
     "win-lose-states",
     "xor-cancels"
+   ]
+  },
+  {
+   "id": "runs-boundaries",
+   "area": "str",
+   "name": "Blocks and boundaries",
+   "statement": "An operation on a binary string usually changes only the boundaries between blocks of equal characters, and by at most two: count blocks, not characters.",
+   "needs": [
+    "difference-array"
+   ]
+  },
+  {
+   "id": "binary-inversions",
+   "area": "str",
+   "name": "Inversions of a binary string",
+   "statement": "The pairs (a 1, a later 0) measure how unsorted a binary string is; a swap of neighbours changes the count by exactly one.",
+   "needs": [
+    "monovariant"
+   ]
+  },
+  {
+   "id": "balance",
+   "area": "str",
+   "name": "Balance as a walk",
+   "statement": "Score +1 and -1 for the two characters: equal counts are equal prefix values, and a correct bracket sequence is a walk that never goes below zero and ends at zero.",
+   "needs": [
+    "prefix-sums"
+   ]
+  },
+  {
+   "id": "position-parity",
+   "area": "str",
+   "name": "Parity of positions",
+   "statement": "An operation that moves characters by two places keeps each character on positions of the same parity, so the counts on odd and on even positions are invariants.",
+   "needs": [
+    "parity-invariant"
+   ]
+  },
+  {
+   "id": "pal-centres",
+   "area": "str",
+   "name": "Palindromes grow from centres",
+   "statement": "A string of length n has 2n - 1 centres, and every palindromic substring is found by expanding from one of them; the first half of a palindrome determines the rest.",
+   "needs": []
+  },
+  {
+   "id": "pal-parity-mask",
+   "area": "str",
+   "name": "Rearranging into a palindrome",
+   "statement": "Letters can be rearranged into a palindrome exactly when at most one letter occurs an odd number of times; for substrings, compare prefix masks of letter parities.",
+   "needs": [
+    "prefix-xor"
+   ]
+  },
+  {
+   "id": "pal-subsequence",
+   "area": "str",
+   "name": "Palindromic subsequences",
+   "statement": "The longest palindromic subsequence is the longest common subsequence of a string and its reverse; the fewest insertions to make a palindrome is the length minus it.",
+   "needs": [
+    "interval-dp"
+   ]
+  },
+  {
+   "id": "pal-period",
+   "area": "str",
+   "name": "Palindromes and periods",
+   "statement": "If a palindrome of length n has a palindromic prefix of length m, then n - m is a period of it; a string of length n has at most n different palindromic substrings.",
+   "needs": [
+    "pal-centres"
    ]
   }
  ]

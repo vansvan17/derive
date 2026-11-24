@@ -19,6 +19,16 @@
    "id": "bits",
    "title": "Bits",
    "about": "XOR, AND and OR, one binary digit at a time."
+  },
+  {
+   "id": "binary",
+   "title": "Binary strings",
+   "about": "Blocks, boundaries, inversions and balances: the handful of views that settle most binary-string problems."
+  },
+  {
+   "id": "palindromes",
+   "title": "Palindromes",
+   "about": "Centres, mirrors, parities of letter counts, and the facts about periods that setters assume."
   }
  ],
  "puzzles": [
@@ -1545,6 +1555,303 @@
    "answer": 20,
    "verify": "import itertools\nresult = sum(1 for p in itertools.permutations(range(5)) if sum(1 for i in range(5) for j in range(i + 1, 5) if p[i] > p[j]) == 4)",
    "showed": "Build the table by size: inserting the largest number into an order of k - 1 numbers adds between 0 and k - 1 out-of-order pairs. Row by row: 1; 1 1; 1 2 2 1; 1 3 5 6 5 3 1; and for five numbers the entry for four pairs."
+  },
+  {
+   "id": "s-sort",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "The string 1101001 is sorted (all 0s first) by swapping neighbouring characters. What is the smallest number of swaps?",
+   "answer": 8,
+   "verify": "from collections import deque\ndef dist(start, moves, goal):\n    seen, q = {start: 0}, deque([start])\n    while q:\n        s = q.popleft()\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; q.append(t)\n    return None\ndef reach(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nsw = lambda s: [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\nresult = dist('1101001', sw, lambda s: s == ''.join(sorted(s)))",
+   "showed": "Count the pairs (a 1, a later 0). Each swap of neighbours changes that count by exactly one, and the sorted string has none."
+  },
+  {
+   "id": "s-noadj",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "How many binary strings of length 12 have no two 1s next to each other?",
+   "answer": 377,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\nresult = sum(1 for s in strs(12) if '11' not in s)",
+   "showed": "A valid string ends in 0 (any valid string of length n-1 before it) or in 01 (any valid string of length n-2 before it): the counts 2, 3, 5, 8, ... add the last two."
+  },
+  {
+   "id": "s-ballot",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "How many binary strings of length 10 have five 0s and five 1s and, in every prefix, at least as many 1s as 0s?",
+   "answer": 42,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\nresult = sum(1 for s in strs(10) if s.count('1') == 5 and all(s[:k].count('1') >= s[:k].count('0') for k in range(1, 11)))",
+   "showed": "Read 1 as an opening bracket and 0 as a closing one: these are the correct bracket sequences of 5 pairs, C(10,5) / 6."
+  },
+  {
+   "id": "s-balanced",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "How many substrings of 110100110 contain equally many 0s and 1s?",
+   "answer": 14,
+   "verify": "s = '110100110'\nresult = sum(1 for i in range(9) for j in range(i + 1, 10) if s[i:j].count('0') * 2 == j - i)",
+   "showed": "Score +1 for a 1 and -1 for a 0 and take running totals from 0. A substring is balanced exactly when the totals at its two ends are equal: count equal pairs."
+  },
+  {
+   "id": "s-flip",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "An operation chooses a substring and inverts every character in it. What is the smallest number of operations that turns 0110100 into all 0s?",
+   "answer": 2,
+   "verify": "from collections import deque\ndef dist(start, moves, goal):\n    seen, q = {start: 0}, deque([start])\n    while q:\n        s = q.popleft()\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; q.append(t)\n    return None\ndef reach(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nfl = lambda s: [s[:i] + ''.join('1' if c == '0' else '0' for c in s[i:j]) + s[j:] for i in range(len(s)) for j in range(i + 1, len(s) + 1)]\nresult = dist('0110100', fl, lambda s: '1' not in s)",
+   "showed": "Pad with a 0 on each side and look at the boundaries between different neighbours. An operation changes at most two boundaries, and each block of 1s owns two: one operation per block of 1s."
+  },
+  {
+   "id": "s-cancel",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "An operation deletes two neighbouring characters that are different (01 or 10). Starting from 1101110100, what is the shortest length you can reach?",
+   "answer": 2,
+   "verify": "from collections import deque\ndef dist(start, moves, goal):\n    seen, q = {start: 0}, deque([start])\n    while q:\n        s = q.popleft()\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; q.append(t)\n    return None\ndef reach(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nde = lambda s: [s[:i] + s[i + 2:] for i in range(len(s) - 1) if s[i] != s[i + 1]]\nresult = min(len(t) for t in reach('1101110100', de))",
+   "showed": "Each deletion removes one 0 and one 1, so (number of 1s minus number of 0s) never changes; and while both kinds are present, some 0 sits next to some 1. The answer is the difference of the two counts."
+  },
+  {
+   "id": "s-stack",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "An operation deletes two neighbouring characters that are equal (00 or 11). Starting from 0110100110, what is the shortest length you can reach?",
+   "answer": 2,
+   "verify": "from collections import deque\ndef dist(start, moves, goal):\n    seen, q = {start: 0}, deque([start])\n    while q:\n        s = q.popleft()\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; q.append(t)\n    return None\ndef reach(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nde = lambda s: [s[:i] + s[i + 2:] for i in range(len(s) - 1) if s[i] == s[i + 1]]\nresult = min(len(t) for t in reach('0110100110', de))",
+   "showed": "Process the characters with a stack: push a character unless it equals the top, in which case pop. The order of deletions does not matter, so the stack size at the end is the answer. (Equivalently: flip every second character and it becomes the 01/10 game.)"
+  },
+  {
+   "id": "s-near",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "How many binary strings of length 10 can be sorted with at most 3 swaps of neighbouring characters?",
+   "answer": 57,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\nresult = sum(1 for s in strs(10) if sum(1 for i in range(10) for j in range(i + 1, 10) if s[i] == '1' and s[j] == '0') <= 3)",
+   "showed": "The number of swaps needed is the number of pairs (1, later 0). Count strings by that number: a table over (length, pairs so far, number of 1s so far), or think of each 0 contributing the number of 1s before it."
+  },
+  {
+   "id": "s-jump",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "An operation swaps two characters that are exactly two positions apart. How many different strings can be reached from 1100110000, counting itself?",
+   "answer": 100,
+   "verify": "from collections import deque\ndef dist(start, moves, goal):\n    seen, q = {start: 0}, deque([start])\n    while q:\n        s = q.popleft()\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; q.append(t)\n    return None\ndef reach(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nsw = lambda s: [s[:i] + s[i + 2] + s[i + 1] + s[i] + s[i + 3:] for i in range(len(s) - 2)]\nresult = len(reach('1100110000', sw))",
+   "showed": "A character never changes the parity of its position, and within the odd positions (and within the even ones) any rearrangement is possible. With two 1s among the five odd positions and two among the five even ones: C(5,2) x C(5,2)."
+  },
+  {
+   "id": "s-runs",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "How many binary strings of length 14 consist of exactly 4 blocks of equal characters?",
+   "answer": 572,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\nresult = sum(1 for s in strs(14) if sum(1 for i in range(13) if s[i] != s[i + 1]) == 3)",
+   "showed": "Choose the 3 places (out of 13 gaps) where the character changes, and the first character: 2 x C(13, 3)."
+  },
+  {
+   "id": "s-subseq",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "How many different non-empty strings can be obtained from 1101001 by deleting some characters (possibly none)?",
+   "answer": 41,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\ns = '1101001'\nresult = len({''.join(s[i] for i in range(7) if m >> i & 1) for m in range(1, 128)})",
+   "showed": "Go left to right keeping D, the number of distinct subsequences so far including the empty one. A new character doubles D, minus the value D had just before the previous occurrence of the same character. Subtract 1 at the end for the empty one."
+  },
+  {
+   "id": "s-ends",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "How many binary strings of length 12 have an even number of places where two neighbouring characters differ?",
+   "answer": 2048,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\nresult = sum(1 for s in strs(12) if sum(1 for i in range(11) if s[i] != s[i + 1]) % 2 == 0)",
+   "showed": "Walking along the string, each change flips the current character, so the number of changes is even exactly when the first and last characters are equal: half of all strings."
+  },
+  {
+   "id": "s-window",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "What is the length of the longest substring of 1101101110110111 containing at most two 0s?",
+   "answer": 10,
+   "verify": "s = '1101101110110111'\nresult = max(j - i for i in range(len(s)) for j in range(i + 1, len(s) + 1) if s[i:j].count('0') <= 2)",
+   "showed": "\"At most two 0s\" survives shrinking, so sweep with two ends: extend the right end, and move the left end while there are three 0s inside."
+  },
+  {
+   "id": "s-allinv",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "For every binary string of length 6 count the pairs (a 1, a later 0). What is the sum of these counts over all 64 strings?",
+   "answer": 240,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\nresult = sum(1 for s in strs(6) for i in range(6) for j in range(i + 1, 6) if s[i] == '1' and s[j] == '0')",
+   "showed": "Fix a pair of positions i < j: it is a (1, 0) pair in exactly a quarter of the strings. There are 15 pairs of positions: 15 x 16."
+  },
+  {
+   "id": "s-contain",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "How many binary strings of length 10 contain 101 as a substring?",
+   "answer": 673,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\nresult = sum(1 for s in strs(10) if '101' in s)",
+   "showed": "Count the strings that avoid 101 with a small table (remember how much of the pattern the current ending matches: nothing, \"1\", or \"10\") and subtract from 1024."
+  },
+  {
+   "id": "s-period",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "How many binary strings of length 16 have smallest period exactly 4 (the string is some block of length 4 repeated, and no shorter block works)?",
+   "answer": 12,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\nper = lambda s: next(p for p in range(1, len(s) + 1) if all(s[i] == s[i - p] for i in range(p, len(s))))\nresult = sum(1 for s in strs(16) if per(s) == 4)",
+   "showed": "Sixteen strings are a block of length 4 repeated; remove those whose block itself has a shorter period (period 1 or 2): 16 - 4."
+  },
+  {
+   "id": "s-alt",
+   "set": "binary",
+   "kind": "number",
+   "prompt": "What is the smallest number of characters to change in 0010110100 so that no two neighbouring characters are equal?",
+   "answer": 5,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\ns = '0010110100'\nresult = min(sum(1 for a, b in zip(s, t) if a != b) for t in ('0101010101', '1010101010'))",
+   "showed": "There are only two alternating strings of each length. Count mismatches against one of them; the other needs (length minus that)."
+  },
+  {
+   "id": "p-count",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "How many substrings of abacabad are palindromes (counted by position, single letters included)?",
+   "answer": 13,
+   "verify": "pal = lambda s: s == s[::-1]\ns = 'abacabad'\nresult = sum(1 for i in range(8) for j in range(i + 1, 9) if pal(s[i:j]))",
+   "showed": "Go centre by centre: 15 centres (8 on letters, 7 between), and from each expand while the two sides match. Add up how far each one extends."
+  },
+  {
+   "id": "p-free",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "How many palindromes of length 7 are there over an alphabet of 3 letters?",
+   "answer": 81,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\npal = lambda s: s == s[::-1]\nresult = sum(1 for s in strs(7, 'abc') if pal(s))",
+   "showed": "The first four letters are free and the rest are forced: 3^4."
+  },
+  {
+   "id": "p-binary",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "For how many n from 1 to 1000 is the binary form of n (without leading zeros) a palindrome?",
+   "answer": 61,
+   "verify": "pal = lambda s: s == s[::-1]\nresult = sum(1 for n in range(1, 1001) if pal(bin(n)[2:]))",
+   "showed": "Count by length: a binary palindrome of length L starts and ends with 1 and its first half is otherwise free, 2^(ceil(L/2) - 1) of them. Do lengths 1 to 9 fully and handle length 10 (up to 1000) by hand."
+  },
+  {
+   "id": "p-insert",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "What is the smallest number of characters that must be inserted into abcbda to make it a palindrome?",
+   "answer": 1,
+   "verify": "import functools\ns = 'abcbda'\n@functools.lru_cache(None)\ndef f(i, j): return 0 if i >= j else f(i + 1, j - 1) if s[i] == s[j] else 1 + min(f(i + 1, j), f(i, j - 1))\nresult = f(0, len(s) - 1)",
+   "showed": "It equals the length minus the longest palindromic subsequence (here abcba, of length 5): the letters outside that subsequence each need a partner inserted."
+  },
+  {
+   "id": "p-lps",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "What is the length of the longest palindrome that can be obtained from the word \"character\" by deleting letters?",
+   "answer": 5,
+   "verify": "import itertools\ns = 'character'\nresult = max(k for k in range(1, 10) for c in itertools.combinations(s, k) if c == c[::-1])",
+   "showed": "The longest palindromic subsequence is the longest common subsequence of the word and its reverse; here \"carac\"."
+  },
+  {
+   "id": "p-rearr",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "How many substrings of aabbccabc can have their letters rearranged into a palindrome?",
+   "answer": 27,
+   "verify": "import collections\ns = 'aabbccabc'\nresult = sum(1 for i in range(9) for j in range(i + 1, 10) if sum(v % 2 for v in collections.Counter(s[i:j]).values()) <= 1)",
+   "showed": "Keep a 3-bit mask of letter parities for each prefix. A substring works when its two prefix masks are equal or differ in exactly one bit: for each prefix, look up how many earlier prefixes have one of those four masks."
+  },
+  {
+   "id": "p-avoid",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "How many strings of length 8 over the letters a, b, c contain no palindromic substring of length 2 or more?",
+   "answer": 6,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\npal = lambda s: s == s[::-1]\nresult = sum(1 for s in strs(8, 'abc') if not any(pal(s[i:j]) for i in range(8) for j in range(i + 2, 9)))",
+   "showed": "Any longer palindrome contains one of length 2 or 3 at its centre, so it is enough to forbid s_i = s_(i+1) and s_i = s_(i+2). Then the first two letters are any two different ones and every later letter is forced: 3 x 2."
+  },
+  {
+   "id": "p-distinct",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "How many different palindromes occur as substrings of abracadabra?",
+   "answer": 7,
+   "verify": "pal = lambda s: s == s[::-1]\ns = 'abracadabra'\nresult = len({s[i:j] for i in range(11) for j in range(i + 1, 12) if pal(s[i:j])})",
+   "showed": "A string of length n has at most n different palindromic substrings, because appending a character creates at most one new one (the longest palindromic suffix). Here there are far fewer than 11."
+  },
+  {
+   "id": "p-cuts",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "What is the smallest number of pieces into which abacdcabb can be cut so that every piece is a palindrome?",
+   "answer": 3,
+   "verify": "pal = lambda s: s == s[::-1]\nimport functools\ns = 'abacdcabb'\n@functools.lru_cache(None)\ndef f(i): return 0 if i == len(s) else min(1 + f(j) for j in range(i + 1, len(s) + 1) if pal(s[i:j]))\nresult = f(0)",
+   "showed": "Let best(i) be the fewest pieces for the suffix starting at i: try every palindrome starting at i. Precompute which substrings are palindromes so each try is O(1)."
+  },
+  {
+   "id": "p-pairs",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "Seven words: ab, ba, abc, cba, a, aa, b. For how many ordered pairs of two different words is the first followed by the second a palindrome?",
+   "answer": 12,
+   "verify": "pal = lambda s: s == s[::-1]\nw = ['ab', 'ba', 'abc', 'cba', 'a', 'aa', 'b']\nresult = sum(1 for i in range(7) for j in range(7) if i != j and pal(w[i] + w[j]))",
+   "showed": "For each word and each way of splitting it into a prefix and a suffix: if the suffix is a palindrome, the reverse of the prefix can go after it; if the prefix is a palindrome, the reverse of the suffix can go before it. Look the needed word up in a set."
+  },
+  {
+   "id": "p-almost",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "How many binary strings of length 8 are a palindrome already, or become one after deleting exactly one character?",
+   "answer": 114,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\npal = lambda s: s == s[::-1]\nresult = sum(1 for s in strs(8) if pal(s) or any(pal(s[:i] + s[i + 1:]) for i in range(8)))",
+   "showed": "To test one string, walk in from both ends; at the first mismatch the deleted character must be one of those two, so try both and check that the rest is a palindrome."
+  },
+  {
+   "id": "p-next",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "What is the smallest palindromic number greater than 123456?",
+   "answer": 124421,
+   "verify": "pal = lambda s: s == s[::-1]\nresult = next(n for n in range(123457, 200000) if pal(str(n)))",
+   "showed": "Mirror the left half: 123321 is too small, so add 1 to the left half (124) and mirror again."
+  },
+  {
+   "id": "p-change",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "What is the smallest number of letters to change in abcdefba to make it a palindrome?",
+   "answer": 2,
+   "verify": "s = 'abcdefba'\nresult = sum(1 for i in range(4) if s[i] != s[7 - i])",
+   "showed": "Compare each position with its mirror: every mismatched pair costs exactly one change. Here (c, f) and (d, e)."
+  },
+  {
+   "id": "p-double",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "How many binary strings of length 12 can be written as a palindrome followed by another palindrome (both non-empty)?",
+   "answer": 982,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\npal = lambda s: s == s[::-1]\nresult = sum(1 for s in strs(12) if any(pal(s[:k]) and pal(s[k:]) for k in range(1, 12)))",
+   "showed": "There is no neat formula for the count. To test one string, precompute for every position whether the prefix ending there and the suffix starting there are palindromes, and look for a split where both hold."
+  },
+  {
+   "id": "p-prefix",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "What is the length of the longest prefix of abacabaxyz that is a palindrome?",
+   "answer": 7,
+   "verify": "pal = lambda s: s == s[::-1]\ns = 'abacabaxyz'\nresult = max(k for k in range(1, 11) if pal(s[:k]))",
+   "showed": "Build s + # + reverse(s) and compute, for its last position, the longest prefix that is also a suffix: that length is the answer, in one linear pass."
+  },
+  {
+   "id": "p-period",
+   "set": "palindromes",
+   "kind": "number",
+   "prompt": "How many strings of length 9 over {a, b} are palindromes whose prefix of length 6 is also a palindrome?",
+   "answer": 4,
+   "verify": "import itertools, functools\nstrs = lambda n, alpha='01': (''.join(t) for t in itertools.product(alpha, repeat=n))\npal = lambda s: s == s[::-1]\nresult = sum(1 for s in strs(9, 'ab') if pal(s) and pal(s[:6]))",
+   "showed": "If a palindrome of length n has a palindromic prefix of length m, then n - m is a period of it. Here the period is 3, so the string is a block of length 3 repeated, and the block must itself be a palindrome: 2 x 2."
   }
  ]
 }

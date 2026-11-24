@@ -25,6 +25,9 @@ class Content:
         # Unrated practice tasks (CSES) offered once an idea's chain is finished.
         path = self.root / 'content/practice.json'
         self.practice = json.loads(path.read_text()) if path.exists() else {}
+        # Short single-question puzzles, grouped in sets (invariants, games, bits).
+        path = self.root / 'content/puzzles.json'
+        self.puzzles = json.loads(path.read_text()) if path.exists() else {'sets': [], 'puzzles': []}
         # Past ICPC regional papers: links only, shown on the contest page.
         path = self.root / 'content/papers.json'
         self.papers = json.loads(path.read_text()) if path.exists() else []
@@ -130,6 +133,20 @@ def problems(content):
                 faults.append(f'{tag}: counterexample needs vars, bounds and a property')
             if kind == 'proof' and not 2 <= len(step.get('claims', [])) <= 6:
                 faults.append(f'{tag}: proof needs two to six required claims')
+    seen_puzzles, set_ids = set(), {s['id'] for s in content.puzzles['sets']}
+    for puzzle in content.puzzles['puzzles']:
+        tag = f'puzzle {puzzle.get("id")}'
+        if puzzle.get('id') in seen_puzzles:
+            faults.append(f'{tag}: id used twice')
+        seen_puzzles.add(puzzle.get('id'))
+        if puzzle.get('set') not in set_ids:
+            faults.append(f'{tag}: unknown set')
+        if puzzle.get('kind') not in ('number', 'list', 'choice'):
+            faults.append(f'{tag}: a puzzle is a number, a list or a choice')
+        if not puzzle.get('prompt') or not puzzle.get('showed'):
+            faults.append(f'{tag}: needs a prompt and the one-line reason shown afterwards')
+        if not puzzle.get('verify'):
+            faults.append(f'{tag}: needs brute-force "verify" code')
     for idea, tasks in content.practice.items():
         if idea not in content.chains:
             faults.append(f'practice {idea}: practice is offered after a chain, and this idea has none')

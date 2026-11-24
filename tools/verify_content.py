@@ -81,6 +81,8 @@ def verify_step(tag, step):
         if not step['verify']['works'] or not step['verify']['fails']:
             faults.append(f'{tag}: needs at least one example that works and one that fails')
     elif kind == 'choice':
+        if 'verify' in step and brute(step['verify']) != step['answer']:
+            faults.append(f'{tag}: stored option {step["answer"]} but brute force says {brute(step["verify"])}')
         if checks.check(step, (step['answer'] + 1) % len(step['options']))[0]:
             faults.append(f'{tag}: the checker accepts a wrong option')
     return faults
@@ -128,11 +130,16 @@ def main():
                 faults += verify_step(f'chain {idea} step {step["id"]}', step)
             except Exception as exc:  # a crash in verify code is itself a content fault
                 faults.append(f'chain {idea} step {step["id"]}: verification crashed: {exc!r}')
+    for puzzle in course.puzzles['puzzles']:
+        try:
+            faults += verify_step(f'puzzle {puzzle["id"]}', puzzle)
+        except Exception as exc:
+            faults.append(f'puzzle {puzzle["id"]}: verification crashed: {exc!r}')
     if args.links:
         faults += verify_links(course)
     for fault in faults:
         print('FAULT', fault)
-    print(f'{len(course.ideas)} ideas, {len(course.links)} links, {len(course.chains)} chains, {steps} steps, {len(course.problems)} problems: '
+    print(f'{len(course.ideas)} ideas, {len(course.links)} links, {len(course.chains)} chains, {steps} steps, {len(course.problems)} problems, {len(course.puzzles["puzzles"])} puzzles: '
           + ('all checks passed' if not faults else f'{len(faults)} fault(s)'))
     return 1 if faults else 0
 

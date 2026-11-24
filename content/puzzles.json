@@ -1,0 +1,639 @@
+{
+ "sets": [
+  {
+   "id": "invariants",
+   "title": "Invariants",
+   "about": "Can it be done, or what must the answer be? Look for the quantity no move can change."
+  },
+  {
+   "id": "games",
+   "title": "Games",
+   "about": "Two players, perfect play. Label small positions as won or lost and look for the pattern."
+  },
+  {
+   "id": "bits",
+   "title": "Bits",
+   "about": "XOR, AND and OR, one binary digit at a time."
+  }
+ ],
+ "puzzles": [
+  {
+   "id": "i-sum",
+   "set": "invariants",
+   "kind": "number",
+   "prompt": "The numbers 1 to 10 are on a board. You repeatedly erase two numbers and write their sum. What number is left at the end?",
+   "answer": 55,
+   "verify": "result = sum(range(1, 11))",
+   "showed": "The total on the board never changes: it is always 55."
+  },
+  {
+   "id": "i-diff6",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "The numbers 1 to 6 are on a board. You repeatedly erase two numbers and write their difference (larger minus smaller). Can the last number be 0?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef moves(s):\n    for i in range(len(s)):\n        for j in range(i + 1, len(s)):\n            r = list(s[:i] + s[i+1:j] + s[j+1:]) + [abs(s[i] - s[j])]\n            yield tuple(sorted(r))\nresult = 0 if reach(tuple(range(1, 7)), moves, lambda s: s == (0,)) else 1",
+   "showed": "Replacing a and b by a - b changes the total by 2b, an even amount. The total starts at 21, odd, so it can never be 0."
+  },
+  {
+   "id": "i-diff7",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Same game with the numbers 1 to 7. Can the last number be 0?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 0,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef moves(s):\n    for i in range(len(s)):\n        for j in range(i + 1, len(s)):\n            r = list(s[:i] + s[i+1:j] + s[j+1:]) + [abs(s[i] - s[j])]\n            yield tuple(sorted(r))\nresult = 0 if reach(tuple(range(1, 8)), moves, lambda s: s == (0,)) else 1",
+   "showed": "Now the total is 28, even, so parity does not forbid it, and it can be done: for example 7-6, 5-4, 3-2 leave 1, 1, 1, 1, then 1-1 twice, then 0-0."
+  },
+  {
+   "id": "i-cham1",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "An island has 13 red, 15 green and 17 blue chameleons. When two of different colours meet, both change to the third colour. Can all the chameleons ever be the same colour?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef moves(s):\n    for i in range(3):\n        for j in range(i + 1, 3):\n            if s[i] and s[j]:\n                t = list(s); t[i] -= 1; t[j] -= 1; t[3 - i - j] += 2; yield tuple(t)\nresult = 0 if reach((13, 15, 17), moves, lambda s: sorted(s)[1] == 0) else 1",
+   "showed": "A meeting changes each colour count by -1, -1, +2, so the difference between any two counts changes by 0 or 3. The differences start as 2, 2 and 4, never multiples of 3, but all one colour needs two counts equal to 0."
+  },
+  {
+   "id": "i-cham2",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Same island, but with 1 red, 4 green and 7 blue chameleons. Can they all become the same colour?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 0,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef moves(s):\n    for i in range(3):\n        for j in range(i + 1, 3):\n            if s[i] and s[j]:\n                t = list(s); t[i] -= 1; t[j] -= 1; t[3 - i - j] += 2; yield tuple(t)\nresult = 0 if reach((1, 4, 7), moves, lambda s: sorted(s)[1] == 0) else 1",
+   "showed": "Here all the differences are multiples of 3, so the invariant allows it, and it can be done: red meets blue once (0, 6, 6), then green meets blue six times."
+  },
+  {
+   "id": "i-coins5",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Five coins show heads. A move turns over exactly two coins. Can you make all five show tails?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef flips(n, k):\n    def moves(h):\n        for a in range(k + 1):\n            if a <= h and k - a <= n - h: yield h - a + (k - a)\n    return moves\nresult = 0 if reach(5, flips(5, 2), lambda h: h == 0) else 1",
+   "showed": "Turning two coins changes the number of heads by -2, 0 or +2. It starts odd and stays odd."
+  },
+  {
+   "id": "i-coins6",
+   "set": "invariants",
+   "kind": "number",
+   "prompt": "Six coins show heads. A move turns over exactly three coins. What is the smallest number of moves that makes all six show tails?",
+   "answer": 2,
+   "verify": "from collections import deque\ndef dist(start, moves, goal):\n    seen, q = {start: 0}, deque([start])\n    while q:\n        s = q.popleft()\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; q.append(t)\n    return None\ndef flips(n, k):\n    def moves(h):\n        for a in range(k + 1):\n            if a <= h and k - a <= n - h: yield h - a + (k - a)\n    return moves\nresult = dist(6, flips(6, 3), lambda h: h == 0)",
+   "showed": "Each move changes the parity of the number of heads, so an even number of moves is needed; two are enough (three coins, then the other three)."
+  },
+  {
+   "id": "i-cups7",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Seven cups stand upright. A move turns over exactly four cups. Can all seven end up upside down?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef flips(n, k):\n    def moves(h):\n        for a in range(k + 1):\n            if a <= h and k - a <= n - h: yield h - a + (k - a)\n    return moves\nresult = 0 if reach(7, flips(7, 4), lambda h: h == 0) else 1",
+   "showed": "Turning four cups changes the number of upright cups by an even amount. Seven is odd; zero is even."
+  },
+  {
+   "id": "i-times3",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "A board shows the number 1. A move either multiplies it by 3 or adds 6. Can the board ever show 100?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\nresult = 0 if reach(1, lambda x: [y for y in (3 * x, x + 6) if y <= 100], lambda x: x == 100) else 1",
+   "showed": "Look at the remainder mod 6. Adding 6 keeps it; multiplying by 3 turns 1 into 3 and keeps 3 as 3. So the board only ever shows numbers that are 1 or 3 mod 6, and 100 is 4 mod 6."
+  },
+  {
+   "id": "i-pair69",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "You have the pair (1, 1). A move replaces (a, b) by (a + b, b) or by (a, a + b). Can you reach (6, 9)?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef moves(s):\n    a, b = s\n    return [t for t in ((a + b, b), (a, a + b)) if max(t) <= 12]\nresult = 0 if reach((1, 1), moves, lambda s: s == (6, 9)) else 1",
+   "showed": "Adding one number to the other never changes their greatest common divisor. It starts at 1, and gcd(6, 9) = 3."
+  },
+  {
+   "id": "i-pair58",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Same moves from (1, 1). Can you reach (5, 8)?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 0,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef moves(s):\n    a, b = s\n    return [t for t in ((a + b, b), (a, a + b)) if max(t) <= 12]\nresult = 0 if reach((1, 1), moves, lambda s: s == (5, 8)) else 1",
+   "showed": "gcd(5, 8) = 1, so nothing forbids it; run the subtraction backwards: (5,8), (5,3), (2,3), (2,1), (1,1)."
+  },
+  {
+   "id": "i-grid",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "A 3 by 3 grid holds zeros. A move adds 1 to every cell of one row or of one column. Can you reach the grid that has a 1 in the top-left corner and zeros everywhere else?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "import itertools\nok = False\nfor r in itertools.product(range(3), repeat=3):\n    for c in itertools.product(range(3), repeat=3):\n        g = [[r[i] + c[j] for j in range(3)] for i in range(3)]\n        if g == [[1, 0, 0], [0, 0, 0], [0, 0, 0]]: ok = True\nresult = 0 if ok else 1",
+   "showed": "Take any 2 by 2 block of cells: (top-left + bottom-right) minus (top-right + bottom-left) never changes, because a row or column adds to one cell of each pair. It starts at 0, and the target has 1 there."
+  },
+  {
+   "id": "i-ring6",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Six numbers sit round a circle: 1, 0, 0, 0, 0, 0. A move adds 1 to two neighbouring numbers. Can all six become equal?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef ring(n, cap):\n    def moves(s):\n        for i in range(n):\n            t = list(s); t[i] += 1; t[(i + 1) % n] += 1\n            if max(t) <= cap: yield tuple(t)\n    return moves\nresult = 0 if reach((1, 0, 0, 0, 0, 0), ring(6, 4), lambda s: len(set(s)) == 1) else 1",
+   "showed": "Colour the positions alternately black and white. Every move adds 1 to one black and one white position, so (black total minus white total) stays 1 for ever; all equal would make it 0."
+  },
+  {
+   "id": "i-ring5",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Now five numbers round a circle: 1, 0, 0, 0, 0, with the same move. Can all five become equal?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 0,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef ring(n, cap):\n    def moves(s):\n        for i in range(n):\n            t = list(s); t[i] += 1; t[(i + 1) % n] += 1\n            if max(t) <= cap: yield tuple(t)\n    return moves\nresult = 0 if reach((1, 0, 0, 0, 0), ring(5, 3), lambda s: len(set(s)) == 1) else 1",
+   "showed": "With an odd circle the alternate colouring is impossible, and the obstacle disappears: add to positions 2-3 and to positions 4-5 and everything is 1. An invariant must be checked, not assumed."
+  },
+  {
+   "id": "i-swaps",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "A row reads 1 2 3 4. A move swaps two neighbouring numbers. Can the row read 2 1 4 3 after exactly three moves?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "import itertools\ndef layers(start, moves, k):\n    cur = {start}\n    for _ in range(k): cur = {t for s in cur for t in moves(s)}\n    return cur\nsw = lambda s: [s[:i] + (s[i + 1], s[i]) + s[i + 2:] for i in range(len(s) - 1)]\nresult = 0 if (2, 1, 4, 3) in layers((1, 2, 3, 4), sw, 3) else 1",
+   "showed": "Every swap of neighbours changes the number of out-of-order pairs by exactly 1. The target has two such pairs, so the number of moves must be even."
+  },
+  {
+   "id": "i-rotate",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "A row reads 1 2 3 4 5. A move takes three neighbouring numbers a b c and turns them into b c a. Can the row ever read 2 1 3 4 5?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\nrot = lambda s: [s[:i] + (s[i + 1], s[i + 2], s[i]) + s[i + 3:] for i in range(len(s) - 2)]\nresult = 0 if reach((1, 2, 3, 4, 5), rot, lambda s: s == (2, 1, 3, 4, 5)) else 1",
+   "showed": "Turning a b c into b c a is two swaps of neighbours, so the number of out-of-order pairs changes by an even amount. The target has exactly one such pair."
+  },
+  {
+   "id": "i-knight7",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "A knight stands on a corner square of a chessboard. Can it be on the opposite corner after exactly seven moves?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "import itertools\ndef layers(start, moves, k):\n    cur = {start}\n    for _ in range(k): cur = {t for s in cur for t in moves(s)}\n    return cur\ndef kn(s):\n    x, y = s\n    return [(x + a, y + b) for a, b in ((1, 2), (2, 1), (-1, 2), (-2, 1), (1, -2), (2, -1), (-1, -2), (-2, -1)) if 0 <= x + a < 8 and 0 <= y + b < 8]\nresult = 0 if (7, 7) in layers((0, 0), kn, 7) else 1",
+   "showed": "Each knight move changes the colour of its square. Opposite corners have the same colour, so the number of moves must be even."
+  },
+  {
+   "id": "i-knight",
+   "set": "invariants",
+   "kind": "number",
+   "prompt": "What is the smallest number of moves a knight needs to get from one corner of a chessboard to the opposite corner?",
+   "answer": 6,
+   "verify": "from collections import deque\ndef dist(start, moves, goal):\n    seen, q = {start: 0}, deque([start])\n    while q:\n        s = q.popleft()\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; q.append(t)\n    return None\ndef kn(s):\n    x, y = s\n    return [(x + a, y + b) for a, b in ((1, 2), (2, 1), (-1, 2), (-2, 1), (1, -2), (2, -1), (-1, -2), (-2, -1)) if 0 <= x + a < 8 and 0 <= y + b < 8]\nresult = dist((0, 0), kn, lambda s: s == (7, 7))",
+   "showed": "The colour argument says it must be even; the distance (14 steps of row plus column, at most 3 per move) says at least 5; so at least 6, and 6 is possible."
+  },
+  {
+   "id": "i-hands5",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Five people are at a party. Can it happen that each of them shakes hands with exactly three of the others?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "import itertools\ndef regular(n, d):\n    edges = list(itertools.combinations(range(n), 2))\n    for mask in range(1 << len(edges)):\n        deg = [0] * n\n        for i, (a, b) in enumerate(edges):\n            if mask >> i & 1: deg[a] += 1; deg[b] += 1\n        if all(x == d for x in deg): return True\n    return False\nresult = 0 if regular(5, 3) else 1",
+   "showed": "Add up the handshakes per person: each handshake is counted twice, so the total must be even. Five times three is 15."
+  },
+  {
+   "id": "i-hands6",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "And with six people, each shaking hands with exactly three of the others?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 0,
+   "verify": "import itertools\ndef regular(n, d):\n    edges = list(itertools.combinations(range(n), 2))\n    for mask in range(1 << len(edges)):\n        deg = [0] * n\n        for i, (a, b) in enumerate(edges):\n            if mask >> i & 1: deg[a] += 1; deg[b] += 1\n        if all(x == d for x in deg): return True\n    return False\nresult = 0 if regular(6, 3) else 1",
+   "showed": "Six times three is 18, even, so the count allows it; two groups of three, everyone shaking hands with the whole other group, does it."
+  },
+  {
+   "id": "i-lamps1",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Four lamps in a row are off. A move switches two neighbouring lamps (on becomes off, off becomes on). Can you reach a state with exactly one lamp on?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef tog(s):\n    return [s[:i] + (1 - s[i], 1 - s[i + 1]) + s[i + 2:] for i in range(len(s) - 1)]\nresult = 0 if reach((0, 0, 0, 0), tog, lambda s: sum(s) == 1) else 1",
+   "showed": "A move changes the number of lit lamps by -2, 0 or +2, so it stays even."
+  },
+  {
+   "id": "i-lamps2",
+   "set": "invariants",
+   "kind": "number",
+   "prompt": "Same four lamps, all off. What is the smallest number of moves after which only the first and the last lamp are on?",
+   "answer": 3,
+   "verify": "from collections import deque\ndef dist(start, moves, goal):\n    seen, q = {start: 0}, deque([start])\n    while q:\n        s = q.popleft()\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; q.append(t)\n    return None\ndef tog(s):\n    return [s[:i] + (1 - s[i], 1 - s[i + 1]) + s[i + 2:] for i in range(len(s) - 1)]\nresult = dist((0, 0, 0, 0), tog, lambda s: s == (1, 0, 0, 1))",
+   "showed": "Switch lamps 1-2, then 2-3, then 3-4: the inner lamps are each switched twice."
+  },
+  {
+   "id": "i-frogs",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Three frogs sit at the points 0, 1 and 2 of a number line. A move lets one frog leap over another, landing the same distance beyond it. Can the frogs ever occupy the points 0, 1 and 3?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\ndef moves(s):\n    for i in range(3):\n        for j in range(3):\n            if i != j:\n                x = 2 * s[j] - s[i]\n                if abs(x) <= 12 and x not in s: yield tuple(sorted(s[:i] + s[i + 1:] + (x,)))\nresult = 0 if reach((0, 1, 2), moves, lambda s: s == (0, 1, 3)) else 1",
+   "showed": "A frog at x leaping over y lands at 2y - x, which has the same parity as x. So there are always two frogs on even points and one on an odd point; 0, 1, 3 has it the other way round."
+  },
+  {
+   "id": "i-token",
+   "set": "invariants",
+   "kind": "number",
+   "prompt": "A token is at 0 on a number line. A move shifts it by 3 or by 5, in either direction. What is the smallest number of moves that puts it at 1?",
+   "answer": 3,
+   "verify": "from collections import deque\ndef dist(start, moves, goal):\n    seen, q = {start: 0}, deque([start])\n    while q:\n        s = q.popleft()\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; q.append(t)\n    return None\nresult = dist(0, lambda x: [y for y in (x + 3, x - 3, x + 5, x - 5) if abs(y) <= 40], lambda x: x == 1)",
+   "showed": "3 + 3 - 5 = 1. Every point is reachable because gcd(3, 5) = 1; each move changes the parity, so an odd number of moves is needed and one move is not enough."
+  },
+  {
+   "id": "i-token2",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Now a move shifts the token by 4 or by 6, in either direction, starting from 0. Can it reach 9?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def reach(start, moves, goal, limit=300000):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        if goal(s): return True\n        for t in moves(s):\n            if t not in seen and len(seen) < limit: seen.add(t); todo.append(t)\n    return False\nresult = 0 if reach(0, lambda x: [y for y in (x + 4, x - 4, x + 6, x - 6) if abs(y) <= 80], lambda x: x == 9) else 1",
+   "showed": "Every move keeps the position even."
+  },
+  {
+   "id": "i-signs10",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Write a plus or a minus sign in front of each of the numbers 1, 2, ..., 10 and add everything up. Can the result be 0?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "import itertools\ndef signs(n): return any(sum(s * k for s, k in zip(c, range(1, n + 1))) == 0 for c in itertools.product((1, -1), repeat=n))\nresult = 0 if signs(10) else 1",
+   "showed": "Changing a plus to a minus changes the total by an even amount. With all pluses the total is 55, odd."
+  },
+  {
+   "id": "i-signs11",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "And with the numbers 1, 2, ..., 11?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 0,
+   "verify": "import itertools\ndef signs(n): return any(sum(s * k for s, k in zip(c, range(1, n + 1))) == 0 for c in itertools.product((1, -1), repeat=n))\nresult = 0 if signs(11) else 1",
+   "showed": "The total 66 is even, so each side must reach 33; for example 11 + 10 + 9 + 3 = 33."
+  },
+  {
+   "id": "i-domino1",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "A 4 by 4 board has two opposite corner squares removed. Can the remaining 14 squares be covered by 7 dominoes?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 1,
+   "verify": "def tilings(cells):\n    cells = frozenset(cells)\n    if not cells: return 1\n    x, y = min(cells)\n    return sum(tilings(cells - {(x, y), n}) for n in ((x + 1, y), (x, y + 1)) if n in cells)\nfull = {(x, y) for x in range(4) for y in range(4)}\nresult = 0 if tilings(full - {(0, 0), (3, 3)}) else 1",
+   "showed": "Colour it like a chessboard. Opposite corners have the same colour, so 8 squares of one colour and 6 of the other remain, and each domino covers one of each."
+  },
+  {
+   "id": "i-domino2",
+   "set": "invariants",
+   "kind": "choice",
+   "prompt": "Now remove instead the two corner squares at the ends of the same side. Can the remaining 14 squares be covered by 7 dominoes?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 0,
+   "verify": "def tilings(cells):\n    cells = frozenset(cells)\n    if not cells: return 1\n    x, y = min(cells)\n    return sum(tilings(cells - {(x, y), n}) for n in ((x + 1, y), (x, y + 1)) if n in cells)\nfull = {(x, y) for x in range(4) for y in range(4)}\nresult = 0 if tilings(full - {(0, 0), (0, 3)}) else 1",
+   "showed": "These two corners have different colours, so 7 of each colour remain, and a covering exists (lay the shortened row flat and the rest in rows)."
+  },
+  {
+   "id": "i-string",
+   "set": "invariants",
+   "kind": "number",
+   "prompt": "A row of digits reads 1100. A move finds a 1 immediately followed by a 0 and swaps them. How many moves are made before no move is possible?",
+   "answer": 4,
+   "verify": "s, n = list('1100'), 0\nwhile True:\n    i = next((i for i in range(3) if s[i] == '1' and s[i + 1] == '0'), None)\n    if i is None: break\n    s[i], s[i + 1] = s[i + 1], s[i]; n += 1\nresult = n",
+   "showed": "Count the pairs (a 1, a later 0): there are 4, and each move removes exactly one. The count can only go down, so the process must stop."
+  },
+  {
+   "id": "i-cup",
+   "set": "invariants",
+   "kind": "number",
+   "prompt": "A knockout tournament has 25 players. Each match eliminates exactly one player (some players may get a free pass in a round). How many matches are played until one champion remains?",
+   "answer": 24,
+   "verify": "result = 25 - 1",
+   "showed": "Every match removes exactly one player, and 24 players must be removed, however the rounds are arranged."
+  },
+  {
+   "id": "g-take3",
+   "set": "games",
+   "kind": "number",
+   "prompt": "A pile has 21 stones. Two players take turns removing 1, 2 or 3 stones; whoever takes the last stone wins. How many stones should the first player take to be sure of winning?",
+   "answer": 1,
+   "verify": "def win(state, moves, memo):\n    if state not in memo: memo[state] = any(not win(t, moves, memo) for t in moves(state))\n    return memo[state]\nmv = lambda n: [n - k for k in (1, 2, 3) if k <= n]\nresult = next(k for k in (1, 2, 3) if not win(21 - k, mv, {}))",
+   "showed": "Leave a multiple of 4. Whatever the opponent takes, answer so that the two of you remove 4 between you."
+  },
+  {
+   "id": "g-take3b",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Same game with 20 stones. Who wins with perfect play?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "def win(state, moves, memo):\n    if state not in memo: memo[state] = any(not win(t, moves, memo) for t in moves(state))\n    return memo[state]\nresult = 0 if win(20, lambda n: [n - k for k in (1, 2, 3) if k <= n], {}) else 1",
+   "showed": "20 is a multiple of 4: whatever the first player takes, the second completes it to 4."
+  },
+  {
+   "id": "g-misere",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "A pile has 7 stones. Players take turns removing 1 or 2 stones, and now whoever takes the last stone LOSES. Who wins with perfect play?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "def win(n, memo={}):\n    if n == 0: return True\n    if n not in memo: memo[n] = any(not win(n - k) for k in (1, 2) if k <= n)\n    return memo[n]\nresult = 0 if win(7) else 1",
+   "showed": "Being left with 1 stone loses. From 4 you must leave 3 or 2, from which the opponent leaves you 1; so 1, 4, 7 are the losing piles for the player to move."
+  },
+  {
+   "id": "g-two55",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Two piles of 5 stones each. A move removes any positive number of stones from one pile; whoever takes the last stone wins. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "def win(state, moves, memo):\n    if state not in memo: memo[state] = any(not win(t, moves, memo) for t in moves(state))\n    return memo[state]\ndef mv(s):\n    out = []\n    for i, p in enumerate(s):\n        for k in range(1, p + 1): out.append(tuple(sorted(s[:i] + (p - k,) + s[i + 1:])))\n    return out\nresult = 0 if win((5, 5), mv, {}) else 1",
+   "showed": "The second player copies: whatever is taken from one pile, take the same from the other. The piles stay equal, so the second player always has a move."
+  },
+  {
+   "id": "g-two57",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Same game with piles of 5 and 7. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "def win(state, moves, memo):\n    if state not in memo: memo[state] = any(not win(t, moves, memo) for t in moves(state))\n    return memo[state]\ndef mv(s):\n    out = []\n    for i, p in enumerate(s):\n        for k in range(1, p + 1): out.append(tuple(sorted(s[:i] + (p - k,) + s[i + 1:])))\n    return out\nresult = 0 if win((5, 7), mv, {}) else 1",
+   "showed": "The first player takes 2 from the larger pile, making them equal, and then copies."
+  },
+  {
+   "id": "g-nim123",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Three piles of 1, 2 and 3 stones, same rules (any number from one pile, last stone wins). Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "def win(state, moves, memo):\n    if state not in memo: memo[state] = any(not win(t, moves, memo) for t in moves(state))\n    return memo[state]\ndef mv(s):\n    out = []\n    for i, p in enumerate(s):\n        for k in range(1, p + 1): out.append(tuple(sorted(s[:i] + (p - k,) + s[i + 1:])))\n    return out\nresult = 0 if win((1, 2, 3), mv, {}) else 1",
+   "showed": "Whatever the first player does, the second can leave two equal piles, or one pile cleared and two equal. In binary: 1 xor 2 xor 3 = 0, and a position with XOR 0 is lost for the player to move."
+  },
+  {
+   "id": "g-nim345",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Three piles of 3, 4 and 5 stones, same rules. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "def win(state, moves, memo):\n    if state not in memo: memo[state] = any(not win(t, moves, memo) for t in moves(state))\n    return memo[state]\ndef mv(s):\n    out = []\n    for i, p in enumerate(s):\n        for k in range(1, p + 1): out.append(tuple(sorted(s[:i] + (p - k,) + s[i + 1:])))\n    return out\nresult = 0 if win((3, 4, 5), mv, {}) else 1",
+   "showed": "3 xor 4 xor 5 = 2, not 0, so the first player can move to a position with XOR 0."
+  },
+  {
+   "id": "g-nim345m",
+   "set": "games",
+   "kind": "number",
+   "prompt": "In that game (piles 3, 4, 5) the first player has exactly one winning move, and it is in the pile of 3. How many stones are left in that pile afterwards?",
+   "answer": 1,
+   "verify": "def win(state, moves, memo):\n    if state not in memo: memo[state] = any(not win(t, moves, memo) for t in moves(state))\n    return memo[state]\ndef mv(s):\n    out = []\n    for i, p in enumerate(s):\n        for k in range(1, p + 1): out.append(tuple(sorted(s[:i] + (p - k,) + s[i + 1:])))\n    return out\nresult = next(k for k in range(3) if not win(tuple(sorted((k, 4, 5))), mv, {}))",
+   "showed": "The XOR of all piles is 2. Change the pile of 3 to 3 xor 2 = 1; now 1 xor 4 xor 5 = 0."
+  },
+  {
+   "id": "g-choc",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "A chocolate bar of 3 by 5 squares. A move breaks one piece into two along a line; whoever makes the last possible break wins. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "breaks = 3 * 5 - 1\nresult = 0 if breaks % 2 == 1 else 1",
+   "showed": "Every break adds one piece, so there are always exactly 14 breaks. Fourteen is even: the second player makes the last one, whatever anyone does."
+  },
+  {
+   "id": "g-div10",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "The number 10 is on a board. A move subtracts from it one of its divisors other than itself. The player who cannot move (because the number is 1) loses. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 0,
+   "verify": "def win(state, moves, memo):\n    if state not in memo: memo[state] = any(not win(t, moves, memo) for t in moves(state))\n    return memo[state]\nmv = lambda n: [n - d for d in range(1, n) if n % d == 0]\nresult = 0 if win(10, mv, {}) else 1",
+   "showed": "An odd number has only odd divisors, so it always becomes even. From an even number subtract 1 to hand over an odd number. The player holding even numbers never gets stuck at 1."
+  },
+  {
+   "id": "g-div9",
+   "set": "games",
+   "kind": "choice",
+   "prompt": "Same game starting from 9. Who wins?",
+   "options": [
+    "The first player",
+    "The second player"
+   ],
+   "answer": 1,
+   "verify": "def win(state, moves, memo):\n    if state not in memo: memo[state] = any(not win(t, moves, memo) for t in moves(state))\n    return memo[state]\nmv = lambda n: [n - d for d in range(1, n) if n % d == 0]\nresult = 0 if win(9, mv, {}) else 1",
+   "showed": "From an odd number every move produces an even number, and the opponent then subtracts 1."
+  },
+  {
+   "id": "b-xor",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is 13 XOR 7? (XOR compares the binary digits: 1 where they differ, 0 where they agree.)",
+   "answer": 10,
+   "verify": "result = 13 ^ 7",
+   "showed": "1101 and 0111 differ in the 8s place and the 2s place: 1010."
+  },
+  {
+   "id": "b-range",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is 1 XOR 2 XOR 3 XOR ... XOR 100?",
+   "answer": 100,
+   "verify": "import functools, operator\nresult = functools.reduce(operator.xor, range(1, 101))",
+   "showed": "Each block 4k, 4k+1, 4k+2, 4k+3 XORs to 0, so 0 to 99 cancel completely and only 100 remains."
+  },
+  {
+   "id": "b-odd",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "In the list 5, 3, 5, 7, 3 every number but one appears an even number of times. XOR all five together. What do you get?",
+   "answer": 7,
+   "verify": "result = 5 ^ 3 ^ 5 ^ 7 ^ 3",
+   "showed": "Equal numbers cancel in pairs, in any order, leaving the one without a partner."
+  },
+  {
+   "id": "b-sum",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "Two numbers have XOR equal to 6 and AND equal to 8. What is their sum?",
+   "answer": 22,
+   "verify": "result = next(a + b for a in range(64) for b in range(64) if a ^ b == 6 and a & b == 8)",
+   "showed": "XOR adds without carrying, AND marks where carries happen: sum = XOR + 2 x AND = 6 + 16."
+  },
+  {
+   "id": "b-sub",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "How many numbers x from 0 to 15 satisfy x AND 5 = x?",
+   "answer": 4,
+   "verify": "result = sum(1 for x in range(16) if x & 5 == x)",
+   "showed": "x may only use the bits that 5 has (the 4s and the 1s place), each either on or off: 0, 1, 4, 5."
+  },
+  {
+   "id": "b-max",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is the largest value of a XOR b when a and b are both between 0 and 10?",
+   "answer": 15,
+   "verify": "result = max(a ^ b for a in range(11) for b in range(11))",
+   "showed": "8 XOR 7 = 15: one number supplies the top bit, the other all the bits below it."
+  },
+  {
+   "id": "b-low",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is the largest power of two that divides 40?",
+   "answer": 8,
+   "verify": "result = 40 & -40",
+   "showed": "40 is 101000 in binary; the lowest 1 is in the 8s place."
+  },
+  {
+   "id": "b-andor",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "Two numbers, 5 and 3, are replaced by their AND and their OR. What is the sum of the two new numbers?",
+   "answer": 8,
+   "verify": "result = (5 & 3) + (5 | 3)",
+   "showed": "In each bit position, AND and OR together hold exactly as many 1s as the two originals did. So the sum never changes under this operation."
+  },
+  {
+   "id": "b-pairs",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "For the list 1, 2, 3, add up a XOR b over the three pairs.",
+   "answer": 6,
+   "verify": "result = (1 ^ 2) + (1 ^ 3) + (2 ^ 3)",
+   "showed": "Bit by bit: in the 1s place two numbers have the bit and one does not, giving 2 x 1 differing pairs; the same in the 2s place. 2 x 1 + 2 x 2 = 6."
+  },
+  {
+   "id": "b-subsets",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "How many subsets of {1, 2, 3, 4}, including the empty one, have XOR equal to 0?",
+   "answer": 2,
+   "verify": "import itertools, functools, operator\nresult = sum(1 for k in range(5) for c in itertools.combinations((1, 2, 3, 4), k) if functools.reduce(operator.xor, c, 0) == 0)",
+   "showed": "Only the empty set and {1, 2, 3}. The numbers 1, 2, 4 are independent and 3 = 1 XOR 2, so there is exactly one relation."
+  },
+  {
+   "id": "b-board",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "The numbers 1 to 7 are on a board. You repeatedly erase two numbers and write their XOR. What number is left at the end?",
+   "answer": 0,
+   "verify": "import functools, operator\nresult = functools.reduce(operator.xor, range(1, 8))",
+   "showed": "The XOR of everything on the board never changes, and 1 XOR 2 XOR ... XOR 7 = 0."
+  },
+  {
+   "id": "b-pow",
+   "set": "bits",
+   "kind": "number",
+   "prompt": "What is the smallest power of two that is at least 37?",
+   "answer": 64,
+   "verify": "result = 1 << (36).bit_length()",
+   "showed": "32 is too small; the next is 64. A number y is a power of two exactly when y AND (y - 1) is 0."
+  }
+ ]
+}

@@ -6,6 +6,7 @@ import {renderChain} from './chain.js';
 import {renderSolve, renderProblem} from './problem.js';
 import {renderMastery, renderSettings} from './record.js';
 import {renderContest} from './contest.js';
+import {renderPuzzles} from './puzzles.js';
 
 const state = {boot: null, token: 0, cleanups: [], root: null};
 
@@ -110,7 +111,7 @@ export function dialog({title, body = '', html = '', confirm = 'Continue', cance
 }
 
 /* ---------- Shell ---------- */
-const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['contest', 'target', 'Contest'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
+const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['contest', 'target', 'Contest'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
 const section = () => { const name = location.hash.replace(/^#\/?/, '').split('/')[0] || ''; return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name; };
 function paintNav() {
   const host = document.querySelector('[data-nav-host]');
@@ -178,6 +179,7 @@ async function route() {
     else if (name === 'chain' && rest[0]) await renderChain(ctx, rest[0]);
     else if (name === 'solve') await renderSolve(ctx);
     else if (name === 'problem' && rest[0]) await renderProblem(ctx, rest[0]);
+    else if (name === 'puzzles') await renderPuzzles(ctx, rest[0] || '');
     else if (name === 'contest') await renderContest(ctx);
     else if (name === 'mastery') await renderMastery(ctx);
     else if (name === 'settings') await renderSettings(ctx);

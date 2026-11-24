@@ -308,3 +308,4 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .contest-clock{font-size:clamp(2.5rem,8vw,4.5rem);font-variant-numeric:tabular-nums;font-weight:600;line-height:1.1;margin:.25rem 0 .5rem}
 .mistake{display:grid;gap:.15rem;margin-bottom:.4rem}
 .mistake select{max-width:16rem}
+.puzzle-sets{display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0}

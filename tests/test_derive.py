@@ -335,6 +335,25 @@ class App(unittest.TestCase):
             time.sleep(.05)
         self.assertIn('She said: I get two.', seen[-1])
 
+    # ---- puzzles ----
+    def test_puzzles_come_one_at_a_time_and_giving_up_is_not_solving(self):
+        page = self.get('/puzzles')
+        first = page['puzzle']
+        self.assertEqual((page['set'], first['id']), ('invariants', 'i-sum'))
+        self.assertNotIn('answer', first); self.assertNotIn('showed', first)
+        self.assertFalse(self.post('/puzzle/answer', {'id': first['id'], 'answer': '54'})[1]['correct'])
+        self.assertTrue(self.post('/puzzle/answer', {'id': first['id'], 'answer': 'x+'})[1]['unreadable'])
+        right = self.post('/puzzle/answer', {'id': first['id'], 'answer': '55'})[1]
+        self.assertTrue(right['correct'] and right['showed'] and not right['first_try'])
+        self.assertEqual(self.post('/puzzle/answer', {'id': first['id'], 'answer': '55'})[0], 409)
+        second = self.get('/puzzles?set=invariants')['puzzle']
+        self.assertNotEqual(second['id'], first['id'])
+        shown = self.post('/puzzle/answer', {'id': second['id'], 'show': True})[1]
+        self.assertTrue(shown['shown'] and not shown['correct'])
+        stats = next(s for s in self.get('/puzzles')['sets'] if s['id'] == 'invariants')
+        self.assertEqual((stats['done'], stats['first_try']), (2, 0))
+        self.assertEqual(self.get('/puzzles?set=bits')['puzzle']['id'], 'b-xor')
+
     # ---- contest mode ----
     def test_a_contest_is_scored_the_icpc_way_and_locks_help(self):
         from datetime import datetime, timedelta, timezone

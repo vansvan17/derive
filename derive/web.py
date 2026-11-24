@@ -438,6 +438,47 @@ class Service:
         store.run('UPDATE attempts SET cause=? WHERE problem=?', (cause, problem['id']))
         return self.problem(store, problem['id'])
 
+    # ---------- puzzles ----------
+    def puzzles(self, store, which):
+        """The sets with their progress, and the next unsolved puzzle of the chosen set."""
+        done = {r['puzzle']: r for r in store.all('SELECT * FROM puzzles_done')}
+        sets = []
+        for s in self.content.puzzles['sets']:
+            mine = [p for p in self.content.puzzles['puzzles'] if p['set'] == s['id']]
+            sets.append({'id': s['id'], 'title': s['title'], 'about': s.get('about', ''), 'total': len(mine),
+                         'done': sum(1 for p in mine if p['id'] in done),
+                         'first_try': sum(1 for p in mine if p['id'] in done and not done[p['id']]['wrong'] and not done[p['id']]['shown'])})
+        chosen = which if any(s['id'] == which for s in sets) else (sets[0]['id'] if sets else None)
+        todo = next((p for p in self.content.puzzles['puzzles'] if p['set'] == chosen and p['id'] not in done), None)
+        public = None
+        if todo:
+            public = {'id': todo['id'], 'kind': todo['kind'], 'prompt': todo['prompt'], 'options': todo.get('options'),
+                      'wrong': store.one('SELECT COUNT(*) FROM puzzle_tries WHERE puzzle=? AND correct=0', (todo['id'],))[0]}
+        return {'sets': sets, 'set': chosen, 'puzzle': public}
+
+    def puzzle_answer(self, store, data):
+        puzzle = next((p for p in self.content.puzzles['puzzles'] if p['id'] == data.get('id')), None)
+        if not puzzle:
+            raise ApiError('No such puzzle.', 404)
+        if store.one('SELECT 1 FROM puzzles_done WHERE puzzle=?', (puzzle['id'],)):
+            raise ApiError('That puzzle is already finished.', 409)
+        wrong = store.one('SELECT COUNT(*) FROM puzzle_tries WHERE puzzle=? AND correct=0', (puzzle['id'],))[0]
+        if data.get('show'):
+            # Giving up shows the reason; it is recorded as shown, never as solved.
+            store.run('INSERT INTO puzzles_done VALUES(?,?,?,1)', (puzzle['id'], now(), wrong))
+            return {'correct': False, 'shown': True, 'showed': puzzle['showed']}
+        raw = data.get('answer')
+        raw = text(raw, 'Your answer', 2000) if isinstance(raw, str) else raw
+        try:
+            correct, message = check(puzzle, raw)
+        except CheckError as exc:
+            return {'correct': False, 'unreadable': True, 'message': str(exc)}
+        store.run('INSERT INTO puzzle_tries(at,puzzle,answer,correct) VALUES(?,?,?,?)', (now(), puzzle['id'], str(raw)[:2000], int(correct)))
+        if not correct:
+            return {'correct': False, 'message': message}
+        store.run('INSERT INTO puzzles_done VALUES(?,?,?,0)', (puzzle['id'], now(), wrong))
+        return {'correct': True, 'showed': puzzle['showed'], 'first_try': wrong == 0}
+
     # ---------- the tutor ----------
     def tutor_context(self, store, data):
         """Build the prompt for wherever the learner is. Returns (prompt, gated, scope, owner, step, names to keep out of a reply)."""
@@ -643,6 +684,8 @@ class Service:
                 return self.proof_prompt(store, path[7:])
             if path == '/mastery':
                 return self.mastery(store)
+            if path == '/puzzles':
+                return self.puzzles(store, query.get('set', [''])[0])
             if path == '/contests':
                 return contest.overview(store)
         raise ApiError('Not found.', 404)
@@ -654,7 +697,7 @@ class Service:
                   '/problem/commit': self.commit, '/problem/editorial': self.editorial, '/problem/check': self.check_submissions,
                   '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause,
                   '/code': self.save_code, '/run': self.queue_run,
-                  '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask}
+                  '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer}
         with self.lock, self.store() as store:
             if path == '/problem/next':
                 return self.open_next(store)

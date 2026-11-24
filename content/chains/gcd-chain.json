@@ -1,0 +1,156 @@
+{
+ "idea": "gcd-chain",
+ "opening": "A gcd taken over a growing stretch of numbers, and why it settles down quickly.",
+ "steps": [
+  {
+   "id": "run",
+   "kind": "list",
+   "prompt": "Take the gcd of the first one, the first two, the first three, ... of 360, 240, 150, 90, 45, 21. List the six running gcds in order.",
+   "answer": [
+    360,
+    120,
+    30,
+    30,
+    15,
+    3
+   ],
+   "verify": "import math, itertools\nresult = list(itertools.accumulate([360, 240, 150, 90, 45, 21], math.gcd))",
+   "nudges": [
+    "What is the gcd of 360 and 240? Of that and 150?"
+   ],
+   "showed": "It can only stay or drop.",
+   "ordered": true
+  },
+  {
+   "id": "changes",
+   "kind": "number",
+   "prompt": "In that list, how many times does the running gcd change from one entry to the next?",
+   "answer": 4,
+   "verify": "import math, itertools\nr = list(itertools.accumulate([360, 240, 150, 90, 45, 21], math.gcd))\nresult = sum(1 for a, b in zip(r, r[1:]) if a != b)",
+   "nudges": [
+    "Which neighbouring entries of your list differ?"
+   ],
+   "showed": "Four changes."
+  },
+  {
+   "id": "halve",
+   "kind": "choice",
+   "prompt": "When the running gcd changes from g to a different value h, what is certain?",
+   "options": [
+    "h divides g and is at most g / 2",
+    "h is g - 1",
+    "h is a prime"
+   ],
+   "answer": 0,
+   "nudges": [
+    "h is the gcd of g and something. What is its relation to g?"
+   ],
+   "showed": "The new value is a divisor of the old one, and a divisor other than g itself is at most half of it."
+  },
+  {
+   "id": "bound",
+   "kind": "number",
+   "prompt": "The first element is at most 1,000,000,000. At most how many times can the running gcd change, however long the array is?",
+   "answer": 29,
+   "verify": "result = (10 ** 9).bit_length() - 1",
+   "nudges": [
+    "How many times can a number of that size be halved before it reaches 1?"
+   ],
+   "showed": "Each change at least halves it, and it cannot go below 1: at most 29 changes."
+  },
+  {
+   "id": "distinct",
+   "kind": "number",
+   "prompt": "For the array 12, 18, 24, 36, 8, how many different values occur among the gcds of all its stretches (single elements included)?",
+   "answer": 8,
+   "verify": "import math, functools\na = [12, 18, 24, 36, 8]\nresult = len({functools.reduce(math.gcd, a[i:j + 1]) for i in range(5) for j in range(i, 5)})",
+   "nudges": [
+    "Fix the right end. As the left end moves left, how does the gcd behave?"
+   ],
+   "showed": "For each right end the gcds of the stretches ending there form a chain in which each divides the previous; collect the chains."
+  },
+  {
+   "id": "list",
+   "kind": "choice",
+   "prompt": "For a fixed right end r, how many different values can gcd(a_l, ..., a_r) take as l runs from r down to 1?",
+   "options": [
+    "At most about log2 of a_r plus one",
+    "Up to r",
+    "Exactly two"
+   ],
+   "answer": 0,
+   "nudges": [
+    "It starts at a_r and each change at least halves it. How many changes?"
+   ],
+   "showed": "So \"all gcds of stretches ending at r\" is a short list of (value, how far left it extends), and the list for r + 1 is built from the list for r."
+  },
+  {
+   "id": "ones",
+   "kind": "number",
+   "prompt": "How many stretches of 6, 10, 15, 7, 14, 21 have gcd 1?",
+   "answer": 10,
+   "verify": "import math, functools\na = [6, 10, 15, 7, 14, 21]\nresult = sum(1 for i in range(6) for j in range(i, 6) if functools.reduce(math.gcd, a[i:j + 1]) == 1)",
+   "nudges": [
+    "If a stretch has gcd 1, what about every longer stretch containing it?"
+   ],
+   "showed": "Gcd 1 is kept when a stretch grows, so for each right end the stretches with gcd 1 are exactly those whose left end is far enough left."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $g$ and $x$ be positive whole numbers and $h = \\gcd(g, x)$. Prove that if $h \\ne g$ then $h \\le g/2$.",
+   "claims": [
+    "h divides g, by the definition of a common divisor.",
+    "So g = h * k for a whole number k >= 1, and k is not 1 because h is not g.",
+    "Hence k >= 2 and h = g / k <= g / 2."
+   ],
+   "nudges": [
+    "How is $h$ related to $g$?",
+    "If $g = h \\cdot k$, what can $k$ be?"
+   ],
+   "showed": "A proper divisor is at most half."
+  },
+  {
+   "id": "h-two",
+   "kind": "number",
+   "prompt": "The array is a_i = i x (i + 1) for i = 1 to 200. How many stretches (of any length from 1) have gcd exactly 2?",
+   "answer": 19703,
+   "verify": "import math\na = [i * (i + 1) for i in range(1, 201)]\ntotal = 0\nfor r in range(200):\n    g = 0\n    for l in range(r, -1, -1):\n        g = math.gcd(g, a[l])\n        if g == 2: total += 1\n        if g < 2: break\nresult = total",
+   "nudges": [
+    "For a fixed right end, how many different gcd values occur as the left end moves?"
+   ],
+   "showed": "Keep, for the current right end, the short list of (gcd value, number of left ends giving it). Moving the right end takes the gcd of every entry with the new element and merges equal neighbours.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-distinct",
+   "kind": "number",
+   "prompt": "The array is a_i = 12 x ((37 x i mod 60) + 1) for i = 1 to 300. How many different values occur as the gcd of some stretch?",
+   "answer": 60,
+   "verify": "import math\na = [12 * (37 * i % 60 + 1) for i in range(1, 301)]\nseen, cur = set(), set()\nfor x in a:\n    cur = {math.gcd(g, x) for g in cur} | {x}\n    seen |= cur\nresult = len(seen)",
+   "nudges": [
+    "How large can the set of gcds of stretches ending at one position be?"
+   ],
+   "showed": "Carry the set of gcds of stretches ending at the current position (at most about 10 values), update it with each new element, and collect everything seen.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-longest",
+   "kind": "number",
+   "prompt": "The array is a_i = i x i + 1 for i = 1 to 300. What is the length of the longest stretch whose gcd is greater than 1?",
+   "answer": 2,
+   "verify": "import math, functools\na = [i * i + 1 for i in range(1, 301)]\nbest = 0\nfor l in range(300):\n    g = 0\n    for r in range(l, 300):\n        g = math.gcd(g, a[r])\n        if g == 1: break\n        best = max(best, r - l + 1)\nresult = best",
+   "nudges": [
+    "If a stretch has gcd greater than 1, what about the stretches inside it?",
+    "What do two neighbouring terms i x i + 1 and (i + 1) x (i + 1) + 1 have in common?"
+   ],
+   "showed": "\"gcd greater than 1\" survives shrinking, so it can be swept with two ends. Here the answer is small because neighbouring terms can only share the factor 5.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "A running gcd changes few times",
+  "statement": "Extending a set of numbers can only replace its gcd by a divisor of it, and a proper divisor is at most half. So a running gcd changes at most $\\log_2(a_1)$ times, and for a fixed right end the gcds of all subarrays ending there take at most $\\log_2 a + 1$ different values.",
+  "remark": "The same holds for running AND and running OR (each change removes or adds at least one bit). It turns \"over all subarrays\" into about $n \\log a$ pieces."
+ }
+}

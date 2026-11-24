@@ -1,0 +1,147 @@
+{
+ "idea": "crt",
+ "opening": "A number known only by its remainders.",
+ "steps": [
+  {
+   "id": "two",
+   "kind": "number",
+   "prompt": "What is the smallest whole number x >= 0 that leaves remainder 2 when divided by 3 and remainder 3 when divided by 5?",
+   "answer": 8,
+   "verify": "result = next(x for x in range(100) if x % 3 == 2 and x % 5 == 3)",
+   "nudges": [
+    "Which numbers leave remainder 3 when divided by 5?"
+   ],
+   "showed": "Among 3, 8, 13, ... the first with remainder 2 mod 3 is 8."
+  },
+  {
+   "id": "table",
+   "kind": "number",
+   "prompt": "For x = 0, 1, ..., 14 write the pair (x mod 3, x mod 5). How many different pairs appear?",
+   "answer": 15,
+   "verify": "result = len({(x % 3, x % 5) for x in range(15)})",
+   "nudges": [
+    "How many pairs are possible at all?"
+   ],
+   "showed": "All 15 possible pairs, each exactly once."
+  },
+  {
+   "id": "unique",
+   "kind": "choice",
+   "prompt": "So for remainders mod 3 and mod 5, the pair of remainders determines x:",
+   "options": [
+    "uniquely modulo 15",
+    "uniquely",
+    "up to two possibilities modulo 15"
+   ],
+   "answer": 0,
+   "nudges": [
+    "x and x + 15 give which pairs?"
+   ],
+   "showed": "x and x + 15 look the same, and within 0..14 nothing else does."
+  },
+  {
+   "id": "clash",
+   "kind": "choice",
+   "prompt": "Is there a whole number that is 0 modulo 4 and 3 modulo 6?",
+   "options": [
+    "No: the first condition makes it even and the second makes it odd",
+    "Yes, 12",
+    "Yes, 9"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What does each condition say about the number modulo 2?"
+   ],
+   "showed": "4 and 6 share the factor 2, and the two conditions disagree modulo 2. With coprime moduli this cannot happen."
+  },
+  {
+   "id": "half",
+   "kind": "number",
+   "prompt": "For x = 0, 1, ..., 11, how many different pairs (x mod 4, x mod 6) appear?",
+   "answer": 12,
+   "verify": "result = len({(x % 4, x % 6) for x in range(12)})",
+   "nudges": [
+    "How many pairs are there on paper? Which of them agree modulo 2?"
+   ],
+   "showed": "Only 12 of the 24 pairs: those where the two remainders have the same parity. The pattern repeats with period lcm(4, 6) = 12."
+  },
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "What is the smallest x >= 0 with remainder 2 mod 3, remainder 3 mod 5 and remainder 2 mod 7?",
+   "answer": 23,
+   "verify": "result = next(x for x in range(200) if x % 3 == 2 and x % 5 == 3 and x % 7 == 2)",
+   "nudges": [
+    "You already know the answer to the first two conditions modulo 15. Which numbers have that form?"
+   ],
+   "showed": "x = 8 mod 15, so try 8, 23, 38, ...: 23 leaves 2 mod 7. Combine two conditions into one and repeat."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "How many x from 1 to 1000 leave remainder 1 mod 7 and remainder 4 mod 11?",
+   "answer": 13,
+   "verify": "result = sum(1 for x in range(1, 1001) if x % 7 == 1 and x % 11 == 4)",
+   "nudges": [
+    "How often does a solution occur?"
+   ],
+   "showed": "Exactly one solution in every 77 consecutive numbers; find the first and count."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $m$ and $n$ have no common factor. Prove that if $x$ and $y$ leave the same remainder modulo $m$ and the same remainder modulo $n$, then they leave the same remainder modulo $mn$.",
+   "claims": [
+    "The same remainder modulo m means m divides x - y; likewise n divides x - y.",
+    "Because m and n share no factor, a number divisible by both is divisible by their product (the lcm of coprime numbers is their product).",
+    "So mn divides x - y, that is, x and y leave the same remainder modulo mn."
+   ],
+   "nudges": [
+    "What do the two assumptions say about $x - y$?",
+    "Where is coprimality used?"
+   ],
+   "showed": "Both moduli divide the difference, and coprime numbers that divide something divide it together."
+  },
+  {
+   "id": "h-six",
+   "kind": "number",
+   "prompt": "What is the smallest positive number that leaves remainder 1 when divided by 2, 2 when divided by 3, 3 by 4, 4 by 5, 5 by 6, and is divisible by 7?",
+   "answer": 119,
+   "verify": "result = next(x for x in range(1, 10000) if all(x % m == m - 1 for m in range(2, 7)) and x % 7 == 0)",
+   "nudges": [
+    "What can you say about x + 1?"
+   ],
+   "showed": "x + 1 is divisible by 2, 3, 4, 5 and 6, so by 60. Try 59, 119, 179, ...: 119 = 7 x 17.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-roots",
+   "kind": "number",
+   "prompt": "How many x from 0 to 1000 satisfy x squared = 1 modulo 1001? (1001 = 7 x 11 x 13.)",
+   "answer": 8,
+   "verify": "result = sum(1 for x in range(1001) if x * x % 1001 == 1)",
+   "nudges": [
+    "How many solutions does x squared = 1 have modulo 7? Modulo 11? Modulo 13?"
+   ],
+   "showed": "Modulo each prime there are two solutions (1 and -1). Any combination of choices gives one x modulo 1001: 2 x 2 x 2.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-big",
+   "kind": "number",
+   "prompt": "What is the smallest x >= 0 that leaves remainder 3 modulo 1000000007 and remainder 5 modulo 998244353?",
+   "answer": 988413467918894230,
+   "verify": "m, n = 10 ** 9 + 7, 998244353\nt = (5 - 3) * pow(m, -1, n) % n\nresult = 3 + m * t\nassert result % m == 3 and result % n == 5 and 0 <= result < m * n",
+   "nudges": [
+    "Write x = 3 + m t. What must t be modulo the second modulus?"
+   ],
+   "showed": "x = 3 + m t, and then m t must be 2 modulo n, so t = 2 x (inverse of m modulo n). The result is below m x n and is the only one there.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Chinese remainder theorem",
+  "statement": "If $m$ and $n$ are coprime, then for every pair of remainders $(a, b)$ there is exactly one $x$ modulo $mn$ with $x \\equiv a \\pmod m$ and $x \\equiv b \\pmod n$. For general moduli a solution exists exactly when $a \\equiv b \\pmod{\\gcd(m, n)}$, and it is unique modulo the lcm.",
+  "remark": "To compute it: $x = a + m \\cdot t$ with $t \\equiv (b - a) \\cdot m^{-1} \\pmod n$. It also lets you treat a composite modulus one prime power at a time."
+ }
+}

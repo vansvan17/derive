@@ -1,0 +1,145 @@
+{
+ "idea": "totient",
+ "opening": "How many numbers have nothing in common with n, and what that count is good for.",
+ "steps": [
+  {
+   "id": "twelve",
+   "kind": "number",
+   "prompt": "How many of the numbers 1 to 12 share no factor (other than 1) with 12?",
+   "answer": 4,
+   "verify": "import math\nresult = sum(1 for x in range(1, 13) if math.gcd(x, 12) == 1)",
+   "nudges": [
+    "Which numbers up to 12 are neither even nor multiples of 3?"
+   ],
+   "showed": "1, 5, 7 and 11."
+  },
+  {
+   "id": "prime",
+   "kind": "number",
+   "prompt": "The same count for 13: how many of 1 to 13 share no factor with 13?",
+   "answer": 12,
+   "verify": "import math\nresult = sum(1 for x in range(1, 14) if math.gcd(x, 13) == 1)",
+   "nudges": [
+    "Which numbers up to 13 share a factor with a prime?"
+   ],
+   "showed": "Everything except 13 itself."
+  },
+  {
+   "id": "power",
+   "kind": "number",
+   "prompt": "And for 27: how many of 1 to 27 share no factor with 27?",
+   "answer": 18,
+   "verify": "import math\nresult = sum(1 for x in range(1, 28) if math.gcd(x, 27) == 1)",
+   "nudges": [
+    "Which numbers up to 27 do share a factor with 27, and how many are there?"
+   ],
+   "showed": "Only the 9 multiples of 3 are excluded: 27 - 9."
+  },
+  {
+   "id": "product",
+   "kind": "number",
+   "prompt": "And for 36 = 4 x 9?",
+   "answer": 12,
+   "verify": "import math\nresult = sum(1 for x in range(1, 37) if math.gcd(x, 36) == 1)",
+   "nudges": [
+    "The count for 4 is 2 and for 9 is 6. How might they combine, and why?"
+   ],
+   "showed": "2 x 6 = 12: a number is coprime to 36 exactly when its remainders mod 4 and mod 9 are coprime to 4 and to 9, and those remainders can be chosen independently."
+  },
+  {
+   "id": "formula",
+   "kind": "choice",
+   "prompt": "Calling this count phi(n), which formula holds?",
+   "options": [
+    "phi(n) = n times (1 - 1/p) for each prime p dividing n",
+    "phi(n) = n - (number of primes dividing n)",
+    "phi(n) = n / 2 for even n"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which option gives 4, 18 and 12 for n = 12, 27 and 36?"
+   ],
+   "showed": "Each prime p removes the fraction 1/p of what is left."
+  },
+  {
+   "id": "power2",
+   "kind": "number",
+   "prompt": "What is 7 to the power 100, modulo 36?",
+   "answer": 25,
+   "verify": "result = pow(7, 100, 36)",
+   "nudges": [
+    "Multiplying the 12 numbers coprime to 36 by 7 does what to them? What does that give for 7 to the power 12?",
+    "What is 100 modulo 12?"
+   ],
+   "showed": "The numbers coprime to 36 are permuted by multiplication by 7, so 7^12 = 1 mod 36. Then 7^100 = 7^4 = 2401 = 25."
+  },
+  {
+   "id": "divsum",
+   "kind": "number",
+   "prompt": "Add up phi(d) over all divisors d of 36.",
+   "answer": 36,
+   "verify": "import math\nphi = lambda n: sum(1 for x in range(1, n + 1) if math.gcd(x, n) == 1)\nresult = sum(phi(d) for d in range(1, 37) if 36 % d == 0)",
+   "nudges": [
+    "Sort the numbers 1 to 36 by their gcd with 36. How many have gcd equal to 36/d?"
+   ],
+   "showed": "The numbers 1..36 split by their gcd with 36, and those with gcd 36/d number exactly phi(d). So the total is 36."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $p$ be prime and $k \\ge 1$. Prove that exactly $p^k - p^{k-1}$ of the numbers $1, 2, \\dots, p^k$ share no factor with $p^k$.",
+   "claims": [
+    "The only prime dividing p^k is p, so a number shares a factor with p^k exactly when it is a multiple of p.",
+    "The multiples of p among 1, ..., p^k are p, 2p, ..., p^(k-1) * p: there are p^(k-1) of them.",
+    "Removing them leaves p^k - p^(k-1) numbers."
+   ],
+   "nudges": [
+    "Which numbers share a factor with $p^k$?",
+    "How many multiples of $p$ are there up to $p^k$?"
+   ],
+   "showed": "Only the multiples of $p$ are excluded."
+  },
+  {
+   "id": "h-sum",
+   "kind": "number",
+   "prompt": "Add up phi(n) for n from 1 to 1000.",
+   "answer": 304192,
+   "verify": "import math\nresult = sum(sum(1 for x in range(1, n + 1) if math.gcd(x, n) == 1) for n in range(1, 1001))",
+   "nudges": [
+    "How can phi be computed for every n up to a limit at once, in the style of a sieve?"
+   ],
+   "showed": "Start with phi[n] = n and, for each prime p, multiply every multiple of p by (1 - 1/p). (The total is also 1 plus the number of fractions in lowest terms between 0 and 1 with denominator up to 1000.)",
+   "tier": "hard"
+  },
+  {
+   "id": "h-tower",
+   "kind": "number",
+   "prompt": "What are the last three digits of 3 to the power (3 to the power 27), read as a number?",
+   "answer": 387,
+   "verify": "result = pow(3, 3 ** 27, 1000)",
+   "nudges": [
+    "The exponent can be reduced modulo what?",
+    "What is phi(1000)?"
+   ],
+   "showed": "phi(1000) = 400 and 3 is coprime to 1000, so reduce the exponent 3^27 modulo 400 (itself by fast powering), then one more power modulo 1000.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-divides",
+   "kind": "number",
+   "prompt": "For how many n from 1 to 10,000 does phi(n) divide n?",
+   "answer": 59,
+   "verify": "N = 10 ** 4\nphi = list(range(N + 1))\nfor p in range(2, N + 1):\n    if phi[p] == p:\n        for m in range(p, N + 1, p): phi[m] -= phi[m] // p\nresult = sum(1 for n in range(1, N + 1) if n % phi[n] == 0)",
+   "nudges": [
+    "n / phi(n) is the product of p / (p - 1) over the primes dividing n. When can that be a whole number?"
+   ],
+   "showed": "The product of p/(p-1) is a whole number only for n = 1, powers of 2 (giving 2), and numbers of the form 2^a 3^b with a, b at least 1 (giving 3). Count those up to 10,000.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Euler's totient",
+  "statement": "$\\varphi(n)$ counts $1 \\le x \\le n$ with $\\gcd(x, n) = 1$. It is multiplicative: $\\varphi(n) = n \\prod_{p \\mid n} (1 - 1/p)$. If $\\gcd(a, n) = 1$ then $a^{\\varphi(n)} \\equiv 1 \\pmod n$, and $\\sum_{d \\mid n} \\varphi(d) = n$.",
+  "remark": "Use it to reduce exponents when the modulus is not prime, and for counting fractions, coprime pairs and rotations. A sieve computes it for all $n$ up to a limit."
+ }
+}

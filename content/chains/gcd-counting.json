@@ -1,0 +1,152 @@
+{
+ "idea": "gcd-counting",
+ "opening": "Counting pairs with a given greatest common divisor, without computing a single gcd.",
+ "steps": [
+  {
+   "id": "even",
+   "kind": "number",
+   "prompt": "How many pairs a < b of numbers from 1 to 10 are both even?",
+   "answer": 10,
+   "verify": "result = sum(1 for a in range(1, 11) for b in range(a + 1, 11) if a % 2 == 0 and b % 2 == 0)",
+   "nudges": [
+    "How many even numbers are there up to 10?"
+   ],
+   "showed": "Five even numbers, so C(5, 2)."
+  },
+  {
+   "id": "multiple",
+   "kind": "choice",
+   "prompt": "For a fixed g, the pairs (a, b) whose gcd is a multiple of g are exactly:",
+   "options": [
+    "the pairs in which both a and b are multiples of g",
+    "the pairs in which a + b is a multiple of g",
+    "the pairs with gcd equal to g"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If g divides gcd(a, b), what does g divide?"
+   ],
+   "showed": "So they are easy to count: choose two of the multiples of g."
+  },
+  {
+   "id": "exact3",
+   "kind": "number",
+   "prompt": "How many pairs a < b of numbers from 1 to 12 have gcd exactly 3?",
+   "answer": 5,
+   "verify": "import math\nresult = sum(1 for a in range(1, 13) for b in range(a + 1, 13) if math.gcd(a, b) == 3)",
+   "nudges": [
+    "How many pairs consist of two multiples of 3? Which of those have a larger gcd?"
+   ],
+   "showed": "Multiples of 3 up to 12: four of them, six pairs. One of those, (6, 12), has gcd 6. So 6 - 1."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Let M(g) be the number of pairs of multiples of g, and E(g) the number of pairs with gcd exactly g. Which formula is right?",
+   "options": [
+    "E(g) = M(g) - E(2g) - E(3g) - E(4g) - ...",
+    "E(g) = M(g) - M(2g)",
+    "E(g) = M(g) / g"
+   ],
+   "answer": 0,
+   "nudges": [
+    "A pair counted in M(g) has gcd equal to which numbers?"
+   ],
+   "showed": "A pair of multiples of g has gcd g, 2g, 3g, ...: remove the ones that are not exactly g. Compute E from the largest g downward."
+  },
+  {
+   "id": "coprime",
+   "kind": "number",
+   "prompt": "How many pairs a < b of numbers from 1 to 30 have gcd 1?",
+   "answer": 277,
+   "verify": "import math\nresult = sum(1 for a in range(1, 31) for b in range(a + 1, 31) if math.gcd(a, b) == 1)",
+   "nudges": [
+    "What is E(g) for g = 30, 29, ..., 16?"
+   ],
+   "showed": "Run the rule from g = 30 down to g = 1; the last value is the answer."
+  },
+  {
+   "id": "sum",
+   "kind": "number",
+   "prompt": "Add up gcd(a, b) over all pairs a < b of numbers from 1 to 20.",
+   "answer": 335,
+   "verify": "import math\nresult = sum(math.gcd(a, b) for a in range(1, 21) for b in range(a + 1, 21))",
+   "nudges": [
+    "If you know E(g) for every g, how do you get the sum?"
+   ],
+   "showed": "The sum over g of g times E(g)."
+  },
+  {
+   "id": "cost",
+   "kind": "choice",
+   "prompt": "For numbers up to n, computing all the E(g) by this rule costs about:",
+   "options": [
+    "n log n",
+    "n squared",
+    "n times the square root of n"
+   ],
+   "answer": 0,
+   "nudges": [
+    "For each g, how many terms E(2g), E(3g), ... are subtracted?"
+   ],
+   "showed": "For each g there are n/g terms: the harmonic sum again."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "For numbers from 1 to n, let M(g) be the number of pairs a < b that are both multiples of g and E(g) the number with gcd exactly g. Prove that $E(g) = M(g) - \\sum_{k \\ge 2} E(kg)$.",
+   "claims": [
+    "A pair has both entries divisible by g exactly when g divides their gcd.",
+    "So the pairs counted by M(g) are exactly the pairs whose gcd is one of g, 2g, 3g, ..., and each such pair has exactly one gcd.",
+    "Therefore M(g) = E(g) + E(2g) + E(3g) + ..., and moving the later terms across gives the formula."
+   ],
+   "nudges": [
+    "Which pairs does M(g) count, described by their gcd?",
+    "Can a pair be counted in two different E values?"
+   ],
+   "showed": "M(g) is the total over all multiples of g; peel off everything except g itself."
+  },
+  {
+   "id": "h-coprime",
+   "kind": "number",
+   "prompt": "How many pairs a < b of numbers from 1 to 1000 have gcd 1?",
+   "answer": 304191,
+   "verify": "import math\nresult = sum(1 for a in range(1, 1001) for b in range(a + 1, 1001) if math.gcd(a, b) == 1)",
+   "nudges": [
+    "How many pairs consist of two multiples of g?",
+    "In which order must the exact counts be computed?"
+   ],
+   "showed": "M(g) = C(1000 // g, 2). Compute E(g) = M(g) - E(2g) - E(3g) - ... from g = 1000 down to 1; the answer is E(1).",
+   "tier": "hard"
+  },
+  {
+   "id": "h-array",
+   "kind": "number",
+   "prompt": "The array is a_i = (7 x i mod 60) + 1 for i = 1 to 300. How many pairs i < j have gcd(a_i, a_j) equal to 6?",
+   "answer": 785,
+   "verify": "import math\na = [7 * i % 60 + 1 for i in range(1, 301)]\nresult = sum(1 for i in range(300) for j in range(i + 1, 300) if math.gcd(a[i], a[j]) == 6)",
+   "nudges": [
+    "For each g, how many elements are multiples of g?"
+   ],
+   "showed": "Count occurrences of each value, get c(g) = number of elements divisible by g by looping over multiples, set M(g) = C(c(g), 2), and peel off the larger gcds from the top down.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-sum",
+   "kind": "number",
+   "prompt": "Add up gcd(a, b) over all pairs a < b of numbers from 1 to 200.",
+   "answer": 59874,
+   "verify": "import math\nresult = sum(math.gcd(a, b) for a in range(1, 201) for b in range(a + 1, 201))",
+   "nudges": [
+    "Once you know how many pairs have each gcd, what is left to do?"
+   ],
+   "showed": "The sum over g of g times E(g).",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Counting pairs by their gcd",
+  "statement": "Let $M(g)$ count the objects in which everything is divisible by $g$ (easy), and $E(g)$ those with gcd exactly $g$. Then $E(g) = M(g) - E(2g) - E(3g) - \\dots$, computed for $g$ from large to small in $O(n \\log n)$.",
+  "remark": "This is Möbius inversion done by hand. For an array, $M(g)$ comes from counting how many elements are multiples of $g$, again by looping over multiples."
+ }
+}

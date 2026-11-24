@@ -1,0 +1,142 @@
+{
+ "idea": "floor-blocks",
+ "opening": "The quotient n // i, as i runs from 1 to n. It changes much less often than you might think.",
+ "steps": [
+  {
+   "id": "values",
+   "kind": "list",
+   "prompt": "List the different values of 20 // i (20 divided by i, rounded down) for i from 1 to 20, from largest to smallest.",
+   "answer": [
+    20,
+    10,
+    6,
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "verify": "result = sorted({20 // i for i in range(1, 21)}, reverse=True)",
+   "nudges": [
+    "What is 20 // i for i = 1, 2, 3, 4, 5? And for i from 11 to 20?"
+   ],
+   "showed": "Only eight values for twenty i.",
+   "ordered": true
+  },
+  {
+   "id": "hundred",
+   "kind": "number",
+   "prompt": "How many different values does 100 // i take for i from 1 to 100?",
+   "answer": 19,
+   "verify": "result = len({100 // i for i in range(1, 101)})",
+   "nudges": [
+    "For i above 10, how large can the quotient be?"
+   ],
+   "showed": "For i up to 10 there are at most 10 values; for larger i the quotient is below 10, so at most 9 more."
+  },
+  {
+   "id": "block",
+   "kind": "number",
+   "prompt": "100 // 13 is 7. What is the largest i for which 100 // i is still 7?",
+   "answer": 14,
+   "verify": "result = max(i for i in range(1, 101) if 100 // i == 7)",
+   "nudges": [
+    "For the quotient to be at least 7, how large may i be?"
+   ],
+   "showed": "100 // i >= 7 exactly when i <= 100 / 7, so the block ends at 100 // 7 = 14."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "In general, if q = n // i, the last index with the same quotient is:",
+   "options": [
+    "n // q",
+    "i + q",
+    "n // i + i"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which i satisfy n // i >= q?"
+   ],
+   "showed": "The quotient is at least q exactly when i <= n / q. So a block runs from i to n // (n // i), and the next block starts one after."
+  },
+  {
+   "id": "sum",
+   "kind": "number",
+   "prompt": "Add up 1000 // i for i from 1 to 1000.",
+   "answer": 7069,
+   "verify": "result = sum(1000 // i for i in range(1, 1001))",
+   "nudges": [
+    "How many blocks of equal quotient are there, roughly?"
+   ],
+   "showed": "Jump block by block: (block length) times (quotient). About 60 blocks instead of 1000 terms."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "How many different values does n // i take for n = 1,000,000?",
+   "answer": 1999,
+   "verify": "n = 10 ** 6\nresult = len({n // i for i in range(1, n + 1)})",
+   "nudges": [
+    "Split i into \"at most 1000\" and \"more than 1000\". How many values can each part contribute?"
+   ],
+   "showed": "At most 1000 from the small i and at most 1000 from the small quotients, with one shared."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that as $i$ runs from 1 to $n$, the quotient $\\lfloor n / i \\rfloor$ takes at most $2\\sqrt{n}$ different values.",
+   "claims": [
+    "For i <= sqrt(n) there are at most sqrt(n) values of i, hence at most sqrt(n) values of the quotient.",
+    "For i > sqrt(n) the quotient n / i is less than sqrt(n), and it is a non-negative whole number, so it takes at most sqrt(n) different values.",
+    "Together that is at most 2 sqrt(n) different values."
+   ],
+   "nudges": [
+    "How many quotients can come from small $i$?",
+    "How large can the quotient be when $i$ is large?"
+   ],
+   "showed": "Either the divisor is small or the quotient is small."
+  },
+  {
+   "id": "h-billion",
+   "kind": "number",
+   "prompt": "Add up 1,000,000,000 // i for i from 1 to 1,000,000,000.",
+   "answer": 20877697634,
+   "verify": "n = 10 ** 9\ntotal, i = 0, 1\nwhile i <= n:\n    q = n // i; j = n // q\n    total += q * (j - i + 1); i = j + 1\nassert (lambda m: sum(m // k for k in range(1, m + 1)))(1000) == 7069\nresult = total",
+   "nudges": [
+    "A billion terms is too many. How many different quotients are there?"
+   ],
+   "showed": "About 63,000 blocks: from i jump to n // (n // i), adding (block length) x (quotient).",
+   "tier": "hard"
+  },
+  {
+   "id": "h-mod",
+   "kind": "number",
+   "prompt": "Add up (1,000,000 mod i) for i from 1 to 1,000,000.",
+   "answer": 177531881563,
+   "verify": "n = 10 ** 6\nresult = sum(n % i for i in range(1, n + 1))",
+   "nudges": [
+    "How can n mod i be written using n // i?"
+   ],
+   "showed": "n mod i = n - i x (n // i). So the total is n x n minus the sum of i x (n // i), and within a block of equal quotient the i form an arithmetic progression.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-pairs",
+   "kind": "number",
+   "prompt": "How many ordered pairs (a, b) of positive whole numbers have a x b at most 1,000,000?",
+   "answer": 13970034,
+   "verify": "n = 10 ** 6\nresult = sum(n // a for a in range(1, n + 1))",
+   "nudges": [
+    "For a fixed a, how many b work?"
+   ],
+   "showed": "For each a there are n // a values of b. It is the same sum as the divisor-count total, and by blocks it takes about 2000 steps.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Floor division takes few values",
+  "statement": "$\\lfloor n/i \\rfloor$ takes at most $2\\sqrt{n}$ different values for $1 \\le i \\le n$, and the block of indices sharing the value $q = \\lfloor n/i \\rfloor$ ends at $\\lfloor n/q \\rfloor$. Any sum of the form $\\sum f(i)\\,\\lfloor n/i \\rfloor$ can be done in $O(\\sqrt{n})$ blocks if prefix sums of $f$ are available.",
+  "remark": "Typical uses: $\\sum n \\bmod i$, counting pairs with $ab \\le n$, and sums over divisors for $n$ up to $10^{12}$."
+ }
+}

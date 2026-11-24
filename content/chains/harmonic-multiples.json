@@ -1,0 +1,141 @@
+{
+ "idea": "harmonic-multiples",
+ "opening": "A double loop that looks quadratic and is not.",
+ "steps": [
+  {
+   "id": "pairs",
+   "kind": "number",
+   "prompt": "For every d from 1 to 12, list the multiples of d that are at most 12. How many (d, multiple) pairs is that in total?",
+   "answer": 35,
+   "verify": "result = sum(12 // d for d in range(1, 13))",
+   "nudges": [
+    "How many multiples of d are there up to 12?"
+   ],
+   "showed": "12 + 6 + 4 + 3 + 2 + 2 + 1 + 1 + 1 + 1 + 1 + 1."
+  },
+  {
+   "id": "same",
+   "kind": "choice",
+   "prompt": "That total equals which other quantity?",
+   "options": [
+    "The number of divisors of 1, of 2, ..., of 12, all added up",
+    "The number of primes up to 12, times 12",
+    "12 squared"
+   ],
+   "answer": 0,
+   "nudges": [
+    "A pair (d, m) with d dividing m: from the point of view of m, what is d?"
+   ],
+   "showed": "Each pair is \"d is a divisor of m\", counted once from each side."
+  },
+  {
+   "id": "million",
+   "kind": "number",
+   "prompt": "For n = 1,000,000, what is the total number of (d, multiple of d) pairs with both at most n?",
+   "answer": 13970034,
+   "verify": "n = 10 ** 6\nresult = sum(n // d for d in range(1, n + 1))",
+   "nudges": [
+    "Is it closer to n, to 14 n, or to n squared?"
+   ],
+   "showed": "About 14 million: n times (1 + 1/2 + 1/3 + ... + 1/n), and that bracket is only about 14 for a million."
+  },
+  {
+   "id": "growth",
+   "kind": "choice",
+   "prompt": "How does n/1 + n/2 + ... + n/n grow?",
+   "options": [
+    "Like n log n",
+    "Like n squared",
+    "Like n times the square root of n"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How large is 1 + 1/2 + ... + 1/n for n = 10, 100, 1000?"
+   ],
+   "showed": "The bracket grows like the natural logarithm of n."
+  },
+  {
+   "id": "sigma",
+   "kind": "number",
+   "prompt": "Add up all the divisors of all the numbers from 1 to 100 (so 6 contributes 1 + 2 + 3 + 6). What is the total?",
+   "answer": 8299,
+   "verify": "result = sum(d for m in range(1, 101) for d in range(1, m + 1) if m % d == 0)",
+   "nudges": [
+    "How many numbers up to 100 have d as a divisor, and what does d contribute each time?"
+   ],
+   "showed": "Each d is counted once for every multiple of d up to 100: the sum over d of d times (100 // d)."
+  },
+  {
+   "id": "recipe",
+   "kind": "choice",
+   "prompt": "You need, for every x up to n, some total over the divisors of x. What is the cheap way?",
+   "options": [
+    "For every d, loop over the multiples of d and add the contribution of d to each",
+    "For every x, find its divisors by trial division",
+    "Factorise every x first"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which loop order gives each (d, multiple) pair exactly once without any searching?"
+   ],
+   "showed": "Push from divisors to multiples: no divisibility tests at all."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $d(m)$ be the number of divisors of $m$. Prove that $d(1) + d(2) + \\dots + d(n) = \\lfloor n/1 \\rfloor + \\lfloor n/2 \\rfloor + \\dots + \\lfloor n/n \\rfloor$.",
+   "claims": [
+    "Both sides count the pairs (k, m) with 1 <= k, m <= n and k dividing m.",
+    "Grouping the pairs by m gives d(m) pairs for each m, which is the left-hand side.",
+    "Grouping the pairs by k gives the number of multiples of k up to n, which is floor(n / k), for each k: the right-hand side."
+   ],
+   "nudges": [
+    "Which set of pairs do both sides count?",
+    "How many pairs have a given second entry? A given first entry?"
+   ],
+   "showed": "One set of pairs, counted by rows and by columns."
+  },
+  {
+   "id": "h-div",
+   "kind": "number",
+   "prompt": "No pointers from here. How many pairs a < b of numbers from 1 to 1000 are there in which a divides b?",
+   "answer": 6069,
+   "verify": "result = sum(1000 // a - 1 for a in range(1, 1001))",
+   "nudges": [
+    "For a fixed a, how many valid b are there?"
+   ],
+   "showed": "For each a there are 1000 // a - 1 larger multiples. Add over a: a thousand terms instead of half a million pairs.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-array",
+   "kind": "number",
+   "prompt": "The array is a_i = (i x i mod 50) + 1 for i = 1 to 200. How many ordered pairs (i, j) with i different from j have a_i dividing a_j?",
+   "answer": 7432,
+   "verify": "a = [i * i % 50 + 1 for i in range(1, 201)]\nresult = sum(1 for i in range(200) for j in range(200) if i != j and a[j] % a[i] == 0)",
+   "nudges": [
+    "The values are small. What should you count first?",
+    "For a value v occurring c times, which other values does it divide?"
+   ],
+   "showed": "Count how often each value occurs. Then for each value v, loop over its multiples w: add cnt[v] x cnt[w], and for w = v add cnt[v] x (cnt[v] - 1).",
+   "tier": "hard"
+  },
+  {
+   "id": "h-most",
+   "kind": "number",
+   "prompt": "What is the largest number of divisors that a number up to 100,000 can have?",
+   "answer": 128,
+   "verify": "N = 10 ** 5\nd = [0] * (N + 1)\nfor i in range(1, N + 1):\n    for j in range(i, N + 1, i): d[j] += 1\nresult = max(d)",
+   "nudges": [
+    "How do you get the number of divisors of every number up to the limit in one go?"
+   ],
+   "showed": "Let every i add 1 to each of its multiples; then take the maximum. Worth remembering as a size estimate: about a hundred divisors at 10^5, about 1300 at 10^9.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Harmonic sum over multiples",
+  "statement": "Visiting every multiple of every $d \\le n$ takes $n/1 + n/2 + \\dots + n/n \\approx n \\ln n$ steps. So anything of the form \"for each $x$, combine something over its divisors (or its multiples)\" can be done for all $x \\le n$ at once in $O(n \\log n)$.",
+  "remark": "It is why values up to $10^6$ in a statement are a hint: count occurrences of each value, then loop over multiples."
+ }
+}

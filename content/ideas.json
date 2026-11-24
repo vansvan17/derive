@@ -723,6 +723,32 @@
    "needs": [
     "pal-centres"
    ]
+  },
+  {
+   "id": "gcd-counting",
+   "area": "nt",
+   "name": "Counting pairs by their gcd",
+   "statement": "Pairs whose gcd is a multiple of g are simply pairs of multiples of g. Going from large g to small and subtracting the counts for 2g, 3g, ... leaves the pairs with gcd exactly g.",
+   "needs": [
+    "harmonic-multiples"
+   ]
+  },
+  {
+   "id": "floor-blocks",
+   "area": "nt",
+   "name": "Floor division takes few values",
+   "statement": "As i runs from 1 to n, the quotient n // i takes at most about 2 sqrt(n) different values, each on a block of consecutive i, so sums involving it can be done block by block.",
+   "needs": []
+  },
+  {
+   "id": "totient",
+   "area": "nt",
+   "name": "Euler's totient",
+   "statement": "phi(n) counts the numbers up to n that share no factor with n; it equals n times (1 - 1/p) over the primes p dividing n, and a^phi(n) = 1 mod n whenever a shares no factor with n.",
+   "needs": [
+    "fermat",
+    "crt"
+   ]
   }
  ]
 }

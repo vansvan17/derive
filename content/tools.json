@@ -1,0 +1,109 @@
+[
+ {
+  "id": "mono-stack",
+  "title": "Monotonic stack",
+  "when": [
+   "\"Nearest element to the left (or right) that is larger (or smaller)\"",
+   "How far a value stays the maximum or minimum of a stretch",
+   "Sum or count over all stretches of their maximum or minimum",
+   "Largest rectangle under a histogram"
+  ],
+  "idea": "Sweep the array once, keeping a stack of positions whose values are in decreasing order. Before pushing the current position, pop every position whose value is not larger than the current one: those can never again be \"the nearest larger\" for anything to the right, because the current element is nearer and at least as large. After the popping, the top of the stack is the nearest larger element to the left.\n\nEvery position is pushed once and popped at most once, so the whole sweep is linear even though it has a loop inside a loop.",
+  "traps": [
+   "Decide strict or non-strict on purpose: popping on \"less than or equal\" finds the nearest strictly larger element. For sums over all stretches use strict on one side and non-strict on the other, or equal values are counted twice.",
+   "Store positions on the stack, not values.",
+   "When nothing is left on the stack, the answer is \"none\": use a sentinel such as 0 or n + 1 consistently."
+  ],
+  "task": "taller-left",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    int n;\n    cin >> n;\n    vector<int> h(n + 1), st;          // st holds positions with decreasing heights\n    for (int i = 1; i <= n; i++) {\n        cin >> h[i];\n        while (!st.empty() && h[st.back()] <= h[i]) st.pop_back();\n        cout << (st.empty() ? 0 : st.back()) << \" \\n\"[i == n];\n        st.push_back(i);\n    }\n}\n"
+ },
+ {
+  "id": "string-blocks",
+  "title": "Blocks of a binary string",
+  "when": [
+   "An operation acts on a whole substring of a binary string (flip it, reverse it, sort it, delete it)",
+   "\"Minimum number of operations to make the string all equal, sorted, or alternating\"",
+   "The answer does not seem to depend on how long the runs are"
+  ],
+  "idea": "Stop looking at characters and look at the boundaries: the places where two neighbouring characters differ. Add an imaginary 0 before the string and after it. Inverting a substring changes only the two boundaries at its ends, and each of them is toggled. A string is all 0s exactly when there are no boundaries.\n\nSo with B boundaries you need at least B / 2 moves, and since each block of 1s contributes exactly two boundaries, inverting the blocks one by one achieves it. The answer is the number of blocks of 1s. Most \"operate on a substring\" problems fall to the same view: count what an operation can change, get a lower bound, then meet it.",
+  "traps": [
+   "Count blocks by their starts: a 1 whose left neighbour is not a 1.",
+   "Remember the ends of the string: a block touching the edge still counts.",
+   "If the operation is \"flip a prefix\" or \"flip a suffix\" only one boundary changes, and the answer becomes the number of boundaries instead of half of it."
+  ],
+  "task": "flip-blocks",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    int blocks = 0;\n    for (size_t i = 0; i < s.size(); i++)\n        if (s[i] == '1' && (i == 0 || s[i - 1] == '0')) blocks++;   // a block of 1s starts here\n    cout << blocks << \"\\n\";\n}\n"
+ },
+ {
+  "id": "balance-walk",
+  "title": "Balance as a walk",
+  "when": [
+   "\"Equal numbers of 0s and 1s\", \"as many a as b\", \"twice as many\"",
+   "Bracket sequences: correct, longest correct, minimum changes",
+   "Counting substrings by the difference between two counts"
+  ],
+  "idea": "Give one character the score +1 and the other -1 and write down the running total after each position, starting from 0. A substring is balanced exactly when the running totals at its two ends are equal. So counting balanced substrings is counting pairs of equal running totals: sweep once, and for each new total add the number of times it has occurred before.\n\nA correct bracket sequence is the same walk with two extra conditions: it never dips below 0, and it ends at 0. \"Longest\", \"how many changes\" and \"how many rotations\" questions about brackets all become questions about the minimum of this walk.",
+  "traps": [
+   "The total before the first character, 0, must be counted as seen once.",
+   "Totals can be negative: use a map, or an array shifted by n.",
+   "The answer can be about n squared over 2, so use 64 bits.",
+   "For other ratios (say twice as many), choose scores so that a good substring sums to 0: +1 and -2."
+  ],
+  "task": "balanced-stretches",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    int n = s.size();\n    vector<long long> seen(2 * n + 1, 0);   // running totals from -n to n, shifted by n\n    int cur = n;\n    seen[cur] = 1;                          // the empty prefix\n    long long answer = 0;\n    for (char c : s) {\n        cur += (c == '1') ? 1 : -1;\n        answer += seen[cur]++;\n    }\n    cout << answer << \"\\n\";\n}\n"
+ },
+ {
+  "id": "pal-centres",
+  "title": "Palindromes from their centres",
+  "when": [
+   "Count or find palindromic substrings",
+   "Longest palindromic substring",
+   "\"Is the substring from l to r a palindrome?\" asked many times",
+   "Cutting a string into palindromes"
+  ],
+  "idea": "Every palindrome has a centre, and a string of length n has 2n - 1 of them: n on a letter and n - 1 between two letters. From a centre, grow outward while the two sides match. If the largest palindrome at a centre has radius r, then every smaller radius at that centre is also a palindrome, so the centre contributes r palindromes (counting a single letter as radius 1).\n\nGrowing from every centre costs O(n squared) in the worst case, which is fine up to a few thousand letters. For longer strings there is a linear method (Manacher) that reuses the radius of the mirror-image centre inside the largest palindrome found so far, or you can halve on the radius with hashes of the string and of its reverse.",
+  "traps": [
+   "Handle the two kinds of centre separately, or interleave a separator character between the letters so that every palindrome has odd length.",
+   "A table is_pal[l][r] filled by increasing length answers \"is this substring a palindrome\" in O(1), which is what partition problems need.",
+   "The count can exceed 32 bits for long strings of one repeated letter."
+  ],
+  "task": "palindrome-count",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    int n = s.size();\n    long long count = 0;\n    for (int centre = 0; centre < 2 * n - 1; centre++) {\n        int l = centre / 2, r = l + centre % 2;        // even centre: on a letter; odd centre: between two\n        while (l >= 0 && r < n && s[l] == s[r]) { count++; l--; r++; }\n    }\n    cout << count << \"\\n\";\n}\n"
+ },
+ {
+  "id": "tree-dp",
+  "title": "Two answers per subtree",
+  "when": [
+   "Choose vertices or edges of a tree under a rule about neighbours (independent set, cover, matching, colouring)",
+   "\"Maximum\", \"minimum\" or \"number of ways\" on a tree",
+   "The choice at a vertex restricts only its children and its parent"
+  ],
+  "idea": "Hang the tree from a root. For each vertex keep a small number of answers for its subtree, one for each thing the parent needs to know. For \"no two chosen vertices adjacent\" two are enough: take[v], the best for the subtree if v is chosen, and skip[v], the best if it is not. Then take[v] = 1 + sum of skip[child], and skip[v] = sum of max(take[child], skip[child]).\n\nThe pattern is always the same: decide what the parent has to know about a subtree, make that the index of the table, and combine children one at a time. If the combination depends on how many children are in some state, the combination itself becomes a small knapsack.",
+  "traps": [
+   "Process children before parents: recursion, or a top-down order replayed backwards.",
+   "Recursion depth equals the height of the tree; for very deep trees use an explicit order.",
+   "Do not walk back to the parent: pass it along, or compare with the stored parent.",
+   "For counting versions the values are multiplied instead of added, and need a modulus."
+  ],
+  "task": "tree-guards",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<vector<int>> adj(n + 1);\n    for (int i = 0; i < n - 1; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    vector<int> parent(n + 1, 0), order = {1};\n    parent[1] = -1;\n    for (size_t i = 0; i < order.size(); i++)           // top-down order from the root\n        for (int u : adj[order[i]])\n            if (u != parent[order[i]]) { parent[u] = order[i]; order.push_back(u); }\n    vector<int> take(n + 1, 1), skip(n + 1, 0);\n    for (int i = n - 1; i >= 1; i--) {                    // children before parents\n        int v = order[i], p = parent[v];\n        take[p] += skip[v];\n        skip[p] += max(take[v], skip[v]);\n    }\n    printf(\"%d\\n\", max(take[1], skip[1]));\n}\n"
+ },
+ {
+  "id": "digit-dp",
+  "title": "Digit by digit",
+  "when": [
+   "Count the numbers up to N (N as large as 10^18) with a property of their digits",
+   "\"How many numbers in [L, R] ...\": answer for R minus answer for L - 1",
+   "The property can be checked by reading the digits left to right with a small memory (digit sum, remainder, last digit, whether a digit has appeared)"
+  ],
+  "idea": "Write N in decimal. A number smaller than N agrees with N on some prefix, then has a strictly smaller digit, and after that its digits are completely free. So go through the positions of N; at each position try every digit smaller than N's digit there, and count the ways to fill the remaining free positions so that the property holds, given what the fixed prefix has already contributed. Finally check N itself.\n\nThe \"free positions\" count is a small table: free[k][s] = number of ways to write k digits (leading zeros allowed) with digit sum s. In the general form the table is indexed by (position, summary of the prefix, still tight or not), and a memoised recursion writes itself.",
+  "traps": [
+   "Leading zeros: with a digit-sum property they are harmless, but for properties like \"no two equal adjacent digits\" you need a \"number has started\" flag.",
+   "Counting from 1 rather than 0: subtract the case of zero if your count includes it.",
+   "For a range [L, R] compute f(R) - f(L - 1); do not try to keep two bounds tight at once unless you have to.",
+   "The answer can be near 10^18: use 64 bits."
+  ],
+  "task": "digit-sums",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nlong long ways[20][200];   // ways[k][s]: k free digits with digit sum s\n\nint main() {\n    ways[0][0] = 1;\n    for (int k = 1; k < 20; k++)\n        for (int s = 0; s < 200; s++)\n            for (int d = 0; d <= 9 && d <= s; d++) ways[k][s] += ways[k - 1][s - d];\n    long long N;\n    int S;\n    cin >> N >> S;\n    string digits = to_string(N);\n    int len = digits.size(), used = 0;\n    long long total = 0;\n    for (int i = 0; i < len; i++) {\n        int here = digits[i] - '0';\n        for (int d = 0; d < here; d++)               // smaller digit here, everything after is free\n            if (S - used - d >= 0) total += ways[len - i - 1][S - used - d];\n        used += here;\n    }\n    if (used == S) total++;                           // N itself\n    cout << total << \"\\n\";                            // 0 is never counted because S >= 1\n}\n"
+ }
+]

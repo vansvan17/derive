@@ -398,6 +398,17 @@ class App(unittest.TestCase):
         self.assertTrue(next(s for s in after['steps'] if s['id'] == current['id'])['done'])                                  # accepted, so the chain moves on
         self.assertNotEqual(next(s for s in after['steps'] if not s['done'])['id'], current['id'])
 
+    def test_a_toolbox_page_shows_its_reference_only_after_your_own_is_accepted(self):
+        listed = self.get('/tools')['tools']
+        self.assertTrue(any(t['id'] == 'string-blocks' and not t['written'] for t in listed))
+        page = self.get('/tool/string-blocks')
+        self.assertTrue(page['idea'] and page['traps'] and page['when'])
+        self.assertIsNone(page['reference'])
+        right = "s = input().strip()\nprint(sum(1 for i, c in enumerate(s) if c == '1' and (i == 0 or s[i - 1] == '0')))\n"
+        self.assertEqual(self.judged({'id': page['task'], 'language': 'python', 'main': right})['verdict'], 'AC')
+        after = self.get('/tool/string-blocks')
+        self.assertTrue(after['written'] and '#include' in after['reference'])
+
     # ---- puzzles ----
     def test_puzzles_come_one_at_a_time_and_giving_up_is_not_solving(self):
         page = self.get('/puzzles?set=invariants')

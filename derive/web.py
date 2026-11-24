@@ -552,6 +552,22 @@ class Service:
             store.run('INSERT OR IGNORE INTO tasks_done VALUES(?,?,?)', (task['id'], now(), tries))
         return result
 
+    # ---------- the toolbox ----------
+    def tool_list(self, store):
+        done = {r['task'] for r in store.all('SELECT task FROM tasks_done')}
+        return {'tools': [{'id': t['id'], 'title': t['title'], 'when': t['when'][0], 'written': t['task'] in done} for t in self.content.tools.values()]}
+
+    def tool(self, store, tool_id):
+        tool = self.content.tools.get(tool_id)
+        if not tool:
+            raise ApiError('No such page.', 404)
+        written = bool(store.one('SELECT 1 FROM tasks_done WHERE task=?', (tool['task'],)))
+        out = {k: tool[k] for k in ('id', 'title', 'when', 'idea', 'traps', 'task')}
+        out['written'] = written
+        # The reference version is for comparing with your own, so it appears only once yours is accepted.
+        out['reference'] = tool['reference'] if written else None
+        return out
+
     # ---------- the tutor ----------
     def tutor_context(self, store, data):
         """Build the prompt for wherever the learner is. Returns (prompt, gated, scope, owner, step, names to keep out of a reply)."""
@@ -759,6 +775,10 @@ class Service:
                 return self.proof_prompt(store, path[7:])
             if path == '/mastery':
                 return self.mastery(store)
+            if path == '/tools':
+                return self.tool_list(store)
+            if path.startswith('/tool/'):
+                return self.tool(store, path[6:])
             if path == '/tasks':
                 return {'tasks': [tasks.public(t, store) for t in self.content.tasks.values()], 'tracks': self.content.task_tracks}
             if path.startswith('/task/'):

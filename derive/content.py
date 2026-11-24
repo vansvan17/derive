@@ -37,7 +37,11 @@ class Content:
                             {'id': 'structures', 'title': 'Structures and graph algorithms', 'about': 'The standard machinery, written by you.'},
                             {'id': 'tables', 'title': 'Tables and orders', 'about': 'Filling a table in the right order, and sorting by the right key.'},
                             {'id': 'bits', 'title': 'Bits and games', 'about': 'XOR, masks, and positions that win or lose.'},
-                            {'id': 'strings', 'title': 'Strings', 'about': 'Matching without comparing letter by letter.'}]
+                            {'id': 'strings', 'title': 'Strings', 'about': 'Matching without comparing letter by letter.'},
+                            {'id': 'toolbox', 'title': 'From the toolbox', 'about': 'The tasks that go with the Toolbox pages.'}]
+        # Toolbox pages: techniques that are recognised and written rather than derived.
+        path = self.root / 'content/tools.json'
+        self.tools = {t['id']: t for t in json.loads(path.read_text())} if path.exists() else {}
         # Past ICPC regional papers: links only, shown on the contest page.
         path = self.root / 'content/papers.json'
         self.papers = json.loads(path.read_text()) if path.exists() else []
@@ -168,6 +172,13 @@ def problems(content):
                 faults.append(f'{tag}: missing {key}')
         if not task.get('samples'):
             faults.append(f'{tag}: needs at least one sample')
+    for tool in content.tools.values():
+        tag = f'tool {tool.get("id")}'
+        for key in ('title', 'when', 'idea', 'traps', 'reference'):
+            if not tool.get(key):
+                faults.append(f'{tag}: missing {key}')
+        if tool.get('task') not in content.tasks:
+            faults.append(f'{tag}: must name an existing task')
     for idea, tasks in content.practice.items():
         if idea not in content.chains:
             faults.append(f'practice {idea}: practice is offered after a chain, and this idea has none')

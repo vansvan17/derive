@@ -314,3 +314,6 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .task-list li{padding:.15rem 0}
 .step-code .step-body{min-width:0}
 .task-inline{margin:.5rem 0 1rem}
+.tool-list{display:grid;gap:.9rem;list-style:none;padding:0}
+.tool-code{overflow:auto;font-size:.82rem;line-height:1.45}
+.tool-write{margin:1.5rem 0 .5rem}

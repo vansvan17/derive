@@ -8,6 +8,7 @@ import {renderMastery, renderSettings} from './record.js';
 import {renderContest} from './contest.js';
 import {renderPuzzles} from './puzzles.js';
 import {renderTasks, renderTask} from './tasks.js';
+import {renderTools, renderTool} from './tools.js';
 
 const state = {boot: null, token: 0, cleanups: [], root: null};
 
@@ -112,8 +113,8 @@ export function dialog({title, body = '', html = '', confirm = 'Continue', cance
 }
 
 /* ---------- Shell ---------- */
-const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['code', 'play', 'Code'], ['contest', 'target', 'Contest'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
-const section = () => { const name = location.hash.replace(/^#\/?/, '').split('/')[0] || ''; return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name === 'task' ? 'code' : name; };
+const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['tools', 'settings', 'Toolbox'], ['code', 'play', 'Code'], ['contest', 'target', 'Contest'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
+const section = () => { const name = location.hash.replace(/^#\/?/, '').split('/')[0] || ''; return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name === 'task' ? 'code' : name === 'tool' ? 'tools' : name; };
 function paintNav() {
   const host = document.querySelector('[data-nav-host]');
   if (!host) return;
@@ -181,6 +182,8 @@ async function route() {
     else if (name === 'solve') await renderSolve(ctx);
     else if (name === 'problem' && rest[0]) await renderProblem(ctx, rest[0]);
     else if (name === 'puzzles') await renderPuzzles(ctx, rest[0] || '');
+    else if (name === 'tools') await renderTools(ctx);
+    else if (name === 'tool' && rest[0]) await renderTool(ctx, rest[0]);
     else if (name === 'code') await renderTasks(ctx);
     else if (name === 'task' && rest[0]) await renderTask(ctx, rest[0]);
     else if (name === 'contest') await renderContest(ctx);

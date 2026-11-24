@@ -349,6 +349,55 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2247D1",
+  "site": "Codeforces",
+  "contest": 2247,
+  "index": "D1",
+  "title": "XOR Sorting (Easy Version)",
+  "rating": 1500,
+  "url": "https://codeforces.com/contest/2247/problem/D1",
+  "editorial": "https://codeforces.com/blog/entry/155337",
+  "ideas": [
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "A swap of positions whose XOR is not a power of two can be replaced by three swaps through the position that differs only in the highest differing bit, so only powers of two matter and the answer is 0 or a power of two.",
+   "With swaps of XOR at most 2^j, an index can never change its bits above bit j: every element stays inside its block of 2^(j+1) consecutive positions.",
+   "Inside a block every rearrangement is reachable. So 2^j works exactly when the largest element of each block is at most the smallest of the next; test the O(log n) candidates in O(n) each."
+  ],
+  "nudges": [
+   "You want to swap positions i and j whose XOR has several bits set. Can you do it with swaps that each change a single bit of the index?",
+   "If only swaps with index XOR at most 2^j are allowed, which positions can a given element ever reach?",
+   "Given that every block can be fully sorted but nothing leaves its block, when is the whole array sortable?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2254E",
+  "site": "Codeforces",
+  "contest": 2254,
+  "index": "E",
+  "title": "Chronostasis",
+  "rating": 1500,
+  "url": "https://codeforces.com/contest/2254/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/155666",
+  "ideas": [
+   "prefix-sums",
+   "exchange"
+  ],
+  "observations": [
+   "Undo the operation: a_i = a_(i-1) + b_i, so a is the running sums of b in some order.",
+   "To make a as small as possible position by position, each step should add the smallest unused b that keeps the running sum at least 1, that is the smallest unused value >= 1 - (current sum).",
+   "If no unused value is large enough the answer is -1. A sorted multiset with a lower-bound search does each step in O(log n)."
+  ],
+  "nudges": [
+   "If you knew the order in which the differences were used, how would you rebuild a?",
+   "The running sum so far is fixed. Which unused difference makes the next element smallest while still positive?",
+   "Why can choosing a larger difference now never rescue a situation that the smallest legal one cannot?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
   "id": "cf-2061C",
   "site": "Codeforces",
   "contest": 2061,
@@ -369,6 +418,79 @@
    "If person i is lying, what do you know for certain about person i-1?",
    "Suppose person i is honest. What are the possibilities for person i-1, and what does each force a_i to be?",
    "Which arrangements does 'person n is honest' leave out, and how are they counted?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2061D",
+  "site": "Codeforces",
+  "contest": 2061,
+  "index": "D",
+  "title": "Kevin and Numbers",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2061/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/138620",
+  "ideas": [
+   "reverse-time",
+   "extremal"
+  ],
+  "observations": [
+   "Merging is hard to plan forwards, but backwards it is forced: a number x can only have come from floor(x/2) and ceil(x/2).",
+   "Work on b: look at its largest number. If a also contains it, cancel both. Otherwise nothing in b can ever produce it except itself, so it must be split.",
+   "Exactly n - m splits are available. Keep both multisets in priority queues; fail if a split is needed and none is left, or the largest of a exceeds the largest of b."
+  ],
+  "nudges": [
+   "If x was produced by one merge, what were the two numbers?",
+   "Run the process backwards from b. What can be done with the largest number present if a does not contain it?",
+   "How many backward steps are you allowed in total?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2241E",
+  "site": "Codeforces",
+  "contest": 2241,
+  "index": "E",
+  "title": "Fair and Square",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2241/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/154698",
+  "ideas": [
+   "contribution"
+  ],
+  "observations": [
+   "For three vertices in a tree, exactly one vertex c lies on all three connecting paths; every other vertex lies on none or on exactly two of them.",
+   "So in the product every value appears to an even power except a_c, which appears cubed: the triple is good exactly when a_c is a perfect square.",
+   "Count by c instead of by triple. Remove c; with component sizes s_1..s_k, triples containing c number the sum of s_i s_j, and triples not containing c the sum of s_i s_j s_l, both from one pass keeping running sums. Component sizes come from subtree sizes and n - size."
+  ],
+  "nudges": [
+   "Draw three vertices in a tree and the three paths between them. How many times is each vertex of the picture used?",
+   "Given that, which single value decides whether the product is a perfect square?",
+   "Instead of going through triples, can you fix that special vertex and count the triples it is special for?"
+  ],
+  "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2123F",
+  "site": "Codeforces",
+  "contest": 2123,
+  "index": "F",
+  "title": "Minimize Fixed Points",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2123/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/144363",
+  "ideas": [
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "Some positions cannot move: 1, and every prime p with 2p > n, because no other number up to n shares a factor with it.",
+   "A cycle in which every number is divisible by one common prime is always good, however long it is.",
+   "Group 2..n by largest prime factor and rotate each group. A prime p with 2p <= n is grouped with 2p at least, so the only fixed points are the forced ones."
+  ],
+  "nudges": [
+   "Which numbers up to n share no factor with any other number up to n?",
+   "If several positions are all multiples of the same prime, in how many ways may you shuffle the values among them?",
+   "How can you split 2..n into groups, each sharing a prime, so that as few groups as possible have size one?"
   ],
   "checked": "2026-11-24"
  }

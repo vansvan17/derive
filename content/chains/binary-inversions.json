@@ -1,0 +1,151 @@
+{
+ "idea": "binary-inversions",
+ "opening": "Sorting a string of 0s and 1s with the smallest moves there are.",
+ "steps": [
+  {
+   "id": "pairs",
+   "kind": "number",
+   "prompt": "In the string 10110, count the pairs of positions where a 1 stands somewhere to the left of a 0.",
+   "answer": 4,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = inv(\"10110\")",
+   "nudges": [
+    "For each 0, how many 1s stand before it?"
+   ],
+   "showed": "One for the first 0 and three for the last."
+  },
+  {
+   "id": "sort",
+   "kind": "number",
+   "prompt": "A move swaps two neighbouring characters. What is the smallest number of moves that turns 10110 into 00111?",
+   "answer": 4,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = reach(\"10110\", adj)[\"00111\"]",
+   "nudges": [
+    "Which swaps make progress?"
+   ],
+   "showed": "The same number as the count of pairs."
+  },
+  {
+   "id": "step",
+   "kind": "choice",
+   "prompt": "Two neighbouring characters \"10\" are swapped to \"01\". What happens to the number of pairs (a 1 somewhere left of a 0)?",
+   "options": [
+    "It drops by exactly one",
+    "It drops by one or more",
+    "It can go up or down"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Apart from the two swapped characters, does any other pair change its order?"
+   ],
+   "showed": "Only the swapped pair changes its order. And swapping \"01\" to \"10\" raises the count by one; swapping equal characters does nothing."
+  },
+  {
+   "id": "worst",
+   "kind": "number",
+   "prompt": "How many such pairs has 1111100000?",
+   "answer": 25,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = inv(\"1111100000\")",
+   "nudges": [
+    "Each of the five 1s is to the left of how many 0s?"
+   ],
+   "showed": "Five times five: the most unsorted a string of ten characters can be."
+  },
+  {
+   "id": "pass",
+   "kind": "choice",
+   "prompt": "How do you count the pairs in a string of length $10^6$?",
+   "options": [
+    "Go through the string keeping the number of 1s seen so far; at every 0 add that number",
+    "Compare every pair of positions",
+    "Sort the string and count the swaps made"
+   ],
+   "answer": 0,
+   "nudges": [
+    "At a 0, which 1s form a pair with it?"
+   ],
+   "showed": "One pass and one counter."
+  },
+  {
+   "id": "change",
+   "kind": "number",
+   "prompt": "Take 010010. You may change at most one character (a 0 into a 1 or a 1 into a 0). What is the largest number of pairs (a 1 left of a 0) you can then have?",
+   "answer": 7,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ns = \"010010\"\nresult = max(inv(t) for t in [s] + [s[:i] + (\"1\" if s[i] == \"0\" else \"0\") + s[i + 1:] for i in range(6)])",
+   "nudges": [
+    "Changing a 0 to a 1: which pairs are lost and which gained?",
+    "Which 0 is the best one to change? Which 1?"
+   ],
+   "showed": "Turning a 0 into a 1 loses its pairs with earlier 1s and gains pairs with later 0s: the first 0 is the best candidate. Likewise the last 1 for the other direction. Only two candidates need checking."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "A move swaps two neighbouring characters of a string of 0s and 1s. Prove that the smallest number of moves needed to bring all 0s before all 1s equals the number of pairs of positions with a 1 to the left of a 0.",
+   "claims": [
+    "A swap of two neighbours changes the relative order of those two characters only, so the number of such pairs changes by at most one per move.",
+    "In the sorted string the number is 0, so at least that many moves are needed.",
+    "If the string is not sorted, somewhere a 1 is immediately followed by a 0 (otherwise no 1 is ever followed by a 0 and the string is sorted).",
+    "Swapping these two lowers the number by exactly one, so repeating this sorts the string in exactly that many moves."
+   ],
+   "nudges": [
+    "By how much can one move change the count?",
+    "Why is there always a move that lowers it?"
+   ],
+   "showed": "A measure of unsortedness that every useful move lowers by exactly one."
+  },
+  {
+   "id": "h-total",
+   "kind": "number",
+   "prompt": "Add up the number of pairs (a 1 left of a 0) over all 256 strings of 0s and 1s of length 8. What is the total?",
+   "answer": 1792,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = sum(inv(\"\".join(s)) for s in itertools.product(\"01\", repeat=8))",
+   "nudges": [
+    "Fix two positions. In how many of the 256 strings is the left one a 1 and the right one a 0?"
+   ],
+   "showed": "Each of the 28 pairs of positions is \"1 then 0\" in a quarter of all strings: 28 times 64.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-alternate",
+   "kind": "number",
+   "prompt": "A move swaps two neighbouring characters. What is the smallest number of moves that turns 11100010 into 01010101?",
+   "answer": 7,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = reach(\"11100010\", adj)[\"01010101\"]",
+   "nudges": [
+    "The 1s keep their order among themselves. Where must the first 1 end up, the second, and so on?",
+    "How far does each 1 have to travel?"
+   ],
+   "showed": "Swapping two equal characters is never useful, so the $k$-th 1 goes to the $k$-th place reserved for a 1. The answer is the sum of the distances the 1s travel.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-exact",
+   "kind": "number",
+   "prompt": "How many strings with four 0s and four 1s have exactly 6 pairs (a 1 left of a 0)?",
+   "answer": 7,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = sum(1 for c in itertools.combinations(range(8), 4) if inv(\"\".join(\"1\" if i in c else \"0\" for i in range(8))) == 6)",
+   "nudges": [
+    "Describe a string by, for each 0, the number of 1s before it. What kind of sequence is that, and what must it add up to?"
+   ],
+   "showed": "For each 0 write the number of 1s before it: a non-decreasing list of four numbers from 0 to 4 with sum 6. Counting strings by this measure is counting such lists.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-long",
+   "kind": "number",
+   "prompt": "The string 110110110...110 consists of the group 110 written 20 times. What is the smallest number of swaps of neighbours that brings all its 0s to the front?",
+   "answer": 420,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = inv(\"110\" * 20)",
+   "nudges": [
+    "How many 1s stand before the $k$-th 0?"
+   ],
+   "showed": "The $k$-th 0 has $2k$ ones before it: $2(1 + 2 + \\dots + 20)$.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Inversions of a binary string",
+  "statement": "The pairs (a 1, a later 0), the inversions of a binary string, measure how unsorted it is. A swap of neighbours changes the count by exactly one, so the count is the number of swaps needed to sort.",
+  "remark": "Counted in one pass. When a problem moves characters past each other one step at a time, or asks how a single change affects \"sortedness\", think of this count."
+ }
+}

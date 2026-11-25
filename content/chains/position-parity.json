@@ -1,0 +1,144 @@
+{
+ "idea": "position-parity",
+ "opening": "A move that looks as if it could rearrange a string freely, and what it can never do.",
+ "steps": [
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "One move swaps two characters that are exactly two places apart (positions $i$ and $i + 2$). Starting from abcd, how many different strings can be reached, counting abcd itself?",
+   "answer": 4,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef far(s): return [s[:i] + s[i + 2] + s[i + 1] + s[i] + s[i + 3:] for i in range(len(s) - 2)]\ndef oddrev(s): return [s[:l] + s[l:r][::-1] + s[r:] for l in range(len(s)) for r in range(l + 3, len(s) + 1, 2)]\nresult = len(reach(\"abcd\", far))",
+   "nudges": [
+    "Which swaps are possible in a string of four characters?"
+   ],
+   "showed": "Only a with c, and b with d."
+  },
+  {
+   "id": "which",
+   "kind": "list",
+   "prompt": "With the same move, which of these can be reached from abcd? Give their labels. (1) cbad  (2) bacd  (3) cdab  (4) adcb  (5) dcba",
+   "answer": [
+    1,
+    3,
+    4
+   ],
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef far(s): return [s[:i] + s[i + 2] + s[i + 1] + s[i] + s[i + 3:] for i in range(len(s) - 2)]\ndef oddrev(s): return [s[:l] + s[l:r][::-1] + s[r:] for l in range(len(s)) for r in range(l + 3, len(s) + 1, 2)]\nr = reach(\"abcd\", far)\nresult = [k + 1 for k, t in enumerate([\"cbad\", \"bacd\", \"cdab\", \"adcb\", \"dcba\"]) if t in r]",
+   "nudges": [
+    "Where can the letter a go?"
+   ],
+   "showed": "In every reachable string, a and c occupy the first and third places."
+  },
+  {
+   "id": "stay",
+   "kind": "choice",
+   "prompt": "A character stands on an odd-numbered position. After any number of these moves it stands:",
+   "options": [
+    "on an odd-numbered position",
+    "anywhere",
+    "on a position at least as far left"
+   ],
+   "answer": 0,
+   "nudges": [
+    "By how many places does a move shift a character?"
+   ],
+   "showed": "Moving by two never changes whether the position number is odd or even."
+  },
+  {
+   "id": "six",
+   "kind": "number",
+   "prompt": "How many strings can be reached from abcdef (counting itself)?",
+   "answer": 36,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef far(s): return [s[:i] + s[i + 2] + s[i + 1] + s[i] + s[i + 3:] for i in range(len(s) - 2)]\ndef oddrev(s): return [s[:l] + s[l:r][::-1] + s[r:] for l in range(len(s)) for r in range(l + 3, len(s) + 1, 2)]\nresult = len(reach(\"abcdef\", far))",
+   "nudges": [
+    "Which characters can trade places with each other?",
+    "How freely can the characters on the odd positions be rearranged among themselves?"
+   ],
+   "showed": "The three odd-position characters can be put in any of 6 orders, and independently the three even-position ones."
+  },
+  {
+   "id": "test",
+   "kind": "choice",
+   "prompt": "Given two strings of the same length, when can the first be turned into the second by these moves?",
+   "options": [
+    "Exactly when they have the same collection of characters on the odd positions and the same collection on the even positions",
+    "When they consist of the same characters",
+    "When they differ in an even number of positions"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What can a move never change?",
+    "Within the odd positions, which rearrangements are possible?"
+   ],
+   "showed": "The move never mixes the two classes of positions, and within a class it can do any rearrangement."
+  },
+  {
+   "id": "binary",
+   "kind": "number",
+   "prompt": "With the same move, how many strings can be reached from 110100 (counting itself)?",
+   "answer": 9,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef far(s): return [s[:i] + s[i + 2] + s[i + 1] + s[i] + s[i + 3:] for i in range(len(s) - 2)]\ndef oddrev(s): return [s[:l] + s[l:r][::-1] + s[r:] for l in range(len(s)) for r in range(l + 3, len(s) + 1, 2)]\nresult = len(reach(\"110100\", far))",
+   "nudges": [
+    "How many 1s are on odd positions, and how many on even positions?"
+   ],
+   "showed": "One 1 among the three odd positions, two 1s among the three even ones: 3 times 3."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "One move swaps the characters in positions $i$ and $i + 2$ of a string. Prove that a string $t$ can be reached from a string $s$ of the same length exactly when the characters on odd positions of $s$ are a rearrangement of those on odd positions of $t$, and likewise for the even positions.",
+   "claims": [
+    "A move exchanges two characters whose positions have the same parity, so the collection of characters on odd positions never changes, and neither does the collection on even positions. This shows the condition is necessary.",
+    "Look at the odd positions alone as a row: a move at an odd i swaps two neighbours of that row, and any rearrangement of a row can be produced by swaps of neighbours.",
+    "The same holds for the even positions, and moves on one class do not disturb the other. So any string with the same two collections can be reached."
+   ],
+   "nudges": [
+    "What does a move preserve?",
+    "Seen within one class of positions, what kind of swap is a move?"
+   ],
+   "showed": "An invariant that turns out to be the only obstacle."
+  },
+  {
+   "id": "h-reversal",
+   "kind": "number",
+   "prompt": "New move: reverse any substring of odd length. Starting from the row 1 2 3 4 5 6 7, how many different rows can be reached (counting the start)?",
+   "answer": 144,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef far(s): return [s[:i] + s[i + 2] + s[i + 1] + s[i] + s[i + 3:] for i in range(len(s) - 2)]\ndef oddrev(s): return [s[:l] + s[l:r][::-1] + s[r:] for l in range(len(s)) for r in range(l + 3, len(s) + 1, 2)]\nresult = len(reach((1, 2, 3, 4, 5, 6, 7), lambda s: [s[:l] + s[l:r][::-1] + s[r:] for l in range(7) for r in range(l + 3, 8, 2)]))",
+   "nudges": [
+    "A substring from position $l$ to position $r$ is reversed. Where does the element at position $i$ go?",
+    "If the length is odd, what can you say about $l + r$?"
+   ],
+   "showed": "The element at position $i$ goes to position $l + r - i$, and $l + r$ is even when the length is odd: every element keeps the parity of its position. Reversals of length 3 are the old move, so everything else is reachable: 4! times 3!.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-ones",
+   "kind": "number",
+   "prompt": "With the move \"swap two characters exactly two places apart\", how many strings can be reached from 11110000 (counting itself)?",
+   "answer": 36,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef far(s): return [s[:i] + s[i + 2] + s[i + 1] + s[i] + s[i + 3:] for i in range(len(s) - 2)]\ndef oddrev(s): return [s[:l] + s[l:r][::-1] + s[r:] for l in range(len(s)) for r in range(l + 3, len(s) + 1, 2)]\nresult = len(reach(\"11110000\", far))",
+   "nudges": [
+    "How many 1s stand on odd positions, and how many on even ones?"
+   ],
+   "showed": "Two 1s among four odd positions and two among four even positions: 6 times 6. Half of all the 70 arrangements are out of reach.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-pegs",
+   "kind": "number",
+   "prompt": "A row of 9 cells holds three tokens, on cells 1, 2 and 3. A move takes a token and jumps it over a neighbouring token into the empty cell directly behind that one (so the token moves by two cells; nothing is removed). How many different sets of three occupied cells can be reached, counting the start?",
+   "answer": 7,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef far(s): return [s[:i] + s[i + 2] + s[i + 1] + s[i] + s[i + 3:] for i in range(len(s) - 2)]\ndef oddrev(s): return [s[:l] + s[l:r][::-1] + s[r:] for l in range(len(s)) for r in range(l + 3, len(s) + 1, 2)]\ndef jump(s):\n    out = []\n    for a in s:\n        for d in (1, -1):\n            if a + d in s and a + 2 * d not in s and 1 <= a + 2 * d <= 9: out.append(frozenset(s - {a} | {a + 2 * d}))\n    return out\nr = reach(frozenset({1, 2, 3}), jump)\nassert all(sum(c % 2 for c in s) == 2 for s in r)\nresult = len(r)",
+   "nudges": [
+    "Each token moves by two cells at a time. What does that say about the cells a given token can ever stand on?",
+    "How many odd cells and how many even cells are occupied at the start?"
+   ],
+   "showed": "Every position ever reached has two tokens on odd cells and one on an even cell, which rules out most of the 84 triples. The invariant gives the ceiling; whether every allowed triple is really reachable is a separate question that the search answers.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Parity of positions",
+  "statement": "An operation that moves characters by two places (swapping positions $i$ and $i+2$, reversing a substring of odd length, jumping over a neighbour) keeps every character on positions of the same parity. The contents of the odd positions and of the even positions are separate invariants.",
+  "remark": "First check the two collections; if they match, the rearrangement is usually possible. The same thought applies on grids, where a move may preserve the colour of a cell."
+ }
+}

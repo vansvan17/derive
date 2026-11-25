@@ -1,0 +1,172 @@
+{
+ "idea": "balance",
+ "opening": "Strings of two kinds of character, read as a walk up and down.",
+ "steps": [
+  {
+   "id": "heights",
+   "kind": "list",
+   "prompt": "Read the string ()(()) from left to right, starting at height 0: go up one for \"(\" and down one for \")\". Give the height after each of the six characters, in order.",
+   "answer": [
+    1,
+    0,
+    1,
+    2,
+    1,
+    0
+   ],
+   "verify": "def h(s, up=\"(\"):\n    out = []; v = 0\n    for ch in s: v += 1 if ch == up else -1; out.append(v)\n    return out\ndef good(s):\n    hs = h(s); return (not hs) or (min(hs) >= 0 and hs[-1] == 0)\nresult = h(\"()(())\")",
+   "nudges": [
+    "What is the height after the first two characters?"
+   ],
+   "showed": "It never goes below 0 and ends at 0.",
+   "ordered": true
+  },
+  {
+   "id": "bad",
+   "kind": "list",
+   "prompt": "Do the same for ())(() and give the six heights in order.",
+   "answer": [
+    1,
+    0,
+    -1,
+    0,
+    1,
+    0
+   ],
+   "verify": "def h(s, up=\"(\"):\n    out = []; v = 0\n    for ch in s: v += 1 if ch == up else -1; out.append(v)\n    return out\ndef good(s):\n    hs = h(s); return (not hs) or (min(hs) >= 0 and hs[-1] == 0)\nresult = h(\"())(()\")",
+   "nudges": [
+    "What happens at the third character?"
+   ],
+   "showed": "It also ends at 0, but it dips to -1: a closing bracket with nothing open.",
+   "ordered": true
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "A string of brackets is correctly nested exactly when its walk:",
+   "options": [
+    "never goes below 0 and ends at 0",
+    "ends at 0",
+    "never goes below 0"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What does a dip below 0 mean? What does ending above 0 mean?"
+   ],
+   "showed": "Below 0: a closing bracket with no partner. Ending above 0: opening brackets left unclosed."
+  },
+  {
+   "id": "six",
+   "kind": "number",
+   "prompt": "Of the 20 strings with three \"(\" and three \")\", how many are correctly nested?",
+   "answer": 5,
+   "verify": "def h(s, up=\"(\"):\n    out = []; v = 0\n    for ch in s: v += 1 if ch == up else -1; out.append(v)\n    return out\ndef good(s):\n    hs = h(s); return (not hs) or (min(hs) >= 0 and hs[-1] == 0)\nimport itertools\nresult = sum(1 for c in itertools.combinations(range(6), 3) if good(\"\".join(\"(\" if i in c else \")\" for i in range(6))))",
+   "nudges": [
+    "All 20 walks end at 0. Which ones must be thrown out?"
+   ],
+   "showed": "Five of the twenty never dip below 0."
+  },
+  {
+   "id": "fix",
+   "kind": "number",
+   "prompt": "What is the smallest number of brackets that must be inserted into ))(()( to make it correctly nested?",
+   "answer": 4,
+   "verify": "def h(s, up=\"(\"):\n    out = []; v = 0\n    for ch in s: v += 1 if ch == up else -1; out.append(v)\n    return out\ndef good(s):\n    hs = h(s); return (not hs) or (min(hs) >= 0 and hs[-1] == 0)\ndef need(s):\n    open_ = extra = 0\n    for ch in s:\n        if ch == \"(\": open_ += 1\n        elif open_: open_ -= 1\n        else: extra += 1\n    return open_ + extra\nresult = need(\"))(()(\")",
+   "nudges": [
+    "How low does the walk go? How high above its lowest point does it end?"
+   ],
+   "showed": "One \"(\" in front for each unit the walk dips below 0, and one \")\" at the end for each unit it then ends above 0."
+  },
+  {
+   "id": "equal",
+   "kind": "choice",
+   "prompt": "A substring has equally many \"(\" and \")\" exactly when:",
+   "options": [
+    "the heights just before it and just after it are equal",
+    "the height after it is 0",
+    "it is correctly nested"
+   ],
+   "answer": 0,
+   "nudges": [
+    "By how much does the height change across the substring?"
+   ],
+   "showed": "Equal counts is a pair of equal heights; correct nesting additionally needs the walk in between to stay at or above that height."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "How many substrings of aabbab contain equally many a and b?",
+   "answer": 6,
+   "verify": "s = \"aabbab\"\nresult = sum(1 for l in range(6) for r in range(l + 1, 7) if s[l:r].count(\"a\") == s[l:r].count(\"b\"))",
+   "nudges": [
+    "Walk up for a and down for b. Which heights occur, and how often?"
+   ],
+   "showed": "Pairs of equal heights, the starting height 0 included."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "In a string of the characters \"(\" and \")\", let $H_i$ be the number of \"(\" minus the number of \")\" among the first $i$ characters ($H_0 = 0$). Prove that the substring from position $l$ to position $r$ contains equally many of each exactly when $H_{l-1} = H_r$.",
+   "claims": [
+    "H_r - H_{l-1} is the number of \"(\" minus the number of \")\" among the characters in positions l to r, since those are exactly the characters counted in H_r but not in H_{l-1}.",
+    "The substring has equally many of each exactly when that difference is 0.",
+    "So the condition is H_r = H_{l-1}."
+   ],
+   "nudges": [
+    "What does the difference of two heights count?"
+   ],
+   "showed": "Counts of two symbols become one walk; equal counts become equal heights."
+  },
+  {
+   "id": "h-shifts",
+   "kind": "number",
+   "prompt": "Take the string )(()())( of length 8. Moving some characters from its front to its back (keeping their order) gives a cyclic shift; there are 8 shifts, the string itself included. How many of them are correctly nested?",
+   "answer": 2,
+   "verify": "def h(s, up=\"(\"):\n    out = []; v = 0\n    for ch in s: v += 1 if ch == up else -1; out.append(v)\n    return out\ndef good(s):\n    hs = h(s); return (not hs) or (min(hs) >= 0 and hs[-1] == 0)\ns = \")(()())(\"\nresult = sum(1 for k in range(8) if good(s[k:] + s[:k]))",
+   "nudges": [
+    "The whole walk ends at 0. Starting the walk at a different place shifts all heights by the same amount. Where must you start so that nothing goes below the start?"
+   ],
+   "showed": "Start right after a place where the walk is at its lowest: then nothing is lower than the start. The answer is the number of times the lowest height is reached.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-swaps",
+   "kind": "number",
+   "prompt": "One move swaps any two characters (not necessarily neighbours). What is the smallest number of moves that makes ))))(((( correctly nested?",
+   "answer": 2,
+   "verify": "def h(s, up=\"(\"):\n    out = []; v = 0\n    for ch in s: v += 1 if ch == up else -1; out.append(v)\n    return out\ndef good(s):\n    hs = h(s); return (not hs) or (min(hs) >= 0 and hs[-1] == 0)\nimport itertools\ndef sw(s): return [s[:i] + s[j] + s[i + 1:j] + s[i] + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\nseen = {\"))))((((\": 0}; todo = [\"))))((((\"]\nfor s in todo:\n    for t in sw(s):\n        if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\nresult = min(d for s, d in seen.items() if good(s))",
+   "nudges": [
+    "How low does the walk go?",
+    "Swap the first \")\" with the last \"(\": by how much does the lowest point rise?"
+   ],
+   "showed": "The walk dips to -4. Swapping an early \")\" with a late \"(\" raises everything in between by 2, so each move repairs two units of the dip.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-nested",
+   "kind": "number",
+   "prompt": "How many substrings of ()(())())(() are correctly nested (and non-empty)?",
+   "answer": 8,
+   "verify": "def h(s, up=\"(\"):\n    out = []; v = 0\n    for ch in s: v += 1 if ch == up else -1; out.append(v)\n    return out\ndef good(s):\n    hs = h(s); return (not hs) or (min(hs) >= 0 and hs[-1] == 0)\ns = \"()(())())(()\"\nresult = sum(1 for l in range(12) for r in range(l + 1, 13) if good(s[l:r]))",
+   "nudges": [
+    "A correct substring is a pair of equal heights with what extra condition on the walk between them?"
+   ],
+   "showed": "Equal heights at both ends, and no lower height in between. A stack of positions waiting at each height counts these in one pass.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-balanced",
+   "kind": "code",
+   "task": "balanced-stretches",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Heights as a running total of +1 and -1, and a table of how often each height has been seen.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Balance as a walk",
+  "statement": "Score +1 and -1 for the two characters and look at the prefix values as a walk. Equal counts in a substring are equal prefix values at its ends; a correct bracket sequence is a walk that never goes below zero and ends at zero.",
+  "remark": "The lowest point of the walk tells how many brackets are missing in front, and where a cyclic shift must start. Many bracket problems are questions about the minimum of this walk."
+ }
+}

@@ -1,0 +1,143 @@
+{
+ "idea": "pal-parity-mask",
+ "opening": "Letters that may be shuffled, and a test that needs no shuffling.",
+ "steps": [
+  {
+   "id": "which",
+   "kind": "list",
+   "prompt": "The letters of a word may be put in any order. Which of these can be arranged to read the same in both directions? Give the labels. (1) aabb  (2) aabbc  (3) abc  (4) aabbcd  (5) aaabbb",
+   "answer": [
+    1,
+    2
+   ],
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nfrom collections import Counter\ndef can(s): return sum(v % 2 for v in Counter(s).values()) <= 1\nresult = [k + 1 for k, w in enumerate([\"aabb\", \"aabbc\", \"abc\", \"aabbcd\", \"aaabbb\"]) if any(pal(p) for p in set(itertools.permutations(w)))]",
+   "nudges": [
+    "In a word that reads the same both ways, how are the letters paired up?"
+   ],
+   "showed": "abba and abcba work; the others have too many letters without a partner."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "When can the letters of a word be arranged to read the same in both directions?",
+   "options": [
+    "Exactly when at most one letter occurs an odd number of times",
+    "Exactly when every letter occurs an even number of times",
+    "Exactly when the length is odd"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Every position except possibly the middle one has a mirror position with the same letter. What does that say about the counts?"
+   ],
+   "showed": "Letters pair up across the middle; one letter may be left for the middle itself."
+  },
+  {
+   "id": "short",
+   "kind": "number",
+   "prompt": "How many of the 16 strings of length 4 over the letters a and b can be arranged to read the same both ways?",
+   "answer": 8,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nfrom collections import Counter\ndef can(s): return sum(v % 2 for v in Counter(s).values()) <= 1\nresult = sum(1 for s in itertools.product(\"ab\", repeat=4) if can(s))",
+   "nudges": [
+    "Which numbers of a's are allowed?"
+   ],
+   "showed": "Zero, two or four a's: 1 + 6 + 1."
+  },
+  {
+   "id": "delete",
+   "kind": "number",
+   "prompt": "What is the smallest number of letters that must be deleted from abcdaab so that the rest can be arranged to read the same both ways?",
+   "answer": 2,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nfrom collections import Counter\ndef can(s): return sum(v % 2 for v in Counter(s).values()) <= 1\ns = \"abcdaab\"\nresult = min(len(s) - k for k in range(len(s) + 1) for c in itertools.combinations(s, k) if can(c))",
+   "nudges": [
+    "Which letters occur an odd number of times?",
+    "How many of those may remain odd?"
+   ],
+   "showed": "Each deletion fixes one odd letter; one odd letter may stay."
+  },
+  {
+   "id": "sub",
+   "kind": "choice",
+   "prompt": "For a substring, you need to know for each letter whether it occurs an even or odd number of times. Keep, for every beginning of the string, a record of which letters have occurred an odd number of times so far. How do you get the record of a substring?",
+   "options": [
+    "Combine the records at its two ends: a letter is odd in the substring exactly when the two records disagree on it",
+    "Take the record at its right end",
+    "Add the two records"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If a letter is odd up to the left end and odd up to the right end, how often does it occur in between?"
+   ],
+   "showed": "With the record stored as a number with one bit per letter, the combination is XOR."
+  },
+  {
+   "id": "abab",
+   "kind": "number",
+   "prompt": "How many substrings of abab can be arranged to read the same both ways?",
+   "answer": 7,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nfrom collections import Counter\ndef can(s): return sum(v % 2 for v in Counter(s).values()) <= 1\ns = \"abab\"\nresult = sum(1 for l in range(4) for r in range(l + 1, 5) if can(s[l:r]))",
+   "nudges": [
+    "What are the five records (for the beginnings of length 0 to 4)?",
+    "Which pairs of records are allowed?"
+   ],
+   "showed": "A pair of records is good when they are equal or differ in exactly one letter."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that the letters of a word can be arranged into a string that reads the same in both directions if and only if at most one letter occurs an odd number of times.",
+   "claims": [
+    "In a string that reads the same both ways, position i and its mirror position hold the same letter; these positions are distinct except for the middle position of an odd-length string.",
+    "So the positions other than the middle split into pairs holding equal letters: every letter occurs an even number of times, except that the letter in the middle (if there is a middle) occurs an odd number of times. Hence at most one letter is odd.",
+    "Conversely, if at most one letter is odd: put half of the occurrences of every letter (rounded down) in any order, then the odd letter once if there is one, then the first part reversed. This uses every letter the right number of times and reads the same both ways."
+   ],
+   "nudges": [
+    "How do the positions pair up?",
+    "Given the counts, how would you build such a string?"
+   ],
+   "showed": "A condition on counts only, and of counts only whether they are even or odd."
+  },
+  {
+   "id": "h-sub",
+   "kind": "number",
+   "prompt": "How many substrings of abcabcab can be arranged to read the same in both directions?",
+   "answer": 17,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nfrom collections import Counter\ndef can(s): return sum(v % 2 for v in Counter(s).values()) <= 1\ns = \"abcabcab\"\nresult = sum(1 for l in range(8) for r in range(l + 1, 9) if can(s[l:r]))",
+   "nudges": [
+    "With three letters, how many different records are there?",
+    "For a given record at the right end, which records at the left end are good?"
+   ],
+   "showed": "For each right end, look up how many earlier records are equal to the current one, and how many differ from it in exactly one letter: one lookup plus one per letter.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-longest",
+   "kind": "number",
+   "prompt": "What is the length of the longest substring of abacbdcdbaeb that can be arranged to read the same in both directions?",
+   "answer": 11,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nfrom collections import Counter\ndef can(s): return sum(v % 2 for v in Counter(s).values()) <= 1\ns = \"abacbdcdbaeb\"\nresult = max(r - l for l in range(12) for r in range(l + 1, 13) if can(s[l:r]))",
+   "nudges": [
+    "For a given right end, which left end would you like, among those with a good record?"
+   ],
+   "showed": "For each record remember the earliest place it occurred. At each right end, try the current record and each of its one-letter neighbours, and take the earliest.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-all",
+   "kind": "number",
+   "prompt": "How many of the 729 strings of length 6 over the letters a, b, c can be arranged to read the same in both directions?",
+   "answer": 183,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nfrom collections import Counter\ndef can(s): return sum(v % 2 for v in Counter(s).values()) <= 1\nresult = sum(1 for s in itertools.product(\"abc\", repeat=6) if can(s))",
+   "nudges": [
+    "The length is even. How many letters can be odd?",
+    "Which triples of counts are allowed?"
+   ],
+   "showed": "With even length no letter may be odd: the three counts are even and add up to 6. Count the strings for each such triple.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Rearranging into a palindrome",
+  "statement": "Letters can be rearranged into a palindrome exactly when at most one letter occurs an odd number of times. For substrings, keep a prefix mask of letter parities: a substring qualifies when the masks at its ends are equal or differ in one bit.",
+  "remark": "With 26 letters the mask is one integer and each position costs 27 lookups. The same mask counts substrings in which every letter occurs an even number of times."
+ }
+}

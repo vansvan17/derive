@@ -1,0 +1,146 @@
+{
+ "idea": "runs-boundaries",
+ "opening": "Operations on strings of 0s and 1s, and the right thing to count.",
+ "steps": [
+  {
+   "id": "blocks",
+   "kind": "number",
+   "prompt": "Split 0011101 into maximal groups of equal neighbouring characters (00, 111, 0, 1). How many groups are there?",
+   "answer": 4,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = blocks(\"0011101\")",
+   "nudges": [
+    "Where does the character change?"
+   ],
+   "showed": "Four groups."
+  },
+  {
+   "id": "changes",
+   "kind": "number",
+   "prompt": "In 0011101, at how many places do two neighbouring characters differ?",
+   "answer": 3,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = blocks(\"0011101\") - 1",
+   "nudges": [
+    "Between which positions does the character change?"
+   ],
+   "showed": "One fewer than the number of groups: every group but the first begins at such a place."
+  },
+  {
+   "id": "invert",
+   "kind": "number",
+   "prompt": "Take 0011101 and invert the characters in positions 3 to 5 (the three 1s). How many places with differing neighbours does the result have?",
+   "answer": 1,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = blocks(\"0000001\") - 1",
+   "nudges": [
+    "What does the string look like afterwards?"
+   ],
+   "showed": "From three such places down to one."
+  },
+  {
+   "id": "ends",
+   "kind": "choice",
+   "prompt": "A substring is inverted (every 0 becomes 1 and every 1 becomes 0). Which places with differing neighbours can change?",
+   "options": [
+    "Only the two at the ends of the substring; places strictly inside it and outside it stay as they are",
+    "All places inside the substring",
+    "Any place in the string"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two neighbours both inside the substring: if they differed before, do they differ after?",
+    "What about a neighbour pair with one inside and one outside?"
+   ],
+   "showed": "Inside, both neighbours flip together and their relation is unchanged. Only the two edges of the substring can gain or lose a change: at most two per move."
+  },
+  {
+   "id": "all",
+   "kind": "number",
+   "prompt": "One move inverts any substring. What is the smallest number of moves that turns 0101010 into all 0s?",
+   "answer": 3,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = reach(\"0101010\", flips)[\"0000000\"]",
+   "nudges": [
+    "How many separate groups of 1s are there?",
+    "Can one move remove two groups of 1s?"
+   ],
+   "showed": "One move per group of 1s."
+  },
+  {
+   "id": "more",
+   "kind": "number",
+   "prompt": "And the smallest number of moves to turn 110011011 into all 0s?",
+   "answer": 3,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = reach(\"110011011\", flips)[\"000000000\"]",
+   "nudges": [
+    "How many groups of 1s?"
+   ],
+   "showed": "Again the number of groups of 1s; their lengths do not matter."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "One move inverts any substring of a string of 0s and 1s. Prove that the smallest number of moves needed to make every character 0 equals the number of maximal groups of 1s.",
+   "claims": [
+    "Put a 0 in front of and behind the string, and count the places where neighbours differ: with g groups of 1s there are exactly 2g such places, since each group has a left edge and a right edge.",
+    "A move changes the relation between neighbours only at the two ends of the inverted substring, so it lowers that count by at most 2.",
+    "The all-zero string has count 0, so at least g moves are needed.",
+    "Inverting one whole group of 1s removes it, so g moves suffice."
+   ],
+   "nudges": [
+    "What quantity is 0 exactly when the string is all 0s?",
+    "By how much can one move change it?"
+   ],
+   "showed": "Count edges between groups, not characters: a move touches at most two edges."
+  },
+  {
+   "id": "h-pattern",
+   "kind": "number",
+   "prompt": "One move inverts any substring. What is the smallest number of moves that turns 0011010011 into the alternating string 0101010101?",
+   "answer": 2,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = reach(\"0011010011\", flips)[\"0101010101\"]",
+   "nudges": [
+    "Mark the positions where the string disagrees with the target. What does a move do to the marks?"
+   ],
+   "showed": "Mark each position as agreeing or disagreeing with the target: inverting a substring inverts the marks there. So it is the same problem on the string of marks: count its groups of disagreements.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "How many strings of 0s and 1s of length 10 consist of exactly 4 groups?",
+   "answer": 168,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\nresult = sum(1 for s in itertools.product(\"01\", repeat=10) if blocks(s) == 4)",
+   "nudges": [
+    "A string is determined by its first character and what else?",
+    "Among the 9 places between neighbours, how many must be changes?"
+   ],
+   "showed": "Choose the first character (2 ways) and which 3 of the 9 gaps are changes.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-reverse",
+   "kind": "number",
+   "prompt": "Take 10000011. You may once choose a substring and invert it. Afterwards you pick as long a subsequence as possible in which neighbouring picked characters differ. What is the largest length you can get?",
+   "answer": 5,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef alt(s): return blocks(s)\nresult = max(alt(t) for t in flips(\"10000011\") + [\"10000011\"])",
+   "nudges": [
+    "The longest such subsequence takes one character from each group. So what are you maximising?",
+    "By how much can one move raise the number of groups?"
+   ],
+   "showed": "The longest alternating subsequence has one character per group. One inversion adds at most two edges, so at most two groups, and it cannot exceed the length of the string.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-flip",
+   "kind": "code",
+   "task": "flip-blocks",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "One pass counting the places where a group of 1s begins.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Blocks and boundaries",
+  "statement": "An operation on a substring of a binary string usually changes only the boundaries between blocks of equal characters, and at most the two at the ends of the substring. So count blocks and boundaries, not characters.",
+  "remark": "Padding the string with a fixed character on both sides makes every block have two boundaries. To reach a target other than all zeros, first XOR with the target."
+ }
+}

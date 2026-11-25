@@ -397,6 +397,11 @@ class App(unittest.TestCase):
         self.assertTrue(next(s for s in after['steps'] if s['id'] == current['id'])['done'])                                  # accepted, so the chain moves on
         self.assertNotEqual(next(s for s in after['steps'] if not s['done'])['id'], current['id'])
 
+    def test_a_chain_already_started_is_not_locked_by_a_prerequisite(self):
+        self.assertFalse(self.service.chain_open('fermat', set()))                    # builds on something not derived
+        self.assertTrue(self.service.chain_open('fermat', set(), started=True))       # but stays open once begun
+        self.assertEqual(self.request('GET', '/api/chain/fermat')[0], 409)
+
     def test_a_toolbox_page_shows_its_reference_only_after_your_own_is_accepted(self):
         listed = self.get('/tools')['tools']
         self.assertTrue(all(set(t['marks']) <= {'standard', 'common'} for t in listed))   # the marks reach the page

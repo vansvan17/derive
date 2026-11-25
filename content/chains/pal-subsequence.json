@@ -1,0 +1,166 @@
+{
+ "idea": "pal-subsequence",
+ "opening": "Crossing out letters until what is left reads the same in both directions.",
+ "steps": [
+  {
+   "id": "longest",
+   "kind": "number",
+   "prompt": "Cross out as few letters of abcda as possible so that the remaining letters, in their original order, read the same in both directions. How many letters remain?",
+   "answer": 3,
+   "verify": "import itertools, functools\ndef pal(s): return s == s[::-1]\ndef lps(s): return max(k for k in range(len(s) + 1) for c in itertools.combinations(s, k) if pal(c))\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef ins(s):\n    seen = {s: 0}; todo = [s]\n    for t in todo:\n        if pal(t): return seen[t]\n        if seen[t] >= len(s): continue\n        for i in range(len(t) + 1):\n            for ch in set(s):\n                u = t[:i] + ch + t[i:]\n                if u not in seen: seen[u] = seen[t] + 1; todo.append(u)\nresult = lps(\"abcda\")",
+   "nudges": [
+    "Can both a's stay? What can stand between them?"
+   ],
+   "showed": "Keep both a's and any one letter between them."
+  },
+  {
+   "id": "ends",
+   "kind": "choice",
+   "prompt": "In a string whose first and last letters are equal, is there a best solution that keeps both of them?",
+   "options": [
+    "Yes: take any best solution; if it does not use both ends, its own outer letters can be replaced by the two ends without making it shorter",
+    "No, sometimes both must be crossed out",
+    "Only if the string has odd length"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If a solution skips the first letter, what is its own first letter, and what could you put there instead?"
+   ],
+   "showed": "Equal ends can always be taken: the answer is 2 plus the answer for the inside."
+  },
+  {
+   "id": "differ",
+   "kind": "choice",
+   "prompt": "And if the first and last letters differ?",
+   "options": [
+    "They cannot both be kept, so the answer is the better of: the string without its first letter, the string without its last letter",
+    "Both must be crossed out",
+    "The first must be crossed out"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Could a result that reads the same both ways start with the first letter and end with the last?"
+   ],
+   "showed": "One of the two ends goes. Either way a shorter stretch of the string is left: the answers for stretches build on each other."
+  },
+  {
+   "id": "char",
+   "kind": "number",
+   "prompt": "How many letters remain at best for the word character?",
+   "answer": 5,
+   "verify": "import itertools, functools\ndef pal(s): return s == s[::-1]\ndef lps(s): return max(k for k in range(len(s) + 1) for c in itertools.combinations(s, k) if pal(c))\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef ins(s):\n    seen = {s: 0}; todo = [s]\n    for t in todo:\n        if pal(t): return seen[t]\n        if seen[t] >= len(s): continue\n        for i in range(len(t) + 1):\n            for ch in set(s):\n                u = t[:i] + ch + t[i:]\n                if u not in seen: seen[u] = seen[t] + 1; todo.append(u)\nresult = lps(\"character\")",
+   "nudges": [
+    "Which letters occur twice?",
+    "What is the best nest of equal pairs?"
+   ],
+   "showed": "c, a, r, a, c."
+  },
+  {
+   "id": "common",
+   "kind": "number",
+   "prompt": "Write abcda backwards: adcba. What is the length of the longest sequence of letters that can be obtained by crossing out letters from abcda and also by crossing out letters from adcba?",
+   "answer": 3,
+   "verify": "import itertools, functools\ndef pal(s): return s == s[::-1]\ndef lps(s): return max(k for k in range(len(s) + 1) for c in itertools.combinations(s, k) if pal(c))\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef ins(s):\n    seen = {s: 0}; todo = [s]\n    for t in todo:\n        if pal(t): return seen[t]\n        if seen[t] >= len(s): continue\n        for i in range(len(t) + 1):\n            for ch in set(s):\n                u = t[:i] + ch + t[i:]\n                if u not in seen: seen[u] = seen[t] + 1; todo.append(u)\nresult = lcs(\"abcda\", \"adcba\")",
+   "nudges": [
+    "Try a sequence that reads the same both ways. Does it occur in both?"
+   ],
+   "showed": "The same 3 as before."
+  },
+  {
+   "id": "same",
+   "kind": "choice",
+   "prompt": "Why do the two numbers agree in general?",
+   "options": [
+    "A sequence that reads the same both ways and occurs in the string also occurs in the reversed string, so the common sequence is at least as long; and it can be shown never to be longer",
+    "Because the two strings have the same letters",
+    "It is a coincidence of this example"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If a sequence occurs in a string, where does its reverse occur?"
+   ],
+   "showed": "So the question reduces to a standard one about two strings: the longest common subsequence of the string and its reverse."
+  },
+  {
+   "id": "insert",
+   "kind": "number",
+   "prompt": "What is the smallest number of letters that must be inserted into abca (anywhere) so that it reads the same in both directions?",
+   "answer": 1,
+   "verify": "import itertools, functools\ndef pal(s): return s == s[::-1]\ndef lps(s): return max(k for k in range(len(s) + 1) for c in itertools.combinations(s, k) if pal(c))\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef ins(s):\n    seen = {s: 0}; todo = [s]\n    for t in todo:\n        if pal(t): return seen[t]\n        if seen[t] >= len(s): continue\n        for i in range(len(t) + 1):\n            for ch in set(s):\n                u = t[:i] + ch + t[i:]\n                if u not in seen: seen[u] = seen[t] + 1; todo.append(u)\nresult = ins(\"abca\")",
+   "nudges": [
+    "Which letters already pair up? Which letter lacks a partner?"
+   ],
+   "showed": "One: the letters that do not belong to the longest mirror-symmetric selection each need a partner inserted."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $L$ be the largest number of letters of a string of length $n$ that can be kept so that they read the same in both directions. Prove that the smallest number of insertions that makes the whole string read the same in both directions is at most $n - L$.",
+   "claims": [
+    "Fix a selection of L letters that reads the same both ways; its letters are paired up from the outside in (first with last, and so on), with possibly one middle letter.",
+    "The other n - L letters lie in the gaps between selected letters. Each gap on the left side has a mirror gap on the right side.",
+    "For every unselected letter, insert a copy at the mirrored place in the mirror gap (in reversed order within the gap). After these n - L insertions each gap is the reverse of its mirror gap, so the whole string reads the same both ways."
+   ],
+   "nudges": [
+    "What do the kept letters look like, as pairs?",
+    "Where would you insert the partner of a letter that was not kept?"
+   ],
+   "showed": "The letters outside the best symmetric selection are exactly the ones that need help. (The bound is also exact: fewer insertions never suffice.)"
+  },
+  {
+   "id": "h-delete",
+   "kind": "number",
+   "prompt": "What is the smallest number of letters that must be deleted from aebcbda so that the rest reads the same in both directions?",
+   "answer": 2,
+   "verify": "import itertools, functools\ndef pal(s): return s == s[::-1]\ndef lps(s): return max(k for k in range(len(s) + 1) for c in itertools.combinations(s, k) if pal(c))\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef ins(s):\n    seen = {s: 0}; todo = [s]\n    for t in todo:\n        if pal(t): return seen[t]\n        if seen[t] >= len(s): continue\n        for i in range(len(t) + 1):\n            for ch in set(s):\n                u = t[:i] + ch + t[i:]\n                if u not in seen: seen[u] = seen[t] + 1; todo.append(u)\nresult = 7 - lps(\"aebcbda\")",
+   "nudges": [
+    "How is this number related to the largest number of letters that can be kept?"
+   ],
+   "showed": "Length minus the longest selection: the same table answers \"fewest deletions\" and \"fewest insertions\".",
+   "tier": "hard"
+  },
+  {
+   "id": "h-insert",
+   "kind": "number",
+   "prompt": "What is the smallest number of letters that must be inserted into abcdeca to make it read the same in both directions?",
+   "answer": 2,
+   "verify": "import itertools, functools\ndef pal(s): return s == s[::-1]\ndef lps(s): return max(k for k in range(len(s) + 1) for c in itertools.combinations(s, k) if pal(c))\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef ins(s):\n    seen = {s: 0}; todo = [s]\n    for t in todo:\n        if pal(t): return seen[t]\n        if seen[t] >= len(s): continue\n        for i in range(len(t) + 1):\n            for ch in set(s):\n                u = t[:i] + ch + t[i:]\n                if u not in seen: seen[u] = seen[t] + 1; todo.append(u)\nassert ins(\"abcb\") == 4 - lps(\"abcb\") and ins(\"abca\") == 4 - lps(\"abca\") and ins(\"abcd\") == 3\nresult = 7 - lps(\"abcdeca\")",
+   "nudges": [
+    "What is the longest selection that reads the same both ways?"
+   ],
+   "showed": "Find the longest symmetric selection and count the letters outside it.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-long",
+   "kind": "number",
+   "prompt": "How many letters remain at best (reading the same both ways, original order kept) for abacdcabbacdaba?",
+   "answer": 14,
+   "verify": "import itertools, functools\ndef pal(s): return s == s[::-1]\ndef lps(s): return max(k for k in range(len(s) + 1) for c in itertools.combinations(s, k) if pal(c))\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef ins(s):\n    seen = {s: 0}; todo = [s]\n    for t in todo:\n        if pal(t): return seen[t]\n        if seen[t] >= len(s): continue\n        for i in range(len(t) + 1):\n            for ch in set(s):\n                u = t[:i] + ch + t[i:]\n                if u not in seen: seen[u] = seen[t] + 1; todo.append(u)\nresult = lps(\"abacdcabbacdaba\")",
+   "nudges": [
+    "Would you try all selections of 15 letters by hand?",
+    "What is the table, and in which order is it filled?"
+   ],
+   "showed": "A table over stretches of the string, filled by increasing length: equal ends give 2 plus the inside, different ends give the better of dropping either.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "In how many ways can a non-empty set of positions of abcb be chosen so that the letters at those positions, in order, read the same in both directions?",
+   "answer": 6,
+   "verify": "import itertools, functools\ndef pal(s): return s == s[::-1]\ndef lps(s): return max(k for k in range(len(s) + 1) for c in itertools.combinations(s, k) if pal(c))\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef ins(s):\n    seen = {s: 0}; todo = [s]\n    for t in todo:\n        if pal(t): return seen[t]\n        if seen[t] >= len(s): continue\n        for i in range(len(t) + 1):\n            for ch in set(s):\n                u = t[:i] + ch + t[i:]\n                if u not in seen: seen[u] = seen[t] + 1; todo.append(u)\ns = \"abcb\"\nresult = sum(1 for k in range(1, 5) for c in itertools.combinations(range(4), k) if pal([s[i] for i in c]))",
+   "nudges": [
+    "Count the selections inside a stretch. How do the selections of a stretch relate to those of the stretch without its first letter and without its last?",
+    "Which selections are counted twice, and what is new when the two ends are equal?"
+   ],
+   "showed": "Selections of a stretch: those avoiding the first letter, plus those avoiding the last, minus those avoiding both; and when the ends are equal, every selection of the inside can be wrapped in them, plus the two ends alone.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Palindromic subsequences",
+  "statement": "The longest palindromic subsequence of a string is the longest common subsequence of the string and its reverse, and satisfies: equal ends give 2 plus the inside, different ends give the better of dropping one. The fewest insertions (or deletions) to make a palindrome is the length minus it.",
+  "remark": "It is a table over blocks $[l, r]$ filled by increasing length, quadratic in time. Counting palindromic subsequences uses the same blocks with inclusion-exclusion."
+ }
+}

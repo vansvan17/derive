@@ -1,0 +1,157 @@
+{
+ "idea": "pal-centres",
+ "opening": "Substrings that read the same in both directions, and where to look for them.",
+ "steps": [
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "How many substrings of abaab read the same in both directions? Substrings at different places count separately, and single letters count.",
+   "answer": 8,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef pals(s): return [(l, r) for l in range(len(s)) for r in range(l + 1, len(s) + 1) if pal(s[l:r])]\nresult = len(pals(\"abaab\"))",
+   "nudges": [
+    "List them by length: how many of length 1, 2, 3, 4?"
+   ],
+   "showed": "The five single letters, and a few longer ones."
+  },
+  {
+   "id": "peel",
+   "kind": "choice",
+   "prompt": "A substring reads the same in both directions and has length at least 3. Remove its first and its last character. The result:",
+   "options": [
+    "also reads the same in both directions",
+    "may or may not",
+    "never does"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which characters of the original are compared with which?"
+   ],
+   "showed": "So every such substring is built outwards, layer by layer, from a core of length 1 or 2."
+  },
+  {
+   "id": "middles",
+   "kind": "number",
+   "prompt": "The core of length 1 is a single position; the core of length 2 is a gap between two neighbouring positions. In a string of length 5, how many possible middles are there in all (positions and gaps)?",
+   "answer": 9,
+   "verify": "result = 5 + 4",
+   "nudges": [
+    "How many positions? How many gaps between neighbours?"
+   ],
+   "showed": "For length $n$: $n$ positions and $n - 1$ gaps."
+  },
+  {
+   "id": "grow",
+   "kind": "number",
+   "prompt": "In cabac, start at the middle letter b and grow outwards one layer at a time, as long as the two new characters are equal. What is the length of the longest substring you reach?",
+   "answer": 5,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef pals(s): return [(l, r) for l in range(len(s)) for r in range(l + 1, len(s) + 1) if pal(s[l:r])]\nresult = max(r - l for l, r in pals(\"cabac\") if l + r == 5)",
+   "nudges": [
+    "What are the neighbours of b? And the next layer?"
+   ],
+   "showed": "a equals a, then c equals c: the whole string."
+  },
+  {
+   "id": "same",
+   "kind": "number",
+   "prompt": "How many substrings of aaaa read the same in both directions?",
+   "answer": 10,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef pals(s): return [(l, r) for l in range(len(s)) for r in range(l + 1, len(s) + 1) if pal(s[l:r])]\nresult = len(pals(\"aaaa\"))",
+   "nudges": [
+    "Is there any substring that does not?"
+   ],
+   "showed": "All of them: 4 + 3 + 2 + 1."
+  },
+  {
+   "id": "layers",
+   "kind": "choice",
+   "prompt": "Growing from one middle, you find a substring of length 7 that reads the same both ways, and the next layer fails. How many such substrings have this middle?",
+   "options": [
+    "4: lengths 1, 3, 5 and 7",
+    "1",
+    "7"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What about the shorter layers you passed on the way?"
+   ],
+   "showed": "Every layer on the way out is one more. So the count for a middle is the number of successful layers."
+  },
+  {
+   "id": "free",
+   "kind": "number",
+   "prompt": "How many strings of length 7 over the letters a, b, c read the same in both directions?",
+   "answer": 81,
+   "verify": "import itertools\nresult = sum(1 for s in itertools.product(\"abc\", repeat=7) if s == s[::-1])",
+   "nudges": [
+    "Which positions can be chosen freely?"
+   ],
+   "showed": "The first four characters are free and determine the last three."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that every substring of a string of length $n$ that reads the same in both directions is found by growing outwards from one of the $2n - 1$ middles (positions and gaps), and that growing from a middle can stop at the first failure.",
+   "claims": [
+    "A substring from l to r that reads the same both ways has a middle: the position (l + r) / 2 if its length is odd, or the gap between two positions if its length is even. So it belongs to exactly one of the 2n - 1 middles.",
+    "Removing its first and last character gives a substring with the same middle that also reads the same both ways, since the remaining characters are compared exactly as before.",
+    "So if the layer of some radius around a middle fails, no larger radius around that middle can succeed; growing may stop at the first failure and has by then visited every successful radius."
+   ],
+   "nudges": [
+    "Which middle does a given substring belong to?",
+    "Why can a larger layer not succeed after a smaller one failed?"
+   ],
+   "showed": "Few middles, and around each a single number: how far it grows."
+  },
+  {
+   "id": "h-longest",
+   "kind": "number",
+   "prompt": "What is the length of the longest substring of abacabadabacabae that reads the same in both directions?",
+   "answer": 15,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef pals(s): return [(l, r) for l in range(len(s)) for r in range(l + 1, len(s) + 1) if pal(s[l:r])]\nresult = max(r - l for l, r in pals(\"abacabadabacabae\"))",
+   "nudges": [
+    "Which middle would you try first?"
+   ],
+   "showed": "Grow from every middle and keep the best: here the letter d in the centre grows almost to both ends.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-append",
+   "kind": "number",
+   "prompt": "What is the smallest number of characters that must be added at the end of abcbcb so that the whole string reads the same in both directions?",
+   "answer": 1,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef pals(s): return [(l, r) for l in range(len(s)) for r in range(l + 1, len(s) + 1) if pal(s[l:r])]\ns = \"abcbcb\"\nresult = min(k for k in range(len(s)) if pal(s[k:]))",
+   "nudges": [
+    "Which part of the string can stay as the end of the result without being mirrored?"
+   ],
+   "showed": "Find the longest ending that already reads the same both ways; everything before it must be mirrored behind it.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-many",
+   "kind": "number",
+   "prompt": "The string ababab...aba has 31 characters (ab written 15 times, then a). How many of its substrings read the same in both directions?",
+   "answer": 256,
+   "verify": "import itertools\ndef reach(start, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return seen\ndef flips(s): return [s[:l] + \"\".join(\"1\" if ch == \"0\" else \"0\" for ch in s[l:r]) + s[r:] for l in range(len(s)) for r in range(l + 1, len(s) + 1)]\ndef blocks(s): return 1 + sum(1 for a, b in zip(s, s[1:]) if a != b)\ndef adj(s): return [s[:i] + s[i + 1] + s[i] + s[i + 2:] for i in range(len(s) - 1)]\ndef inv(s): return sum(1 for i in range(len(s)) for j in range(i + 1, len(s)) if s[i] == \"1\" and s[j] == \"0\")\ndef pal(s): return s == s[::-1]\ndef pals(s): return [(l, r) for l in range(len(s)) for r in range(l + 1, len(s) + 1) if pal(s[l:r])]\nresult = len(pals(\"ab\" * 15 + \"a\"))",
+   "nudges": [
+    "Can a gap between two positions be a middle here?",
+    "For the middle at position $i$, how far can it grow?"
+   ],
+   "showed": "No two neighbours are equal, so only positions are middles, and each grows until it hits an end of the string: add up the distances to the nearer end, plus one each.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-count",
+   "kind": "code",
+   "task": "palindrome-count",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Two loops over the middles (positions and gaps), each growing outwards and counting the successful layers.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Palindromes grow from centres",
+  "statement": "A string of length $n$ has $2n - 1$ centres, and every palindromic substring is found by expanding from exactly one of them. The first half of a palindrome determines the rest.",
+  "remark": "Expanding costs $O(n^2)$ in the worst case (all letters equal), which is fine up to a few thousand characters. Beyond that the radii are computed in linear time by reusing mirrored radii (Manacher) or by hashing."
+ }
+}

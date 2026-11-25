@@ -114,9 +114,11 @@ class Service:
     def derived(self, store):
         return {r['idea'] for r in store.all('SELECT idea FROM discoveries')}
 
-    def chain_open(self, idea, derived):
-        """A chain may be started once every idea it builds on that has a chain is derived."""
-        return all(n in derived or n not in self.content.chains for n in self.content.ideas[idea].get('needs', []))
+    def chain_open(self, idea, derived, started=False):
+        """A chain may be started once every idea it builds on that has a chain is derived.
+
+        A chain already begun stays open: writing the chain of something it builds on must not lock it again."""
+        return started or all(n in derived or n not in self.content.chains for n in self.content.ideas[idea].get('needs', []))
 
     def map(self, store):
         derived = self.derived(store)
@@ -130,7 +132,7 @@ class Service:
             ideas.append({
                 'id': idea_id, 'area': idea['area'], 'level': depth[idea_id], 'needs': idea.get('needs', []),
                 'derived': known, 'name': idea['name'] if known else None, 'statement': idea['statement'] if known else None,
-                'marks': idea.get('marks', []), 'has_chain': bool(chain), 'open': bool(chain) and self.chain_open(idea_id, derived),
+                'marks': idea.get('marks', []), 'has_chain': bool(chain), 'open': bool(chain) and self.chain_open(idea_id, derived, bool(self.done_steps(store, idea_id))),
                 'steps_total': len(chain['steps']) if chain else 0, 'steps_done': len(self.done_steps(store, idea_id)) if chain else 0,
                 'evidence': ev[idea_id],
             })
@@ -188,7 +190,7 @@ class Service:
         if not chain:
             raise ApiError('The chain for this idea has not been written yet.', 404)
         derived = self.derived(store)
-        if not self.chain_open(idea, derived) and idea not in derived:
+        if not self.chain_open(idea, derived, bool(self.done_steps(store, idea))) and idea not in derived:
             raise ApiError('This chain builds on something you have not derived yet.', 409)
         self.settle_code_steps(store, idea, chain)
         derived = self.derived(store)
@@ -228,7 +230,7 @@ class Service:
         current = next((s for s in chain['steps'] if s['id'] not in done), None)
         if not current or current['id'] != step_id:
             raise ApiError('That is not the step you are on.', 409)
-        if not self.chain_open(idea, self.derived(store)):
+        if not self.chain_open(idea, self.derived(store), bool(self.done_steps(store, idea))):
             raise ApiError('This chain builds on something you have not derived yet.', 409)
         return chain, current
 
@@ -252,7 +254,7 @@ class Service:
         if not chain:
             raise ApiError('No such chain.', 404)
         keep = self.unskippable(chain)
-        if not self.chain_open(idea, self.derived(store)) and idea not in self.derived(store):
+        if not self.chain_open(idea, self.derived(store), bool(self.done_steps(store, idea))) and idea not in self.derived(store):
             raise ApiError('This chain builds on something you have not derived yet.', 409)
         for step in chain['steps']:
             if step['id'] not in keep:

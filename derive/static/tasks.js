@@ -2,6 +2,7 @@
    against generated tests with a time limit. */
 import {makeEditor} from './problem.js';
 import {sideButton, wireSplit} from './split.js';
+const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
 
 export async function renderTasks(ctx) {
   const {api, escape: e} = ctx;
@@ -30,7 +31,7 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
     <div class="split-pane split-code"><section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta">${sideButton()}<label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>
       <div class="editor-host" data-editor></div>
       <label class="field">Your own input<textarea data-input rows="4" spellcheck="false">${e(task.samples[0][0])}</textarea></label>
-      <div class="run-bar"><button class="btn btn-secondary btn-sm" type="button" data-run>Run on this input</button><span class="spacer"></span><button class="btn btn-primary" type="button" data-judge>Judge</button></div></section>
+      <div class="run-bar"><button class="btn btn-secondary btn-sm" type="button" data-run title="Run (${MOD}Enter)">Run on this input</button><span class="spacer"></span><button class="btn btn-primary" type="button" data-judge title="Judge (${MOD}Shift+Enter)">Judge</button></div></section>
     <section class="surface results" aria-live="polite" data-results><h3>Results</h3><p class="results-empty">Run it on your own input, or judge it against the hidden tests.</p></section></div></div>`;
   wireSplit(host.querySelector('[data-split]'));
   const $ = s => host.querySelector(s);
@@ -53,7 +54,7 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   paintHints();
   const save = async () => { try { await post('/code', {id, language, file: 'main', code: files.main}); if (host.isConnected) $('[data-save]').textContent = 'Saved'; } catch { if (host.isConnected) $('[data-save]').textContent = 'Not saved'; } };
   const changed = value => { files.main = value; $('[data-save]').textContent = 'Editing…'; clearTimeout(saveTimer); saveTimer = setTimeout(save, 800); };
-  const editor = await makeEditor($('[data-editor]'), {value: files.main, language, fontSize: ctx.boot.settings.font_size, tabSize: 4, onChange: changed, onRun: () => go('run')});
+  const editor = await makeEditor($('[data-editor]'), {value: files.main, language, fontSize: ctx.boot.settings.font_size, tabSize: 4, onChange: changed, onRun: () => go('run'), onSubmit: () => go('judge'), onSave: () => { clearTimeout(saveTimer); save(); }});
   if (!alive()) { editor.destroy(); return; }
   ctx.onCleanup(() => { clearTimeout(saveTimer); try { files.main = editor.getValue(); save(); editor.destroy(); } catch { /* already gone */ } });
   $('[data-language]').addEventListener('change', async event => {

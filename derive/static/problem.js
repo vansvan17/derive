@@ -190,7 +190,7 @@ export async function renderProblem(ctx, id) {
     root.querySelectorAll('.file-tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.file === name)));
     const note = $('[data-file-note]'); note.hidden = !NOTES[name]; note.textContent = NOTES[name] || '';
   };
-  editor = await makeEditor($('[data-editor]'), {value: files.main, language, fontSize: settings.font_size, tabSize: 4, onChange: changed, onRun: () => run('run')});
+  editor = await makeEditor($('[data-editor]'), {value: files.main, language, fontSize: settings.font_size, tabSize: 4, onChange: changed, onRun: () => run('run'), onSubmit: () => run('stress'), onSave: () => { clearTimeout(saveTimer); flush(); }});
   if (!alive()) { editor.destroy(); return; }
   root.querySelectorAll('.file-tab').forEach(tab => tab.addEventListener('click', () => { files[file] = editor.getValue(); showFile(tab.dataset.file); }));
   $('[data-language]').addEventListener('change', async event => {

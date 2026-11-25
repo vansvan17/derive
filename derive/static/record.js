@@ -46,6 +46,7 @@ function patterns(p, e) {
     </dl></section>`;
 }
 
+const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
 export async function renderSettings(ctx) {
   const {post, escape: e, toast} = ctx;
   const root = ctx.root, s = ctx.boot.settings;
@@ -63,7 +64,13 @@ export async function renderSettings(ctx) {
     <section class="surface"><h2>Editor</h2><div class="form-grid"><label class="field">Language<select name="language"><option value="cpp" ${s.language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${s.language === 'python' ? 'selected' : ''}>Python</option></select></label>
       <label class="field">Font size<select name="font_size">${[12, 13, 14, 15, 16, 18, 20].map(n => `<option ${s.font_size === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="field">Theme<select name="theme">${['light', 'dark', 'system'].map(t => `<option value="${t}" ${s.theme === t ? 'selected' : ''}>${t[0].toUpperCase() + t.slice(1)}</option>`).join('')}</select></label></div></section>
-    <div class="step-actions"><button class="btn btn-primary" type="submit">Save</button></div></form></div>`;
+    <div class="step-actions"><button class="btn btn-primary" type="submit">Save</button></div></form>
+    <section class="surface"><h2>Layout</h2><p class="muted small">These are changed where they are used, not here, and are remembered in this browser.</p>
+      <dl class="shortcuts"><dt>« at the top of the sidebar</dt><dd>Folds the sidebar away to a thin strip; » brings it back.</dd>
+      <dt>Left · Right · Below</dt><dd>Where the editor sits next to the text (above the editor).</dd>
+      <dt>The bar between text and code</dt><dd>Drag it to give the code more or less width. Double-click to reset.</dd>
+      <dt>The grip under the editor</dt><dd>When the editor is below the text, drag it to make the editor taller. Double-click to reset.</dd></dl></section>
+    <section class="surface"><h2>Shortcuts</h2><dl class="shortcuts">${[['Z', 'Undo, in the editor'], ['Shift+Z', 'Redo'], ['Enter', 'Run on your own input'], ['Shift+Enter', 'Judge (Code tasks) or stress test (Solve)'], ['S', 'Save the code now (it also saves by itself)'], ['/', 'Comment or uncomment the selected lines'], ['F', 'Find in the code'], ['D', 'Select the next occurrence of the selected word'], ['\\', 'Hide or show the sidebar']].map(([k, what]) => `<dt>${MOD}${k}</dt><dd>${what}</dd>`).join('')}<dt>Tab / Shift+Tab</dt><dd>Indent or unindent the selected lines</dd></dl></section></div>`;
   root.querySelector('[data-settings]').addEventListener('submit', async event => {
     event.preventDefault();
     const f = new FormData(event.target);

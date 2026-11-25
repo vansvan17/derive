@@ -117,6 +117,7 @@ export function dialog({title, body = '', html = '', confirm = 'Continue', cance
 }
 
 /* ---------- Shell ---------- */
+export const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
 const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['tools', 'settings', 'Toolbox'], ['cses', 'chain', 'CSES DP'], ['code', 'play', 'Code'], ['break', 'target', 'Break it'], ['recognise', 'target', 'Recognise'], ['contest', 'target', 'Contest'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
 const section = () => { const name = location.hash.replace(/^#\/?/, '').split('/')[0] || ''; return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name === 'task' ? 'code' : name === 'tool' || name === 'notebook' ? 'tools' : name; };
 function paintNav() {
@@ -144,6 +145,7 @@ function buildShell() {
   app.innerHTML = `<div class="shell">
     <header class="topbar"><button class="menu-btn" type="button" data-menu aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">${icon('menu')}</button><a class="brand" href="#/">${EMBLEM}<span class="brand-name">derive</span></a><span class="spacer"></span><button class="theme-toggle theme-toggle-top" type="button" data-theme-toggle></button></header>
     <aside class="sidebar" id="sidebar" aria-label="Navigation">
+      <button class="side-toggle" type="button" data-side-toggle></button>
       <a class="brand" href="#/">${EMBLEM}<span><span class="brand-name">derive</span><span class="brand-sub">nothing is told, only asked</span></span></a>
       <nav data-nav-host aria-label="Sections"></nav>
       <div class="sidebar-foot"><button class="theme-toggle" type="button" data-theme-toggle></button><p>Runs only on this computer.</p></div>
@@ -154,6 +156,18 @@ function buildShell() {
   const shell = app.querySelector('.shell'), menu = app.querySelector('[data-menu]');
   app.querySelectorAll('[data-theme-toggle]').forEach(b => b.addEventListener('click', toggleTheme));
   applyTheme(document.documentElement.dataset.theme || state.boot?.settings?.theme);       // gives the switch its label
+  // The sidebar can be folded down to a thin strip to give the page the full width; remembered in this browser.
+  const SIDE = 'derive-sidebar-hidden', fold = app.querySelector('[data-side-toggle]');
+  const setHidden = (hidden, keep = true) => {
+    shell.classList.toggle('side-hidden', hidden);
+    fold.textContent = hidden ? '»' : '«';
+    fold.title = `${hidden ? 'Show' : 'Hide'} the sidebar (${MOD}\\)`; fold.setAttribute('aria-label', hidden ? 'Show the sidebar' : 'Hide the sidebar'); fold.setAttribute('aria-expanded', String(!hidden));
+    if (keep) { try { localStorage.setItem(SIDE, hidden ? '1' : '0'); } catch { /* the choice just does not persist */ } window.dispatchEvent(new Event('resize')); }
+  };
+  let hiddenAtStart = false; try { hiddenAtStart = localStorage.getItem(SIDE) === '1'; } catch { /* shown */ }
+  setHidden(hiddenAtStart, false);
+  fold.addEventListener('click', () => setHidden(!shell.classList.contains('side-hidden')));
+  document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && !event.altKey && event.key === '\\') { event.preventDefault(); setHidden(!shell.classList.contains('side-hidden')); } });
   const setOpen = open => { shell.classList.toggle('nav-open', open); menu.setAttribute('aria-expanded', String(open)); };
   menu.addEventListener('click', () => setOpen(!shell.classList.contains('nav-open')));
   app.querySelector('[data-scrim]').addEventListener('click', () => setOpen(false));

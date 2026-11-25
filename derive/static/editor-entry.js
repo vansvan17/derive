@@ -1,10 +1,12 @@
 import {EditorView,basicSetup} from 'codemirror';
-import {EditorState,Compartment} from '@codemirror/state';
+import {EditorState,Compartment,Prec,Transaction} from '@codemirror/state';
 import {keymap} from '@codemirror/view';
 import {indentWithTab} from '@codemirror/commands';
 import {indentUnit,HighlightStyle,syntaxHighlighting} from '@codemirror/language';
 import {tags as t} from '@lezer/highlight';
 
+// Undo and redo (Mod-z, Mod-Shift-z) come from basicSetup. They only work when the bundle holds ONE copy of
+// @codemirror/state, which is why package.json pins it with an override.
 // Code colours come from CSS variables, so they follow the light and dark themes like everything else.
 const colours=HighlightStyle.define([
  {tag:[t.keyword,t.modifier,t.controlKeyword,t.operatorKeyword,t.definitionKeyword,t.moduleKeyword],color:'var(--syn-keyword)'},
@@ -20,7 +22,7 @@ const colours=HighlightStyle.define([
 import {cpp} from '@codemirror/lang-cpp';
 import {python} from '@codemirror/lang-python';
 
-export function createEditor(parent,{value='',language='cpp',fontSize=14,tabSize=4,onChange=()=>{},onRun=()=>{}}={}){
+export function createEditor(parent,{value='',language='cpp',fontSize=14,tabSize=4,onChange=()=>{},onRun=()=>{},onSubmit=null,onSave=null}={}){
  const lang=new Compartment();
  const theme=EditorView.theme({
    '&':{height:'100%',fontSize:fontSize+'px',backgroundColor:'var(--editor-bg)',color:'var(--ink)'},
@@ -40,7 +42,7 @@ export function createEditor(parent,{value='',language='cpp',fontSize=14,tabSize
    '.cm-foldPlaceholder':{backgroundColor:'var(--editor-line)',color:'var(--muted)',border:'none'},
    '.cm-textfield,.cm-button':{backgroundColor:'var(--canvas)',color:'var(--ink)',border:'1px solid var(--line)',backgroundImage:'none'},
  });
- const view=new EditorView({parent,state:EditorState.create({doc:value,extensions:[basicSetup,syntaxHighlighting(colours),theme,EditorState.tabSize.of(tabSize),indentUnit.of(' '.repeat(tabSize)),lang.of(language==='python'?python():cpp()),keymap.of([{key:'Mod-Enter',run:()=>{onRun();return true;}},indentWithTab]),EditorView.updateListener.of(update=>{if(update.docChanged)onChange(update.state.doc.toString());})]})});
+ const view=new EditorView({parent,state:EditorState.create({doc:value,extensions:[basicSetup,syntaxHighlighting(colours),theme,EditorState.tabSize.of(tabSize),indentUnit.of(' '.repeat(tabSize)),lang.of(language==='python'?python():cpp()),Prec.highest(keymap.of([{key:'Mod-Shift-Enter',run:()=>{(onSubmit||onRun)();return true;}},{key:'Mod-Enter',run:()=>{onRun();return true;}},{key:'Mod-s',preventDefault:true,run:()=>{if(onSave)onSave();return true;}}])),keymap.of([indentWithTab]),EditorView.updateListener.of(update=>{if(update.docChanged)onChange(update.state.doc.toString());})]})});
  view.contentDOM.setAttribute('aria-label','Solution code editor');
- return {getValue:()=>view.state.doc.toString(),setValue:value=>view.dispatch({changes:{from:0,to:view.state.doc.length,insert:value}}),setLanguage:language=>view.dispatch({effects:lang.reconfigure(language==='python'?python():cpp())}),focus:()=>view.focus(),destroy:()=>view.destroy(),view};
+ return {getValue:()=>view.state.doc.toString(),setValue:value=>view.dispatch({changes:{from:0,to:view.state.doc.length,insert:value},annotations:Transaction.addToHistory.of(false)}),setLanguage:language=>view.dispatch({effects:lang.reconfigure(language==='python'?python():cpp())}),focus:()=>view.focus(),destroy:()=>view.destroy(),view};
 }

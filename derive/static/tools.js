@@ -28,10 +28,12 @@ export async function renderTool(ctx, id) {
   if (!alive()) return;
   const reference = () => tool.reference ? `<section class="surface"><h2>A reference version</h2><p class="muted small">Yours is accepted, so here is one clean way to write it. Compare the loop structure and the edge cases with your own.</p><pre class="tool-code">${e(tool.reference)}</pre></section>` : '<p class="muted small">A reference version appears here once your own program is accepted.</p>';
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow"><a href="#/tools">Toolbox</a></p><h1>${e(tool.title)}</h1><p>${marks(tool.marks, e)}</p></div></header>
-    <div data-task></div>`;
-  const intro = `<section class="surface reading"><h2>Reach for it when you see</h2><ul>${tool.when.map(w => `<li>${inline(w)}</li>`).join('')}</ul>
+    <div data-intro></div><div data-task></div>`;
+  // The reading comes first, at full width, above the editor: you read the page, then scroll down to write it.
+  const intro = `<section class="surface tool-intro"><h2>Reach for it when you see</h2><ul>${tool.when.map(w => `<li>${inline(w)}</li>`).join('')}</ul>
       <h2>The idea</h2>${markdown(tool.idea)}
       <h2>Traps</h2><ul>${tool.traps.map(w => `<li>${inline(w)}</li>`).join('')}</ul></section>
     <h2 class="tool-write">Now write it</h2>`;
-  await mountTask(ctx, root.querySelector('[data-task]'), tool.task, {heading: false, hints: false, before: intro, after: `<div data-reference>${reference()}</div>`, onAccepted: async () => { tool = await api('/tool/' + encodeURIComponent(id)); if (alive()) root.querySelector('[data-reference]').innerHTML = reference(); }});
+  root.querySelector('[data-intro]').innerHTML = intro;
+  await mountTask(ctx, root.querySelector('[data-task]'), tool.task, {heading: false, hints: false, after: `<div data-reference>${reference()}</div>`, onAccepted: async () => { tool = await api('/tool/' + encodeURIComponent(id)); if (alive()) root.querySelector('[data-reference]').innerHTML = reference(); }});
 }

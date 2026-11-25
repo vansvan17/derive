@@ -483,3 +483,6 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .task-hints{margin-top:1rem}
 .task-hints h3{margin:0 0 .25rem}
 .task-hints .nudges{margin-top:.5rem}
+.tool-intro{margin-bottom:0;line-height:1.7}
+.tool-intro>*{max-width:52rem}
+.tool-intro h2:not(:first-child){margin-top:1.5rem}

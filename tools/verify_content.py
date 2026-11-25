@@ -156,11 +156,13 @@ def main():
             task_module.tests(task)
         except Exception as exc:
             faults.append(f'task {task["id"]}: checking crashed: {exc!r}')
+    from derive import breaks as break_module
+    faults += break_module.faults(course)
     if args.links:
         faults += verify_links(course)
     for fault in faults:
         print('FAULT', fault)
-    print(f'{len(course.ideas)} ideas, {len(course.links)} links, {len(course.chains)} chains, {steps} steps, {len(course.problems)} problems, {len(course.puzzles["puzzles"])} puzzles, {len(course.tasks)} tasks: '
+    print(f'{len(course.ideas)} ideas, {len(course.links)} links, {len(course.chains)} chains, {steps} steps, {len(course.problems)} problems, {len(course.puzzles["puzzles"])} puzzles, {len(course.tasks)} tasks, {len(course.breaks)} to break: '
           + ('all checks passed' if not faults else f'{len(faults)} fault(s)'))
     return 1 if faults else 0
 

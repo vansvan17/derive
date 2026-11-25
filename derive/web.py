@@ -22,7 +22,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import uuid
 import webbrowser
 
-from . import contest, evidence, grader, sync, tasks, tutor
+from . import breaks, contest, evidence, grader, sync, tasks, tutor
 from .checks import CheckError, check
 from .content import Content
 from .runner import Executable, JudgeError, same_output
@@ -559,6 +559,38 @@ class Service:
             store.run('INSERT OR IGNORE INTO tasks_done VALUES(?,?,?)', (task['id'], now(), tries))
         return result
 
+    # ---------- break it ----------
+    def break_item(self, data):
+        item = self.content.breaks.get(data.get('id')) if isinstance(data.get('id'), str) else None
+        if not item:
+            raise ApiError('No such page.', 404)
+        return item
+
+    def break_try(self, store, data):
+        item = self.break_item(data)
+        typed = data.get('input') if isinstance(data.get('input'), str) else ''
+        reason = breaks.invalid(item, typed)
+        if reason:
+            return {'valid': False, 'reason': reason}
+        return {'valid': True, 'job': self.queue(store, 'break', {'item': item['id'], 'input': typed})}
+
+    def break_nudge(self, store, data):
+        item = self.break_item(data)
+        self.no_contest(store)
+        opened = store.one("SELECT COUNT(*) FROM nudges WHERE scope='break' AND owner=?", (item['id'],))[0]
+        if opened < len(item['nudges']):
+            store.run('INSERT OR IGNORE INTO nudges VALUES(?,?,?,?,?)', ('break', item['id'], '', opened + 1, now()))
+        return breaks.page(self.content, store, item)
+
+    def work_break(self, store, payload):
+        item = self.content.breaks[payload['item']]
+        result = breaks.attempt(item, self.content.tasks[item['task']], payload['input'])
+        with self.lock:
+            breaks.record(store, item, payload['input'], result)
+        if result['verdict'] == 'BROKEN':
+            result['why'] = item['why']
+        return result
+
     # ---------- the toolbox ----------
     def tool_list(self, store):
         done = {r['task'] for r in store.all('SELECT task FROM tasks_done')}
@@ -703,6 +735,8 @@ class Service:
                     result = self.work_tutor(payload)
                 elif row['kind'] == 'judge':
                     result = self.work_judge(store, payload)
+                elif row['kind'] == 'break':
+                    result = self.work_break(store, payload)
                 else:
                     result = self.work_run(row['kind'], payload)
                 status = 'done'
@@ -785,6 +819,10 @@ class Service:
                 return self.cses_page(store)
             if path == '/tools':
                 return self.tool_list(store)
+            if path == '/breaks':
+                return {'items': breaks.listing(self.content, store)}
+            if path.startswith('/break/'):
+                return breaks.page(self.content, store, self.break_item({'id': path[7:]}))
             if path.startswith('/tool/'):
                 return self.tool(store, path[6:])
             if path == '/tasks':
@@ -805,7 +843,8 @@ class Service:
                   '/problem/commit': self.commit, '/problem/editorial': self.editorial, '/problem/check': self.check_submissions,
                   '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause,
                   '/code': self.save_code, '/run': self.queue_run,
-                  '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer, '/task/judge': self.task_judge}
+                  '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer, '/task/judge': self.task_judge,
+                  '/break/try': self.break_try, '/break/nudge': self.break_nudge}
         with self.lock, self.store() as store:
             if path == '/problem/next':
                 return self.open_next(store)

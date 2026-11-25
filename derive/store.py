@@ -52,6 +52,9 @@ CREATE TABLE IF NOT EXISTS puzzles_done(puzzle TEXT PRIMARY KEY, at TEXT NOT NUL
 -- implement tasks: every judged submission, and the tasks that have been accepted
 CREATE TABLE IF NOT EXISTS task_tries(id INTEGER PRIMARY KEY, at TEXT NOT NULL, task TEXT NOT NULL, verdict TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS tasks_done(task TEXT PRIMARY KEY, at TEXT NOT NULL, tries INTEGER NOT NULL);
+-- break it: every input tried against a wrong solution, and the ones that were broken (with the input that did it)
+CREATE TABLE IF NOT EXISTS break_tries(id INTEGER PRIMARY KEY, at TEXT NOT NULL, item TEXT NOT NULL, input TEXT NOT NULL, broken INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS breaks_done(item TEXT PRIMARY KEY, at TEXT NOT NULL, tries INTEGER NOT NULL, nudges INTEGER NOT NULL, input TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 '''
 

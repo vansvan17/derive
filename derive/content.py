@@ -51,6 +51,9 @@ class Content:
         # Toolbox pages: techniques that are recognised and written rather than derived.
         path = self.root / 'content/tools.json'
         self.tools = {t['id']: t for t in json.loads(path.read_text())} if path.exists() else {}
+        # Break it: wrong solutions to existing tasks, to be broken with an input.
+        path = self.root / 'content/breaks.json'
+        self.breaks = {b['id']: b for b in json.loads(path.read_text())} if path.exists() else {}
         # Past ICPC regional papers: links only, shown on the contest page.
         path = self.root / 'content/papers.json'
         self.papers = json.loads(path.read_text()) if path.exists() else []

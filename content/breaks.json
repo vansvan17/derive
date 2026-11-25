@@ -1,0 +1,198 @@
+[
+ {
+  "id": "bag-forward",
+  "task": "pack-bag",
+  "title": "Pack the bag: one array, filled left to right",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, W;\n    cin >> n >> W;\n    vector<long long> best(W + 1, 0);       // best[c] = largest worth with total weight at most c\n    for (int i = 0; i < n; i++) {\n        int w;\n        long long v;\n        cin >> w >> v;\n        for (int c = w; c <= W; c++) {\n            best[c] = max(best[c], best[c - w] + v);\n        }\n    }\n    cout << best[W] << \"\\n\";\n}\n",
+  "limits": "n ≤ 6, W ≤ 30, every weight ≤ 30, every worth ≤ 100",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(len(v) >= 2, 'The first line needs n and W.')\n    n, W = v[0], v[1]\n    need(1 <= n <= 6 and 1 <= W <= 30, 'Here n is at most 6 and W at most 30.')\n    need(len(v) == 2 + 2 * n, f'After the first line there must be {n} lines of weight and worth.')\n    need(all(1 <= v[2 + 2 * i] <= 30 and 1 <= v[3 + 2 * i] <= 100 for i in range(n)), 'Weights are 1 to 30 and worths 1 to 100.')\n",
+  "why": "Going through the capacities upwards, best[c − w] may already include the item being processed, so the same item is taken twice or more. Each item may be used once: the capacities must be walked downwards, so that best[c − w] is still the value from before this item.",
+  "nudges": [
+   "When best[c] is updated from best[c − w], which items has best[c − w] already been allowed to use?",
+   "What does the program print for a single light, valuable item and a large W?"
+  ],
+  "witness": "1 6\n3 7\n"
+ },
+ {
+  "id": "museum-ties",
+  "task": "busy-moment",
+  "title": "Museum: sweep over arrivals and departures",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<pair<long long, int>> events;       // (minute, +1 for an arrival or -1 for a departure)\n    for (int i = 0; i < n; i++) {\n        long long l, r;\n        cin >> l >> r;\n        events.push_back({l, +1});\n        events.push_back({r, -1});\n    }\n    sort(events.begin(), events.end());\n    int inside = 0, best = 0;\n    for (auto &e : events) {\n        inside += e.second;\n        best = max(best, inside);\n    }\n    cout << best << \"\\n\";\n}\n",
+  "limits": "n ≤ 6, every minute between 1 and 20",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(v and 1 <= v[0] <= 6, 'Here n is between 1 and 6.')\n    need(len(v) == 1 + 2 * v[0], f'After n there must be {v[0]} lines of l and r.')\n    need(all(1 <= v[1 + 2 * i] <= v[2 + 2 * i] <= 20 for i in range(v[0])), 'Here every visit has 1 ≤ l ≤ r ≤ 20.')\n",
+  "why": "Sorting pairs puts (minute, −1) before (minute, +1), so at a shared minute the departure is processed before the arrival. But both ends are included: someone leaving at minute 3 and someone arriving at minute 3 are inside together during minute 3. Arrivals must come first at equal minutes (or the departure must be placed at r + 1).",
+  "nudges": [
+   "In what order does sort put two events that share the same minute?",
+   "One visitor leaves at minute 3 and another arrives at minute 3. Are they ever inside together?"
+  ],
+  "witness": "1\n9 9\n"
+ },
+ {
+  "id": "walls-first-visit",
+  "task": "break-walls",
+  "title": "Walls: the first time a cell is reached",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m;\n    cin >> n >> m;\n    vector<string> g(n);\n    for (auto &row : g) cin >> row;\n    vector<vector<int>> broken(n, vector<int>(m, -1));     // walls broken on the way to each cell\n    queue<pair<int, int>> q;\n    broken[0][0] = 0;\n    q.push({0, 0});\n    int dr[] = {0, 1, 0, -1}, dc[] = {1, 0, -1, 0};      // right, down, left, up\n    while (!q.empty()) {\n        auto [r, c] = q.front();\n        q.pop();\n        for (int d = 0; d < 4; d++) {\n            int nr = r + dr[d], nc = c + dc[d];\n            if (nr < 0 || nc < 0 || nr >= n || nc >= m || broken[nr][nc] != -1) continue;\n            broken[nr][nc] = broken[r][c] + (g[nr][nc] == '#');\n            q.push({nr, nc});\n        }\n    }\n    cout << broken[n - 1][m - 1] << \"\\n\";\n}\n",
+  "limits": "n, m ≤ 5",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    w = text.split()\n    need(len(w) >= 2 and w[0].isdigit() and w[1].isdigit(), 'The first line needs n and m.')\n    n, m = int(w[0]), int(w[1])\n    need(1 <= n <= 5 and 1 <= m <= 5, 'Here n and m are between 1 and 5.')\n    need(len(w) == 2 + n, f'After the first line there must be exactly {n} rows.')\n    need(all(len(row) == m and set(row) <= set('.#') for row in w[2:]), f'Every row must be {m} characters, each . or #.')\n    need(w[2][0] == '.' and w[-1][-1] == '.', 'The start and finish cells must be free.')\n",
+  "why": "A plain queue reaches each cell by a route with the fewest steps, and the program keeps whatever number of walls that first route happened to break. A longer way round through free cells can break fewer walls. Steps onto free cells cost 0 and steps onto walls cost 1, so free steps must be handled before wall steps (a two-ended queue), not in order of arrival.",
+  "nudges": [
+   "In what order does a plain queue reach the cells: by walls broken, or by something else?",
+   "Can a route with more steps break fewer walls than every route with the fewest steps?"
+  ],
+  "witness": "2 2\n.#\n..\n"
+ },
+ {
+  "id": "jobs-heaviest",
+  "task": "job-order",
+  "title": "Job order: heaviest first",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<pair<long long, long long>> jobs(n);       // (minutes, weight)\n    for (auto &j : jobs) cin >> j.first >> j.second;\n    // the heaviest job first; of two equally heavy jobs, the shorter first\n    sort(jobs.begin(), jobs.end(), [](const auto &a, const auto &b) {\n        if (a.second != b.second) return a.second > b.second;\n        return a.first < b.first;\n    });\n    long long minute = 0, cost = 0;\n    for (auto &j : jobs) {\n        minute += j.first;\n        cost += j.second * minute;\n    }\n    cout << cost << \"\\n\";\n}\n",
+  "limits": "n ≤ 6, every time and every weight between 1 and 20",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(v and 1 <= v[0] <= 6, 'Here n is between 1 and 6.')\n    need(len(v) == 1 + 2 * v[0], f'After n there must be {v[0]} lines of time and weight.')\n    need(all(1 <= x <= 20 for x in v[1:]), 'Here every time and every weight is between 1 and 20.')\n",
+  "why": "Weight alone ignores how long a job keeps everyone else waiting. Swap two neighbouring jobs and only their own two costs change: A before B is better exactly when (time of A) × (weight of B) is smaller than (time of B) × (weight of A). A slightly heavier job that takes very long should wait.",
+  "nudges": [
+   "If two jobs stand next to each other in the order and you swap them, which costs change?",
+   "How long would a job have to be before a slightly lighter, very short job should go ahead of it?"
+  ],
+  "witness": "2\n6 9\n4 8\n"
+ },
+ {
+  "id": "network-walk",
+  "task": "cheapest-network",
+  "title": "Cables: from each town, the cheapest cable onwards",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m;\n    cin >> n >> m;\n    vector<vector<pair<int, long long>>> adj(n + 1);\n    for (int i = 0; i < m; i++) {\n        int a, b;\n        long long c;\n        cin >> a >> b >> c;\n        adj[a].push_back({b, c});\n        adj[b].push_back({a, c});\n    }\n    vector<bool> joined(n + 1, false);\n    int here = 1, count = 1;\n    long long total = 0;\n    joined[1] = true;\n    while (count < n) {\n        int next = -1;\n        long long cheapest = 0;\n        for (auto [to, c] : adj[here]) {\n            if (!joined[to] && (next == -1 || c < cheapest)) {\n                next = to;\n                cheapest = c;\n            }\n        }\n        if (next == -1) {                 // nowhere new to go\n            cout << -1 << \"\\n\";\n            return 0;\n        }\n        joined[next] = true;\n        total += cheapest;\n        count++;\n        here = next;\n    }\n    cout << total << \"\\n\";\n}\n",
+  "limits": "n ≤ 6, m ≤ 10, every cost between 1 and 20, no pair of towns listed twice",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(len(v) >= 2, 'The first line needs n and m.')\n    n, m = v[0], v[1]\n    need(1 <= n <= 6 and 0 <= m <= 10, 'Here n is at most 6 and m at most 10.')\n    need(len(v) == 2 + 3 * m, f'After the first line there must be {m} lines of two towns and a cost.')\n    seen = set()\n    for i in range(m):\n        a, b, c = v[2 + 3 * i: 5 + 3 * i]\n        need(1 <= a <= n and 1 <= b <= n and a != b, 'Each cable joins two different towns numbered 1 to n.')\n        need(1 <= c <= 20, 'Here every cost is between 1 and 20.')\n        need((min(a, b), max(a, b)) not in seen, 'Here no pair of towns may be listed twice.')\n        seen.add((min(a, b), max(a, b)))\n",
+  "why": "The program only looks at cables leaving the town it joined last. A cheapest network may branch, so the next cable has to be the cheapest one leaving any town joined so far. Looking only from the last town both misses cheaper cables elsewhere and gets stuck at a dead end while towns are still waiting.",
+  "nudges": [
+   "Does a cheapest network have to be one long line of towns?",
+   "What does the program print when its walk reaches a town with no cable to anywhere new, but other towns are still not joined?"
+  ],
+  "witness": "3 2\n1 2 1\n1 3 6\n"
+ },
+ {
+  "id": "jobs-cheapest",
+  "task": "assign-jobs",
+  "title": "Jobs: everyone takes the cheapest job left",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<vector<long long>> c(n, vector<long long>(n));\n    for (auto &row : c) for (auto &x : row) cin >> x;\n    vector<bool> taken(n, false);\n    long long total = 0;\n    for (int person = 0; person < n; person++) {\n        int pick = -1;\n        for (int job = 0; job < n; job++) {\n            if (!taken[job] && (pick == -1 || c[person][job] < c[person][pick])) pick = job;\n        }\n        taken[pick] = true;\n        total += c[person][pick];\n    }\n    cout << total << \"\\n\";\n}\n",
+  "limits": "n ≤ 4, every cost between 1 and 20",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(v and 1 <= v[0] <= 4, 'Here n is between 1 and 4.')\n    need(len(v) == 1 + v[0] * v[0], f'After n there must be {v[0]} lines of {v[0]} costs.')\n    need(all(1 <= x <= 20 for x in v[1:]), 'Here every cost is between 1 and 20.')\n",
+  "why": "The first person takes their cheapest job without asking what that costs the others. If that job is the only cheap one for somebody later, the small saving now is paid back many times over.",
+  "nudges": [
+   "Who pays for the choice the first person makes?",
+   "Can you make a job that is slightly the cheapest for person 1 and enormously the cheapest for person 2?"
+  ],
+  "witness": "2\n3 2\n6 1\n"
+ },
+ {
+  "id": "bag-ratio",
+  "task": "pack-bag",
+  "title": "Pack the bag: best worth per weight first",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    long long W;\n    cin >> n >> W;\n    vector<pair<long long, long long>> items(n);          // (weight, worth)\n    for (auto &it : items) cin >> it.first >> it.second;\n    // the item that gives the most worth for each unit of weight goes first\n    sort(items.begin(), items.end(), [](const auto &a, const auto &b) {\n        return a.second * b.first > b.second * a.first;\n    });\n    long long room = W, total = 0;\n    for (auto &it : items) {\n        if (it.first <= room) {\n            room -= it.first;\n            total += it.second;\n        }\n    }\n    cout << total << \"\\n\";\n}\n",
+  "limits": "n ≤ 6, W ≤ 30, every weight ≤ 30, every worth ≤ 100",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(len(v) >= 2, 'The first line needs n and W.')\n    n, W = v[0], v[1]\n    need(1 <= n <= 6 and 1 <= W <= 30, 'Here n is at most 6 and W at most 30.')\n    need(len(v) == 2 + 2 * n, f'After the first line there must be {n} lines of weight and worth.')\n    need(all(1 <= v[2 + 2 * i] <= 30 and 1 <= v[3 + 2 * i] <= 100 for i in range(n)), 'Weights are 1 to 30 and worths 1 to 100.')\n",
+  "why": "Worth per weight is the right order only if items could be cut. An item that is taken whole can leave room that nothing else fills, and then two slightly worse items that fill the bag exactly beat it.",
+  "nudges": [
+   "What would this program do if the items could be cut into pieces?",
+   "After the first item is taken, how much room can be left that no other item fits into?"
+  ],
+  "witness": "2 4\n4 2\n1 1\n"
+ },
+ {
+  "id": "piles-smallest",
+  "task": "merge-piles",
+  "title": "Piles: always merge the lightest neighbouring pair",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<long long> p(n);\n    for (auto &x : p) cin >> x;\n    long long cost = 0;\n    while (p.size() > 1) {\n        int at = 0;                               // the neighbouring pair with the smallest sum (the leftmost such pair)\n        for (int i = 1; i + 1 < (int)p.size(); i++) {\n            if (p[i] + p[i + 1] < p[at] + p[at + 1]) at = i;\n        }\n        p[at] += p[at + 1];\n        cost += p[at];\n        p.erase(p.begin() + at + 1);\n    }\n    cout << cost << \"\\n\";\n}\n",
+  "limits": "n ≤ 7, every pile between 1 and 20",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(v and 1 <= v[0] <= 7, 'Here n is between 1 and 7.')\n    need(len(v) == 1 + v[0], f'After n there must be exactly {v[0]} pile sizes.')\n    need(all(1 <= x <= 20 for x in v[1:]), 'Here every pile is between 1 and 20.')\n",
+  "why": "The cheapest merge now can glue together two piles that belonged in different halves of the best plan. Every stone is paid for once per merge it takes part in, and a cheap merge in the middle makes the middle stones take part in more merges than they need to.",
+  "nudges": [
+   "How many times is each stone paid for in the sample, under the best plan?",
+   "If the two middle piles are merged first, how many more merges do their stones still go through?"
+  ],
+  "witness": "4\n5 4 2 5\n"
+ },
+ {
+  "id": "baskets-lighter",
+  "task": "two-baskets",
+  "title": "Two baskets: each apple into the lighter basket",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<long long> w(n);\n    for (auto &x : w) cin >> x;\n    sort(w.rbegin(), w.rend());                 // heaviest apple first\n    long long a = 0, b = 0;\n    for (long long x : w) {\n        if (a <= b) a += x;\n        else b += x;\n    }\n    cout << llabs(a - b) << \"\\n\";\n}\n",
+  "limits": "n ≤ 7, every weight between 1 and 20",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(v and 1 <= v[0] <= 7, 'Here n is between 1 and 7.')\n    need(len(v) == 1 + v[0], f'After n there must be exactly {v[0]} weights.')\n    need(all(1 <= x <= 20 for x in v[1:]), 'Here every weight is between 1 and 20.')\n",
+  "why": "Putting each apple into the lighter basket keeps the baskets close at every moment, but the best split may need them far apart for a while: the two heaviest apples sometimes belong together, balanced by all the small ones. The program can never put its two heaviest apples into the same basket.",
+  "nudges": [
+   "Where do the two heaviest apples always end up under this rule?",
+   "Can you choose weights where the two heaviest apples together equal all the others together?"
+  ],
+  "witness": "5\n2 3 8 7 4\n"
+ },
+ {
+  "id": "rising-greedy",
+  "task": "rising",
+  "title": "Increasing numbers: take every number that fits",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<long long> a(n);\n    for (auto &x : a) cin >> x;\n    int best = 0;\n    // try every starting position; from there keep each later number that is larger than the last one kept\n    for (int s = 0; s < n; s++) {\n        long long last = a[s];\n        int kept = 1;\n        for (int i = s + 1; i < n; i++) {\n            if (a[i] > last) {\n                last = a[i];\n                kept++;\n            }\n        }\n        best = max(best, kept);\n    }\n    cout << best << \"\\n\";\n}\n",
+  "limits": "n ≤ 8, every number between 1 and 20",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(v and 1 <= v[0] <= 8, 'Here n is between 1 and 8.')\n    need(len(v) == 1 + v[0], f'After n there must be exactly {v[0]} numbers.')\n    need(all(1 <= x <= 20 for x in v[1:]), 'Here every number is between 1 and 20.')\n",
+  "why": "Keeping a number just because it fits can be a mistake: a large number kept early blocks several smaller ones that come later. Which numbers to skip is a real choice, and the program never skips one that fits.",
+  "nudges": [
+   "Once the program keeps a number, can it ever change its mind about it?",
+   "What happens when a very large number stands right after the starting position?"
+  ],
+  "witness": "4\n1 8 4 7\n"
+ },
+ {
+  "id": "trades-best-first",
+  "task": "two-trades",
+  "title": "Two trades: the best single trade first",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint n;\nvector<long long> p;\n\n// the best single trade inside days [l, r]; buy and sell are set to its days (profit 0 means no trade)\nlong long best(int l, int r, int &buy, int &sell) {\n    long long profit = 0;\n    int low = l;\n    buy = sell = -1;\n    for (int i = l; i <= r; i++) {\n        if (p[i] < p[low]) low = i;\n        if (p[i] - p[low] > profit) {\n            profit = p[i] - p[low];\n            buy = low;\n            sell = i;\n        }\n    }\n    return profit;\n}\n\nint main() {\n    cin >> n;\n    p.resize(n);\n    for (auto &x : p) cin >> x;\n    int buy, sell, b2, s2;\n    long long first = best(0, n - 1, buy, sell);\n    if (first == 0) {\n        cout << 0 << \"\\n\";\n        return 0;\n    }\n    // the second trade lies completely before the first one or completely after it\n    long long second = max(best(0, buy, b2, s2), best(sell, n - 1, b2, s2));\n    cout << first + second << \"\\n\";\n}\n",
+  "limits": "n ≤ 8, every price between 1 and 20",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(v and 1 <= v[0] <= 8, 'Here n is between 1 and 8.')\n    need(len(v) == 1 + v[0], f'After n there must be exactly {v[0]} prices.')\n    need(all(1 <= x <= 20 for x in v[1:]), 'Here every price is between 1 and 20.')\n",
+  "why": "The best pair of trades need not contain the best single trade. When the price dips in the middle of the best single trade, selling before the dip and buying again in it earns more than holding through, and the program never splits its first trade.",
+  "nudges": [
+   "Must the best single trade be one of the two trades in the best pair?",
+   "What does a dip in the middle of a long rise offer to someone allowed two trades?"
+  ],
+  "witness": "4\n4 6 4 7\n"
+ },
+ {
+  "id": "guards-colours",
+  "task": "tree-guards",
+  "title": "Chosen vertices: the larger colour class",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint n;\nvector<vector<int>> adj;\nint cnt[2];\n\nvoid paint(int v, int p, int colour) {\n    cnt[colour]++;\n    for (int to : adj[v]) {\n        if (to != p) paint(to, v, 1 - colour);\n    }\n}\n\nint main() {\n    cin >> n;\n    adj.resize(n + 1);\n    for (int i = 0; i + 1 < n; i++) {\n        int a, b;\n        cin >> a >> b;\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    // colour the tree in two colours so that every edge joins different colours;\n    // no two vertices of one colour are joined, so take the colour that has more vertices\n    paint(1, 0, 0);\n    cout << max(cnt[0], cnt[1]) << \"\\n\";\n}\n",
+  "limits": "n ≤ 8",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef tree(v, n):\n    need(len(v) == 1 + 2 * (n - 1), f'After n = {n} there must be {n - 1} lines of two vertices.')\n    parent = list(range(n + 1))\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]; x = parent[x]\n        return x\n    for i in range(n - 1):\n        a, b = v[1 + 2 * i], v[2 + 2 * i]\n        need(1 <= a <= n and 1 <= b <= n and a != b, 'Each edge joins two different vertices numbered 1 to n.')\n        need(find(a) != find(b), 'These edges close a loop, so this is not a tree.')\n        parent[find(a)] = find(b)\n\ndef check(text):\n    v = ints(text)\n    need(v and 1 <= v[0] <= 8, 'Here n is between 1 and 8.')\n    tree(v, v[0])\n",
+  "why": "A colour class is one valid choice, but the best choice may mix the two colours: vertices of different colours can be chosen together whenever no edge joins them. Leaves hanging from two neighbouring centres have different colours, yet all of them can be chosen at once.",
+  "nudges": [
+   "Two vertices of different colours: are they always joined by an edge?",
+   "Which vertices would you certainly want to choose in a tree with many leaves?"
+  ],
+  "witness": "6\n1 2\n2 3\n3 4\n2 5\n3 6\n"
+ },
+ {
+  "id": "diameter-root",
+  "task": "g-diameter",
+  "title": "Longest route: the two deepest branches below vertex 1",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint n;\nvector<vector<int>> adj;\n\n// the number of edges on the longest way down from v (p is where we came from)\nint down(int v, int p) {\n    int best = 0;\n    for (int to : adj[v]) {\n        if (to != p) best = max(best, 1 + down(to, v));\n    }\n    return best;\n}\n\nint main() {\n    cin >> n;\n    adj.resize(n + 1);\n    for (int i = 0; i + 1 < n; i++) {\n        int a, b;\n        cin >> a >> b;\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    // hang the tree from vertex 1: the longest route goes down its deepest branch and down its second deepest\n    int first = 0, second = 0;\n    for (int child : adj[1]) {\n        int d = 1 + down(child, 1);\n        if (d > first) {\n            second = first;\n            first = d;\n        } else if (d > second) {\n            second = d;\n        }\n    }\n    cout << first + second << \"\\n\";\n}\n",
+  "limits": "n ≤ 8",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef tree(v, n):\n    need(len(v) == 1 + 2 * (n - 1), f'After n = {n} there must be {n - 1} lines of two vertices.')\n    parent = list(range(n + 1))\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]; x = parent[x]\n        return x\n    for i in range(n - 1):\n        a, b = v[1 + 2 * i], v[2 + 2 * i]\n        need(1 <= a <= n and 1 <= b <= n and a != b, 'Each edge joins two different vertices numbered 1 to n.')\n        need(find(a) != find(b), 'These edges close a loop, so this is not a tree.')\n        parent[find(a)] = find(b)\n\ndef check(text):\n    v = ints(text)\n    need(v and 1 <= v[0] <= 8, 'Here n is between 1 and 8.')\n    tree(v, v[0])\n",
+  "why": "The longest route does not have to pass through vertex 1. It bends at some vertex, and the \"two deepest branches\" sum has to be taken at every vertex, not only at the root.",
+  "nudges": [
+   "Does the longest route in a tree have to pass through vertex 1?",
+   "Where could two long branches meet, other than at vertex 1?"
+  ],
+  "witness": "7\n1 2\n2 3\n2 4\n2 5\n3 6\n5 7\n"
+ },
+ {
+  "id": "stretch-reset",
+  "task": "calm-stretch",
+  "title": "Calm stretch: start again when the budget breaks",
+  "wrong": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    long long S;\n    cin >> n >> S;\n    vector<long long> a(n);\n    for (auto &x : a) cin >> x;\n    long long sum = 0;\n    int length = 0, best = 0;\n    for (int i = 0; i < n; i++) {\n        if (sum + a[i] <= S) {            // the number still fits: the stretch grows\n            sum += a[i];\n            length++;\n        } else if (a[i] <= S) {           // it does not fit: start a new stretch at this number\n            sum = a[i];\n            length = 1;\n        } else {                          // too big even alone\n            sum = 0;\n            length = 0;\n        }\n        best = max(best, length);\n    }\n    cout << best << \"\\n\";\n}\n",
+  "limits": "n ≤ 8, S ≤ 30, every number between 1 and 20",
+  "valid": "def ints(text):\n    out = []\n    for w in text.split():\n        if not (w.lstrip('-').isdigit() and len(w) <= 12):\n            raise ValueError(f'\"{w[:20]}\" is not a whole number.')\n        out.append(int(w))\n    return out\ndef need(ok, why):\n    if not ok:\n        raise ValueError(why)\ndef valid(text):\n    try:\n        check(text)\n    except ValueError as exc:\n        return str(exc)\n    except Exception:\n        return 'The input is not in the format the statement describes.'\n    return ''\ndef check(text):\n    v = ints(text)\n    need(len(v) >= 2, 'The first line needs n and S.')\n    need(1 <= v[0] <= 8 and 1 <= v[1] <= 30, 'Here n is at most 8 and S at most 30.')\n    need(len(v) == 2 + v[0], f'After the first line there must be exactly {v[0]} numbers.')\n    need(all(1 <= x <= 20 for x in v[2:]), 'Here every number is between 1 and 20.')\n",
+  "why": "When the budget breaks, the program throws the whole stretch away. Often only the first number or two need to go: the best stretch may start in the middle of the one that was just abandoned. The left end has to move forward one position at a time, not jump to the current position.",
+  "nudges": [
+   "When a number does not fit, how much of the current stretch really has to be given up?",
+   "Could the best stretch begin inside a stretch the program has already thrown away?"
+  ],
+  "witness": "5 11\n7 2 5 3 8\n"
+ }
+]

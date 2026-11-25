@@ -362,6 +362,38 @@ class App(unittest.TestCase):
                 return job['result']
             time.sleep(.05)
 
+    def tried(self, body):
+        reply = self.post('/break/try', body)[1]
+        if not reply['valid']:
+            return reply
+        for _ in range(600):
+            job = self.get('/jobs/' + reply['job'])
+            if job['status'] not in ('queued', 'running'):
+                return job['result']
+            time.sleep(.05)
+
+    def test_a_wrong_solution_is_broken_only_by_a_valid_input_it_fails_on(self):
+        stored = json.loads((self.root / 'content/breaks.json').read_text())
+        item = next(b for b in stored if b['id'] == 'museum-ties')
+        page = self.get('/break/museum-ties')
+        self.assertIn('sort(events', page['wrong'])                                  # the program shown is the stored one
+        self.assertIsNone(page['why'])                                               # why it fails is not sent before it is broken
+        self.assertNotIn(item['witness'], json.dumps(page)); self.assertNotIn('witness', page); self.assertNotIn('valid', page)
+        self.assertEqual(self.tried({'id': 'museum-ties', 'input': 'hello'})['valid'], False)
+        self.assertEqual(self.tried({'id': 'museum-ties', 'input': '2\n1 3\n30 40\n'})['valid'], False)      # outside the small limits
+        self.assertEqual(self.get('/break/museum-ties')['tries'], 0)                 # a refused input is not a try
+        same = self.tried({'id': 'museum-ties', 'input': '2\n1 3\n4 9\n'})
+        self.assertEqual((same['verdict'], same['output'].strip(), same['expected'].strip()), ('SAME', '1', '1'))
+        self.assertNotIn('why', same)
+        self.assertFalse(self.get('/break/museum-ties')['broken'])
+        nudged = self.post('/break/nudge', {'id': 'museum-ties'})[1]
+        self.assertEqual((len(nudged['nudges']), nudged['nudges_left']), (1, len(item['nudges']) - 1))
+        broke = self.tried({'id': 'museum-ties', 'input': '2\n1 3\n3 5\n'})          # both inside during minute 3
+        self.assertEqual((broke['verdict'], broke['output'].strip(), broke['expected'].strip()), ('BROKEN', '1', '2'))
+        after = self.get('/break/museum-ties')
+        self.assertEqual((after['broken'], after['tries'], after['why'], after['input']), (True, 2, item['why'], '2\n1 3\n3 5\n'))
+        self.assertTrue(next(i for i in self.get('/breaks')['items'] if i['id'] == 'museum-ties')['broken'])
+
     def test_a_task_is_accepted_only_when_every_hidden_test_passes(self):
         listed = self.get('/tasks')['tasks']
         self.assertTrue(any(t['id'] == 'equal-pairs' and not t['solved'] for t in listed))

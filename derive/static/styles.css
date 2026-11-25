@@ -330,25 +330,51 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .sym-standard{color:var(--warning)}.sym-common{color:var(--primary)}
 .cses-tick{margin-left:.75rem;white-space:nowrap}.cses-tick input{margin-right:.25rem}
 
-/* ---------- Split view: text on one side, editor on the other ---------- */
+/* ---------- Split view: text on one side, editor on the other (or below) ----------
+   Side by side, the two panes are the same width and the same height and fill the window below the page
+   heading; each scrolls inside itself. The height is set by split.js from where the split starts. */
 .main-inner:has(.split){max-width:none}
 .reading:has(.split){max-width:none}
-.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:1.25rem;align-items:start}
-.split.editor-left{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;align-items:stretch;height:var(--split-height,calc(100vh - 12rem));min-height:30rem}
 .split.editor-left .split-code{order:-1}
-.split-pane{min-width:0;position:sticky;top:1rem;max-height:calc(100vh - 2rem);overflow-y:auto;scrollbar-width:thin;padding:0 2px 1px}
+.split-pane{min-width:0;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .split-pane.reading,.split .reading{max-width:none;margin:0}
-.split-pane>.surface,.split-pane .surface.reading{margin-bottom:1rem}
-.split .editor-host{height:clamp(18rem,calc(100vh - 25rem),52rem)}
+.split-pane .surface{box-shadow:none}
+.split-text>.surface,.split-text .surface.reading{margin:0 0 1rem}
+.split-text>.surface:last-child,.split-text>:last-child .surface:last-child{margin-bottom:0}
+.split-text>.surface:only-child{min-height:100%}
 .split .tool-write{margin:1.25rem 0 .75rem}
-.side-btn{white-space:nowrap}
+/* the code pane is a column: the editor card takes what is left over, results sit under it */
+.split-code{display:flex;flex-direction:column;gap:1rem;overflow-y:auto}
+.split-code>.editor-card{flex:1 0 auto;margin:0;display:flex;flex-direction:column}
+.split-code>.editor-card>*{flex:0 0 auto}
+/* CodeMirror keeps its own position, so the host is a column and the editor the part of it that flexes */
+.split-code .editor-host{flex:1 1 0;min-height:11rem;height:auto;display:flex;flex-direction:column;overflow:hidden}
+.split-code .editor-host .cm-editor,.split-code .editor-host .editor-fallback{flex:1 1 0;min-height:0;height:auto;width:100%}
+.split-code>.results{flex:0 0 auto;max-height:38%;overflow-y:auto;margin:0;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.split-code .editor-card textarea{height:5.5rem;min-height:3.5rem;max-height:9rem}
+/* editor below the text: one column, natural heights, the page scrolls */
+.split.editor-below{grid-template-columns:minmax(0,1fr);height:auto;min-height:0}
+.split.editor-below .split-pane{overflow:visible}
+.split.editor-below .split-code{overflow:visible}
+.split.editor-below .split-code .editor-host{flex:none;height:28rem}
+.split.editor-below .split-code .editor-card textarea{height:auto}
+.split.editor-below .split-code>.results{max-height:none}
+.split.editor-below .split-text>.surface:only-child{min-height:0}
+.side-switch{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.side-switch button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.8125rem;font-weight:600;padding:.3125rem .625rem;cursor:pointer}
+.side-switch button+button{border-left:1px solid var(--line)}
+.side-switch button[aria-pressed="true"]{background:var(--primary-soft);color:var(--primary)}
+.side-switch button:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
 .solve-page>.chain-head{margin-bottom:1.25rem}
 @media (max-width:1000px){
-  .split,.split.editor-left{grid-template-columns:minmax(0,1fr)}
+  .split,.split.editor-left{grid-template-columns:minmax(0,1fr);height:auto;min-height:0}
   .split.editor-left .split-code{order:0}
-  .split-pane{position:static;max-height:none;overflow:visible}
-  .split .editor-host{height:22rem}
-  .side-btn{display:none}
+  .split-pane,.split-code{overflow:visible}
+  .split-code .editor-host{flex:none;height:22rem}
+  .split-code>.results{max-height:none}
+  .split-text>.surface:only-child{min-height:0}
+  .side-switch{display:none}
 }
 /* ---------- Theme switch, in the sidebar and in the top bar on small screens ---------- */
 .sidebar-foot p{margin:.75rem 0 0}

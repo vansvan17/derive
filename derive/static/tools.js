@@ -33,5 +33,5 @@ export async function renderTool(ctx, id) {
       <h2>The idea</h2>${markdown(tool.idea)}
       <h2>Traps</h2><ul>${tool.traps.map(w => `<li>${inline(w)}</li>`).join('')}</ul></section>
     <h2 class="tool-write">Now write it</h2>`;
-  await mountTask(ctx, root.querySelector('[data-task]'), tool.task, {heading: false, before: intro, after: `<div data-reference>${reference()}</div>`, onAccepted: async () => { tool = await api('/tool/' + encodeURIComponent(id)); if (alive()) root.querySelector('[data-reference]').innerHTML = reference(); }});
+  await mountTask(ctx, root.querySelector('[data-task]'), tool.task, {heading: false, hints: false, before: intro, after: `<div data-reference>${reference()}</div>`, onAccepted: async () => { tool = await api('/tool/' + encodeURIComponent(id)); if (alive()) root.querySelector('[data-reference]').innerHTML = reference(); }});
 }

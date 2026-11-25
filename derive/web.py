@@ -561,7 +561,22 @@ class Service:
         task = self.content.tasks.get(task_id)
         if not task:
             raise ApiError('No such task.', 404)
-        return {**tasks.public(task, store), 'statement': task['statement'], 'samples': task['samples'], 'seconds': task.get('seconds', 1.0)}
+        opened = self.nudges_open(store, 'task', task_id, '-')
+        # Only the hints already opened are sent; the rest stay on the server.
+        return {**tasks.public(task, store), 'statement': task['statement'], 'samples': task['samples'], 'seconds': task.get('seconds', 1.0),
+                'hints': task['hints'][:opened], 'hints_total': len(task['hints'])}
+
+    def task_hint(self, store, data):
+        """Open the next hint of a task. Hints come one at a time, in order: a question, the observation, then the plan."""
+        self.no_contest(store)
+        task = self.content.tasks.get(data.get('id')) if isinstance(data.get('id'), str) else None
+        if not task:
+            raise ApiError('No such task.', 404)
+        level = self.nudges_open(store, 'task', task['id'], '-') + 1
+        if level > len(task['hints']):
+            raise ApiError('There are no more hints for this task.', 409)
+        store.run('INSERT OR IGNORE INTO nudges VALUES(?,?,?,?,?)', ('task', task['id'], '-', level, now()))
+        return {'hints': task['hints'][:level], 'hints_total': len(task['hints'])}
 
     def task_judge(self, store, data):
         task = self.content.tasks.get(data.get('id')) if isinstance(data.get('id'), str) else None
@@ -868,6 +883,8 @@ class Service:
         # code: what the judge said, and how many tasks went through on the first try
         verdicts = {r['verdict']: r['n'] for r in store.all('SELECT verdict, COUNT(*) AS n FROM task_tries GROUP BY verdict')}
         accepted = store.all('SELECT tries FROM tasks_done')
+        # a hint counts against an accept only if it was opened before the program was accepted
+        hinted = store.one("SELECT COUNT(*) FROM tasks_done d WHERE EXISTS(SELECT 1 FROM nudges n WHERE n.scope='task' AND n.owner=d.task AND n.at<=d.at)")[0]
         broken = store.all('SELECT tries, nudges FROM breaks_done')
         recog = {r['rating']: r['n'] for r in store.all('SELECT rating, COUNT(*) AS n FROM recognitions WHERE rating IS NOT NULL GROUP BY rating')}
         sets = {s['id']: s['title'] for s in self.content.puzzles.get('sets', [])}
@@ -880,7 +897,7 @@ class Service:
             'by_area': [{'area': areas.get(a, a), 'total': sum(c.values()), 'causes': [{'label': evidence.CAUSES[k], 'count': n} for k, n in sorted(c.items(), key=lambda x: -x[1])]} for a, c in sorted(by_area.items(), key=lambda x: -sum(x[1].values()))],
             'chains': [{'id': i, 'name': label(i), 'area': areas.get(ideas[i]['area'], ''), 'track': ideas[i].get('track'), 'title': ideas[i].get('cses', {}).get('title'),
                         'wrong': v.get('wrong', 0), 'nudges': v.get('nudges', 0), 'tutor': v.get('tutor', 0)} for i, v in hardest],
-            'code': {'verdicts': [{'verdict': k, 'count': verdicts[k]} for k in ('AC', 'WA', 'TLE', 'RE', 'MLE', 'CE') if verdicts.get(k)], 'accepted': len(accepted), 'first_try': sum(1 for r in accepted if r['tries'] == 1)},
+            'code': {'verdicts': [{'verdict': k, 'count': verdicts[k]} for k in ('AC', 'WA', 'TLE', 'RE', 'MLE', 'CE') if verdicts.get(k)], 'accepted': len(accepted), 'first_try': sum(1 for r in accepted if r['tries'] == 1), 'no_hint': len(accepted) - hinted},
             'breaks': {'broken': len(broken), 'of': len(self.content.breaks), 'first_try': sum(1 for r in broken if r['tries'] == 1), 'with_questions': sum(1 for r in broken if r['nudges'])},
             'recognise': [{'label': v, 'count': recog.get(k, 0)} for k, v in recognise.RATINGS.items()],
             'puzzles': [{'set': sets.get(k, k or 'Other'), **v} for k, v in puzzles.items()],
@@ -937,7 +954,7 @@ class Service:
                   '/problem/commit': self.commit, '/problem/editorial': self.editorial, '/problem/check': self.check_submissions,
                   '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause,
                   '/code': self.save_code, '/run': self.queue_run,
-                  '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer, '/task/judge': self.task_judge,
+                  '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer, '/task/judge': self.task_judge, '/task/hint': self.task_hint,
                   '/problem/open': self.open_from_chain, '/break/try': self.break_try, '/break/nudge': self.break_nudge}
         with self.lock, self.store() as store:
             if path == '/problem/next':

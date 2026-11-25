@@ -1,4 +1,4 @@
-/* Implement tasks: a statement with no hint, real code in the editor, judged on this computer
+/* Implement tasks: a statement that names no technique (hints only on request), real code in the editor, judged on this computer
    against generated tests with a time limit. */
 import {makeEditor} from './problem.js';
 import {sideButton, wireSplit} from './split.js';
@@ -15,8 +15,8 @@ export async function renderTasks(ctx) {
 }
 
 /* The whole task (statement, editor, run, judge) inside any host element. Used by the task page and by code steps of a chain. */
-export async function mountTask(ctx, host, id, {onAccepted = null, heading = true, before = '', after = ''} = {}) {
-  const {api, post, waitFor, escape: e, markdown, toast} = ctx;
+export async function mountTask(ctx, host, id, {onAccepted = null, heading = true, before = '', after = '', hints = true} = {}) {
+  const {api, post, waitFor, escape: e, markdown, inline, toast} = ctx;
   const root = ctx.root, alive = () => ctx.root === root && host.isConnected;
   let task = await api('/task/' + encodeURIComponent(id));
   let language = ctx.boot.settings.language || 'cpp';
@@ -26,7 +26,7 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   const box = (title, text) => `<div><h4>${e(title)}</h4><pre>${e(text)}</pre></div>`;
   host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow"><a href="#/code">Code</a> · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)}</h1></div><div data-status></div></header>` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
     <div class="split" data-split><div class="split-pane split-text">${before}<section class="surface reading task-statement">${markdown(task.statement)}
-      <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${after}</div>
+      <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${hints ? '<section class="surface task-hints" data-hints aria-live="polite"></section>' : ''}${after}</div>
     <div class="split-pane split-code"><section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta">${sideButton()}<label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>
       <div class="editor-host" data-editor></div>
       <label class="field">Your own input<textarea data-input rows="4" spellcheck="false">${e(task.samples[0][0])}</textarea></label>
@@ -36,6 +36,21 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   const $ = s => host.querySelector(s);
   const status = () => { $('[data-status]').innerHTML = task.solved ? '<span class="badge badge-success">Accepted</span>' : task.tries ? `<span class="badge">${task.tries} ${task.tries === 1 ? 'try' : 'tries'} so far</span>` : ''; };
   status();
+  // Hints open one at a time and stay open: first a question, then the observation, then the plan in words.
+  const KINDS = ['A question to start from', 'The observation', 'The plan'];
+  function paintHints() {
+    const box = $('[data-hints]');
+    if (!box) return;
+    const left = task.hints_total - task.hints.length, next = KINDS[task.hints.length] || 'Next hint';
+    box.innerHTML = `<h3>Hints</h3>${task.hints.length ? `<ol class="nudges">${task.hints.map(h => `<li>${inline(h)}</li>`).join('')}</ol>` : '<p class="muted small">Stuck? Hints open one at a time: a question first, then the observation, then the plan in words. Never code.</p>'}
+      ${left ? `<p><button class="btn btn-ghost btn-sm" type="button" data-hint>Hint ${task.hints.length + 1} of ${task.hints_total}: ${next.toLowerCase()}</button></p>` : '<p class="muted small">That is every hint for this task.</p>'}`;
+    box.querySelector('[data-hint]')?.addEventListener('click', async event => {
+      event.target.disabled = true;
+      try { Object.assign(task, await post('/task/hint', {id})); } catch (error) { toast(error.message, 'error'); }
+      if (alive()) paintHints();
+    });
+  }
+  paintHints();
   const save = async () => { try { await post('/code', {id, language, file: 'main', code: files.main}); if (host.isConnected) $('[data-save]').textContent = 'Saved'; } catch { if (host.isConnected) $('[data-save]').textContent = 'Not saved'; } };
   const changed = value => { files.main = value; $('[data-save]').textContent = 'Editing…'; clearTimeout(saveTimer); saveTimer = setTimeout(save, 800); };
   const editor = await makeEditor($('[data-editor]'), {value: files.main, language, fontSize: ctx.boot.settings.font_size, tabSize: 4, onChange: changed, onRun: () => go('run')});
@@ -63,7 +78,7 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
       const good = r.verdict === 'AC' || r.verdict === 'OK';
       results.innerHTML = `<h3>${kind === 'judge' ? 'Verdict' : 'Run'}</h3><div class="result-head"><span class="verdict ${good ? 'verdict-ok' : 'verdict-bad'}">${e(r.verdict)}</span>${kind === 'judge' ? `<strong>${r.passed} of ${r.of} tests passed</strong>` : `<span class="muted">${r.seconds != null ? Number(r.seconds).toFixed(2) + ' s' : ''}</span>`}</div>
         ${r.detail ? `<p class="result-detail">${e(r.detail)}</p>` : ''}<div class="io-grid">${r.input != null ? box('The test', r.input) : ''}${r.expected != null ? box('Expected', r.expected) : ''}${r.output != null && (kind === 'run' || r.verdict !== 'AC') ? box('Your output', r.output) : ''}</div>`;
-      if (kind === 'judge') { task = await api('/task/' + encodeURIComponent(id)); status(); ctx.sync(); accepted = r.verdict === 'AC'; }
+      if (kind === 'judge') { task = await api('/task/' + encodeURIComponent(id)); status(); paintHints(); ctx.sync(); accepted = r.verdict === 'AC'; }
     } catch (error) { toast(error.message, 'error'); results.innerHTML = '<h3>Results</h3><p class="results-empty">Nothing was run.</p>'; }
     finally { busy = false; if (alive()) host.querySelectorAll('[data-run],[data-judge]').forEach(b => { b.disabled = false; }); }
     if (accepted && onAccepted) onAccepted();

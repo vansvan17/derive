@@ -154,6 +154,11 @@ def main():
                 if (check(sample[0], sample[1], solve(sample[0])) if check else solve(sample[0]).split() != sample[1].split()):
                     faults.append(f'task {task["id"]}: a sample output is wrong')
             task_module.tests(task)
+            hints = task.get('hints')
+            if not isinstance(hints, list) or not 2 <= len(hints) <= 3 or any(not isinstance(h, str) or len(h.strip()) < 30 for h in hints):
+                faults.append(f'task {task["id"]}: needs two or three hints, each a full sentence')
+            elif any(h.count('$') % 2 for h in hints):
+                faults.append(f'task {task["id"]}: a hint has an unclosed formula')
         except Exception as exc:
             faults.append(f'task {task["id"]}: checking crashed: {exc!r}')
     from derive import breaks as break_module

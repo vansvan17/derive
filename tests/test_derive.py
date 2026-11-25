@@ -416,6 +416,26 @@ class App(unittest.TestCase):
         after = self.get('/task/equal-pairs')
         self.assertEqual((after['solved'], after['tries']), (True, 3))
 
+    def test_task_hints_open_one_at_a_time_and_are_never_sent_early(self):
+        page = self.get('/task/range-sums')
+        self.assertEqual((page['hints'], page['hints_total']), ([], 3))                  # nothing is sent before it is asked for
+        self.assertNotIn('hints', json.dumps(self.get('/tasks')))
+        self.assertEqual(self.post('/task/hint', {'id': 'no-such-task'})[0], 404)
+        first = self.post('/task/hint', {'id': 'range-sums'})[1]
+        self.assertEqual(len(first['hints']), 1)
+        self.assertEqual(self.get('/task/range-sums')['hints'], first['hints'])           # an opened hint stays open
+        self.post('/task/hint', {'id': 'range-sums'}); third = self.post('/task/hint', {'id': 'range-sums'})[1]
+        self.assertEqual(len(third['hints']), 3)
+        self.assertEqual(self.post('/task/hint', {'id': 'range-sums'})[0], 409)          # there are only three
+        # the record page tells an accept after a hint from one without
+        right = 'import sys\nv = list(map(int, sys.stdin.read().split())); n, q = v[0], v[1]; p = [0]\nfor x in v[2:2 + n]: p.append(p[-1] + x)\nprint("\\n".join(str(p[v[3 + n + 2 * i]] - p[v[2 + n + 2 * i] - 1]) for i in range(q)))\n'
+        self.assertEqual(self.judged({'id': 'range-sums', 'language': 'python', 'main': right})['verdict'], 'AC')
+        clean = 'import collections\ninput()\nprint(sum(c * (c - 1) // 2 for c in collections.Counter(input().split()).values()))\n'
+        self.assertEqual(self.judged({'id': 'equal-pairs', 'language': 'python', 'main': clean})['verdict'], 'AC')
+        self.post('/task/hint', {'id': 'equal-pairs'})                                    # opened after the accept: does not count against it
+        code = self.get('/mastery')['patterns']['code']
+        self.assertEqual((code['accepted'], code['no_hint']), (2, 1))
+
     def test_a_code_step_in_a_chain_is_finished_only_by_the_judge(self):
         chain = json.loads((self.root / 'content/chains/seen-table.json').read_text())
         first_code = next(i for i, s in enumerate(chain['steps']) if s['kind'] == 'code')
@@ -619,7 +639,7 @@ class App(unittest.TestCase):
         self.assertEqual((status, [r['index'] for r in run['rows']]), (200, ['A', 'B']))
         self.assertEqual(self.post('/contest/start', {'contest': 7, 'minutes': 60, 'handles': ['ann']})[0], 409)          # one at a time
         pid = self.open(); self.commit(pid)
-        for path, body in (('/nudge', {'scope': 'problem', 'id': pid}), ('/problem/editorial', {'id': pid}), ('/tutor/prompt', {'scope': 'problem', 'id': pid})):
+        for path, body in (('/nudge', {'scope': 'problem', 'id': pid}), ('/problem/editorial', {'id': pid}), ('/tutor/prompt', {'scope': 'problem', 'id': pid}), ('/task/hint', {'id': 'equal-pairs'})):
             self.assertEqual(self.post(path, body)[0], 409, path)                                                          # no help while the clock runs
         began = (datetime.now(timezone.utc) - timedelta(minutes=50)).replace(microsecond=0)
         with self.service.store() as store:

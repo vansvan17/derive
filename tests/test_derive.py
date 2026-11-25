@@ -308,11 +308,10 @@ class App(unittest.TestCase):
         self.assertFalse(reply['gated'])
         self.assertIn(chain['reveal']['name'], reply['prompt'])
 
-    def test_a_tutor_on_a_problem_needs_an_approach_and_counts_as_help(self):
+    def test_a_tutor_on_a_problem_uses_the_approach_and_counts_as_help(self):
         with self.service.store() as store:
             store.set('settings', {'cf_handle': 'someone'})
         pid = self.open()
-        self.assertEqual(self.post('/tutor/prompt', {'scope': 'problem', 'id': pid})[0], 409)
         self.commit(pid)
         prompt = self.post('/tutor/prompt', {'scope': 'problem', 'id': pid, 'question': 'Where is my gap?'})[1]['prompt']
         self.assertIn('Reduce everything mod m', prompt)                              # her own approach is in it
@@ -473,17 +472,27 @@ class App(unittest.TestCase):
     def open(self):
         return self.post('/problem/next')[1]['id']
 
-    def test_help_and_the_verdict_need_a_committed_approach(self):
+    def test_the_approach_is_optional_and_recorded_once(self):
         pid = self.open()
         self.assertEqual(pid, 'cf-1-a')                                           # nearest the starting level
         self.assertNotIn('observations', self.get(f'/problem/{pid}'))
         self.assertNotIn('ideas', self.get(f'/problem/{pid}'))
-        for path in ('/nudge', '/problem/editorial', '/problem/check', '/problem/giveup'):
-            self.assertEqual(self.post(path, {'scope': 'problem', 'id': pid})[0], 409, path)
-        self.assertEqual(self.post('/problem/commit', {'id': pid, 'approach': 'dunno', 'cue': 'x'})[0], 400)
+        self.assertEqual(self.post('/problem/commit', {'id': pid, 'approach': '  ', 'cue': ''})[0], 400)
         self.assertEqual(self.post('/problem/commit', {'id': pid, 'approach': 'Reduce everything mod m because only the remainder matters.', 'cue': 'divisible by'})[0], 200)
         self.assertEqual(self.post('/problem/commit', {'id': pid, 'approach': 'A rewritten approach after seeing the answer.', 'cue': 'x'})[0], 409)
         self.assertEqual(self.open(), pid)                                        # no new problem while one is open
+
+    def test_help_and_giving_up_work_without_an_approach(self):
+        pid = self.open()
+        for path in ('/nudge', '/problem/editorial', '/problem/giveup'):
+            self.assertEqual(self.post(path, {'scope': 'problem', 'id': pid})[0], 200, path)
+
+    def test_a_cold_solve_needs_no_recorded_approach(self):
+        with self.service.store() as store:
+            store.set('settings', {'cf_handle': 'someone'})
+        pid = self.open()
+        self.accept(1, 'A')
+        self.assertTrue(self.post('/problem/check', {'id': pid})[1]['cold'])
 
     def commit(self, pid):
         self.post('/problem/commit', {'id': pid, 'approach': 'Reduce everything mod m because only the remainder matters.', 'cue': 'divisible by'})

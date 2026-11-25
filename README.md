@@ -6,7 +6,7 @@ A local trainer for competitive programming where results are derived, not told.
 - **Hard parts.** Every chain ends with questions where nothing points at the idea: count the reachable states, classify every n, solve a contest-level instance. A "Skip the warm-up" link jumps straight to them.
 - **The map.** 72 ideas and the connections between them. An idea has no name on the map until you have derived it; a connection is explained only when both ends are derived.
 - **Puzzles.** Short single-question puzzles on invariants, games and bits, each with one checked answer and the reason shown afterwards.
-- **Real problems.** Recent Codeforces problems rated 1600 to 2500, handed out with no topic. You record your approach before any help; a solve counts only when the judge accepted it, read from your public submission list.
+- **Real problems.** Recent Codeforces problems rated 1600 to 2500, handed out with no topic. Writing down your approach first is optional; a solve counts only when the judge accepted it, read from your public submission list.
 - **Contest mode.** A past Codeforces round against the clock for one to three handles, scored the ICPC way, with help locked while it runs, labels for every wrong submission afterwards, and an upsolve list.
 - **A tutor on request.** "Ask a tutor" builds a prompt for exactly where you are, to paste into ChatGPT or, optionally, to run through a local Codex command. While something is unfinished the tutor is told to lead with questions only.
 - **Evidence.** Derived, applied, recognised cold, and combined are counted separately. An idea you needed help with comes back later inside a different problem.

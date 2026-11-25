@@ -1,6 +1,6 @@
 import {askTutor} from './tutor.js';
 /* A real problem from a real judge, with no topic given.
-   Order of events: commit to an approach, work, (help), the judge's verdict, then what cracked it. */
+   Order of events: (an optional first approach), work, (help), the judge's verdict, then what cracked it. */
 
 const VERDICTS = {OK: 'Ran', TLE: 'Time limit exceeded', MLE: 'Memory limit exceeded', RE: 'Runtime error', CE: 'Did not compile', OLE: 'Too much output',
   SAME: 'No difference found', DIFF: 'Different answers', GEN: 'Generator failed', BRUTE: 'Brute force failed'};
@@ -75,12 +75,13 @@ export async function renderProblem(ctx, id) {
 
   /* ----- commit to an approach ----- */
   function paintCommit() {
+    $('[data-commit]').hidden = p.finished && !p.committed;
     $('[data-commit]').innerHTML = p.committed
-      ? `<h2>Your first approach</h2><p class="committed">${e(p.approach)}</p><p class="muted small">What in the statement suggested it: ${e(p.cue)}</p>`
-      : `<h2>Before any help: what is your approach?</h2><p class="muted small">Read the problem, think, then write down what you intend to do. It is recorded once and cannot be edited: it is how the app tells seeing the idea from being shown it. A wrong first guess is fine.</p>
+      ? `<h2>Your first approach</h2><p class="committed">${e(p.approach)}</p>${p.cue ? `<p class="muted small">What in the statement suggested it: ${e(p.cue)}</p>` : ''}`
+      : `<details class="optional"><summary><strong>Write down your approach first</strong> <span class="muted small">· optional</span></summary><p class="muted small">If you want a record of your first idea to compare with what cracked it. It is saved once and cannot be edited. A tutor, if you ask one, starts from it.</p>
         <form data-commit-form><label class="field">The approach, and why you think it works<textarea name="approach" rows="3" maxlength="6000" placeholder="Sort by …, then …, because …"></textarea></label>
         <label class="field" style="margin-top:.75rem">The words or numbers in the statement that suggested it<input type="text" name="cue" maxlength="2000" placeholder="“n ≤ 20”, “any order”, “minimum number of moves” …"></label>
-        <div class="step-actions"><button class="btn btn-primary" type="submit">Record my approach</button></div></form>`;
+        <div class="step-actions"><button class="btn btn-secondary btn-sm" type="submit">Record my approach</button></div></form></details>`;
     $('[data-commit-form]')?.addEventListener('submit', async event => {
       event.preventDefault();
       try { p = await post('/problem/commit', {id, approach: event.target.elements.approach.value, cue: event.target.elements.cue.value}); paintAll(); toast('Approach recorded.', 'success'); }
@@ -93,7 +94,6 @@ export async function renderProblem(ctx, id) {
     const host = $('[data-help]');
     if (p.finished) { host.hidden = true; return; }
     host.hidden = false;
-    if (!p.committed) { host.innerHTML = '<h2>Help</h2><p class="muted small">Nudges and the editorial open once your approach is recorded.</p>'; return; }
     const more = p.nudges.length < p.nudges_total;
     host.innerHTML = `<h2>Help</h2><p class="muted small">Any help means this cannot count as a cold solve, and the idea will come back later inside a different problem.</p>
       ${p.nudges.length ? `<ol class="nudges">${p.nudges.map(n => `<li>${inline(n)}</li>`).join('')}</ol>` : ''}
@@ -120,8 +120,8 @@ export async function renderProblem(ctx, id) {
     host.innerHTML = `<h2>The verdict</h2>${p.verifiable
       ? `<p class="muted small">Submit on ${e(p.site)}. When it is accepted there, check here: the app reads your public submission list${handle ? ` for <strong>${e(handle)}</strong>` : ''}.</p>${handle ? '' : `<p class="inline-error">Add your ${e(p.site)} handle in <a href="#/settings">Settings</a> first.</p>`}`
       : `<p class="muted small">${e(p.site)} has no public submission list, so this one is your word. It counts as applied, never as a cold solve.</p>`}
-      <div class="step-actions">${p.verifiable ? `<button class="btn btn-primary" type="button" data-check ${handle && p.committed ? '' : 'disabled'}>Check my submissions</button>` : `<button class="btn btn-primary" type="button" data-report ${p.committed ? '' : 'disabled'}>It was accepted</button>`}
-      <button class="btn btn-ghost" type="button" data-giveup ${p.committed ? '' : 'disabled'}>Give up and see what cracked it</button></div>${p.committed ? '' : '<p class="muted small">Record your approach first.</p>'}`;
+      <div class="step-actions">${p.verifiable ? `<button class="btn btn-primary" type="button" data-check ${handle ? '' : 'disabled'}>Check my submissions</button>` : `<button class="btn btn-primary" type="button" data-report>It was accepted</button>`}
+      <button class="btn btn-ghost" type="button" data-giveup>Give up and see what cracked it</button></div>`;
     host.querySelector('[data-check]')?.addEventListener('click', async event => {
       event.target.disabled = true;
       try {

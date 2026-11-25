@@ -287,8 +287,6 @@ class Service:
         self.no_contest(store)
         if data.get('scope') == 'problem':
             problem, row = self.attempt(store, data.get('id'))
-            if not row['committed_at']:
-                raise ApiError('Commit to an approach before asking for a nudge.', 409)
             if row['solved_at'] or row['gave_up_at']:
                 raise ApiError('This problem is already finished.', 409)
             owner, step_id, available = problem['id'], '-', problem.get('nudges', [])
@@ -401,17 +399,15 @@ class Service:
         if row['committed_at']:
             raise ApiError('Your first approach is already recorded; it cannot be rewritten.', 409)
         approach = text(data.get('approach'), 'Your approach', 6000, required=True).strip()
-        cue = text(data.get('cue'), 'The cue', 2000, required=True).strip()
-        if len(approach) < 20:
-            raise ApiError('Say a little more: what you will do, and why you think it works.')
+        cue = text(data.get('cue'), 'The cue', 2000).strip()
+        if not approach:
+            raise ApiError('Write the approach first, or leave this part out: it is optional.')
         store.run('UPDATE attempts SET approach=?, cue=?, committed_at=? WHERE problem=?', (approach, cue, now(), problem['id']))
         return self.problem(store, problem['id'])
 
     def editorial(self, store, data):
         self.no_contest(store)
         problem, row = self.attempt(store, data.get('id'))
-        if not row['committed_at']:
-            raise ApiError('Commit to an approach before opening the editorial.', 409)
         if not row['editorial_at']:
             store.run('UPDATE attempts SET editorial_at=? WHERE problem=?', (now(), problem['id']))
         return self.problem(store, problem['id'])
@@ -419,7 +415,7 @@ class Service:
     def finish(self, store, problem, row, source, submission=None, before_open=False):
         tutored = store.one("SELECT 1 FROM tutor_uses WHERE scope='problem' AND owner=? AND gated=1", (problem['id'],))
         helped = bool(self.nudges_open(store, 'problem', problem['id'], '-') or row['editorial_at'] or tutored)
-        cold = source == 'judge' and not helped and not before_open and bool(row['committed_at'])
+        cold = source == 'judge' and not helped and not before_open
         store.run('UPDATE attempts SET solved_at=?, verdict_source=?, submission=?, cold=? WHERE problem=?',
                   (now(), source, submission, int(cold), problem['id']))
         if cold:
@@ -432,8 +428,6 @@ class Service:
         problem, row = self.attempt(store, data.get('id'))
         if row['solved_at']:
             return {**self.problem(store, problem['id']), 'found': True}
-        if not row['committed_at']:
-            raise ApiError('Record your approach first; it is what shows whether you saw the idea.', 409)
         handle = self.settings(store)['cf_handle' if problem['site'] == 'Codeforces' else 'atcoder_handle']
         try:
             hit = sync.accepted(problem, handle, row['opened_at'], self.fetch)
@@ -450,8 +444,6 @@ class Service:
             raise ApiError('This site can be checked directly; use "Check my submissions".')
         if row['solved_at'] or row['gave_up_at']:
             raise ApiError('This problem is already finished.', 409)
-        if not row['committed_at']:
-            raise ApiError('Record your approach first.', 409)
         result = self.finish(store, problem, row, 'self')
         return {**self.problem(store, problem['id']), **result}
 
@@ -459,8 +451,6 @@ class Service:
         problem, row = self.attempt(store, data.get('id'))
         if row['solved_at'] or row['gave_up_at']:
             raise ApiError('This problem is already finished.', 409)
-        if not row['committed_at']:
-            raise ApiError('Write down your best approach before giving up; a wrong guess is still information.', 409)
         store.run('UPDATE attempts SET gave_up_at=?, cold=0 WHERE problem=?', (now(), problem['id']))
         evidence.schedule_returns(self.content, store, problem, 'gave up')
         return self.problem(store, problem['id'])
@@ -580,8 +570,6 @@ class Service:
                 derived = self.derived(store)
                 names = [self.content.ideas[i]['name'] for i in problem['ideas'] if i in derived]
                 return tutor.problem_full(problem, row['approach'], problem['observations'], names, bool(row['solved_at'])), False, 'problem', problem['id'], '-', []
-            if not row['committed_at']:
-                raise ApiError('Commit to an approach before asking a tutor; your own first idea is what the tutor works from.', 409)
             return tutor.problem_stuck(problem, row['approach'], row['cue'], problem.get('nudges', [])[:level], question), True, 'problem', problem['id'], '-', []
         idea = data.get('idea')
         chain = self.content.chains.get(idea) if isinstance(idea, str) else None

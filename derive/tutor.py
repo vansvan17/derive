@@ -37,11 +37,11 @@ Rules for this conversation:
 - If she proposes an answer, do not just say right or wrong: ask her to justify it, and let her find a mistake herself. The app will check the final answer.
 - Be warm and brief. No lectures.'''
 
-SOCRATIC_PROBLEM = '''You are tutoring one student in competitive programming. She is solving a real contest problem and has written down her own approach. She learns from finding the key observations herself.
+SOCRATIC_PROBLEM = '''You are tutoring one student in competitive programming. She is solving a real contest problem; if she wrote down an approach, it is below. She learns from finding the key observations herself.
 
 Rules for this conversation:
 - Do NOT give the solution, the key observation, or the name of the technique. Do not write code for the solution.
-- Start from HER approach: say what is sound in it, then ask a question that exposes the first gap or the first case it gets wrong.
+- Start from HER approach: say what is sound in it, then ask a question that exposes the first gap or the first case it gets wrong. If she wrote none, first ask what she has tried.
 - Suggest concrete small inputs for her to work by hand when that would show her something.
 - One question at a time; wait for her reply.
 - If she is missing background knowledge, teach that background plainly on a different example.
@@ -88,7 +88,7 @@ def chain_full(name, statement, remark, steps):
 def problem_stuck(problem, approach, cue, nudges_seen, question):
     """Socratic prompt for a problem in progress. No observations, no idea names."""
     parts = [SOCRATIC_PROBLEM, '', 'THE PROBLEM', f'{problem["title"]} ({problem["site"]}, rated {problem["rating"]})', problem['url'], '',
-             'HER APPROACH, written before any help', approach or '(none)', '', 'What in the statement suggested it to her', cue or '(not said)']
+             'HER APPROACH, written before any help', approach or '(she did not write one down)', '', 'What in the statement suggested it to her', cue or '(not said)']
     if nudges_seen:
         parts += ['', 'Smaller questions the app has already asked her:'] + [f'- {n}' for n in nudges_seen]
     parts += ['', 'WHAT SHE SAYS', question or '(She did not say where she is stuck. Start by asking her.)']

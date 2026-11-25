@@ -1,6 +1,7 @@
 /* Implement tasks: a statement with no hint, real code in the editor, judged on this computer
    against generated tests with a time limit. */
 import {makeEditor} from './problem.js';
+import {sideButton, wireSplit} from './split.js';
 
 export async function renderTasks(ctx) {
   const {api, escape: e} = ctx;
@@ -14,7 +15,7 @@ export async function renderTasks(ctx) {
 }
 
 /* The whole task (statement, editor, run, judge) inside any host element. Used by the task page and by code steps of a chain. */
-export async function mountTask(ctx, host, id, {onAccepted = null, heading = true} = {}) {
+export async function mountTask(ctx, host, id, {onAccepted = null, heading = true, before = '', after = ''} = {}) {
   const {api, post, waitFor, escape: e, markdown, toast} = ctx;
   const root = ctx.root, alive = () => ctx.root === root && host.isConnected;
   let task = await api('/task/' + encodeURIComponent(id));
@@ -24,13 +25,14 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   let busy = false, saveTimer = null;
   const box = (title, text) => `<div><h4>${e(title)}</h4><pre>${e(text)}</pre></div>`;
   host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow"><a href="#/code">Code</a> · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)}</h1></div><div data-status></div></header>` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
-    <section class="${heading ? 'surface reading' : 'task-inline'}">${markdown(task.statement)}
-      <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>
-    <section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta"><label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>
+    <div class="split" data-split><div class="split-pane split-text">${before}<section class="surface reading task-statement">${markdown(task.statement)}
+      <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${after}</div>
+    <div class="split-pane split-code"><section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta">${sideButton()}<label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>
       <div class="editor-host" data-editor></div>
       <label class="field">Your own input<textarea data-input rows="4" spellcheck="false">${e(task.samples[0][0])}</textarea></label>
       <div class="run-bar"><button class="btn btn-secondary btn-sm" type="button" data-run>Run on this input</button><span class="spacer"></span><button class="btn btn-primary" type="button" data-judge>Judge</button></div></section>
-    <section class="surface results" aria-live="polite" data-results><h3>Results</h3><p class="results-empty">Run it on your own input, or judge it against the hidden tests.</p></section>`;
+    <section class="surface results" aria-live="polite" data-results><h3>Results</h3><p class="results-empty">Run it on your own input, or judge it against the hidden tests.</p></section></div></div>`;
+  wireSplit(host.querySelector('[data-split]'));
   const $ = s => host.querySelector(s);
   const status = () => { $('[data-status]').innerHTML = task.solved ? '<span class="badge badge-success">Accepted</span>' : task.tries ? `<span class="badge">${task.tries} ${task.tries === 1 ? 'try' : 'tries'} so far</span>` : ''; };
   status();

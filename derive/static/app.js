@@ -126,20 +126,31 @@ function paintNav() {
 export function applyTheme(theme) {
   const actual = theme === 'system' || !theme ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
   document.documentElement.dataset.theme = actual;
+  // The switch says what a click will do, so it reads "Dark mode" while the page is light.
+  document.querySelectorAll('[data-theme-toggle]').forEach(b => { b.textContent = actual === 'dark' ? '☀ Light mode' : '☾ Dark mode'; b.setAttribute('aria-label', actual === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'); });
+}
+/* One click, from any page: flip between light and dark and remember it. */
+async function toggleTheme() {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  if (state.boot) state.boot.settings.theme = next;
+  try { await post('/settings', {theme: next}); } catch (error) { toast('The theme was switched but could not be saved: ' + error.message, 'error'); }
 }
 function buildShell() {
   const app = document.getElementById('app');
   app.innerHTML = `<div class="shell">
-    <header class="topbar"><button class="menu-btn" type="button" data-menu aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">${icon('menu')}</button><a class="brand" href="#/">${EMBLEM}<span class="brand-name">derive</span></a></header>
+    <header class="topbar"><button class="menu-btn" type="button" data-menu aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">${icon('menu')}</button><a class="brand" href="#/">${EMBLEM}<span class="brand-name">derive</span></a><span class="spacer"></span><button class="theme-toggle theme-toggle-top" type="button" data-theme-toggle></button></header>
     <aside class="sidebar" id="sidebar" aria-label="Navigation">
       <a class="brand" href="#/">${EMBLEM}<span><span class="brand-name">derive</span><span class="brand-sub">nothing is told, only asked</span></span></a>
       <nav data-nav-host aria-label="Sections"></nav>
-      <p class="sidebar-foot">Runs only on this computer.</p>
+      <div class="sidebar-foot"><button class="theme-toggle" type="button" data-theme-toggle></button><p>Runs only on this computer.</p></div>
     </aside>
     <div class="scrim" data-scrim></div>
     <main class="main" id="main-content" tabindex="-1"><div class="main-inner" data-root></div></main>
   </div>`;
   const shell = app.querySelector('.shell'), menu = app.querySelector('[data-menu]');
+  app.querySelectorAll('[data-theme-toggle]').forEach(b => b.addEventListener('click', toggleTheme));
+  applyTheme(document.documentElement.dataset.theme || state.boot?.settings?.theme);       // gives the switch its label
   const setOpen = open => { shell.classList.toggle('nav-open', open); menu.setAttribute('aria-expanded', String(open)); };
   menu.addEventListener('click', () => setOpen(!shell.classList.contains('nav-open')));
   app.querySelector('[data-scrim]').addEventListener('click', () => setOpen(false));

@@ -1,3 +1,4 @@
+import {sideButton, wireSplit} from './split.js';
 import {askTutor} from './tutor.js';
 /* A real problem from a real judge, with no topic given.
    Order of events: (an optional first approach), work, (help), the judge's verdict, then what cracked it. */
@@ -51,24 +52,28 @@ export async function renderProblem(ctx, id) {
   let file = 'main', editor = null, saveTimer = null, noteTimer = null, running = false, stopped = false;
   const dirty = {main: false, brute: false, gen: false};
 
-  root.innerHTML = `<div class="reading wide-reading">
+  root.innerHTML = `<div class="solve-page">
     <header class="chain-head"><p class="eyebrow">${e(p.site)} · rated ${e(p.rating)}${p.returned_for ? ' · something you have met before' : ''}</p><h1>${e(p.title)}</h1>
       <p><a class="btn btn-secondary" href="${e(p.url)}" target="_blank" rel="noopener noreferrer">${icon('external')}Read it on ${e(p.site)}</a></p></header>
+    <div class="split" data-split><div class="split-pane split-text reading">
     <section class="surface" data-commit></section>
     <section class="surface" aria-label="Notes"><h2>Scratch notes</h2><p class="muted small">Small cases, observations, dead ends. Saved as you type.</p><textarea class="input notes" data-notes rows="5" spellcheck="false" placeholder="n = 1: …">${e(p.notes || '')}</textarea></section>
+    <section class="surface" data-help></section>
+    <section class="surface" data-finish></section>
+    <div data-after></div>
+    </div><div class="split-pane split-code reading">
     <section class="surface editor-card" aria-label="Code">
       <div class="editor-bar"><div class="file-tabs" role="tablist" aria-label="Files">${FILES.map(([k, label]) => `<button class="file-tab" role="tab" data-file="${k}" aria-selected="${k === 'main'}">${label}</button>`).join('')}</div>
-        <div class="editor-meta"><span data-save role="status">Saved</span><label><span class="sr-only">Language</span><select data-language><option value="cpp">C++20</option><option value="python">Python</option></select></label></div></div>
+        <div class="editor-meta">${sideButton()}<span data-save role="status">Saved</span><label><span class="sr-only">Language</span><select data-language><option value="cpp">C++20</option><option value="python">Python</option></select></label></div></div>
       <div class="editor-host" data-editor></div>
       <p class="editor-note" data-file-note hidden></p>
       <div class="custom-input"><label class="field" style="padding-top:.75rem">Input<textarea data-input rows="4" spellcheck="false" placeholder="Paste a sample from the problem page, or a case of your own."></textarea></label></div>
       <div class="run-bar"><button class="btn btn-secondary btn-sm" type="button" data-run="run">${icon('play')}Run on this input</button><span class="spacer"></span><label>Generated tests<input type="number" data-cases min="1" max="1000" value="200"></label><button class="btn btn-secondary btn-sm" type="button" data-run="stress">Stress against my brute force</button></div>
     </section>
     <section class="surface results" aria-label="Results" aria-live="polite" data-results><h3>Results</h3><p class="results-empty">Your code runs here in a sandbox. The real verdict comes from ${e(p.site)}.</p></section>
-    <section class="surface" data-help></section>
-    <section class="surface" data-finish></section>
-    <div data-after></div>
+    </div></div>
   </div>`;
+  wireSplit(root.querySelector('[data-split]'));
   const $ = s => root.querySelector(s);
   const results = $('[data-results]'), saveNode = $('[data-save]');
   $('[data-language]').value = language;

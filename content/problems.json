@@ -1137,6 +1137,58 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2208D2",
+  "site": "Codeforces",
+  "contest": 2208,
+  "index": "D2",
+  "title": "Tree Orientation (Hard Version)",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/2208/problem/D2",
+  "editorial": "https://codeforces.com/blog/entry/152073",
+  "ideas": [
+   "necessary-sufficient",
+   "extremal"
+  ],
+  "observations": [
+   "If an answer exists it is unique: there is an edge from u to v exactly when u reaches v and no third vertex w lies between them (u reaches w and w reaches v). So build the only candidate and then check that it is a tree and reproduces the whole table.",
+   "Testing every w for every pair is cubic, too slow for 8000. Instead, for a fixed u look at the vertices it reaches and take the one, v, that itself reaches the most vertices: nothing can lie between u and v, so the edge from u to v must exist.",
+   "Everything v reaches is reached from u through v, so cross those off and repeat with what is left. Each repetition creates an edge, and a tree has only n - 1 edges, so there are few repetitions; each costs one pass over a row.",
+   "The verification matters: a table that does not come from any oriented tree still produces some candidate graph."
+  ],
+  "nudges": [
+   "If u reaches v, what would tell you whether the edge from u to v is there?",
+   "Among the vertices u reaches, is there one that certainly has no vertex in between?",
+   "After finding one edge out of u, which of the vertices u reaches are no longer candidates?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2230E",
+  "site": "Codeforces",
+  "contest": 2230,
+  "index": "E",
+  "title": "Minimum Influence",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/2230/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/153834",
+  "ideas": [
+   "matching-bounds",
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "Each of the two parts of the influence is a non-decreasing function of the item's value and is never more than the value itself.",
+   "Items below a user's tolerance in one topic contribute 0 there, so among them only the one with the smallest value in the other topic matters. Items at or above the cap in one topic all contribute the same there, so again only the smallest other value matters. That is four simple candidates per user, each a minimum over items on one side of a threshold: sort and keep running minima.",
+   "The remaining items lie in the middle band for both topics and contribute p + c. Do not search that band: take the item with the smallest p + c overall. If it is in the band it is the best there; if it is not, its true influence is at most its p + c, so no item in the band can beat the candidates.",
+   "So each user is answered from five precomputed candidates."
+  ],
+  "nudges": [
+   "How does one topic's influence change as the item's value grows? How large can it get?",
+   "Among the items that are below the tolerance for one topic, which single item is the only one worth looking at?",
+   "The middle case seems to need a search inside a rectangle. What happens if you ignore the rectangle and take the best item overall?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2264E1",
   "site": "Codeforces",
   "contest": 2264,
@@ -1401,6 +1453,32 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-2193H",
+  "site": "Codeforces",
+  "contest": 2193,
+  "index": "H",
+  "title": "Remove the Grail Tree",
+  "rating": 2400,
+  "url": "https://codeforces.com/contest/2193/problem/H",
+  "editorial": "https://codeforces.com/blog/entry/150510",
+  "ideas": [
+   "parity-invariant",
+   "pigeonhole"
+  ],
+  "observations": [
+   "Only parities matter. A vertex with even value never changes anyone's sum parity, so such vertices can be set aside: one whose neighbours' sum is odd can go first, the others go later when a neighbouring odd vertex has been removed (and if it has no odd neighbour at all it can never go).",
+   "What remains is a forest of odd-valued vertices, and a vertex is removable exactly when it has an even number of remaining neighbours. Each removal takes away one vertex and an even number of edges, so a component with an odd number of edges (an even number of vertices) can never be emptied.",
+   "A component with an odd number of vertices always can. Call an edge 'pointing at u' if removing u would leave the other end in an even-sized piece; every edge points at exactly one of its ends, so there are n - 1 pointings among n vertices and some vertex has none. That vertex has only odd pieces around it, hence an even number of neighbours: remove it and continue in the pieces.",
+   "Maintain these counts and process vertices with count zero from a queue; removing a vertex lowers the count of each neighbour by one."
+  ],
+  "nudges": [
+   "What do the even-valued vertices do to the condition for everyone else?",
+   "Among odd-valued vertices only, when can a vertex be removed? What does a removal do to the number of edges?",
+   "In a tree with an odd number of vertices, why must a removable vertex exist whose removal leaves only odd pieces?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2211F",
   "site": "Codeforces",
   "contest": 2211,
@@ -1557,6 +1635,32 @@
    "How else can you describe the sum of squares of how often each string occurs?",
    "Two walks spell the same string. What happens after their first letters?",
    "In what order of the vertices does a subtree become a contiguous range?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2190D",
+  "site": "Codeforces",
+  "contest": 2190,
+  "index": "D",
+  "title": "Prufer Vertex",
+  "rating": 2500,
+  "url": "https://codeforces.com/contest/2190/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/150256",
+  "ideas": [
+   "symmetry",
+   "contribution"
+  ],
+  "observations": [
+   "Follow the process: vertex n - 1 can only be removed when it is the smallest leaf, and since a tree always has at least two leaves that requires n - 1 and n to be the only leaves, so the tree is a path between them. Working through both cases shows the survivor is always the second vertex on the path from n to n - 1 (which is n - 1 itself when they are adjacent).",
+   "So the question is: in how many completions is v the neighbour of n on the path to n - 1? If n and n - 1 are already in one component the answer is fixed and every completion counts for that one vertex.",
+   "Otherwise treat v as attached to n's component (if it is not adjacent to n yet, that edge is one of the added ones, which changes the component sizes in a known way). The component of n - 1 ends up hanging off some vertex of n's component, and by symmetry every vertex of that component is equally likely to be the attachment point over all completions.",
+   "So the count for v is the total number of completions times (size of v's side when the component is rooted at n) divided by (size of the component), using the given formula for the total."
+  ],
+  "nudges": [
+   "When can vertex n - 1 be removed during the process? What does the tree look like then?",
+   "How can the surviving vertex be described without mentioning the process at all?",
+   "Over all ways to complete the forest, is any vertex of a component more likely than another to be where a different component gets attached?"
   ],
   "checked": "2026-11-25"
  },

@@ -211,6 +211,7 @@ class Service:
                 'reveal': {**chain['reveal'], 'problems': len(self.content.problems_for(idea))} if complete else None,
                 # Practice tasks would give the topic away, so they are listed only once the chain is finished.
                 'practice': [{**t, 'done': t['url'] in ticked} for t in self.content.practice.get(idea, [])] if complete else [],
+                'marks': info.get('marks', []),
                 'area': next(a['title'] for a in self.content.areas if a['id'] == info['area'])}
 
     def settle_code_steps(self, store, idea, chain):

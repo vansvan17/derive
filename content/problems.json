@@ -887,6 +887,86 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-2211F",
+  "site": "Codeforces",
+  "contest": 2211,
+  "index": "F",
+  "title": "Learning Binary Search",
+  "rating": 2400,
+  "url": "https://codeforces.com/contest/2211/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/152448",
+  "ideas": [
+   "contribution",
+   "stars-bars",
+   "complement"
+  ],
+  "observations": [
+   "The search path depends only on positions: simulate the search once to learn, for every index, how many steps it takes to land on it (its weight).",
+   "In a non-decreasing array each value x occupies a stretch of positions (possibly empty), and searching for x costs the smallest weight inside its stretch. So sum, over values x and stretches [l, r], the smallest weight in the stretch times the number of arrays in which x occupies exactly that stretch.",
+   "The arrays around a fixed stretch are counted by sharing positions among the smaller values on the left and among the larger values on the right: two binomials. Summed over x they collapse (Vandermonde) into one binomial that depends only on the length of the stretch.",
+   "What remains is: for every length k, the sum of minimum weights over all stretches of length k. Each index is the minimum of stretches described by its nearest smaller neighbours (a stack finds them), and its contribution as a function of k rises, stays flat, then falls: add it with second differences."
+  ],
+  "nudges": [
+   "Does the number of steps to reach an index depend on the values in the array?",
+   "In a sorted array, what do the positions holding one value look like, and which of them does the search hit?",
+   "Fix a value and the stretch it occupies. How many arrays look like that?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2229F",
+  "site": "Codeforces",
+  "contest": 2229,
+  "index": "F",
+  "title": "Load Unbalancing",
+  "rating": 2400,
+  "url": "https://codeforces.com/contest/2229/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/153948",
+  "ideas": [
+   "exchange",
+   "search-answer",
+   "bitmask-dp"
+  ],
+  "observations": [
+   "The final maximum is (the smallest pile just before the last addition) plus the last number added to it. An exchange argument shows the largest number can always be the one added last.",
+   "So the task is: with the remaining numbers, make the smallest of the k piles as large as possible at the end, under the rule that each number goes to a currently smallest pile. If the numbers can be split into k groups each with sum at least v, feeding each pile its own group, largest number first, achieves smallest pile at least v.",
+   "Search for the largest v by halving. For a fixed v, ask for the largest number of disjoint groups with sum at least v.",
+   "With n at most 18, go over subsets: for each set of used numbers keep the pair (groups completed, sum of the group in progress), comparing pairs lexicographically. Each set tries adding one more number."
+  ],
+  "nudges": [
+   "Write the final maximum in terms of the state just before the last number is placed. Which number would you like to place last?",
+   "With the last number fixed, what are you trying to make large before it arrives?",
+   "For a target value v, what do you need the other numbers to be split into?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2237F",
+  "site": "Codeforces",
+  "contest": 2237,
+  "index": "F",
+  "title": "Paint the Array",
+  "rating": 2400,
+  "url": "https://codeforces.com/contest/2237/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/154603",
+  "ideas": [
+   "necessary-sufficient",
+   "dp-state"
+  ],
+  "observations": [
+   "Look only at neighbours. Two neighbouring cells either come from the same painting (then the right one is one more than the left), or the left one was painted later and must be the end of its stroke (value m), or the right one was painted later and must be the start of its stroke (value 1). Together with first cell 1 and last cell m, this is necessary.",
+   "It is also sufficient: cut the array into maximal pieces that look like parts of one stroke and decide the order of strokes piece by piece from the left: a piece that starts with 1 is painted after everything before it, any other piece is painted before everything before it.",
+   "So a valid array is described by a purely local rule, and the question becomes: keep as many cells unchanged as possible. Let best(i) be the most cells kept when i is the last kept cell.",
+   "A kept cell i can be followed by a kept cell j in three ways: same stroke (the value minus the position is equal), j lies beyond the end of the stroke through i, or i lies before the start of the stroke through j. The first is a table keyed by value minus position; the other two are ranges of positions, handled with running maxima. Linear time."
+  ],
+  "nudges": [
+   "Which arrays are valid? Look at two neighbouring cells: in what ways can they have received their final values?",
+   "Is your condition on neighbours also enough? How would you order the strokes?",
+   "If you keep some cells and change the rest freely, when can two kept cells stand in the same final array?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2174C2",
   "site": "Codeforces",
   "contest": 2174,
@@ -938,5 +1018,31 @@
    "After keeping as many already-correct pairs as possible, what do the leftover brackets look like, and when can they not all be fixed with one change per pair?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2248F",
+  "site": "Codeforces",
+  "contest": 2248,
+  "index": "F",
+  "title": "Matrix Elimination",
+  "rating": 2500,
+  "url": "https://codeforces.com/contest/2248/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/155640",
+  "ideas": [
+   "matching-bounds",
+   "kth-by-counting"
+  ],
+  "observations": [
+   "Rewrite the condition for a cell as one number that must be at most zero: its row total plus its column total minus three times the cell (its deficit).",
+   "See what one operation can do to one deficit. Covering a cells of the row and b cells of the column lowers it by a + b - 3 if the cell itself is covered and by a + b otherwise; with at least two rows and two columns neither can beat n + m - 3.",
+   "That bound is reached by subtracting from the whole matrix, and that single kind of operation lowers every deficit by the maximum at once. So the cells do not compete: each cell needs its deficit divided by n + m - 3, rounded up (at least 0) operations, and the answer is the k-th smallest of these numbers.",
+   "A matrix that is a single row or column is a separate case: there an operation that leaves out one end cell can help that end cell more than the full operation does, and the answer comes from a few inequalities on the counts of the two kinds of operation."
+  ],
+  "nudges": [
+   "Can the peak condition for a cell be written as a single quantity compared with zero?",
+   "By how much can one operation improve that quantity for one particular cell, at most?",
+   "Is there one operation that gives every cell its best possible improvement at the same time?"
+  ],
+  "checked": "2026-11-25"
  }
 ]

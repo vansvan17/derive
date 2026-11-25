@@ -145,7 +145,7 @@
    "tier": "hard",
    "id": "h-lamps",
    "kind": "list",
-   "prompt": "From here on nobody tells you what to look at. A row of $n$ lamps, all off. A move picks three lamps that stand directly next to one another (positions $i$, $i+1$, $i+2$) and switches all three: on becomes off, off becomes on. For which $n$ from 3 to 12 can all $n$ lamps be on at once?",
+   "prompt": "From here on nobody tells you what to look at. A row of $n$ lamps, all off. A move picks three lamps that stand directly next to one another (positions $i$, $i+1$, $i+2$) and switches all three: on becomes off, off becomes on. Each row length is its own puzzle: a row of exactly 3 lamps, a row of exactly 4 lamps, and so on up to 12. List every $n$ from 3 to 12 for which some sequence of moves ends with all $n$ lamps on.",
    "answer": [
     3,
     6,

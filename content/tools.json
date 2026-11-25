@@ -302,5 +302,113 @@
   ],
   "task": "rising",
   "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<int> tail;                                   // tail[len-1]: smallest ending of a rising subsequence of that length\n    for (int i = 0; i < n; i++) {\n        int x;\n        scanf(\"%d\", &x);\n        auto it = lower_bound(tail.begin(), tail.end(), x);\n        if (it == tail.end()) tail.push_back(x);\n        else *it = x;\n    }\n    printf(\"%d\\n\", (int)tail.size());\n}\n"
+ },
+ {
+  "id": "knapsack-once",
+  "title": "Each item at most once",
+  "when": [
+   "Choose some of n items under a capacity, each item used at most once",
+   "n times capacity is around 10^7 or less",
+   "\"Can these numbers be split into two equal halves\", \"which totals are reachable\" are the same table with true/false"
+  ],
+  "idea": "best[w] is the largest value that fits in capacity w using the items looked at so far. A new item of weight wt and value v offers one more option for every capacity: best[w - wt] + v. The only subtlety is the order in which the capacities are updated. Going downward from the full capacity, best[w - wt] has not been touched yet in this round, so it still describes the world without the new item: the item is used at most once. Going upward, best[w - wt] may already include the item, and it gets used again and again, which is the other knapsack.\n\nOne array, n times W steps.",
+  "traps": [
+   "Downward loop for each-item-once; upward for unlimited copies. This is the whole difference between the two.",
+   "Stop the loop at w = wt; below that the item does not fit.",
+   "Values add up beyond 32 bits.",
+   "If the capacity is huge but the values are small, swap roles: smallest weight for each total value."
+  ],
+  "task": "pack-bag",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, W;\n    scanf(\"%d %d\", &n, &W);\n    vector<long long> best(W + 1, 0);\n    for (int i = 0; i < n; i++) {\n        int wt;\n        long long val;\n        scanf(\"%d %lld\", &wt, &val);\n        for (int w = W; w >= wt; w--)                   // downward: best[w - wt] is still without this item\n            best[w] = max(best[w], best[w - wt] + val);\n    }\n    printf(\"%lld\\n\", best[W]);\n}\n"
+ },
+ {
+  "id": "dag-dp",
+  "title": "Tables on a graph without cycles",
+  "when": [
+   "Longest path, number of paths, or best score in a directed graph that has no cycles",
+   "Dependencies: \"this must come before that\", and you want the longest chain",
+   "Any DP whose states do not come in an obvious left-to-right order"
+  ],
+  "idea": "A DP is always a walk over a graph without cycles: states are vertices, transitions are edges. When the graph is given to you directly, the only new question is the order of evaluation, because the labels of the vertices say nothing. Take a topological order: one in which every edge goes from earlier to later. Then process the vertices in that order and push each value along its outgoing edges: longest[b] = max(longest[b], longest[a] + 1).\n\nThe order comes from repeatedly removing a vertex with no incoming edges left (a queue and an array of in-degrees). The other way is a recursive function with memory, which is the same computation, but on a path of 200000 vertices the recursion is too deep.",
+  "traps": [
+   "Do not assume edges go from a smaller label to a larger one.",
+   "A vertex is finished only when all its incoming edges have been processed; that is exactly what the in-degree count guarantees.",
+   "Counting paths: the same loop with a sum, taken modulo the prime.",
+   "If the graph has cycles, shortest-path style reasoning is needed and this does not apply."
+  ],
+  "task": "longest-chain",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m;\n    scanf(\"%d %d\", &n, &m);\n    vector<vector<int>> out(n + 1);\n    vector<int> deg(n + 1, 0), longest(n + 1, 0);\n    for (int i = 0; i < m; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        out[a].push_back(b);\n        deg[b]++;\n    }\n    vector<int> order;\n    for (int v = 1; v <= n; v++) if (deg[v] == 0) order.push_back(v);\n    for (size_t i = 0; i < order.size(); i++) {         // every edge goes from earlier to later in this order\n        int a = order[i];\n        for (int b : out[a]) {\n            longest[b] = max(longest[b], longest[a] + 1);\n            if (--deg[b] == 0) order.push_back(b);\n        }\n    }\n    printf(\"%d\\n\", *max_element(longest.begin(), longest.end()));\n}\n"
+ },
+ {
+  "id": "expected-dp",
+  "title": "Expected values, from the end",
+  "when": [
+   "\"Expected number of steps / rolls / moves until ...\" with an answer modulo a prime",
+   "A random process that only moves forward",
+   "Probabilities given as fractions that you must not turn into floating point"
+  ],
+  "idea": "Let E[i] be the expected number of further rolls when standing on square i. One roll is made for certain, and then you are on one of k squares with equal chance, so\n\nE[i] = 1 + (E[i+1] + ... + E[i+k]) / k, and E[i] = 0 once i is at the end or beyond.\n\nThe unknown on the left depends only on squares further on, so fill the table from the end backwards. This is the general rule for expected values: define the expectation of what is still to come, and go backwards. (Probabilities of having reached a state go forwards.) The sum of k consecutive values is a window: keep running totals from the end so that each square costs constant time. Dividing by k modulo a prime means multiplying by the inverse of k.",
+  "traps": [
+   "Answer \"as a fraction modulo p\": do every division with a modular inverse, and compute the inverse of k once.",
+   "Squares beyond the end count as 0; cap the window at n instead of making the array longer.",
+   "Subtracting running totals modulo p can go negative: add p back.",
+   "If a move can leave you where you are, E[i] appears on both sides; solve that equation for E[i] by hand first."
+  ],
+  "task": "board-rolls",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nconst long long M = 998244353;\n\nlong long power(long long b, long long e) {\n    long long r = 1;\n    for (b %= M; e > 0; e >>= 1, b = b * b % M)\n        if (e & 1) r = r * b % M;\n    return r;\n}\n\nint main() {\n    int n, k;\n    scanf(\"%d %d\", &n, &k);\n    long long inv = power(k, M - 2);\n    vector<long long> E(n + 2, 0), S(n + 2, 0);         // S[i] = E[i] + E[i+1] + ... (zero from n on)\n    for (int i = n - 1; i >= 0; i--) {\n        long long hi = (long long)i + k + 1;\n        long long window = (S[i + 1] - (hi < n ? S[hi] : 0) + M) % M;\n        E[i] = (1 + window * inv) % M;\n        S[i] = (S[i + 1] + E[i]) % M;\n    }\n    printf(\"%lld\\n\", E[0]);\n}\n"
+ },
+ {
+  "id": "sos-dp",
+  "title": "Sums over all subsets of every mask",
+  "when": [
+   "For every mask you need something over all its submasks (or all its supermasks)",
+   "Counting pairs with a AND b = 0, or a OR b = something, for values below 2^20",
+   "The obvious loop over submasks of every mask is 3^n and n is about 20"
+  ],
+  "idea": "Think of a mask as a point with n coordinates, each 0 or 1. \"Sum over all submasks\" is a prefix sum in n dimensions. A two-dimensional prefix sum can be made by summing along rows first and then along columns; in the same way, sum along one bit at a time. For bit b, every mask that has the bit adds the value of the same mask without it:\n\nfor each bit b: for each mask containing b: f[mask] += f[mask without b].\n\nAfter bit b has been processed, f[mask] holds the sum over all masks that agree with it above bit b and are submasks of it on bits 0..b. After all bits, it is the sum over all submasks. That is n times 2^n additions instead of 3^n.",
+  "traps": [
+   "The bit loop is the outer loop. With the loops the other way round, values get counted many times.",
+   "Supermasks: the same with \"mask does not contain b\" and adding f[mask with b].",
+   "To undo it (from subset sums back to the original values), run the same loops with subtraction.",
+   "Sums of 2^n values overflow 32 bits quickly."
+  ],
+  "task": "subset-totals",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<long long> f(1 << n);\n    for (auto &x : f) scanf(\"%lld\", &x);\n    for (int b = 0; b < n; b++)                         // one bit at a time, like one dimension of a prefix sum\n        for (int mask = 0; mask < (1 << n); mask++)\n            if (mask >> b & 1) f[mask] += f[mask ^ (1 << b)];\n    for (int mask = 0; mask < (1 << n); mask++) printf(\"%lld%c\", f[mask], mask + 1 == (1 << n) ? '\\n' : ' ');\n}\n"
+ },
+ {
+  "id": "prefix-sum-dp",
+  "title": "A transition that is a range sum",
+  "when": [
+   "Counting DP where the new value is a sum of a whole stretch of old values",
+   "The honest transition costs O(k) per cell and that is one factor too slow",
+   "Each child / day / slot takes \"between 0 and a_i\" of something"
+  ],
+  "idea": "ways[j] is the number of ways to hand out j sweets among the children seen so far. The next child, with limit a, takes some amount t from 0 to a, so\n\nnew[j] = ways[j] + ways[j-1] + ... + ways[j-a].\n\nThat is a sum of consecutive entries of the old row. Build the running totals of the old row once, and every new entry is one subtraction. The table costs n times k instead of n times k times a. Whenever a transition reads a contiguous range of the previous row, the same trick applies; when it takes a minimum of a range instead, the tool is a sliding-window minimum.",
+  "traps": [
+   "The range is cut off at 0: the lower end is max(0, j - a).",
+   "Subtraction modulo the prime can go negative.",
+   "Build the running totals from the old row, not from the one being written.",
+   "Start with ways[0] = 1: there is one way to give nobody nothing."
+  ],
+  "task": "share-sweets",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    const long long M = 1000000007;\n    int n, k;\n    scanf(\"%d %d\", &n, &k);\n    vector<long long> ways(k + 1, 0), pre(k + 2, 0);\n    ways[0] = 1;\n    for (int i = 0; i < n; i++) {\n        int a;\n        scanf(\"%d\", &a);\n        for (int j = 0; j <= k; j++) pre[j + 1] = (pre[j] + ways[j]) % M;   // running totals of the old row\n        for (int j = 0; j <= k; j++)\n            ways[j] = (pre[j + 1] - pre[max(0, j - a)] + M) % M;            // old ways[j-a .. j]\n    }\n    printf(\"%lld\\n\", ways[k]);\n}\n"
+ },
+ {
+  "id": "matrix-power",
+  "title": "A recurrence taken 10^18 steps",
+  "when": [
+   "A DP with a handful of states and the same transition at every step",
+   "n is up to 10^18, so even one pass is impossible",
+   "Fibonacci-like recurrences, counting walks of a given length in a small graph, tilings of a narrow strip"
+  ],
+  "idea": "When every step of a DP computes the new states as fixed sums of multiples of the old ones, a step is a multiplication of the state vector by a matrix. For \"never three in a row\" the states are (diff, same) and one step is\n\ndiff' = (k-1) diff + (k-1) same, same' = diff,\n\nso the matrix has rows (k-1, k-1) and (1, 0). Doing n - 1 steps is multiplying by the matrix to the power n - 1, and a power is found by repeated squaring exactly as for numbers: about 60 squarings for 10^18. With s states each multiplication costs s cubed.\n\nThe work is all in the first part: writing the DP so that the step does not depend on the position.",
+  "traps": [
+   "Count the steps carefully: length 1 is the starting vector, so the power is n - 1, not n.",
+   "Matrix multiplication is not commutative; be consistent about whether vectors are columns or rows.",
+   "Reduce k modulo the prime before putting it in the matrix; products of two residues need 64 bits.",
+   "A constant term in the recurrence is handled by adding a state that is always 1."
+  ],
+  "task": "long-no-three",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nconst long long M = 1000000007;\ntypedef array<array<long long, 2>, 2> Mat;\n\nMat mul(const Mat &A, const Mat &B) {\n    Mat C{};\n    for (int i = 0; i < 2; i++)\n        for (int j = 0; j < 2; j++)\n            for (int t = 0; t < 2; t++) C[i][j] = (C[i][j] + A[i][t] * B[t][j]) % M;\n    return C;\n}\n\nint main() {\n    long long n, k;\n    scanf(\"%lld %lld\", &n, &k);\n    long long c = (k - 1) % M;\n    Mat step = {{{c, c}, {1, 0}}};                       // (diff, same) -> ((k-1)(diff+same), diff)\n    Mat result = {{{1, 0}, {0, 1}}};\n    for (long long e = n - 1; e > 0; e >>= 1, step = mul(step, step))\n        if (e & 1) result = mul(result, step);\n    long long diff = result[0][0] * (k % M) % M, same = result[1][0] * (k % M) % M;   // applied to the start (k, 0)\n    printf(\"%lld\\n\", (diff + same) % M);\n}\n"
  }
 ]

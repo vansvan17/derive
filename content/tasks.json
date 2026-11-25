@@ -914,5 +914,109 @@
    ]
   ],
   "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': 3000, 'large': 200000}[size]; top = rng.choice([3, 9]) if size == 'small' else rng.choice([50, 10 ** 9])\n    a = [rng.randint(1, top) for _ in range(n)]\n    if size != 'small' and rng.random() < 0.5: a = sorted(a); [a.__setitem__(rng.randrange(n), rng.randint(1, top)) for _ in range(n // 20)]\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    import bisect\n    tails = []\n    for x in ints(text)[1:]:\n        i = bisect.bisect_left(tails, x)\n        if i == len(tails): tails.append(x)\n        else: tails[i] = x\n    return str(len(tails))\ndef brute(text):\n    a = ints(text)[1:]; n = len(a); best = 0\n    for mask in range(1, 1 << n):\n        pick = [a[i] for i in range(n) if mask >> i & 1]\n        if all(x < y for x, y in zip(pick, pick[1:])): best = max(best, len(pick))\n    return str(best)\n"
+ },
+ {
+  "id": "pack-bag",
+  "title": "Packing the bag",
+  "track": "toolbox",
+  "statement": "There are $n$ items; item $i$ weighs $w_i$ and is worth $v_i$. Choose some of them, each at most once, with total weight at most $W$, so that the total worth is as large as possible. Print that worth.\n\n**Input.** The first line contains $n$ and $W$ ($1 \\le n \\le 100$, $1 \\le W \\le 2 \\cdot 10^4$). Each of the next $n$ lines contains $w_i$ and $v_i$ ($1 \\le w_i \\le 2 \\cdot 10^4$, $1 \\le v_i \\le 10^9$).\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "4 7\n3 4\n4 5\n2 3\n5 8\n",
+    "11"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n, W = {'small': (rng.randint(1, 7), rng.randint(1, 12)), 'medium': (40, 2000), 'large': (100, 20000)}[size]\n    tw = 8 if size == 'small' else rng.choice([W // 10 + 1, W]); tv = 9 if size == 'small' else 10 ** 9\n    return f\"{n} {W}\\n\" + ''.join(f\"{rng.randint(1, tw)} {rng.randint(1, tv)}\\n\" for _ in range(n))\ndef solve(text):\n    v = ints(text); n, W = v[0], v[1]; best = [0] * (W + 1)\n    for i in range(n):\n        wt, val = v[2 + 2 * i], v[3 + 2 * i]\n        for w in range(W, wt - 1, -1):\n            c = best[w - wt] + val\n            if c > best[w]: best[w] = c\n    return str(best[W])\ndef brute(text):\n    v = ints(text); n, W = v[0], v[1]; best = 0\n    for mask in range(1 << n):\n        wt = sum(v[2 + 2 * i] for i in range(n) if mask >> i & 1)\n        if wt <= W: best = max(best, sum(v[3 + 2 * i] for i in range(n) if mask >> i & 1))\n    return str(best)\n"
+ },
+ {
+  "id": "longest-chain",
+  "title": "Longest chain",
+  "track": "toolbox",
+  "statement": "A directed graph with $n$ vertices and $m$ edges has no directed cycles. Print the largest number of edges on any directed path.\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 2 \\cdot 10^5$, $0 \\le m \\le 2 \\cdot 10^5$). Each of the next $m$ lines contains $a$ and $b$: an edge from $a$ to $b$. The same edge may be listed more than once.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5 5\n4 2\n2 5\n4 5\n5 1\n3 1\n",
+    "3"
+   ],
+   [
+    "3 0\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 3000, 'large': 200000}[size]; m = rng.randint(0, 10) if size == 'small' else n\n    order = list(range(1, n + 1)); rng.shuffle(order); edges = []; kind = rng.choice(['path', 'near', 'random'])\n    if n > 1:\n        for _ in range(m):\n            if size == 'small' or kind == 'random': i, j = sorted(rng.sample(range(n), 2))\n            elif kind == 'path': i = len(edges) % (n - 1); j = i + 1\n            else: i = rng.randrange(n - 1); j = min(n - 1, i + rng.randint(1, 3))\n            edges.append((order[i], order[j]))\n    rng.shuffle(edges)\n    return f\"{n} {len(edges)}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n, m = v[0], v[1]; out = [[] for _ in range(n + 1)]; deg = [0] * (n + 1)\n    for i in range(m):\n        a, b = v[2 + 2 * i], v[3 + 2 * i]; out[a].append(b); deg[b] += 1\n    queue = [x for x in range(1, n + 1) if deg[x] == 0]; longest = [0] * (n + 1)\n    for a in queue:\n        for b in out[a]:\n            if longest[a] + 1 > longest[b]: longest[b] = longest[a] + 1\n            deg[b] -= 1\n            if deg[b] == 0: queue.append(b)\n    return str(max(longest))\ndef brute(text):\n    v = ints(text); n, m = v[0], v[1]; out = [[] for _ in range(n + 1)]\n    for i in range(m): out[v[2 + 2 * i]].append(v[3 + 2 * i])\n    def far(a): return max([1 + far(b) for b in out[a]], default=0)\n    return str(max(far(a) for a in range(1, n + 1)))\n"
+ },
+ {
+  "id": "board-rolls",
+  "title": "Rolls to the end",
+  "track": "toolbox",
+  "statement": "A token starts on square 0 of a board. Each turn a fair die with faces $1, 2, \\dots, k$ is rolled and the token moves forward by the number shown. The game ends as soon as the token is on square $n$ or beyond. The expected number of rolls is a fraction $p/q$; print $p \\cdot q^{-1}$ modulo $998244353$.\n\n**Input.** One line with $n$ and $k$ ($1 \\le n, k \\le 10^6$).\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "1 6\n",
+    "1"
+   ],
+   [
+    "2 2\n",
+    "499122178"
+   ],
+   [
+    "10 6\n",
+    "104766026"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    if size == 'small': return f\"{rng.randint(1, 8)} {rng.randint(1, 5)}\\n\"\n    top = 3000 if size == 'medium' else 10 ** 6\n    return f\"{rng.randint(top - top // 100, top)} {rng.choice([1, 2, 6, rng.randint(1, top), top])}\\n\"\ndef solve(text):\n    n, k = ints(text); M = 998244353; inv = pow(k, M - 2, M); S = [0] * (n + 2)\n    for i in range(n - 1, -1, -1):\n        hi = i + k + 1\n        S[i] = (S[i + 1] + 1 + (S[i + 1] - (S[hi] if hi < n else 0)) * inv) % M\n    return str((S[0] - S[1]) % M)\ndef brute(text):\n    from fractions import Fraction\n    n, k = ints(text); E = [Fraction(0)] * (n + k + 1)\n    for i in range(n - 1, -1, -1): E[i] = 1 + sum(E[i + 1:i + k + 1]) / k\n    return str(E[0].numerator * pow(E[0].denominator, 998244351, 998244353) % 998244353)\n"
+ },
+ {
+  "id": "subset-totals",
+  "title": "Totals over submasks",
+  "track": "toolbox",
+  "statement": "For every number $m$ from 0 to $2^n - 1$ a value $a_m$ is given. Call $s$ a submask of $m$ if every bit set in $s$ is also set in $m$ (so $m$ is a submask of itself). For every $m$, print the sum of $a_s$ over all submasks $s$ of $m$.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 17$). The second line contains $a_0, a_1, \\dots, a_{2^n-1}$, each between 0 and $10^9$.\n\n**Output.** $2^n$ numbers on one line.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "2\n1 2 3 4\n",
+    "1 3 4 10"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 4), 'medium': 10, 'large': 17}[size]; top = 9 if size == 'small' else 10 ** 9\n    return f\"{n}\\n{' '.join(str(rng.randint(0, top)) for _ in range(1 << n))}\\n\"\ndef solve(text):\n    v = ints(text); n = v[0]; f = v[1:]\n    for b in range(n):\n        bit = 1 << b\n        for mask in range(1 << n):\n            if mask & bit: f[mask] += f[mask ^ bit]\n    return ' '.join(map(str, f))\ndef brute(text):\n    v = ints(text); n = v[0]; a = v[1:]\n    return ' '.join(str(sum(a[s] for s in range(1 << n) if s & m == s)) for m in range(1 << n))\n"
+ },
+ {
+  "id": "share-sweets",
+  "title": "Sharing sweets",
+  "track": "toolbox",
+  "statement": "$k$ identical sweets are handed out to $n$ children. Child $i$ must receive between 0 and $a_i$ sweets, and every sweet must be handed out. Print the number of ways modulo $10^9 + 7$.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le n \\le 100$, $0 \\le k \\le 10^4$). The second line contains $a_1, \\dots, a_n$ ($0 \\le a_i \\le k$).\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3 4\n1 2 3\n",
+    "5"
+   ],
+   [
+    "2 0\n0 0\n",
+    "1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n, k = {'small': (rng.randint(1, 4), rng.randint(0, 7)), 'medium': (30, 1000), 'large': (100, 10000)}[size]\n    cap = k if size == 'small' else rng.choice([k, k // 10, k // 50 + 1])\n    return f\"{n} {k}\\n{' '.join(str(rng.randint(0, cap)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); n, k = v[0], v[1]; M = 10 ** 9 + 7; ways = [1] + [0] * k\n    for a in v[2:]:\n        pre = [0] * (k + 2)\n        for j in range(k + 1): pre[j + 1] = (pre[j] + ways[j]) % M\n        ways = [(pre[j + 1] - pre[max(0, j - a)]) % M for j in range(k + 1)]\n    return str(ways[k])\ndef brute(text):\n    import itertools\n    v = ints(text); k = v[1]\n    return str(sum(1 for t in itertools.product(*[range(a + 1) for a in v[2:]]) if sum(t) == k))\n"
+ },
+ {
+  "id": "long-no-three",
+  "title": "Never three in a row, very long",
+  "track": "toolbox",
+  "statement": "Count the strings of length $n$ over an alphabet of $k$ letters in which no letter appears three times in a row. Print the count modulo $10^9 + 7$.\n\n**Input.** One line with $n$ and $k$ ($1 \\le n \\le 10^{18}$, $1 \\le k \\le 10^9$).\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3 2\n",
+    "6"
+   ],
+   [
+    "1000000000000000000 26\n",
+    "231014031"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    if size == 'small': return f\"{rng.randint(1, 7)} {rng.randint(1, 3)}\\n\"\n    return f\"{rng.choice([10 ** 18, rng.randint(1, 10 ** 18), rng.randint(1, 10 ** 6)])} {rng.choice([1, 2, 26, 10 ** 9 + 8, rng.randint(1, 10 ** 9), 10 ** 9]) if size == 'x' else rng.choice([1, 2, 26, rng.randint(1, 10 ** 9), 10 ** 9])}\\n\"\ndef solve(text):\n    n, k = ints(text); M = 10 ** 9 + 7\n    def mul(A, B): return [[sum(A[i][t] * B[t][j] for t in range(2)) % M for j in range(2)] for i in range(2)]\n    R = [[1, 0], [0, 1]]; A = [[(k - 1) % M, (k - 1) % M], [1, 0]]; e = n - 1\n    while e:\n        if e & 1: R = mul(R, A)\n        A = mul(A, A); e >>= 1\n    return str((R[0][0] + R[1][0]) * (k % M) % M)\ndef brute(text):\n    import itertools\n    n, k = ints(text)\n    return str(sum(1 for w in itertools.product(range(k), repeat=n) if all(not (w[i] == w[i + 1] == w[i + 2]) for i in range(n - 2))) % (10 ** 9 + 7))\n"
  }
 ]

@@ -99,6 +99,30 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2193F",
+  "site": "Codeforces",
+  "contest": 2193,
+  "index": "F",
+  "title": "Pizza Delivery",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2193/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/150510",
+  "ideas": [
+   "dp-state"
+  ],
+  "observations": [
+   "You can never move left, so houses are served in order of x, and all houses with the same x are served before moving on.",
+   "Houses with equal x lie on one vertical line. Serving them all means sweeping the stretch between the lowest and the highest, so you finish that line at one of its two ends, and it costs the same sweep either way plus the walk to the end where you start.",
+   "So for each vertical line only two facts are needed: the cheapest time to have finished it at its top, and at its bottom. Each is computed from the two values of the previous line with Manhattan distances. Sorting dominates the time."
+  ],
+  "nudges": [
+   "In what order must the houses be visited, as far as x is concerned?",
+   "Several houses share the same x. Where can you be standing when you have served all of them?",
+   "What do you need to remember about one column to deal with the next?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2241E",
   "site": "Codeforces",
   "contest": 2241,
@@ -121,6 +145,32 @@
    "Instead of going through triples, can you fix that special vertex and count the triples it is special for?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2242D",
+  "site": "Codeforces",
+  "contest": 2242,
+  "index": "D",
+  "title": "Two Digit Strings",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2242/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/155047",
+  "ideas": [
+   "prefix-sums",
+   "residues"
+  ],
+  "observations": [
+   "Write the running totals of the digits modulo 10, starting with 0. Merging two neighbouring digits removes exactly one interior running total and changes no other. The first and last totals can never be removed.",
+   "A string and its list of running totals determine each other, so the two strings are equal exactly when their lists are.",
+   "If the final totals differ, it is impossible. Otherwise delete as few interior totals as possible from both lists to make them equal: that is the longest common subsequence of the two lists (with both ends kept), and the resulting string has one digit fewer than the common list has entries.",
+   "The lengths are up to 5000 each, so the quadratic table is fine with rolling rows."
+  ],
+  "nudges": [
+   "What quantity of a string does a merge leave almost untouched?",
+   "What does a merge do to the list of running totals?",
+   "When are two strings equal, in terms of their lists?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2112D",
@@ -170,6 +220,31 @@
    "How can you split 2..n into groups, each sharing a prime, so that as few groups as possible have size one?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2230D",
+  "site": "Codeforces",
+  "contest": 2230,
+  "index": "D",
+  "title": "Good Schedule",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2230/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/153834",
+  "ideas": [
+   "dp-state",
+   "two-pointers"
+  ],
+  "observations": [
+   "If a segment of days is good, so is every shorter segment with the same first day. So for each first day L you only need the last day R that still works, and the answer is the sum of the lengths.",
+   "From a fixed L, look at when each of them sees episode 1 next. If those days differ, the earlier one is the first bad day. If they are the same day, the question repeats from there with episode 2, and so on.",
+   "That chain depends only on the day and the episode, not on L. Go through L from the last day backwards, keeping for each episode its next position in each schedule, and store for each day on which both show the same episode where the chain started there would break. Each day is settled once."
+  ],
+  "nudges": [
+   "If [L, R] is good, what about [L, R - 1]?",
+   "Starting on day L, what is the first thing that can go wrong?",
+   "If nothing goes wrong with the first episode, what does the rest of the question look like?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2236F1",
@@ -295,6 +370,32 @@
    "Given the run lengths, how do you place the numbers so that no segment crossing two runs is increasing?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2176D",
+  "site": "Codeforces",
+  "contest": 2176,
+  "index": "D",
+  "title": "Fibonacci Paths",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2176/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/149154",
+  "ideas": [
+   "monovariant",
+   "dp-state",
+   "topo-order"
+  ],
+  "observations": [
+   "Every edge is a valid path by itself, and a longer path is fixed step by step: after the edge (u, v) the next vertex must carry exactly a_u + a_v. So count by the first edge: ways(u, v) = 1 + the sum of ways(v, w) over edges (v, w) with a_w = a_u + a_v.",
+   "All numbers are positive, so the sum of the two ends strictly grows along such a path. That gives the order of evaluation (edges with a larger sum first), and it also means a vertex can never repeat: 'simple' takes care of itself.",
+   "Looking through all edges out of v for the right value is too slow. Keep for each vertex a dictionary from value to the total of ways over its outgoing edges ending in that value; an edge (u, v) then needs one lookup at v and one update at u."
+  ],
+  "nudges": [
+   "Once the first two vertices of a path are chosen, how much freedom is left?",
+   "What grows along such a path, and what does that say about the order in which to compute things?",
+   "From a vertex, many edges may lead to the same value. How can they be handled together?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2184E",
@@ -521,6 +622,31 @@
    "What two different reasons stop you from using fewer operations, and can a pairing scheme meet both?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2233D",
+  "site": "Codeforces",
+  "contest": 2233,
+  "index": "D",
+  "title": "Goods on the Shelf",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2233/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/154371",
+  "ideas": [
+   "runs-boundaries"
+  ],
+  "observations": [
+   "Count, for every value, the number of blocks it forms. The shelf is correct when every value forms one block. A swap changes blocks only around the two swapped positions.",
+   "Run the swap backwards from a correct shelf: one value can end up in at most 3 blocks. So if some value forms more than 3 blocks the answer is no.",
+   "If some value x forms more than one block, the swap must move an x, and moving an x out of the middle of a block only splits it. So one swapped position is an end of a block of x: at most 6 candidates.",
+   "For each candidate try every other position as the partner. Only the neighbourhoods of the two positions change, so the number of broken values can be updated in constant time per try instead of rescanning."
+  ],
+  "nudges": [
+   "What single number per value tells you whether the shelf is correct?",
+   "Start from a correct shelf and do one swap. How bad can it get for one value?",
+   "If a value is split into several blocks, which positions must the swap involve?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2264D",

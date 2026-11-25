@@ -321,6 +321,31 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2091F",
+  "site": "Codeforces",
+  "contest": 2091,
+  "index": "F",
+  "title": "Igor and Mountain",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2091/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/141047",
+  "ideas": [
+   "dp-state",
+   "prefix-sums"
+  ],
+  "observations": [
+   "A route climbs row by row and uses one or two holds in each row. So the state is the hold you are on plus one bit: is it the first or the second hold used in its row.",
+   "From a first hold you may take a second hold in the same row within horizontal distance d, or go up one row; from a second hold you can only go up. Going up one row costs 1 vertically, so the horizontal reach is the largest whole number whose square is at most d squared minus 1.",
+   "Every transition adds up the values of a contiguous range of columns in one row, so running totals per row make each state cost constant time: n times m in all. Take care not to count the hold itself as its own second hold."
+  ],
+  "nudges": [
+   "Standing on a hold, what do you need to know about the past to list the legal next holds?",
+   "Which holds can come next from a first hold of a row, and from a second one?",
+   "The next holds form what kind of set of columns?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2117F",
   "site": "Codeforces",
   "contest": 2117,
@@ -698,6 +723,32 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2138C2",
+  "site": "Codeforces",
+  "contest": 2138,
+  "index": "C2",
+  "title": "Maple and Tree Beauty (Hard Version)",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2138/problem/C2",
+  "editorial": "https://codeforces.com/blog/entry/146172",
+  "ideas": [
+   "matching-bounds",
+   "knapsack"
+  ],
+  "observations": [
+   "The answer cannot exceed d, the smallest depth of a leaf (counting the root as depth 1), because the shortest name has d characters.",
+   "To reach d, every level from 1 to d must be labelled uniformly: then all names start with the same d characters. Vertices deeper than d are free. So d is reachable exactly when some set of whole levels (among the first d) can be made all zeros, with the leftover zeros fitting into the free deep vertices: a subset-sum question on the level sizes.",
+   "If that fails, d - 1 is always reachable by labelling levels greedily with whichever label is still plentiful. So the answer is d or d - 1.",
+   "For the large limits the subset sum must be fast: the level sizes add up to at most n, so there are only about the square root of n different sizes; group equal sizes (binary splitting) or run the table as a bitset."
+  ],
+  "nudges": [
+   "What is an upper limit for the answer that needs no thought about labels?",
+   "What must the labels look like for that limit to be reached?",
+   "Which choices are you really making, and what must they add up to?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2158D",
   "site": "Codeforces",
   "contest": 2158,
@@ -748,6 +799,59 @@
    "If the last chosen character is a closing bracket, between which chosen positions can a prefix sum fall, and by how much?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2232D",
+  "site": "Codeforces",
+  "contest": 2232,
+  "index": "D",
+  "title": "Magical Tiered Cake",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2232/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/154128",
+  "ideas": [
+   "small-cases",
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "Layer i can never have i or more layers on top of it, since only smaller layers can sit above it and there are i - 1 of those. So a_i at least i makes it impossible.",
+   "Otherwise it is always possible, by the same recursion as the classic three-peg puzzle, solved for the k smallest layers assuming the smaller cases are solved.",
+   "To move layer k it must have exactly a_k layers on it: clear away only the smallest k - 1 - a_k layers to the spare place, move layer k together with nothing else (the a_k layers still on it are what make it movable), then put things back and bring the k - 1 smaller layers over. With a_k = 0 this is exactly the classic procedure.",
+   "Counting moves through the recursion stays within 2 to the n, and n is at most 20, so the moves can simply be generated."
+  ],
+  "nudges": [
+   "Which values of a_i can never be satisfied?",
+   "How does the classic puzzle with three pegs go, and what is its recursion?",
+   "For the largest layer to move, what must be standing on it, and where must everything else be?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2247D2",
+  "site": "Codeforces",
+  "contest": 2247,
+  "index": "D2",
+  "title": "XOR Sorting (Hard Version)",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2247/problem/D2",
+  "editorial": "https://codeforces.com/blog/entry/155337",
+  "ideas": [
+   "necessary-sufficient",
+   "segment-tree",
+   "masks"
+  ],
+  "observations": [
+   "A swap of positions whose XOR is not a power of two can be replaced by swaps whose XOR is a power of two no larger than its highest bit. So the answer is 0 or a power of two.",
+   "With swaps of XOR at most 2^j an element can never leave its aligned block of 2^(j+1) positions (the higher bits of its index never change), and inside a block every rearrangement is possible.",
+   "So 2^j works exactly when sorting each such block separately sorts the whole array: the largest element of every block is at most the smallest of the next block.",
+   "Aligned blocks of sizes 1, 2, 4, ... are the nodes of a segment tree over the array padded to a power of two. Keep minimum and maximum per node and, per level, the number of neighbouring blocks in the wrong order; a point update touches one node per level, and the answer is the lowest level with no bad pair."
+  ],
+  "nudges": [
+   "Which swaps are really needed? Can a swap be built from simpler ones?",
+   "With the allowed swaps limited, how far can an element travel?",
+   "Within the region an element can reach, how freely can things be rearranged, and when is that enough to sort?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2267E",
@@ -823,6 +927,32 @@
    "How can every house learn its distance to the nearest of many special houses in a single pass?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2217E",
+  "site": "Codeforces",
+  "contest": 2217,
+  "index": "E",
+  "title": "Definitely Larger",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/2217/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/152772",
+  "ideas": [
+   "small-cases",
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "Handle the indices in decreasing order of p. When index i is handled, everything already handled has a larger p, so that part of the condition is settled, and nothing handled later can dominate i.",
+   "Build the order of q-values as a list. Among the indices already in the list, those to the right of i (larger index) are the only possible dominators; say there are m. If d_i is more than m, there is no answer.",
+   "Insert i into the list so that exactly d_i of those m come after it. Indices to the left of i in the array do not matter for i, and inserting i never changes who dominates the indices already placed, because i has a smaller p than all of them.",
+   "The positions in the final list are the q-values. With n up to 5000 a plain list with linear insertion is fast enough."
+  ],
+  "nudges": [
+   "The condition has three parts. Is there an order of processing that settles one of them for free?",
+   "When you handle an index, which earlier-handled indices could still dominate it?",
+   "If you add a new index to a partly built answer, whose counts can it disturb?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2227H",

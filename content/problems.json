@@ -1191,6 +1191,31 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-2124F1",
+  "site": "Codeforces",
+  "contest": 2124,
+  "index": "F1",
+  "title": "Appending Permutations (Easy Version)",
+  "rating": 2300,
+  "url": "https://codeforces.com/contest/2124/problem/F1",
+  "editorial": "https://codeforces.com/blog/entry/144382",
+  "ideas": [
+   "dp-state"
+  ],
+  "observations": [
+   "Counting ways to append pieces counts some arrays several times: 1, 2, 1 is [1] + [2, 1] and also [1, 2] + [1]. The real task is to count arrays, so each array needs exactly one decomposition that is allowed.",
+   "Find when two decompositions give the same array: an unshifted piece 1..y followed by a shifted piece that begins with y + 1 can always be re-read as a longer unshifted piece followed by a shorter one. Forbid that one pattern (a piece starting with y + 1 right after an unshifted piece of size y), and check on small cases that nothing else collides.",
+   "To enforce it, the state must remember whether the last piece was unshifted and, if so, its size: ways(position, size of the last unshifted piece or 0).",
+   "With n at most 100, try every next piece (its size and its shift) and test it against the forbidden values directly; that is about n to the fourth. The hard version needs running totals over these loops."
+  ],
+  "nudges": [
+   "Is the number of ways to append pieces the same as the number of arrays, for arrays of length 3?",
+   "When exactly can one array be cut into pieces in two ways?",
+   "Once you forbid one of the two readings, what does a state have to remember?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2134D",
   "site": "Codeforces",
   "contest": 2134,
@@ -1242,6 +1267,85 @@
    "Once you know each index is alone or paired with exactly one other, how do you count the arrangements of i indices from smaller counts?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2231E",
+  "site": "Codeforces",
+  "contest": 2231,
+  "index": "E",
+  "title": "Graph Cutting",
+  "rating": 2300,
+  "url": "https://codeforces.com/contest/2231/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/153910",
+  "ideas": [
+   "contribution",
+   "complement"
+  ],
+  "observations": [
+   "The smallest connected piece containing three vertices is either a path (one of the three lies between the other two) or a path with one branch: three arms meeting at a single vertex v. Its number of edges is the sum of the three distances to v.",
+   "Path case: every pair of vertices at distance d - 1 gives d - 2 choices for the third vertex on the path between them.",
+   "Branch case: count by the meeting vertex v. With n at most 2000, tables of how many vertices lie at each distance below a vertex and outside its subtree cost n squared. For two of the three vertices in different child subtrees of v, look up how many third vertices are at exactly the missing distance, and subtract those in the same child subtrees as the first two.",
+   "Each pair of vertices is handled once, at their lowest common ancestor, so the whole count is quadratic. Triples lying entirely below v are found three times, once per pair."
+  ],
+  "nudges": [
+   "What shapes can the smallest piece containing three vertices have?",
+   "In the branching shape, what is its size in terms of distances?",
+   "If you fix the branching vertex and two of the three vertices, what is known about the third?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2245E",
+  "site": "Codeforces",
+  "contest": 2245,
+  "index": "E",
+  "title": "Tom and Jerry",
+  "rating": 2300,
+  "url": "https://codeforces.com/contest/2245/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/155232",
+  "ideas": [
+   "win-lose-states",
+   "parity-invariant"
+  ],
+  "observations": [
+   "After the first path, every later path starts on the previous path and can only go away from it, into untouched parts. So the position is described by the last path and the degrees of its vertices in what remains.",
+   "Claim: the player to move wins exactly when some vertex of the last path has odd remaining degree. With all degrees even, any move starts at such a vertex and takes one of its edges, leaving it odd for the opponent. With an odd vertex, start there and keep walking while the vertex reached is even (it has an edge left to continue on) and stop at an odd one: now every vertex of the new path is even.",
+   "So the first player wins with a first path exactly when, after removing it, all its vertices have even degree: its two ends must have odd degree in the tree and all its inner vertices even degree.",
+   "Count such paths: two adjacent odd vertices form one; otherwise the inner vertices lie in one connected piece of even-degree vertices, so for each such piece count its odd neighbours and take pairs."
+  ],
+  "nudges": [
+   "After the first move, in which direction can every later path run?",
+   "On small trees, what distinguishes the positions that the mover loses, in terms of degrees?",
+   "Which first paths hand the opponent a losing position?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2255D",
+  "site": "Codeforces",
+  "contest": 2255,
+  "index": "D",
+  "title": "How Long Until Nothing Remains?",
+  "rating": 2300,
+  "url": "https://codeforces.com/contest/2255/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/155840",
+  "ideas": [
+   "reverse-time",
+   "search-answer",
+   "exchange"
+  ],
+  "observations": [
+   "Work backwards from zero. If a value at most x is fine at some moment, then one step earlier a value up to 2x + 1 is fine if this index was the chosen one, and only up to 2x if it was not. So an index chosen in the set S of seconds (out of T) can start with any value up to the sum of 2^(s-1) over s in S.",
+   "So T seconds suffice exactly when the powers 1, 2, 4, ..., 2^(T-1) can be handed out, one index per power, so that every index receives at least its starting value.",
+   "Hand them out from the largest power down, always to the largest unmet demand: if that demand exceeds the power, all smaller powers together are too small without it, so it is forced; if not, an exchange shows that finishing the largest demand is never worse.",
+   "Every index needs at least one power, so T is at least n, and n + 30 always works; search T in that window. Powers of 2^30 and above each finish a demand alone, so only about thirty demands ever need simulating."
+  ],
+  "nudges": [
+   "Run the process backwards from all zeros. What values could an index have had one second earlier?",
+   "For one index, what do the seconds in which it was chosen add up to?",
+   "Given T, what are you distributing, and to whom would you give the largest piece?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2096E",
@@ -1377,6 +1481,33 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-2154E",
+  "site": "Codeforces",
+  "contest": 2154,
+  "index": "E",
+  "title": "No Mind To Think",
+  "rating": 2500,
+  "url": "https://codeforces.com/contest/2154/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/147471",
+  "ideas": [
+   "exchange",
+   "search-answer",
+   "prefix-sums"
+  ],
+  "observations": [
+   "Sort the array. With x = 2y + 1 and median a_i, the best subsequence takes the y smallest values (they rise to a_i) and the y values just after a_i (they fall to a_i).",
+   "Using two different medians is never better than using the larger one twice: the same number of small values rise, to a larger value, and fewer values are dragged down. So all operations use the same median.",
+   "Fix the median a_i. With k operations the smallest min(ky, i - 1) values rise to a_i and the y values after a_i fall to it. As y grows, each extra unit of y raises values that are already larger (smaller gain) and lowers values that are larger still (bigger loss): the total is concave in y.",
+   "So for each i the best y is found by searching for where the marginal change turns negative, with running totals giving each evaluation in constant time."
+  ],
+  "nudges": [
+   "Sort the array. For a given median and size, which elements should join the subsequence?",
+   "Could it help to use two different medians in different operations?",
+   "For a fixed median, how does the benefit of making the subsequence longer change as it grows?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2174C2",
   "site": "Codeforces",
   "contest": 2174,
@@ -1399,6 +1530,33 @@
    "How can the number of palindromic substrings be written as a sum of yes-or-no quantities, and what does squaring that sum produce?",
    "What is the probability that one particular substring of length s is a palindrome?",
    "For two substrings, when does knowing that one is a palindrome tell you something about the other?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2183F",
+  "site": "Codeforces",
+  "contest": 2183,
+  "index": "F",
+  "title": "Jumping Man",
+  "rating": 2500,
+  "url": "https://codeforces.com/contest/2183/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/149944",
+  "ideas": [
+   "contribution",
+   "dp-state",
+   "prefix-sums"
+  ],
+  "observations": [
+   "A sum of squares of counts is the number of ordered pairs of equal objects. So count pairs of walks that spell the same string.",
+   "Let f(i, j) be the number of such pairs in which the first walk starts at i and the second at j. It is 0 unless the letters at i and j are equal; otherwise it is 1 (stop both) plus the sum of f(p, q) over p strictly below i and q strictly below j.",
+   "In depth-first order a subtree is a contiguous range, so that sum is over a rectangle of the table: fill the table in reverse depth-first order and keep two-dimensional suffix sums.",
+   "The answer for vertex i is the sum of f over all pairs inside its subtree, again a rectangle. n is at most 5000, so the quadratic table is the intended size; mind the memory."
+  ],
+  "nudges": [
+   "How else can you describe the sum of squares of how often each string occurs?",
+   "Two walks spell the same string. What happens after their first letters?",
+   "In what order of the vertices does a subtree become a contiguous range?"
   ],
   "checked": "2026-11-25"
  },

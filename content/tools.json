@@ -194,5 +194,113 @@
   ],
   "task": "break-walls",
   "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m;\n    scanf(\"%d %d\", &n, &m);\n    vector<string> g(n);\n    char buf[1024];\n    for (auto &row : g) { scanf(\"%s\", buf); row = buf; }\n    const int INF = INT_MAX;\n    vector<vector<int>> dist(n, vector<int>(m, INF));\n    deque<pair<int, int>> dq;\n    dist[0][0] = 0;\n    dq.push_back({0, 0});\n    int dx[] = {1, -1, 0, 0}, dy[] = {0, 0, 1, -1};\n    while (!dq.empty()) {\n        auto [x, y] = dq.front();\n        dq.pop_front();\n        for (int k = 0; k < 4; k++) {\n            int nx = x + dx[k], ny = y + dy[k];\n            if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;\n            int w = g[nx][ny] == '#';                      // entering a wall costs 1\n            if (dist[x][y] + w < dist[nx][ny]) {\n                dist[nx][ny] = dist[x][y] + w;\n                if (w) dq.push_back({nx, ny}); else dq.push_front({nx, ny});\n            }\n        }\n    }\n    printf(\"%d\\n\", dist[n - 1][m - 1]);\n}\n"
+ },
+ {
+  "id": "flag-dp",
+  "title": "A position and a flag",
+  "when": [
+   "\"At most one\" change, removal, skip or reversal is allowed somewhere in the array",
+   "The best answer ending at i depends on one yes-or-no fact about the past",
+   "A one-state DP you already know (best stretch, longest run) with one extra permission"
+  ],
+  "idea": "Take the DP you would write without the permission, and make two copies of it: one for \"permission not used yet\" and one for \"permission already used\". Every position then has two values, and each is computed from the two values of the position before.\n\nFor the best stretch with one removal: keep[i] is the best sum of a stretch ending at i with nothing removed, which is the usual max(a[i], keep[i-1] + a[i]). used[i] is the best sum of a stretch ending at i with one number removed. Either the removed number is a[i] itself, leaving keep[i-1], or it was removed earlier and a[i] is added: used[i-1] + a[i]. The answer is the largest value of either kind.\n\nThe second state costs nothing in time. The whole skill is noticing that a yes-or-no fact is all you need to carry.",
+  "traps": [
+   "Write down in words what each of the two values means before writing any transition; most wrong answers come from a vague meaning.",
+   "Update order: used[i] needs the old keep, so compute it before overwriting keep.",
+   "Empty results: here at least one number must remain, so used does not exist at the first position.",
+   "All numbers negative: the answer is the largest single number, not 0."
+  ],
+  "task": "one-removal",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    const long long NEG = LLONG_MIN / 4;\n    long long keep = NEG, used = NEG, best = NEG;      // stretches ending at the current number\n    for (int i = 0; i < n; i++) {\n        long long x;\n        scanf(\"%lld\", &x);\n        if (i == 0) keep = x;\n        else {\n            used = max(keep, used + x);                // remove x itself, or it was removed earlier\n            keep = max(x, keep + x);\n        }\n        best = max({best, keep, used});\n    }\n    printf(\"%lld\\n\", best);\n}\n"
+ },
+ {
+  "id": "stage-dp",
+  "title": "A few stages in order",
+  "when": [
+   "\"At most k\" actions with k tiny (two trades, three cuts, two disjoint stretches)",
+   "The actions must happen in order, and at any moment you are \"between\" two of them",
+   "The straightforward idea needs a loop over where the first action ends"
+  ],
+  "idea": "Name the stages you can be in, in order. For two trades: nothing yet, holding the first share, sold once, holding the second share, sold twice. Keep one number per stage: the most money you can have while being in that stage after the days seen so far. Each new price can only move you from a stage to the next one, so each number is updated from itself and from the stage before it:\n\nhold1 = max(hold1, -p), sold1 = max(sold1, hold1 + p), hold2 = max(hold2, sold1 - p), sold2 = max(sold2, hold2 + p).\n\nOne pass, a constant number of states. The same picture handles \"split into three parts\", \"two non-overlapping stretches\" and anything else that is a short fixed sequence of phases.",
+  "traps": [
+   "\"At most two\" comes for free: sold2 is at least sold1 because the second trade can be bought and sold on the same day.",
+   "Start the holding stages at minus infinity, not 0: you cannot hold a share before buying one.",
+   "If you update the stages in the order above on one day, a share can be bought and sold on the same day. That adds profit 0, so it is harmless here, but check it when the statement forbids it.",
+   "With k up to n the same idea becomes a table with k columns; with k tiny, a handful of variables is enough."
+  ],
+  "task": "two-trades",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    const long long NEG = LLONG_MIN / 4;\n    long long hold1 = NEG, sold1 = 0, hold2 = NEG, sold2 = 0;   // most money in each stage\n    for (int i = 0; i < n; i++) {\n        long long p;\n        scanf(\"%lld\", &p);\n        hold1 = max(hold1, -p);\n        sold1 = max(sold1, hold1 + p);\n        hold2 = max(hold2, sold1 - p);\n        sold2 = max(sold2, hold2 + p);\n    }\n    printf(\"%lld\\n\", sold2);\n}\n"
+ },
+ {
+  "id": "two-index-dp",
+  "title": "Two prefixes as the state",
+  "when": [
+   "Two sequences are compared, aligned or merged: common subsequence, edits, interleaving, matching with wildcards",
+   "Both lengths are a few thousand (the table has n times m cells)",
+   "\"The first i items using j of something\" is the same shape with one sequence"
+  ],
+  "idea": "The state is a pair: how much of the first string and how much of the second have been dealt with. d[i][j] is the answer for the first i letters of s and the first j letters of t. Look at the last letters. Either they are matched with each other (cost 0 if equal, 1 for a replacement) leaving d[i-1][j-1]; or the last letter of s is deleted, leaving d[i-1][j]; or the last letter of t was inserted, leaving d[i][j-1]. Take the smallest.\n\nThe border is the part people forget: turning i letters into nothing takes i deletions, and nothing into j letters takes j insertions. Each row needs only the row above, so two rows of memory are enough.",
+  "traps": [
+   "Fill in d[i][0] = i and d[0][j] = j, not zeros.",
+   "Indices: d has (n + 1) by (m + 1) cells, and cell (i, j) looks at letters s[i-1] and t[j-1].",
+   "n times m around 10^7 is comfortable; 10^9 is not. With two rows the memory is never the problem.",
+   "For the longest common subsequence the same table holds a maximum and the borders are zeros."
+  ],
+  "task": "edit-distance",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s, t;\n    cin >> s >> t;\n    int n = s.size(), m = t.size();\n    vector<int> prev(m + 1), cur(m + 1);\n    for (int j = 0; j <= m; j++) prev[j] = j;           // nothing into j letters: j insertions\n    for (int i = 1; i <= n; i++) {\n        cur[0] = i;                                     // i letters into nothing: i deletions\n        for (int j = 1; j <= m; j++)\n            cur[j] = min({prev[j - 1] + (s[i - 1] != t[j - 1]), prev[j] + 1, cur[j - 1] + 1});\n        swap(prev, cur);\n    }\n    printf(\"%d\\n\", prev[m]);\n}\n"
+ },
+ {
+  "id": "profile-dp",
+  "title": "What the top edge looks like",
+  "when": [
+   "Something is built or tiled row by row, and the board is very narrow (width 2 or 3) but very long",
+   "Count the ways, modulo a prime, for n up to a million",
+   "Whether a piece can continue into the next row depends on how the previous row ended"
+  ],
+  "idea": "Build the wall from the bottom. After some rows, what matters for the rest is only the shape of the top row: for width 2 it is either one block spanning both columns, or two separate blocks side by side. Call the counts of walls of height i with each kind of top row wide[i] and split[i].\n\nNow add one more row and ask what each kind can turn into. On a wide top: stretch the wide block up, or close it and start a new wide block, or close it and start two separate blocks. On a split top: each of the two blocks is either stretched or closed and replaced, which gives four ways to stay split, or both are closed and a wide block starts. So\n\nwide[i+1] = 2 wide[i] + split[i], split[i+1] = wide[i] + 4 split[i],\n\nstarting from wide[1] = split[1] = 1. The answer is their sum. Compute once up to the largest height asked, then answer every query from the table.",
+  "traps": [
+   "Count the transitions by listing them, not by formula: the 2 and the 4 are where everyone slips.",
+   "Stretching a block is not the same as closing it and starting an equal one above it: the first is one tall block, the second is two blocks, and they are different walls.",
+   "Many queries: precompute to the maximum once, do not recompute per query.",
+   "Take the remainder at every step; 4 times a value below 10^9 + 7 already needs 64 bits."
+  ],
+  "task": "two-wide-wall",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    const long long M = 1000000007;\n    int t;\n    scanf(\"%d\", &t);\n    vector<int> heights(t);\n    for (auto &h : heights) scanf(\"%d\", &h);\n    int top = *max_element(heights.begin(), heights.end());\n    vector<long long> ways(top + 1);\n    long long wide = 1, split = 1;                      // by the shape of the top row\n    ways[1] = 2;\n    for (int i = 2; i <= top; i++) {\n        long long w = (2 * wide + split) % M, s = (wide + 4 * split) % M;\n        wide = w; split = s;\n        ways[i] = (wide + split) % M;\n    }\n    for (int h : heights) printf(\"%lld\\n\", ways[h]);\n}\n"
+ },
+ {
+  "id": "run-dp",
+  "title": "Remembering how the string ends",
+  "when": [
+   "Count strings or arrays that avoid a short local pattern: no two equal neighbours, no three in a row, no \"ab\" followed by \"a\"",
+   "The alphabet is huge (k up to 10^9), so the state cannot name the last letter",
+   "Whether the next letter is allowed depends only on the last few letters"
+  ],
+  "idea": "Whether a letter may be appended depends on the end of the string, so the state is a description of the end. The trick is to describe it without naming letters: for \"no three in a row\" all that matters is whether the last two letters are equal. Let diff be the number of valid strings whose last two letters differ (or that have length 1), and same the number whose last two are equal.\n\nAppend a letter. A different letter from the last one can always be appended, in k - 1 ways, and lands in diff. The same letter as the last one can be appended only to a string in diff, in one way, and lands in same. So\n\ndiff becomes (diff + same)(k - 1), same becomes the old diff.\n\nBecause the letters are interchangeable, two states stand in for what would otherwise be k squared of them.",
+  "traps": [
+   "Both new values use the old ones: update them together.",
+   "k is up to 10^9: reduce it modulo the prime before multiplying, and note k - 1 can be 0.",
+   "Length 1 belongs to diff with count k; same starts at 0.",
+   "If the forbidden pattern names particular letters, the letters are no longer interchangeable and the state must say more."
+  ],
+  "task": "no-three",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    const long long M = 1000000007;\n    long long n, k;\n    scanf(\"%lld %lld\", &n, &k);\n    long long diff = k % M, same = 0;                   // by whether the last two letters are equal\n    for (long long i = 1; i < n; i++) {\n        long long d = (diff + same) % M * ((k - 1) % M) % M;\n        same = diff;\n        diff = d;\n    }\n    printf(\"%lld\\n\", (diff + same) % M);\n}\n"
+ },
+ {
+  "id": "lis",
+  "title": "Longest increasing subsequence",
+  "when": [
+   "The longest increasing (or non-decreasing) subsequence itself, with n too large for the quadratic DP",
+   "Fewest removals to make an array sorted; fewest decreasing sequences needed to cover an array",
+   "Pairs or boxes that must nest: sort by one coordinate, then this on the other"
+  ],
+  "idea": "The quadratic DP asks, for each i, for the best earlier j with a smaller value. Turn it round: for each length, remember the smallest value that an increasing subsequence of that length can end with. Call it tail[len]. Two facts make this fast. First, tail is itself increasing, because a subsequence of length len + 1 contains one of length len ending lower. Second, a new number x changes exactly one entry: it extends the longest subsequence whose tail is below x, so it replaces the first tail that is not below x (or is appended at the end).\n\nSo each number costs one binary search. The length of tail at the end is the answer. The contents of tail are not an actual subsequence, only the best endings.",
+  "traps": [
+   "Strictly increasing: replace the first tail >= x (lower_bound). Non-decreasing: replace the first tail > x (upper_bound). Mixing them up is the classic mistake.",
+   "To print the subsequence, store for each element the position it took and the element before it.",
+   "Longest decreasing: negate the values or reverse the array.",
+   "For pairs sorted by the first coordinate, break ties by the second coordinate in the opposite order, so that equal firsts cannot chain."
+  ],
+  "task": "rising",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<int> tail;                                   // tail[len-1]: smallest ending of a rising subsequence of that length\n    for (int i = 0; i < n; i++) {\n        int x;\n        scanf(\"%d\", &x);\n        auto it = lower_bound(tail.begin(), tail.end(), x);\n        if (it == tail.end()) tail.push_back(x);\n        else *it = x;\n    }\n    printf(\"%d\\n\", (int)tail.size());\n}\n"
  }
 ]

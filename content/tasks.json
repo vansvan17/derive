@@ -810,5 +810,109 @@
    ]
   ],
   "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 4), 'medium': 60, 'large': 500}[size]; m = {'small': rng.randint(1, 4), 'medium': 60, 'large': 500}[size]\n    p = rng.choice([0.2, 0.5, 0.8])\n    g = [['#' if rng.random() < p else '.' for _ in range(m)] for _ in range(n)]\n    g[0][0] = '.'; g[n - 1][m - 1] = '.'\n    return f\"{n} {m}\\n\" + ''.join(''.join(r) + '\\n' for r in g)\ndef solve(text):\n    from collections import deque\n    parts = text.split(); n, m = int(parts[0]), int(parts[1]); g = parts[2:]\n    INF = 10 ** 9; d = [[INF] * m for _ in range(n)]; d[0][0] = 0; dq = deque([(0, 0)])\n    while dq:\n        x, y = dq.popleft(); cur = d[x][y]\n        for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):\n            if 0 <= nx < n and 0 <= ny < m:\n                w = cur + (1 if g[nx][ny] == '#' else 0)\n                if w < d[nx][ny]:\n                    d[nx][ny] = w\n                    if g[nx][ny] == '#': dq.append((nx, ny))\n                    else: dq.appendleft((nx, ny))\n    return str(d[n - 1][m - 1])\ndef brute(text):\n    parts = text.split(); n, m = int(parts[0]), int(parts[1]); g = parts[2:]\n    INF = 10 ** 9; d = [[INF] * m for _ in range(n)]; d[0][0] = 0; changed = True\n    while changed:\n        changed = False\n        for x in range(n):\n            for y in range(m):\n                for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):\n                    if 0 <= nx < n and 0 <= ny < m and d[x][y] + (g[nx][ny] == '#') < d[nx][ny]:\n                        d[nx][ny] = d[x][y] + (g[nx][ny] == '#'); changed = True\n    return str(d[n - 1][m - 1])\n"
+ },
+ {
+  "id": "one-removal",
+  "title": "Best stretch, one removal allowed",
+  "track": "toolbox",
+  "statement": "You are given $n$ numbers in a row. Choose a stretch of consecutive numbers. You may then remove at most one number from the chosen stretch, as long as at least one number remains. Print the largest possible sum of what remains.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains the numbers, each between $-10^9$ and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5\n3 -7 4 -1 5\n",
+    "11"
+   ],
+   [
+    "3\n-2 -3 -5\n",
+    "-2"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 3000, 'large': 200000}[size]; top = 5 if size == 'small' else 10 ** 9\n    lo = rng.choice([-top, -top, -top // 5, 1])\n    return f\"{n}\\n{' '.join(str(rng.randint(lo, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]\n    keep = a[0]; skip = -10 ** 30; best = keep\n    for x in a[1:]:\n        skip = max(keep, skip + x); keep = max(x, keep + x); best = max(best, keep, skip)\n    return str(best)\ndef brute(text):\n    v = ints(text); a = v[1:]; n = len(a); best = max(a)\n    for l in range(n):\n        for r in range(l, n):\n            s = sum(a[l:r + 1]); best = max(best, s)\n            if r > l: best = max(best, max(s - a[d] for d in range(l, r + 1)))\n    return str(best)\n"
+ },
+ {
+  "id": "two-trades",
+  "title": "Two trades",
+  "track": "toolbox",
+  "statement": "The price of one share is known for each of $n$ days. You start with no share and may hold at most one share at a time. You may make at most two trades; a trade is buying on some day and selling on a later day. The second trade may start on the day the first one ends. Print the largest total profit (0 if no trade is worth making).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains the prices, each between 1 and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "6\n3 8 2 5 1 9\n",
+    "13"
+   ],
+   [
+    "3\n5 4 2\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]; top = 9 if size == 'small' else 10 ** 9\n    return f\"{n}\\n{' '.join(str(rng.randint(1, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); NEG = -10 ** 30\n    b1 = NEG; s1 = 0; b2 = NEG; s2 = 0\n    for p in v[1:]:\n        b1 = max(b1, -p); s1 = max(s1, b1 + p); b2 = max(b2, s1 - p); s2 = max(s2, b2 + p)\n    return str(s2)\ndef brute(text):\n    v = ints(text); a = v[1:]; n = len(a); best = 0\n    for i in range(n):\n        for j in range(i + 1, n):\n            one = a[j] - a[i]; best = max(best, one)\n            for k in range(j, n):\n                for l in range(k + 1, n): best = max(best, one + a[l] - a[k])\n    return str(best)\n"
+ },
+ {
+  "id": "edit-distance",
+  "title": "Fewest edits",
+  "track": "toolbox",
+  "statement": "You are given two strings of lowercase letters. In one edit you may insert one letter anywhere, delete one letter, or replace one letter by another. Print the smallest number of edits that turns the first string into the second.\n\n**Input.** Two lines, one string on each. Each has between 1 and 1500 letters.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "kitten\nsitting\n",
+    "3"
+   ],
+   [
+    "abc\nabc\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    if size == 'small':\n        return ''.join(''.join(rng.choice('ab') for _ in range(rng.randint(1, 5))) + '\\n' for _ in range(2))\n    n = 300 if size == 'medium' else 1500; letters = rng.choice(['ab', 'abc', 'abcdefghij'])\n    s = [rng.choice(letters) for _ in range(n)]; t = list(s)\n    if rng.random() < 0.5: t = [rng.choice(letters) for _ in range(rng.randint(n // 2, n))]\n    else:\n        for _ in range(n // 10):\n            i = rng.randrange(len(t)); t[i] = rng.choice(letters)\n        t = t[rng.randint(0, 20):]\n    return ''.join(s) + '\\n' + ''.join(t) + '\\n'\ndef solve(text):\n    s, t = text.split(); m = len(t); prev = list(range(m + 1))\n    for i, ch in enumerate(s, 1):\n        cur = [i] * (m + 1); left = i\n        for j in range(1, m + 1):\n            d = prev[j - 1] + (ch != t[j - 1]); u = prev[j] + 1\n            if u < d: d = u\n            if left + 1 < d: d = left + 1\n            cur[j] = left = d\n        prev = cur\n    return str(prev[m])\ndef brute(text):\n    s, t = text.split(); L = max(len(s), len(t)); seen = {s: 0}; queue = [s]\n    for x in queue:\n        if x == t: return str(seen[x])\n        nxt = [x[:i] + x[i + 1:] for i in range(len(x))] + [x[:i] + c + x[i + 1:] for i in range(len(x)) for c in 'ab']\n        if len(x) < L: nxt += [x[:i] + c + x[i:] for i in range(len(x) + 1) for c in 'ab']\n        for y in nxt:\n            if y not in seen: seen[y] = seen[x] + 1; queue.append(y)\n"
+ },
+ {
+  "id": "two-wide-wall",
+  "title": "A wall two wide",
+  "track": "toolbox",
+  "statement": "A wall is 2 units wide and $n$ units high. It is built from rectangular blocks whose sides are whole numbers, with no gaps and no overlaps; blocks may be of any size that fits. Two walls are different if their sets of blocks differ. For each given height, print the number of different walls modulo $10^9 + 7$.\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains one height $n$ ($1 \\le n \\le 10^6$).\n\n**Output.** One number per height.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3\n1\n2\n6\n",
+    "2\n8\n2864"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    if size == 'small': ns = [rng.randint(1, 5) for _ in range(rng.randint(1, 3))]\n    elif size == 'medium': ns = [rng.randint(1, 3000) for _ in range(1000)]\n    else: ns = [10 ** 6, 1] + [rng.randint(1, 10 ** 6) for _ in range(99998)]\n    return f\"{len(ns)}\\n\" + ''.join(f\"{n}\\n\" for n in ns)\ndef solve(text):\n    v = ints(text)[1:]; top = max(v); M = 10 ** 9 + 7\n    out = [0] * (top + 1); a = b = 1; out[1] = 2\n    for i in range(2, top + 1):\n        a, b = (2 * a + b) % M, (a + 4 * b) % M; out[i] = (a + b) % M\n    return '\\n'.join(str(out[n]) for n in v)\ndef brute(text, cache={}):\n    def count(n):\n        if n in cache: return cache[n]\n        full = (1 << 2 * n) - 1\n        def go(mask):\n            if mask == full: return 1\n            cell = next(i for i in range(2 * n) if not mask >> i & 1); r, c = divmod(cell, 2); total = 0\n            for w in range(1, 3 - c):\n                for h in range(1, n - r + 1):\n                    block = sum(1 << (rr * 2 + cc) for rr in range(r, r + h) for cc in range(c, c + w))\n                    if mask & block: break\n                    total += go(mask | block)\n            return total\n        cache[n] = go(0); return cache[n]\n    return '\\n'.join(str(count(n) % (10 ** 9 + 7)) for n in ints(text)[1:])\n"
+ },
+ {
+  "id": "no-three",
+  "title": "Never three in a row",
+  "track": "toolbox",
+  "statement": "Count the strings of length $n$ over an alphabet of $k$ letters in which no letter appears three times in a row. Print the count modulo $10^9 + 7$.\n\n**Input.** One line with $n$ and $k$ ($1 \\le n \\le 10^6$, $1 \\le k \\le 10^9$).\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "3 2\n",
+    "6"
+   ],
+   [
+    "4 3\n",
+    "66"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    if size == 'small': return f\"{rng.randint(1, 7)} {rng.randint(1, 3)}\\n\"\n    return f\"{3000 if size == 'medium' else rng.randint(999000, 10 ** 6)} {rng.choice([1, 2, 26, rng.randint(1, 10 ** 9), 10 ** 9])}\\n\"\ndef solve(text):\n    n, k = ints(text); M = 10 ** 9 + 7\n    d, s = k % M, 0                       # d: last two letters differ (or length 1); s: last two equal\n    for _ in range(n - 1):\n        d, s = (d + s) * (k - 1) % M, d\n    return str((d + s) % M)\ndef brute(text):\n    import itertools\n    n, k = ints(text)\n    return str(sum(1 for w in itertools.product(range(k), repeat=n) if all(not (w[i] == w[i + 1] == w[i + 2]) for i in range(n - 2))) % (10 ** 9 + 7))\n"
+ },
+ {
+  "id": "rising",
+  "title": "Longest rising subsequence",
+  "track": "toolbox",
+  "statement": "You are given $n$ numbers in a row. Cross out any of them so that the numbers left, in their original order, are strictly increasing. Print the largest number of numbers that can be left.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains the numbers, each between 1 and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "6\n3 1 4 1 5 9\n",
+    "4"
+   ],
+   [
+    "4\n2 2 2 2\n",
+    "1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': 3000, 'large': 200000}[size]; top = rng.choice([3, 9]) if size == 'small' else rng.choice([50, 10 ** 9])\n    a = [rng.randint(1, top) for _ in range(n)]\n    if size != 'small' and rng.random() < 0.5: a = sorted(a); [a.__setitem__(rng.randrange(n), rng.randint(1, top)) for _ in range(n // 20)]\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    import bisect\n    tails = []\n    for x in ints(text)[1:]:\n        i = bisect.bisect_left(tails, x)\n        if i == len(tails): tails.append(x)\n        else: tails[i] = x\n    return str(len(tails))\ndef brute(text):\n    a = ints(text)[1:]; n = len(a); best = 0\n    for mask in range(1, 1 << n):\n        pick = [a[i] for i in range(n) if mask >> i & 1]\n        if all(x < y for x, y in zip(pick, pick[1:])): best = max(best, len(pick))\n    return str(best)\n"
  }
 ]

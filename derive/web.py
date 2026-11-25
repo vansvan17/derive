@@ -194,6 +194,8 @@ class Service:
             out['proof'] = {'id': last['id'], 'text': last['text'], 'status': last['status'], 'feedback': json.loads(last['feedback'])} if last else None
         if done:
             out['answer'] = done['answer']
+            if step['kind'] == 'proof':             # once the step is behind her, the argument itself may be read
+                out['argument'] = step.get('claims', [])
             out['showed'] = step['showed']
         return out
 
@@ -355,6 +357,16 @@ class Service:
             return {'proof': proof, 'status': 'awaiting'}
         job = self.queue(store, 'grade', {'proof': proof})
         return {'proof': proof, 'status': 'grading', 'job': job}
+
+    def read_proof(self, store, data):
+        """Writing a proof out is optional: in a contest you only need to be convinced. This finishes the step
+        by showing the argument instead; it is recorded as read, not written."""
+        idea, step_id = data.get('idea'), data.get('step')
+        chain, step = self.current_step(store, idea, step_id)
+        if step['kind'] != 'proof':
+            raise ApiError('This step is not a written proof.')
+        complete = self.finish_step(store, idea, chain, step, '(read, not written)')
+        return {'complete': complete, 'argument': step.get('claims', [])}
 
     def apply_verdict(self, store, proof_id, verdict):
         row = store.one('SELECT * FROM proofs WHERE id=?', (proof_id,))
@@ -974,7 +986,7 @@ class Service:
     def post(self, path, data):
         if not isinstance(data, dict):
             raise ApiError('Send a JSON object.')
-        routes = {'/chain/answer': self.answer, '/chain/skip': self.skip_easy, '/nudge': self.nudge, '/chain/proof': self.submit_proof, '/proof/verdict': self.manual_verdict,
+        routes = {'/chain/answer': self.answer, '/chain/skip': self.skip_easy, '/nudge': self.nudge, '/chain/proof': self.submit_proof, '/chain/proof/read': self.read_proof, '/proof/verdict': self.manual_verdict,
                   '/problem/commit': self.commit, '/problem/editorial': self.editorial, '/problem/check': self.check_submissions,
                   '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause, '/problem/move': self.move,
                   '/code': self.save_code, '/run': self.queue_run,

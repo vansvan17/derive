@@ -43,7 +43,8 @@ export async function renderChain(ctx, idea) {
 
   function doneStep(step, index) {
     return `<li class="step is-done"><div class="step-num" aria-hidden="true">${icon('check')}</div><div class="step-body"><div class="step-prompt">${markdown(step.prompt)}</div>
-      <p class="step-answer"><span class="muted">${step.kind === 'code' ? 'Your program:' : 'Your answer:'}</span> ${step.kind === 'choice' ? inline(step.options[Number(step.answer)] ?? step.answer) : e(step.answer)}</p>
+      ${step.kind === 'proof' ? `<p class="step-answer"><span class="muted">Why it is true${step.answer === '(proof accepted)' ? ' (your own proof was accepted)' : ''}:</span></p><ol class="argument">${(step.argument || []).map(c => `<li>${inline(c)}</li>`).join('')}</ol>`
+        : `<p class="step-answer"><span class="muted">${step.kind === 'code' ? 'Your program:' : 'Your answer:'}</span> ${step.kind === 'choice' ? inline(step.options[Number(step.answer)] ?? step.answer) : e(step.answer)}</p>`}
       <p class="step-showed">${inline(step.showed)}</p></div></li>`;
   }
   function input(step) {
@@ -53,7 +54,9 @@ export async function renderChain(ctx, idea) {
       const note = status === 'fail' ? `<div class="grade grade-fail" role="status"><strong>Not yet.</strong> ${e(p.feedback.gap || '')}${p.feedback.question ? `<p class="grade-question">${e(p.feedback.question)}</p>` : ''}</div>`
         : status === 'awaiting' ? `<div class="grade" role="status"><strong>Saved, waiting for a grade.</strong> ${e(p.feedback.reason || 'Automatic grading is off.')} <span data-manual></span></div>`
         : status === 'grading' ? '<div class="grade" role="status"><span class="spinner"></span> Being graded…</div>' : '';
-      return `<label class="field"><span class="sr-only">Your proof</span><textarea name="proof" rows="8" maxlength="12000" placeholder="State each claim and why it is true. Full sentences; no need for symbols.">${e(p && status !== 'pass' ? p.text : '')}</textarea></label>${note}`;
+      // Writing it out is optional: the default is to think it through, then read the argument and go on.
+      return `<p class="muted small">In a contest you only need to be convinced, not to write it down. Think about why this holds for a minute, then read the argument. Writing your own proof is optional.</p>
+        <details class="own-proof" ${p && status !== 'pass' ? 'open' : ''}><summary>Write my own proof and have it graded</summary><label class="field"><span class="sr-only">Your proof</span><textarea name="proof" rows="8" maxlength="12000" placeholder="State each claim and why it is true. Full sentences; no need for symbols.">${e(p && status !== 'pass' ? p.text : '')}</textarea></label><p><button class="btn btn-secondary btn-sm" type="submit">Submit proof</button></p></details>${note}`;
     }
     const names = step.vars ? ` (${step.vars.join(', ')})` : '';
     return `<label class="field"><span class="sr-only">Your answer</span><input type="text" name="answer" autocomplete="off" spellcheck="false" inputmode="${step.kind === 'number' ? 'text' : 'text'}" placeholder="${step.kind === 'counterexample' ? e(step.vars.join(', ')) : 'Your answer'}"></label><p class="step-hint">${HINTS[step.kind] || ''}${step.kind === 'counterexample' ? e(names) : ''}</p>`;
@@ -124,7 +127,7 @@ export async function renderChain(ctx, idea) {
       <form data-answer novalidate>${input(step)}
         ${feedback ? `<p class="step-feedback ${feedback.kind}" role="alert">${e(feedback.text)}</p>` : ''}
         ${step.nudges.length ? `<ol class="nudges">${step.nudges.map(n => `<li>${inline(n)}</li>`).join('')}</ol>` : ''}
-        <div class="step-actions"><button class="btn btn-primary" type="submit">${step.kind === 'proof' ? 'Submit proof' : 'Check'}</button>${more ? `<button class="btn btn-ghost" type="button" data-nudge>Ask a smaller question (${step.nudges.length + 1} of ${step.nudges_total})</button>` : ''}<button class="btn btn-ghost" type="button" data-tutor>Ask a tutor</button></div>
+        <div class="step-actions">${step.kind === 'proof' ? '<button class="btn btn-primary" type="button" data-read>Show the argument and go on</button>' : '<button class="btn btn-primary" type="submit">Check</button>'}${more ? `<button class="btn btn-ghost" type="button" data-nudge>Ask a smaller question (${step.nudges.length + 1} of ${step.nudges_total})</button>` : ''}<button class="btn btn-ghost" type="button" data-tutor>Ask a tutor</button></div>
       </form>${scratch()}${codePadShell()}</div></li>`;
   }
 
@@ -146,6 +149,10 @@ export async function renderChain(ctx, idea) {
     const form = root.querySelector('[data-answer]');
     if (form && step) {
       form.addEventListener('submit', event => { event.preventDefault(); step.kind === 'proof' ? submitProof(form, step) : submit(form, step); });
+      form.querySelector('[data-read]')?.addEventListener('click', async event => {
+        event.target.disabled = true;
+        try { await post('/chain/proof/read', {idea, step: step.id}); feedback = null; await refresh(true); } catch (error) { toast(error.message, 'error'); event.target.disabled = false; }
+      });
       root.querySelector('[data-nudge]')?.addEventListener('click', () => nudge(step));
       root.querySelector('[data-tutor]')?.addEventListener('click', () => askTutor(ctx, {scope: 'chain', idea, step: step.id}, {unfinished: true}));
       root.querySelector('[data-manual]')?.replaceChildren(manualLink(step));

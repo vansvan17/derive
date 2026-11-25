@@ -225,6 +225,21 @@ class App(unittest.TestCase):
         self.assertEqual(self.get('/chain/residues')['reveal']['name'], 'Arithmetic of remainders')
         self.assertTrue(all(link['note'] is None for link in shown['links']))     # a connection is explained only with both ends derived
 
+    def test_a_proof_step_can_be_read_instead_of_written(self):
+        chain = json.loads((self.root / 'content/chains/mult-permutes.json').read_text())
+        at = next(i for i, s in enumerate(chain['steps']) if s['kind'] == 'proof')
+        with self.service.store() as store:
+            for step in chain['steps'][:at]:
+                store.run('INSERT INTO steps_done VALUES(?,?,?,?)', ('mult-permutes', step['id'], 'now', 'x'))
+        proof = chain['steps'][at]
+        current = next(s for s in self.get('/chain/mult-permutes')['steps'] if not s['done'])
+        self.assertEqual(current['id'], proof['id']); self.assertNotIn('argument', current)            # the argument is not sent while the step is open
+        self.assertEqual(self.post('/chain/proof/read', {'idea': 'mult-permutes', 'step': chain['steps'][0]['id']})[0], 409)
+        status, body = self.post('/chain/proof/read', {'idea': 'mult-permutes', 'step': proof['id']})
+        self.assertEqual((status, body['argument']), (200, proof['claims']))
+        done = next(s for s in self.get('/chain/mult-permutes')['steps'] if s['id'] == proof['id'])
+        self.assertTrue(done['done']); self.assertEqual((done['answer'], done['argument']), ('(read, not written)', proof['claims']))
+
     def test_a_proof_step_opens_only_on_a_pass(self):
         self.derive('residues')
         chain = json.loads((self.root / 'content/chains/mult-permutes.json').read_text())

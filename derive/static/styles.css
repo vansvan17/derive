@@ -489,3 +489,8 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .choices-row{display:flex;gap:.5rem 1.5rem;flex-wrap:wrap}
 .lessons li{padding:.375rem 0;border-bottom:1px solid var(--line)}
 .lessons li:last-child{border-bottom:0}
+.argument{margin:.25rem 0 .5rem;padding-left:1.25rem;font-family:var(--serif);font-size:1.0625rem}
+.argument li{padding:.2rem 0}
+.own-proof{margin:.5rem 0}
+.own-proof summary{cursor:pointer;color:var(--muted);font-size:.875rem}
+.own-proof .field{margin-top:.5rem}

@@ -45,6 +45,11 @@ class Checks(unittest.TestCase):
         self.assertTrue(checks.check(step, '9, 7 3 1')[0])
         self.assertFalse(checks.check(step, '1 3 7')[0])
         self.assertFalse(checks.check({**step, 'ordered': True}, '9 7 3 1')[0])
+        self.assertEqual(checks.check(step, '1 3 7 8'), (False, '3 of your 4 entries are right.'))          # how many, never which
+        self.assertEqual(checks.check(step, '1 3 7'), (False, '3 of your 3 entries are right. Some are missing.'))
+        self.assertEqual(checks.check(step, '1 3 7 9 11'), (False, '4 of your 5 entries are right. You have listed too many.'))
+        self.assertEqual(checks.check({**step, 'ordered': True}, '1 7 3 9'), (False, '2 of your 4 entries are right and in the right place.'))
+        self.assertEqual(checks.check(step, '5'), (False, ''))
 
     def test_formula_is_compared_by_value_in_any_notation(self):
         step = {'kind': 'formula', 'answer': 'n*(n+1)/2', 'vars': {'n': [1, 50]}}

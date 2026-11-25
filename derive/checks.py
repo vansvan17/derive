@@ -197,6 +197,18 @@ def sample_points(variables, count=40, seed=20261124):
     return points
 
 
+def _partial(right, values, answer, where):
+    """How much of a wrong list is right: "4 of your 6 entries are right". It says how many, never which."""
+    if len(values) < 2:
+        return ''
+    note = f'{right} of your {len(values)} entries are right{where}.'
+    if len(values) < len(answer):
+        note += ' Some are missing.'
+    elif len(values) > len(answer):
+        note += ' You have listed too many.'
+    return note
+
+
 def check(step, raw):
     """Return (correct, message). The message never contains the answer."""
     kind = step['kind']
@@ -213,11 +225,16 @@ def check(step, raw):
         values = _numbers(raw)
         if not values and str(raw).strip().lower() not in ('none', 'empty', '{}', '[]'):
             raise CheckError('List the numbers, separated by commas or spaces.')
+        answer = list(step['answer'])
         if step.get('ordered'):
-            return values == list(step['answer']), ''
+            return values == answer, '' if values == answer else _partial(sum(1 for a, b in zip(values, answer) if a == b), values, answer, ' and in the right place')
         if len(values) != len(set(values)) and not step.get('multiset'):
             return False, 'You listed a value twice.'
-        return sorted(values) == sorted(step['answer']), ''
+        if sorted(values) == sorted(answer):
+            return True, ''
+        left = list(answer)
+        right = sum(1 for v in values if v in left and (left.remove(v) or True))
+        return False, _partial(right, values, answer, '')
     if kind == 'choice':
         try:
             index = int(raw)

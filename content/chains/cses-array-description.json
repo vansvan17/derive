@@ -1,0 +1,98 @@
+{
+ "idea": "cses-array-description",
+ "opening": "An array with some entries forgotten, where neighbours never differ by more than 1.",
+ "steps": [
+  {
+   "id": "gap",
+   "kind": "number",
+   "prompt": "Values are from 1 to 5 and neighbouring values differ by at most 1. The array is 2, ?, 2. In how many ways can the missing value be filled in?",
+   "answer": 3,
+   "verify": "import itertools\ndef count(m, xs):\n    return sum(1 for a in itertools.product(range(1, m + 1), repeat=len(xs)) if all(x == 0 or x == v for x, v in zip(xs, a)) and all(abs(p - q) <= 1 for p, q in zip(a, a[1:])))\ndef fast(m, xs):\n    w = [0] * (m + 2)\n    for v in range(1, m + 1): w[v] = 1 if xs[0] in (0, v) else 0\n    for x in xs[1:]:\n        w = [0] + [(w[v - 1] + w[v] + w[v + 1]) if x in (0, v) else 0 for v in range(1, m + 1)] + [0]\n    return sum(w)\nresult = count(5, (2, 0, 2))",
+   "nudges": [
+    "Which values are within 1 of both neighbours?"
+   ],
+   "showed": "1, 2 or 3."
+  },
+  {
+   "id": "free",
+   "kind": "number",
+   "prompt": "Values from 1 to 2, three entries, all unknown. How many arrays?",
+   "answer": 8,
+   "verify": "import itertools\ndef count(m, xs):\n    return sum(1 for a in itertools.product(range(1, m + 1), repeat=len(xs)) if all(x == 0 or x == v for x, v in zip(xs, a)) and all(abs(p - q) <= 1 for p, q in zip(a, a[1:])))\ndef fast(m, xs):\n    w = [0] * (m + 2)\n    for v in range(1, m + 1): w[v] = 1 if xs[0] in (0, v) else 0\n    for x in xs[1:]:\n        w = [0] + [(w[v - 1] + w[v] + w[v + 1]) if x in (0, v) else 0 for v in range(1, m + 1)] + [0]\n    return sum(w)\nresult = count(2, (0, 0, 0))",
+   "nudges": [
+    "Can any two values from 1 to 2 be neighbours?"
+   ],
+   "showed": "With only two values the rule forbids nothing."
+  },
+  {
+   "id": "far",
+   "kind": "number",
+   "prompt": "Values from 1 to 5. The array is 1, ?, ?, 3. In how many ways can it be completed?",
+   "answer": 3,
+   "verify": "import itertools\ndef count(m, xs):\n    return sum(1 for a in itertools.product(range(1, m + 1), repeat=len(xs)) if all(x == 0 or x == v for x, v in zip(xs, a)) and all(abs(p - q) <= 1 for p, q in zip(a, a[1:])))\ndef fast(m, xs):\n    w = [0] * (m + 2)\n    for v in range(1, m + 1): w[v] = 1 if xs[0] in (0, v) else 0\n    for x in xs[1:]:\n        w = [0] + [(w[v - 1] + w[v] + w[v + 1]) if x in (0, v) else 0 for v in range(1, m + 1)] + [0]\n    return sum(w)\nresult = count(5, (1, 0, 0, 3))",
+   "nudges": [
+    "From 1, what can the second entry be? And from there?"
+   ],
+   "showed": "Paths from 1 to 3 in three steps, each step moving by at most one."
+  },
+  {
+   "id": "state",
+   "kind": "choice",
+   "prompt": "You fill the array from left to right. What must be known about the part already filled in order to continue?",
+   "options": [
+    "Only the value in the last filled position",
+    "All the values filled so far",
+    "How many positions are filled"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which earlier values does the rule compare the next value with?"
+   ],
+   "showed": "The state is (position, value there): at most $n \\cdot m$ of them."
+  },
+  {
+   "id": "known",
+   "kind": "choice",
+   "prompt": "How does a known entry enter the table?",
+   "options": [
+    "At that position, only the state with that value is allowed; all others get 0",
+    "It is skipped",
+    "It doubles the count"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How many values can a known entry take?"
+   ],
+   "showed": "Known and unknown positions are handled by the same loop; a known one just has a single allowed value."
+  },
+  {
+   "id": "h-ten",
+   "kind": "number",
+   "prompt": "Values from 1 to 4. The array is ?, ?, 2, ?, ?, ?, 4, ?, ?, 1. In how many ways can it be completed?",
+   "answer": 72,
+   "verify": "import itertools\ndef count(m, xs):\n    return sum(1 for a in itertools.product(range(1, m + 1), repeat=len(xs)) if all(x == 0 or x == v for x, v in zip(xs, a)) and all(abs(p - q) <= 1 for p, q in zip(a, a[1:])))\ndef fast(m, xs):\n    w = [0] * (m + 2)\n    for v in range(1, m + 1): w[v] = 1 if xs[0] in (0, v) else 0\n    for x in xs[1:]:\n        w = [0] + [(w[v - 1] + w[v] + w[v + 1]) if x in (0, v) else 0 for v in range(1, m + 1)] + [0]\n    return sum(w)\nxs = (0, 0, 2, 0, 0, 0, 4, 0, 0, 1)\nassert fast(4, xs) == count(4, xs)\nresult = fast(4, xs)",
+   "nudges": [
+    "Do the stretches between known entries influence each other?"
+   ],
+   "showed": "The table runs straight through. (The stretches between known values are in fact independent, and the answer is a product.)",
+   "tier": "hard"
+  },
+  {
+   "id": "h-work",
+   "kind": "number",
+   "prompt": "With $n = 10^5$ positions and $m = 100$ values, each state adding three earlier values, how many additions in all?",
+   "answer": 30000000,
+   "verify": "result = 10 ** 5 * 100 * 3",
+   "nudges": [
+    "How many states?"
+   ],
+   "showed": "Thirty million, with only two rows of 100 kept in memory.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Position and the last value",
+  "statement": "When the rule links neighbours, the state is the position together with the value placed there.",
+  "remark": "A known value simply has one allowed state at its position."
+ }
+}

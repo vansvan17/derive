@@ -326,3 +326,4 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .node-marks{font-size:.6875rem;letter-spacing:.05em;color:var(--warning);line-height:1}
 .map-card .mark-legend{margin:.75rem 0 0}
 .sym-standard{color:var(--warning)}.sym-common{color:var(--primary)}
+.cses-tick{margin-left:.75rem;white-space:nowrap}.cses-tick input{margin-right:.25rem}

@@ -1,0 +1,110 @@
+{
+ "idea": "cses-counting-tilings",
+ "opening": "Covering a grid completely with dominoes, and counting the ways.",
+ "steps": [
+  {
+   "id": "two",
+   "kind": "number",
+   "prompt": "In how many ways can a 2 by 3 grid be covered with dominoes (1 by 2 tiles, placed either way)?",
+   "answer": 3,
+   "verify": "import functools\ndef tilings(n, m):\n    full = (1 << n * m) - 1\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        cell = next(i for i in range(n * m) if not mask >> i & 1); r, c = divmod(cell, m); total = 0\n        if c + 1 < m and not mask >> (cell + 1) & 1: total += go(mask | 1 << cell | 1 << (cell + 1))\n        if r + 1 < n: total += go(mask | 1 << cell | 1 << (cell + m))\n        return total\n    return go(0)\ndef profile(n, m):\n    @functools.lru_cache(None)\n    def col(j, mask):\n        if j == m: return 1 if mask == 0 else 0\n        out = {}\n        def fill(i, cur, nxt):\n            if i == n: out[nxt] = out.get(nxt, 0) + 1; return\n            if cur >> i & 1: fill(i + 1, cur, nxt); return\n            fill(i + 1, cur | 1 << i, nxt | 1 << i)\n            if i + 1 < n and not cur >> (i + 1) & 1: fill(i + 2, cur | 3 << i, nxt)\n        fill(0, mask, 0)\n        return sum(k * col(j + 1, nxt) for nxt, k in out.items())\n    return col(0, 0)\nresult = tilings(2, 3)",
+   "nudges": [
+    "What can cover the leftmost column?"
+   ],
+   "showed": "Three."
+  },
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "And a 3 by 4 grid?",
+   "answer": 11,
+   "verify": "import functools\ndef tilings(n, m):\n    full = (1 << n * m) - 1\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        cell = next(i for i in range(n * m) if not mask >> i & 1); r, c = divmod(cell, m); total = 0\n        if c + 1 < m and not mask >> (cell + 1) & 1: total += go(mask | 1 << cell | 1 << (cell + 1))\n        if r + 1 < n: total += go(mask | 1 << cell | 1 << (cell + m))\n        return total\n    return go(0)\ndef profile(n, m):\n    @functools.lru_cache(None)\n    def col(j, mask):\n        if j == m: return 1 if mask == 0 else 0\n        out = {}\n        def fill(i, cur, nxt):\n            if i == n: out[nxt] = out.get(nxt, 0) + 1; return\n            if cur >> i & 1: fill(i + 1, cur, nxt); return\n            fill(i + 1, cur | 1 << i, nxt | 1 << i)\n            if i + 1 < n and not cur >> (i + 1) & 1: fill(i + 2, cur | 3 << i, nxt)\n        fill(0, mask, 0)\n        return sum(k * col(j + 1, nxt) for nxt, k in out.items())\n    return col(0, 0)\nresult = tilings(3, 4)",
+   "nudges": [
+    "Can the first column be covered by vertical dominoes only?"
+   ],
+   "showed": "Eleven."
+  },
+  {
+   "id": "what",
+   "kind": "choice",
+   "prompt": "The grid is filled column by column, left to right. When column $j$ has just been completed, what do you need to know to continue?",
+   "options": [
+    "Which cells of column $j + 1$ are already covered by dominoes sticking out of column $j$",
+    "How every earlier column was covered",
+    "How many dominoes have been used"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which earlier dominoes can still interfere with later columns?"
+   ],
+   "showed": "Only the horizontal dominoes that start in column $j$ reach further, and they reach exactly one column. That pattern of covered cells is a mask."
+  },
+  {
+   "id": "masks",
+   "kind": "number",
+   "prompt": "The task has $n \\le 10$ rows and $m \\le 1000$ columns. With the mask running along a column, how many different masks are there at most?",
+   "answer": 1024,
+   "verify": "result = 2 ** 10",
+   "nudges": [
+    "How many bits does a mask have, one per row?"
+   ],
+   "showed": "A thousand masks times a thousand columns: a million states."
+  },
+  {
+   "id": "side",
+   "kind": "choice",
+   "prompt": "Why does the mask run along the side of length 10 and not along the side of length 1000?",
+   "options": [
+    "The number of masks is 2 to the power of that side",
+    "It makes no difference",
+    "Dominoes are only 2 long"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How many masks would a side of 1000 give?"
+   ],
+   "showed": "The exponential part must sit on the short side. If the input can come either way round, swap it."
+  },
+  {
+   "id": "h-four",
+   "kind": "number",
+   "prompt": "In how many ways can a 4 by 7 grid be covered?",
+   "answer": 781,
+   "verify": "import functools\ndef tilings(n, m):\n    full = (1 << n * m) - 1\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        cell = next(i for i in range(n * m) if not mask >> i & 1); r, c = divmod(cell, m); total = 0\n        if c + 1 < m and not mask >> (cell + 1) & 1: total += go(mask | 1 << cell | 1 << (cell + 1))\n        if r + 1 < n: total += go(mask | 1 << cell | 1 << (cell + m))\n        return total\n    return go(0)\ndef profile(n, m):\n    @functools.lru_cache(None)\n    def col(j, mask):\n        if j == m: return 1 if mask == 0 else 0\n        out = {}\n        def fill(i, cur, nxt):\n            if i == n: out[nxt] = out.get(nxt, 0) + 1; return\n            if cur >> i & 1: fill(i + 1, cur, nxt); return\n            fill(i + 1, cur | 1 << i, nxt | 1 << i)\n            if i + 1 < n and not cur >> (i + 1) & 1: fill(i + 2, cur | 3 << i, nxt)\n        fill(0, mask, 0)\n        return sum(k * col(j + 1, nxt) for nxt, k in out.items())\n    return col(0, 0)\nassert all(profile(a, b) == tilings(a, b) for a, b in [(2, 3), (3, 4), (2, 5), (4, 4), (3, 6)])\nresult = profile(4, 7)",
+   "nudges": [
+    "From one mask, which masks of the next column can follow?"
+   ],
+   "showed": "For each mask, fill the free cells of the column with vertical dominoes or with horizontal ones that mark the next column.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-odd",
+   "kind": "number",
+   "prompt": "In how many ways can a 5 by 7 grid be covered?",
+   "answer": 0,
+   "verify": "import functools\ndef tilings(n, m):\n    full = (1 << n * m) - 1\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        cell = next(i for i in range(n * m) if not mask >> i & 1); r, c = divmod(cell, m); total = 0\n        if c + 1 < m and not mask >> (cell + 1) & 1: total += go(mask | 1 << cell | 1 << (cell + 1))\n        if r + 1 < n: total += go(mask | 1 << cell | 1 << (cell + m))\n        return total\n    return go(0)\ndef profile(n, m):\n    @functools.lru_cache(None)\n    def col(j, mask):\n        if j == m: return 1 if mask == 0 else 0\n        out = {}\n        def fill(i, cur, nxt):\n            if i == n: out[nxt] = out.get(nxt, 0) + 1; return\n            if cur >> i & 1: fill(i + 1, cur, nxt); return\n            fill(i + 1, cur | 1 << i, nxt | 1 << i)\n            if i + 1 < n and not cur >> (i + 1) & 1: fill(i + 2, cur | 3 << i, nxt)\n        fill(0, mask, 0)\n        return sum(k * col(j + 1, nxt) for nxt, k in out.items())\n    return col(0, 0)\nresult = profile(5, 7)",
+   "nudges": [
+    "How many cells does the grid have?"
+   ],
+   "showed": "None: 35 cells cannot be split into pairs. A good first test for any tiling program.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-six",
+   "kind": "number",
+   "prompt": "In how many ways can a 6 by 6 grid be covered?",
+   "answer": 6728,
+   "verify": "import functools\ndef tilings(n, m):\n    full = (1 << n * m) - 1\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        cell = next(i for i in range(n * m) if not mask >> i & 1); r, c = divmod(cell, m); total = 0\n        if c + 1 < m and not mask >> (cell + 1) & 1: total += go(mask | 1 << cell | 1 << (cell + 1))\n        if r + 1 < n: total += go(mask | 1 << cell | 1 << (cell + m))\n        return total\n    return go(0)\ndef profile(n, m):\n    @functools.lru_cache(None)\n    def col(j, mask):\n        if j == m: return 1 if mask == 0 else 0\n        out = {}\n        def fill(i, cur, nxt):\n            if i == n: out[nxt] = out.get(nxt, 0) + 1; return\n            if cur >> i & 1: fill(i + 1, cur, nxt); return\n            fill(i + 1, cur | 1 << i, nxt | 1 << i)\n            if i + 1 < n and not cur >> (i + 1) & 1: fill(i + 2, cur | 3 << i, nxt)\n        fill(0, mask, 0)\n        return sum(k * col(j + 1, nxt) for nxt, k in out.items())\n    return col(0, 0)\nresult = profile(6, 6)",
+   "nudges": [
+    "Would the direct search over the whole grid still be feasible at 10 by 1000?"
+   ],
+   "showed": "The column-by-column table gets there with 64 masks and 6 columns.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "A profile of what sticks out",
+  "statement": "Go through the grid column by column. The only memory needed is which cells of the next column are already covered by tiles sticking out of this one: a mask.",
+  "remark": "The mask runs along the short side."
+ }
+}

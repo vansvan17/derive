@@ -1,0 +1,102 @@
+{
+ "idea": "cses-longest-common-subsequence",
+ "opening": "Two arrays, and the longest sequence that can be read off both from left to right.",
+ "steps": [
+  {
+   "id": "len",
+   "kind": "number",
+   "prompt": "Take the arrays 3, 1, 3, 2, 7, 4, 8, 2 and 6, 5, 1, 2, 3, 4. What is the length of the longest sequence that can be obtained from each of them by crossing out elements?",
+   "answer": 3,
+   "verify": "import functools, itertools\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef inside(s, big):\n    it = iter(big); return all(x in it for x in s)\ndef slow(a, b): return max(k for k in range(len(a) + 1) if any(inside(c, b) for c in itertools.combinations(a, k)))\nA = (3, 1, 3, 2, 7, 4, 8, 2); B = (6, 5, 1, 2, 3, 4)\nassert lcs(A, B) == slow(A, B)\nresult = lcs(A, B)",
+   "nudges": [
+    "Which common sequences start with 1?"
+   ],
+   "showed": "For example 1, 2, 4 or 1, 3, 4."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Let L($i$, $j$) be the answer for the first $i$ elements of one array and the first $j$ of the other. If the two last elements are equal, L($i$, $j$) is:",
+   "options": [
+    "L($i-1$, $j-1$) + 1",
+    "L($i-1$, $j$) + 1",
+    "the larger of L($i-1$, $j$) and L($i$, $j-1$)"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Is there ever a reason not to pair two equal last elements?"
+   ],
+   "showed": "Equal last elements can always be paired. If they differ, one of them is not used: take the larger of L($i-1$, $j$) and L($i$, $j-1$)."
+  },
+  {
+   "id": "cell",
+   "kind": "number",
+   "prompt": "For the arrays above, what is L(4, 4): the answer for 3, 1, 3, 2 and 6, 5, 1, 2?",
+   "answer": 2,
+   "verify": "import functools, itertools\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef inside(s, big):\n    it = iter(big); return all(x in it for x in s)\ndef slow(a, b): return max(k for k in range(len(a) + 1) if any(inside(c, b) for c in itertools.combinations(a, k)))\nA = (3, 1, 3, 2, 7, 4, 8, 2); B = (6, 5, 1, 2, 3, 4)\nresult = lcs(A[:4], B[:4])",
+   "nudges": [
+    "Which elements do the two prefixes share, and in what order?"
+   ],
+   "showed": "1 then 2."
+  },
+  {
+   "id": "back",
+   "kind": "choice",
+   "prompt": "The task also asks you to print one such sequence. The table of lengths is full. How do you get a sequence out of it?",
+   "options": [
+    "Start at the last cell. If the two elements there are equal, output it and step diagonally; otherwise step to whichever neighbour (up or left) has the same value. Reverse what was output.",
+    "Store a whole sequence in every cell while filling",
+    "Take the common elements in the order they appear in the first array"
+   ],
+   "answer": 0,
+   "nudges": [
+    "The value in a cell came from one of three neighbours. Can you tell which?"
+   ],
+   "showed": "Every cell remembers, through its value, a neighbour that explains it. Following those back spells an answer."
+  },
+  {
+   "id": "rows",
+   "kind": "choice",
+   "prompt": "For lengths alone, two rows of the table are enough. Why not here?",
+   "options": [
+    "Walking back needs cells from every row",
+    "Two rows are still enough",
+    "The arrays are too long"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which rows does the walk back visit?"
+   ],
+   "showed": "A million cells is no problem at these limits. When it is, the answer is rebuilt by divide and conquer, a different technique."
+  },
+  {
+   "id": "h-shuffle",
+   "kind": "number",
+   "prompt": "What is the length for 1, 2, 3, 4, 5, 6, 7, 8 and 2, 4, 6, 8, 1, 3, 5, 7?",
+   "answer": 4,
+   "verify": "import functools, itertools\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef inside(s, big):\n    it = iter(big); return all(x in it for x in s)\ndef slow(a, b): return max(k for k in range(len(a) + 1) if any(inside(c, b) for c in itertools.combinations(a, k)))\nA = (3, 1, 3, 2, 7, 4, 8, 2); B = (6, 5, 1, 2, 3, 4)\na = (1, 2, 3, 4, 5, 6, 7, 8); b = (2, 4, 6, 8, 1, 3, 5, 7)\nassert lcs(a, b) == slow(a, b)\nresult = lcs(a, b)",
+   "nudges": [
+    "The first array is sorted. What must a common sequence look like inside the second array?"
+   ],
+   "showed": "When one array is sorted and has distinct values, a common sequence is an increasing run inside the other: a different, faster problem hiding inside this one.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "For the first pair of arrays (3, 1, 3, 2, 7, 4, 8, 2 and 6, 5, 1, 2, 3, 4), how many different sequences of the best length exist?",
+   "answer": 2,
+   "verify": "import functools, itertools\ndef lcs(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == len(a) or j == len(b): return 0\n        return 1 + f(i + 1, j + 1) if a[i] == b[j] else max(f(i + 1, j), f(i, j + 1))\n    return f(0, 0)\ndef inside(s, big):\n    it = iter(big); return all(x in it for x in s)\ndef slow(a, b): return max(k for k in range(len(a) + 1) if any(inside(c, b) for c in itertools.combinations(a, k)))\nA = (3, 1, 3, 2, 7, 4, 8, 2); B = (6, 5, 1, 2, 3, 4)\nbest = lcs(A, B)\nresult = len({c for c in itertools.combinations(A, best) if inside(c, B)})",
+   "nudges": [
+    "When walking back, where is there a choice?"
+   ],
+   "showed": "Each tie on the walk back leads to a possibly different answer; any of them is accepted.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Walk the table back",
+  "statement": "The table of lengths already contains an answer. Start at the final cell and repeatedly step to a cell that explains its value.",
+  "remark": "To walk back, the whole table must be kept."
+ }
+}

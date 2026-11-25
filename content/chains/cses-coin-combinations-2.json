@@ -1,0 +1,120 @@
+{
+ "idea": "cses-coin-combinations-2",
+ "opening": "The same coins and the same sum, but now 2 + 5 and 5 + 2 are one way.",
+ "steps": [
+  {
+   "id": "nine",
+   "kind": "number",
+   "prompt": "Coins 2, 3 and 5. In how many ways can 9 be paid if the order of the coins does not matter?",
+   "answer": 3,
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nresult = slow_unordered((2, 3, 5), 9)",
+   "nudges": [
+    "How many fives can there be? For each case, what is left?"
+   ],
+   "showed": "2+2+5, 3+3+3 and 2+2+2+3."
+  },
+  {
+   "id": "five",
+   "kind": "number",
+   "prompt": "Coins 1 and 2. In how many ways can 5 be paid, order not mattering?",
+   "answer": 3,
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nresult = slow_unordered((1, 2), 5)",
+   "nudges": [
+    "How many twos can be used?"
+   ],
+   "showed": "Zero, one or two twos."
+  },
+  {
+   "id": "fix",
+   "kind": "choice",
+   "prompt": "To count each collection of coins once, you can insist that:",
+   "options": [
+    "the coins are used in a fixed order: first all the coins of the first kind, then all of the second kind, and so on",
+    "no coin is used twice",
+    "the largest coin is used first"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How would you write 2+5+2 so that it has only one form?"
+   ],
+   "showed": "Every collection has exactly one sorted form. Count sorted forms."
+  },
+  {
+   "id": "two",
+   "kind": "list",
+   "prompt": "Start with ways(0) = 1 and all other entries 0. Process the coin 2 alone: for $s = 2, 3, \\dots, 6$ in increasing order, add ways($s - 2$) to ways($s$). Give ways(0), ..., ways(6).",
+   "answer": [
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+   ],
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nresult = unordered((2,), 6)",
+   "nudges": [
+    "What is ways(4) after the step for $s = 2$ has been done?"
+   ],
+   "showed": "One way for each even sum: some number of twos. Going upwards lets the same coin be used again.",
+   "ordered": true
+  },
+  {
+   "id": "loops",
+   "kind": "choice",
+   "prompt": "Which arrangement of the loops counts unordered ways?",
+   "options": [
+    "For each coin: for each sum from the coin to $x$: add ways(sum - coin)",
+    "For each sum: for each coin: add ways(sum - coin)",
+    "Either one"
+   ],
+   "answer": 0,
+   "nudges": [
+    "After the first coin has been fully processed, what does the table describe?",
+    "When the second coin is processed, can a coin of the first kind still be added after it?"
+   ],
+   "showed": "Coins outside: after a coin has been processed it is never added again, so the kinds appear in a fixed order. Swapping the loops turns this task into the ordered one."
+  },
+  {
+   "id": "h-ten",
+   "kind": "number",
+   "prompt": "Coins 1, 2 and 5. In how many unordered ways can 10 be paid?",
+   "answer": 10,
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nassert unordered((1, 2, 5), 10)[10] == slow_unordered((1, 2, 5), 10)\nresult = unordered((1, 2, 5), 10)[10]",
+   "nudges": [
+    "How many ways use no five, one five, two fives?"
+   ],
+   "showed": "Six, three and one.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-change",
+   "kind": "number",
+   "prompt": "Coins 1, 5, 10, 25 and 50. In how many unordered ways can 100 be paid?",
+   "answer": 292,
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nassert all(unordered((1, 5, 10), s)[s] == slow_unordered((1, 5, 10), s) for s in range(1, 21))\nresult = unordered((1, 5, 10, 25, 50), 100)[100]",
+   "nudges": [
+    "Would you list them?"
+   ],
+   "showed": "The classic change-making count, from five passes over a table of 101 entries.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-gap",
+   "kind": "number",
+   "prompt": "For coins 2, 3 and 5 and the sum 30: by how much does the number of ordered ways exceed the number of unordered ways?",
+   "answer": 15757,
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nresult = ordered((2, 3, 5), 30)[30] - unordered((2, 3, 5), 30)[30]",
+   "nudges": [
+    "Which loop order gives which count?"
+   ],
+   "showed": "The same three coins and the same table size; only the nesting of two loops differs, and the answers are far apart.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Unordered sums: coins outside, total inside",
+  "statement": "When order does not matter, fix an order in which coins may be used. Processing one coin at a time over all totals counts every multiset exactly once.",
+  "remark": "Swapping the two loops is the entire difference between the two coin-counting problems."
+ }
+}

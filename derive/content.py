@@ -16,6 +16,13 @@ class Content:
         self.ideas = {i['id']: i for i in data['ideas']}
         self.order = [i['id'] for i in data['ideas']]
         self.links = json.loads((self.root / 'content/links.json').read_text())
+        # The CSES dynamic programming section: one chain per CSES task, grouped by topic. They are chains like the
+        # others (same steps, same checking) but they are not dots on the map, so they stay out of `order`.
+        path = self.root / 'content/cses_dp.json'
+        self.cses = json.loads(path.read_text()) if path.exists() else {'topics': [], 'problems': []}
+        for p in self.cses['problems']:
+            self.ideas[p['id']] = {'id': p['id'], 'area': 'dp', 'name': p['name'], 'statement': p['statement'], 'needs': [], 'marks': ['standard'],
+                                   'track': 'cses', 'cses': {'title': p['title'], 'url': p['url'], 'topic': p['topic']}}
         self.chains = {}
         for path in sorted((self.root / 'content/chains').glob('*.json')):
             chain = json.loads(path.read_text())
@@ -25,6 +32,8 @@ class Content:
         # Unrated practice tasks (CSES) offered once an idea's chain is finished.
         path = self.root / 'content/practice.json'
         self.practice = json.loads(path.read_text()) if path.exists() else {}
+        for p in self.cses['problems']:                       # after its chain, the task itself is the practice
+            self.practice[p['id']] = [{'site': 'CSES', 'title': p['title'], 'url': p['url'], 'checked': p['checked']}]
         # Short single-question puzzles, grouped in sets (invariants, games, bits).
         path = self.root / 'content/puzzles.json'
         self.puzzles = json.loads(path.read_text()) if path.exists() else {'sets': [], 'puzzles': []}

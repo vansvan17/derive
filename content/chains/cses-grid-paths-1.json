@@ -1,0 +1,99 @@
+{
+ "idea": "cses-grid-paths-1",
+ "opening": "Walking from one corner of a grid to the opposite one, moving only right or down, around traps.",
+ "steps": [
+  {
+   "id": "open",
+   "kind": "number",
+   "prompt": "A 3 by 3 grid without traps. How many routes lead from the upper-left cell to the lower-right cell?",
+   "answer": 6,
+   "verify": "def routes(grid):\n    n = len(grid); w = [[0] * n for _ in range(n)]\n    for r in range(n):\n        for c in range(n):\n            if grid[r][c] == \"*\": continue\n            w[r][c] = 1 if r == c == 0 else (w[r - 1][c] if r else 0) + (w[r][c - 1] if c else 0)\n    return w[n - 1][n - 1]\nimport itertools\ndef slow(grid):\n    n = len(grid); total = 0\n    for downs in itertools.combinations(range(2 * n - 2), n - 1):\n        r = c = 0; ok = grid[0][0] != \"*\"\n        for i in range(2 * n - 2):\n            if i in downs: r += 1\n            else: c += 1\n            if grid[r][c] == \"*\": ok = False\n        total += ok\n    return total\nresult = slow([\"...\", \"...\", \"...\"])",
+   "nudges": [
+    "How many moves does a route have, and how many go down?"
+   ],
+   "showed": "Six."
+  },
+  {
+   "id": "centre",
+   "kind": "number",
+   "prompt": "Now the centre cell is a trap. How many routes are left?",
+   "answer": 2,
+   "verify": "def routes(grid):\n    n = len(grid); w = [[0] * n for _ in range(n)]\n    for r in range(n):\n        for c in range(n):\n            if grid[r][c] == \"*\": continue\n            w[r][c] = 1 if r == c == 0 else (w[r - 1][c] if r else 0) + (w[r][c - 1] if c else 0)\n    return w[n - 1][n - 1]\nimport itertools\ndef slow(grid):\n    n = len(grid); total = 0\n    for downs in itertools.combinations(range(2 * n - 2), n - 1):\n        r = c = 0; ok = grid[0][0] != \"*\"\n        for i in range(2 * n - 2):\n            if i in downs: r += 1\n            else: c += 1\n            if grid[r][c] == \"*\": ok = False\n        total += ok\n    return total\nresult = slow([\"...\", \".*.\", \"...\"])",
+   "nudges": [
+    "Which routes avoided the centre?"
+   ],
+   "showed": "Only the two routes round the edge."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "How is the number of routes into a free cell found?",
+   "options": [
+    "Add the numbers for the cell above and the cell to the left",
+    "Multiply the numbers for the cell above and the cell to the left",
+    "Take the larger of the two"
+   ],
+   "answer": 0,
+   "nudges": [
+    "From where can the last move into the cell come?"
+   ],
+   "showed": "The last move comes from above or from the left; those two groups of routes do not overlap. A trap holds 0."
+  },
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "A 4 by 4 grid, rows from the top: .... / .*.. / ...* / *... . How many routes?",
+   "answer": 3,
+   "verify": "def routes(grid):\n    n = len(grid); w = [[0] * n for _ in range(n)]\n    for r in range(n):\n        for c in range(n):\n            if grid[r][c] == \"*\": continue\n            w[r][c] = 1 if r == c == 0 else (w[r - 1][c] if r else 0) + (w[r][c - 1] if c else 0)\n    return w[n - 1][n - 1]\nimport itertools\ndef slow(grid):\n    n = len(grid); total = 0\n    for downs in itertools.combinations(range(2 * n - 2), n - 1):\n        r = c = 0; ok = grid[0][0] != \"*\"\n        for i in range(2 * n - 2):\n            if i in downs: r += 1\n            else: c += 1\n            if grid[r][c] == \"*\": ok = False\n        total += ok\n    return total\ng = [\"....\", \".*..\", \"...*\", \"*...\"]\nassert routes(g) == slow(g)\nresult = routes(g)",
+   "nudges": [
+    "Fill in the numbers row by row. What goes in a trap cell?"
+   ],
+   "showed": "Filled in row by row."
+  },
+  {
+   "id": "start",
+   "kind": "choice",
+   "prompt": "The upper-left cell itself is a trap. What is the answer?",
+   "options": [
+    "0",
+    "1",
+    "It depends on the rest of the grid"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Where does every route begin?"
+   ],
+   "showed": "Zero. Programs that set the start cell to 1 without looking get this wrong."
+  },
+  {
+   "id": "h-six",
+   "kind": "number",
+   "prompt": "A 6 by 6 grid, rows from the top: ...... / ..*... / ....*. / .*.... / ...*.. / ...... . How many routes?",
+   "answer": 30,
+   "verify": "def routes(grid):\n    n = len(grid); w = [[0] * n for _ in range(n)]\n    for r in range(n):\n        for c in range(n):\n            if grid[r][c] == \"*\": continue\n            w[r][c] = 1 if r == c == 0 else (w[r - 1][c] if r else 0) + (w[r][c - 1] if c else 0)\n    return w[n - 1][n - 1]\nimport itertools\ndef slow(grid):\n    n = len(grid); total = 0\n    for downs in itertools.combinations(range(2 * n - 2), n - 1):\n        r = c = 0; ok = grid[0][0] != \"*\"\n        for i in range(2 * n - 2):\n            if i in downs: r += 1\n            else: c += 1\n            if grid[r][c] == \"*\": ok = False\n        total += ok\n    return total\ng = [\"......\", \"..*...\", \"....*.\", \".*....\", \"...*..\", \"......\"]\nassert routes(g) == slow(g)\nresult = routes(g)",
+   "nudges": [
+    "Would you count them one by one?"
+   ],
+   "showed": "Thirty-six additions instead of 252 routes to check.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-wall",
+   "kind": "number",
+   "prompt": "A 5 by 5 grid in which the whole anti-diagonal (the five cells from the lower-left corner to the upper-right corner) consists of traps, except for its middle cell. How many routes?",
+   "answer": 36,
+   "verify": "def routes(grid):\n    n = len(grid); w = [[0] * n for _ in range(n)]\n    for r in range(n):\n        for c in range(n):\n            if grid[r][c] == \"*\": continue\n            w[r][c] = 1 if r == c == 0 else (w[r - 1][c] if r else 0) + (w[r][c - 1] if c else 0)\n    return w[n - 1][n - 1]\nimport itertools\ndef slow(grid):\n    n = len(grid); total = 0\n    for downs in itertools.combinations(range(2 * n - 2), n - 1):\n        r = c = 0; ok = grid[0][0] != \"*\"\n        for i in range(2 * n - 2):\n            if i in downs: r += 1\n            else: c += 1\n            if grid[r][c] == \"*\": ok = False\n        total += ok\n    return total\ng = [\"\".join(\"*\" if r + c == 4 and r != 2 else \".\" for c in range(5)) for r in range(5)]\nassert routes(g) == slow(g)\nresult = routes(g)",
+   "nudges": [
+    "Through which cell must every route pass?",
+    "How many ways to reach it, and how many ways on from it?"
+   ],
+   "showed": "Every route goes through the centre: 6 ways there times 6 ways on.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "A cell from its two predecessors",
+  "statement": "The number of routes into a cell is the sum over the cells that can step into it; a blocked cell has none.",
+  "remark": "Check the start cell too: if it is blocked the answer is zero."
+ }
+}

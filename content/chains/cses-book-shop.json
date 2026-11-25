@@ -1,0 +1,98 @@
+{
+ "idea": "cses-book-shop",
+ "opening": "Buying books within a budget, each book at most once.",
+ "steps": [
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "Four books cost 4, 8, 5 and 3 and have 5, 12, 8 and 1 pages. With a budget of 10, what is the largest number of pages you can buy?",
+   "answer": 13,
+   "verify": "import itertools\ndef shop(prices, pages, x):\n    best = [0] * (x + 1)\n    for h, s in zip(prices, pages):\n        for b in range(x, h - 1, -1): best[b] = max(best[b], best[b - h] + s)\n    return best[x]\ndef slow(prices, pages, x): return max(sum(pages[i] for i in c) for k in range(len(prices) + 1) for c in itertools.combinations(range(len(prices)), k) if sum(prices[i] for i in c) <= x)\nresult = slow((4, 8, 5, 3), (5, 12, 8, 1), 10)",
+   "nudges": [
+    "Which pairs of books fit in the budget?"
+   ],
+   "showed": "The books costing 4 and 5."
+  },
+  {
+   "id": "state",
+   "kind": "choice",
+   "prompt": "Books are considered one at a time. What must be remembered about the books already decided?",
+   "options": [
+    "How much money has been spent (and the most pages achieved for that amount)",
+    "Exactly which books were bought",
+    "How many books were bought"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two different selections cost the same. Which one would you keep?"
+   ],
+   "showed": "For each amount spent, only the best page count matters."
+  },
+  {
+   "id": "cells",
+   "kind": "number",
+   "prompt": "With 1000 books and a budget of $10^5$, how many updates does \"for each book, for each budget\" take?",
+   "answer": 100000000,
+   "verify": "result = 1000 * 10 ** 5",
+   "nudges": [
+    "How many books, how many budgets?"
+   ],
+   "showed": "A hundred million: acceptable only if each update is a couple of machine instructions."
+  },
+  {
+   "id": "memory",
+   "kind": "number",
+   "prompt": "A full table with one row per book would hold $1000 \\times 100001$ numbers of 4 bytes each. How many megabytes is that, counting a megabyte as a million bytes and rounding down?",
+   "answer": 400,
+   "verify": "result = 1000 * 100001 * 4 // 10 ** 6",
+   "nudges": [
+    "How many numbers in all?"
+   ],
+   "showed": "Too much. But a row only ever looks at the row before it."
+  },
+  {
+   "id": "down",
+   "kind": "choice",
+   "prompt": "Keep a single row best[0..x]. For a book with price $h$ and $s$ pages you set best[$b$] = max(best[$b$], best[$b - h$] + $s$). In which order must $b$ run?",
+   "options": [
+    "Downwards from $x$ to $h$, so that best[$b - h$] is still the value from before this book",
+    "Upwards from $h$ to $x$",
+    "Any order"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Going upwards, what could best[$b - h$] already contain?"
+   ],
+   "showed": "Going upwards would let the same book be bought again and again."
+  },
+  {
+   "id": "h-wrong",
+   "kind": "number",
+   "prompt": "Take the four books above and budget 10, and run the update with $b$ going upwards. What does best[10] come out as?",
+   "answer": 16,
+   "verify": "best = [0] * 11\nfor h, s in zip((4, 8, 5, 3), (5, 12, 8, 1)):\n    for b in range(h, 11): best[b] = max(best[b], best[b - h] + s)\nresult = best[10]",
+   "nudges": [
+    "Which book is worth buying twice if that were allowed?"
+   ],
+   "showed": "More than 13: the book costing 5 has been bought twice. One loop direction, a different problem.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-six",
+   "kind": "number",
+   "prompt": "Six books cost 3, 4, 5, 6, 7 and 9 and have 4, 5, 7, 8, 10 and 13 pages. With a budget of 20, what is the largest number of pages?",
+   "answer": 28,
+   "verify": "import itertools\ndef shop(prices, pages, x):\n    best = [0] * (x + 1)\n    for h, s in zip(prices, pages):\n        for b in range(x, h - 1, -1): best[b] = max(best[b], best[b - h] + s)\n    return best[x]\ndef slow(prices, pages, x): return max(sum(pages[i] for i in c) for k in range(len(prices) + 1) for c in itertools.combinations(range(len(prices)), k) if sum(prices[i] for i in c) <= x)\nassert shop((3, 4, 5, 6, 7, 9), (4, 5, 7, 8, 10, 13), 20) == slow((3, 4, 5, 6, 7, 9), (4, 5, 7, 8, 10, 13), 20)\nresult = shop((3, 4, 5, 6, 7, 9), (4, 5, 7, 8, 10, 13), 20)",
+   "nudges": [
+    "Is the book with the most pages per unit of price necessarily in the answer?"
+   ],
+   "showed": "Pages per price is a tempting guide and not a reliable one; the table does not need it.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "One row, filled downwards",
+  "statement": "Each item once, best value per budget: one array over the budget, updated from high budget to low so that an item cannot be taken twice.",
+  "remark": "A full table over items and budgets would be a hundred million cells; the single row is what fits in memory and in time."
+ }
+}

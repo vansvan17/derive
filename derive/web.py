@@ -143,9 +143,23 @@ class Service:
 
     def counts(self, store):
         rows = evidence.attempts(store)
-        return {'ideas': len(self.content.ideas), 'chains': len(self.content.chains), 'derived': len(self.derived(store)),
+        on_map = set(self.content.order)                 # the CSES chains are counted on their own page, not here
+        return {'ideas': len(on_map), 'chains': sum(1 for i in self.content.chains if i in on_map), 'derived': len(self.derived(store) & on_map),
                 'problems': len(self.content.problems), 'solved': sum(1 for r in rows.values() if r['solved_at']),
                 'cold': sum(1 for r in rows.values() if evidence.is_cold(r))}
+
+    def cses_page(self, store):
+        """The CSES dynamic programming section: every task with its chain, grouped by topic."""
+        derived = self.derived(store)
+        ticked = set(store.get('practice_done', []))
+        rows = []
+        for p in self.content.cses['problems']:
+            chain = self.content.chains.get(p['id'])
+            known = p['id'] in derived
+            rows.append({'id': p['id'], 'title': p['title'], 'url': p['url'], 'topic': p['topic'], 'has_chain': bool(chain),
+                         'steps_total': len(chain['steps']) if chain else 0, 'steps_done': len(self.done_steps(store, p['id'])) if chain else 0,
+                         'derived': known, 'lesson': p['name'] if known else None, 'accepted': p['url'] in ticked})
+        return {'topics': self.content.cses['topics'], 'problems': rows}
 
     def next_chain(self, store):
         derived = self.derived(store)
@@ -211,7 +225,7 @@ class Service:
                 'reveal': {**chain['reveal'], 'problems': len(self.content.problems_for(idea))} if complete else None,
                 # Practice tasks would give the topic away, so they are listed only once the chain is finished.
                 'practice': [{**t, 'done': t['url'] in ticked} for t in self.content.practice.get(idea, [])] if complete else [],
-                'marks': info.get('marks', []),
+                'marks': info.get('marks', []), 'cses': info.get('cses'),
                 'area': next(a['title'] for a in self.content.areas if a['id'] == info['area'])}
 
     def settle_code_steps(self, store, idea, chain):
@@ -767,6 +781,8 @@ class Service:
                 return self.proof_prompt(store, path[7:])
             if path == '/mastery':
                 return self.mastery(store)
+            if path == '/cses':
+                return self.cses_page(store)
             if path == '/tools':
                 return self.tool_list(store)
             if path.startswith('/tool/'):

@@ -1,0 +1,98 @@
+{
+ "idea": "cses-coin-combinations-1",
+ "opening": "Counting the ways to pay a sum, when paying 2 then 5 is different from paying 5 then 2.",
+ "steps": [
+  {
+   "id": "nine",
+   "kind": "number",
+   "prompt": "Coins 2, 3 and 5. In how many ways can 9 be paid if the order of the coins matters?",
+   "answer": 8,
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nresult = slow_ordered((2, 3, 5), 9)",
+   "nudges": [
+    "What can the last coin be?"
+   ],
+   "showed": "Eight ordered ways."
+  },
+  {
+   "id": "five",
+   "kind": "number",
+   "prompt": "Coins 1 and 2. In how many ordered ways can 5 be paid?",
+   "answer": 8,
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nresult = slow_ordered((1, 2), 5)",
+   "nudges": [
+    "What are the answers for 3 and for 4?"
+   ],
+   "showed": "The answers for 3 and 4 added together."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "With order mattering, ways($s$) equals:",
+   "options": [
+    "the sum of ways($s - c$) over all coins $c \\le s$",
+    "the product of ways($s - c$) over all coins",
+    "ways($s - 1$) plus the number of coins"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What happens if you group the ways by their last coin?"
+   ],
+   "showed": "A way is its last coin plus an ordered way to pay the rest. It is the dice count with the coin values as faces."
+  },
+  {
+   "id": "seven",
+   "kind": "number",
+   "prompt": "Coins 2 and 3. In how many ordered ways can 7 be paid?",
+   "answer": 3,
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nassert ordered((2, 3), 7)[7] == slow_ordered((2, 3), 7)\nresult = ordered((2, 3), 7)[7]",
+   "nudges": [
+    "What are ways(5) and ways(4)?"
+   ],
+   "showed": "ways(5) + ways(4)."
+  },
+  {
+   "id": "loops",
+   "kind": "choice",
+   "prompt": "Which arrangement of the two loops computes this count?",
+   "options": [
+    "For each sum from 1 to $x$: for each coin: add ways(sum - coin)",
+    "For each coin: for each sum from the coin to $x$: add ways(sum - coin)",
+    "Either one"
+   ],
+   "answer": 0,
+   "nudges": [
+    "When ways($s$) is being computed, which coins must be allowed as the last one?"
+   ],
+   "showed": "Sum outside, coins inside: every coin gets its turn as the last coin of every sum."
+  },
+  {
+   "id": "h-fifteen",
+   "kind": "number",
+   "prompt": "Coins 1, 2 and 3. In how many ordered ways can 15 be paid?",
+   "answer": 5768,
+   "verify": "import itertools\ndef ordered(coins, x):\n    w = [1] + [0] * x\n    for s in range(1, x + 1): w[s] = sum(w[s - c] for c in coins if c <= s)\n    return w\ndef unordered(coins, x):\n    w = [1] + [0] * x\n    for c in coins:\n        for s in range(c, x + 1): w[s] += w[s - c]\n    return w\ndef slow_ordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.product(coins, repeat=L) if sum(t) == x)\ndef slow_unordered(coins, x): return sum(1 for L in range(1, x + 1) for t in itertools.combinations_with_replacement(coins, L) if sum(t) == x)\nassert all(ordered((1, 2, 3), s)[s] == slow_ordered((1, 2, 3), s) for s in range(1, 9))\nresult = ordered((1, 2, 3), 15)[15]",
+   "nudges": [
+    "How is each value made from the three before it?"
+   ],
+   "showed": "Each value is the sum of the three before it.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-work",
+   "kind": "number",
+   "prompt": "With 100 coins and $x = 10^6$, how many additions does the table take at most?",
+   "answer": 100000000,
+   "verify": "result = 100 * 10 ** 6",
+   "nudges": [
+    "How many sums, how many coins each?"
+   ],
+   "showed": "A hundred million simple steps: fine in a compiled language, and a reason to take the remainder with a subtraction instead of a division if time is tight.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Ordered sums: total outside, coins inside",
+  "statement": "When different orders count as different ways, a way is determined by its last coin and what came before: for each total, add over all coins.",
+  "remark": "It is the dice problem with arbitrary faces."
+ }
+}

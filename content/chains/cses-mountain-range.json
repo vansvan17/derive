@@ -1,0 +1,102 @@
+{
+ "idea": "cses-mountain-range",
+ "opening": "Gliding from mountain to mountain, always to a lower one with nothing as tall in between.",
+ "steps": [
+  {
+   "id": "ten",
+   "kind": "number",
+   "prompt": "Ten mountains have heights 20, 15, 17, 35, 25, 40, 12, 19, 13, 12. You may glide from a mountain to another one if the first is taller than the second and taller than every mountain between them. Starting anywhere, what is the largest number of mountains you can visit?",
+   "answer": 5,
+   "verify": "import functools\ndef brute(h):\n    n = len(h)\n    @functools.lru_cache(None)\n    def f(i):\n        best = 1\n        for d in (1, -1):\n            j = i + d\n            while 0 <= j < n and h[j] < h[i]: best = max(best, 1 + f(j)); j += d\n        return best\n    return max(f(i) for i in range(n))\ndef reach(h, i):\n    n = len(h); c = 0\n    for d in (1, -1):\n        j = i + d\n        while 0 <= j < n and h[j] < h[i]: c += 1; j += d\n    return c\nM = (20, 15, 17, 35, 25, 40, 12, 19, 13, 12)\nresult = brute(M)",
+   "nudges": [
+    "From the tallest mountain, where can you go?"
+   ],
+   "showed": "A route of several glides, each one going down."
+  },
+  {
+   "id": "direct",
+   "kind": "number",
+   "prompt": "From the mountain of height 35 (the fourth one), how many mountains can be reached with a single glide?",
+   "answer": 4,
+   "verify": "import functools\ndef brute(h):\n    n = len(h)\n    @functools.lru_cache(None)\n    def f(i):\n        best = 1\n        for d in (1, -1):\n            j = i + d\n            while 0 <= j < n and h[j] < h[i]: best = max(best, 1 + f(j)); j += d\n        return best\n    return max(f(i) for i in range(n))\ndef reach(h, i):\n    n = len(h); c = 0\n    for d in (1, -1):\n        j = i + d\n        while 0 <= j < n and h[j] < h[i]: c += 1; j += d\n    return c\nM = (20, 15, 17, 35, 25, 40, 12, 19, 13, 12)\nresult = reach(M, 3)",
+   "nudges": [
+    "What stops a glide to the left? To the right?"
+   ],
+   "showed": "Everything to its left, and to the right only up to the mountain of height 40."
+  },
+  {
+   "id": "range",
+   "kind": "choice",
+   "prompt": "In general, which mountains can be reached from a mountain with one glide?",
+   "options": [
+    "All mountains in the stretch between the nearest mountain to its left that is at least as tall and the nearest such mountain to its right",
+    "Only its two neighbours",
+    "All lower mountains anywhere"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Inside that stretch, is any mountain as tall as the starting one?"
+   ],
+   "showed": "Inside the stretch everything is lower, so every mountain in it is a valid landing place; the stretch ends where something at least as tall blocks the way."
+  },
+  {
+   "id": "order",
+   "kind": "choice",
+   "prompt": "Let best($i$) be the largest number of mountains on a route starting at mountain $i$. It is 1 plus the largest best over the stretch. In which order can the mountains be evaluated?",
+   "options": [
+    "By increasing height: everything a mountain can reach is lower than it",
+    "From left to right",
+    "In any order"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which values does best($i$) depend on?"
+   ],
+   "showed": "The order of evaluation is by height, not by position. The states are in a row, but the dependencies are not."
+  },
+  {
+   "id": "query",
+   "kind": "choice",
+   "prompt": "For each mountain you need the largest best over a stretch of positions, among values already computed. What provides that?",
+   "options": [
+    "A segment tree for range maximum, updated as each mountain is evaluated",
+    "A running maximum",
+    "Sorting"
+   ],
+   "answer": 0,
+   "nudges": [
+    "The stretch is contiguous, but the values arrive in order of height. What kind of query is that?"
+   ],
+   "showed": "Range maximum with point updates. Mountains not yet evaluated are taller or equal and outside the stretch, so they do not disturb the query."
+  },
+  {
+   "id": "h-equal",
+   "kind": "number",
+   "prompt": "What is the answer for five mountains of height 7, 7, 7, 7, 7?",
+   "answer": 1,
+   "verify": "import functools\ndef brute(h):\n    n = len(h)\n    @functools.lru_cache(None)\n    def f(i):\n        best = 1\n        for d in (1, -1):\n            j = i + d\n            while 0 <= j < n and h[j] < h[i]: best = max(best, 1 + f(j)); j += d\n        return best\n    return max(f(i) for i in range(n))\ndef reach(h, i):\n    n = len(h); c = 0\n    for d in (1, -1):\n        j = i + d\n        while 0 <= j < n and h[j] < h[i]: c += 1; j += d\n    return c\nM = (20, 15, 17, 35, 25, 40, 12, 19, 13, 12)\nresult = brute((7, 7, 7, 7, 7))",
+   "nudges": [
+    "Can you glide to a mountain of the same height?"
+   ],
+   "showed": "One: equal heights block. The stretch is bounded by the nearest mountain that is at least as tall, not strictly taller.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-sixteen",
+   "kind": "number",
+   "prompt": "Heights 5, 9, 3, 8, 2, 7, 1, 10, 4, 6, 11, 2, 9, 3, 8, 1. What is the largest number of mountains you can visit?",
+   "answer": 6,
+   "verify": "import functools\ndef brute(h):\n    n = len(h)\n    @functools.lru_cache(None)\n    def f(i):\n        best = 1\n        for d in (1, -1):\n            j = i + d\n            while 0 <= j < n and h[j] < h[i]: best = max(best, 1 + f(j)); j += d\n        return best\n    return max(f(i) for i in range(n))\ndef reach(h, i):\n    n = len(h); c = 0\n    for d in (1, -1):\n        j = i + d\n        while 0 <= j < n and h[j] < h[i]: c += 1; j += d\n    return c\nM = (20, 15, 17, 35, 25, 40, 12, 19, 13, 12)\nresult = brute((5, 9, 3, 8, 2, 7, 1, 10, 4, 6, 11, 2, 9, 3, 8, 1))",
+   "nudges": [
+    "Where would a long route start?"
+   ],
+   "showed": "Start high and step down through as many levels as the stretches allow.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Evaluate in order of height",
+  "statement": "The states are the mountains, but a mountain depends on lower ones, wherever they stand. Process by increasing height; what a mountain can reach is the stretch between its nearest neighbours that are at least as tall.",
+  "remark": "The best value over a stretch needs a range-maximum structure."
+ }
+}

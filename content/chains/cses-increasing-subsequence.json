@@ -1,0 +1,104 @@
+{
+ "idea": "cses-increasing-subsequence",
+ "opening": "Crossing out as few numbers as possible so that the rest go strictly up.",
+ "steps": [
+  {
+   "id": "eight",
+   "kind": "number",
+   "prompt": "In 7, 3, 5, 3, 6, 2, 9, 8, what is the largest number of elements that can be kept so that they are strictly increasing from left to right?",
+   "answer": 4,
+   "verify": "import bisect, itertools\ndef lis(a):\n    t = []\n    for x in a:\n        i = bisect.bisect_left(t, x)\n        if i == len(t): t.append(x)\n        else: t[i] = x\n    return t\ndef slow(a):\n    best = [1] * len(a)\n    for i in range(len(a)):\n        for j in range(i):\n            if a[j] < a[i]: best[i] = max(best[i], best[j] + 1)\n    return max(best, default=0)\nA = (7, 3, 5, 3, 6, 2, 9, 8)\nresult = slow(A)",
+   "nudges": [
+    "Which element would you like to start with?"
+   ],
+   "showed": "3, 5, 6, 9 for example."
+  },
+  {
+   "id": "slow",
+   "kind": "number",
+   "prompt": "The direct method computes, for each position, the best length ending there by looking at all earlier positions. For $n = 2 \\cdot 10^5$, how many pairs of positions is that?",
+   "answer": 19999900000,
+   "verify": "result = 200000 * 199999 // 2",
+   "nudges": [
+    "How many pairs $j < i$ are there?"
+   ],
+   "showed": "Twenty billion: too slow. Something smarter than \"look at all earlier positions\" is needed."
+  },
+  {
+   "id": "which",
+   "kind": "choice",
+   "prompt": "Two increasing subsequences found so far both have length 3; one ends in 6, the other in 9. Which is worth keeping for extending later?",
+   "options": [
+    "The one ending in 6: anything that can follow 9 can also follow 6",
+    "The one ending in 9",
+    "Both are needed"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which later elements can extend each of them?"
+   ],
+   "showed": "For each length, only the smallest possible last value matters."
+  },
+  {
+   "id": "tails",
+   "kind": "list",
+   "prompt": "Process 7, 3, 5, 3, 6 from left to right, keeping for every length the smallest last value of an increasing subsequence of that length. What is the list after these five elements (for lengths 1, 2, 3)?",
+   "answer": [
+    3,
+    5,
+    6
+   ],
+   "verify": "import bisect, itertools\ndef lis(a):\n    t = []\n    for x in a:\n        i = bisect.bisect_left(t, x)\n        if i == len(t): t.append(x)\n        else: t[i] = x\n    return t\ndef slow(a):\n    best = [1] * len(a)\n    for i in range(len(a)):\n        for j in range(i):\n            if a[j] < a[i]: best[i] = max(best[i], best[j] + 1)\n    return max(best, default=0)\nA = (7, 3, 5, 3, 6, 2, 9, 8)\nresult = lis((7, 3, 5, 3, 6))",
+   "nudges": [
+    "After 7 and 3, what is the best last value for length 1?"
+   ],
+   "showed": "The list is itself increasing, which is what makes binary search possible.",
+   "ordered": true
+  },
+  {
+   "id": "place",
+   "kind": "choice",
+   "prompt": "A new element $x$ arrives. What happens to the list?",
+   "options": [
+    "$x$ replaces the first entry that is at least $x$; if there is none, $x$ is appended",
+    "$x$ replaces the first entry that is larger than $x$",
+    "$x$ is always appended"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which is the longest subsequence that $x$ can extend?",
+    "What if an entry equal to $x$ is already there?"
+   ],
+   "showed": "The first entry that is not smaller than $x$. With \"larger than\" instead, equal elements would be chained, which is the non-decreasing version."
+  },
+  {
+   "id": "h-equal",
+   "kind": "number",
+   "prompt": "What is the answer for 4, 4, 4, 4, 4?",
+   "answer": 1,
+   "verify": "import bisect, itertools\ndef lis(a):\n    t = []\n    for x in a:\n        i = bisect.bisect_left(t, x)\n        if i == len(t): t.append(x)\n        else: t[i] = x\n    return t\ndef slow(a):\n    best = [1] * len(a)\n    for i in range(len(a)):\n        for j in range(i):\n            if a[j] < a[i]: best[i] = max(best[i], best[j] + 1)\n    return max(best, default=0)\nA = (7, 3, 5, 3, 6, 2, 9, 8)\nresult = len(lis((4, 4, 4, 4, 4)))",
+   "nudges": [
+    "Is 4, 4 strictly increasing?"
+   ],
+   "showed": "One. This is the test that tells the two versions of the binary search apart.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-hundred",
+   "kind": "number",
+   "prompt": "The sequence $a_i = 37 i \\bmod 101$ for $i = 1, \\dots, 100$. What is the length of its longest strictly increasing subsequence?",
+   "answer": 14,
+   "verify": "import bisect, itertools\ndef lis(a):\n    t = []\n    for x in a:\n        i = bisect.bisect_left(t, x)\n        if i == len(t): t.append(x)\n        else: t[i] = x\n    return t\ndef slow(a):\n    best = [1] * len(a)\n    for i in range(len(a)):\n        for j in range(i):\n            if a[j] < a[i]: best[i] = max(best[i], best[j] + 1)\n    return max(best, default=0)\nA = (7, 3, 5, 3, 6, 2, 9, 8)\na = [37 * i % 101 for i in range(1, 101)]\nassert len(lis(a)) == slow(a)\nresult = len(lis(a))",
+   "nudges": [
+    "How many list operations does this take?"
+   ],
+   "showed": "A hundred binary searches.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "The smallest ending for each length",
+  "statement": "Keep, for every length, the smallest value an increasing subsequence of that length can end with. The list is sorted, and each new element changes one entry, found by binary search.",
+  "remark": "For strictly increasing, replace the first entry that is not smaller than the new element."
+ }
+}

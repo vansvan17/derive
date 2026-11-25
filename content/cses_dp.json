@@ -1,0 +1,299 @@
+{
+ "topics": [
+  {
+   "id": "first",
+   "title": "One number as the state",
+   "about": "The whole past is summed up by a single number: the total so far, or the number that is left."
+  },
+  {
+   "id": "coins",
+   "title": "Coins and knapsacks",
+   "about": "Items and a budget. Ordered or unordered, once or many times, best value or yes and no: the loops decide."
+  },
+  {
+   "id": "grids",
+   "title": "Grids",
+   "about": "A cell is reached from the cells that lead into it."
+  },
+  {
+   "id": "carry",
+   "title": "A position and a little more",
+   "about": "Going left to right, with one small extra fact carried along."
+  },
+  {
+   "id": "pairs",
+   "title": "Two sequences",
+   "about": "A prefix of one against a prefix of the other."
+  },
+  {
+   "id": "intervals",
+   "title": "Intervals and shapes",
+   "about": "The state is a stretch, or a rectangle, and the choice is how to split it."
+  },
+  {
+   "id": "order",
+   "title": "Sort first, then a table",
+   "about": "Subsequences, schedules and heights: the right order of evaluation is half the solution."
+  },
+  {
+   "id": "masks",
+   "title": "Subsets, profiles and digits",
+   "about": "States that are sets, column profiles, or prefixes of a number."
+  }
+ ],
+ "problems": [
+  {
+   "id": "cses-dice-combinations",
+   "task": 1633,
+   "title": "Dice Combinations",
+   "url": "https://cses.fi/problemset/task/1633",
+   "topic": "first",
+   "name": "Count by the last move",
+   "statement": "Split the ways of reaching a total by their last step. Each group is a smaller instance of the same question, so one array indexed by the total is enough.",
+   "remark": "The empty total counts as one way. That single base value is what makes the sums come out right.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-minimizing-coins",
+   "task": 1634,
+   "title": "Minimizing Coins",
+   "url": "https://cses.fi/problemset/task/1634",
+   "topic": "first",
+   "name": "Unreachable is a value too",
+   "statement": "The same table as for counting, with a minimum in place of a sum. Totals that cannot be made need their own value (infinity), and it must never be extended by accident.",
+   "remark": "Largest-coin-first is wrong for general coin systems; the table tries every last coin.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-removing-digits",
+   "task": 1637,
+   "title": "Removing Digits",
+   "url": "https://cses.fi/problemset/task/1637",
+   "topic": "first",
+   "name": "The number itself is the state",
+   "statement": "The state does not have to be an index into the input: here it is the current number, and the moves are read off its digits.",
+   "remark": "Subtracting the largest digit happens to be optimal here, but the table needs no such insight and costs almost nothing.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-coin-combinations-1",
+   "task": 1635,
+   "title": "Coin Combinations I",
+   "url": "https://cses.fi/problemset/task/1635",
+   "topic": "coins",
+   "name": "Ordered sums: total outside, coins inside",
+   "statement": "When different orders count as different ways, a way is determined by its last coin and what came before: for each total, add over all coins.",
+   "remark": "It is the dice problem with arbitrary faces.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-coin-combinations-2",
+   "task": 1636,
+   "title": "Coin Combinations II",
+   "url": "https://cses.fi/problemset/task/1636",
+   "topic": "coins",
+   "name": "Unordered sums: coins outside, total inside",
+   "statement": "When order does not matter, fix an order in which coins may be used. Processing one coin at a time over all totals counts every multiset exactly once.",
+   "remark": "Swapping the two loops is the entire difference between the two coin-counting problems.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-book-shop",
+   "task": 1158,
+   "title": "Book Shop",
+   "url": "https://cses.fi/problemset/task/1158",
+   "topic": "coins",
+   "name": "One row, filled downwards",
+   "statement": "Each item once, best value per budget: one array over the budget, updated from high budget to low so that an item cannot be taken twice.",
+   "remark": "A full table over items and budgets would be a hundred million cells; the single row is what fits in memory and in time.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-money-sums",
+   "task": 1745,
+   "title": "Money Sums",
+   "url": "https://cses.fi/problemset/task/1745",
+   "topic": "coins",
+   "name": "A table of yes and no",
+   "statement": "Which totals can be made is the same knapsack with true and false as the values.",
+   "remark": "The table is as long as the largest possible total, not as the number of subsets.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-two-sets-2",
+   "task": 1093,
+   "title": "Two Sets II",
+   "url": "https://cses.fi/problemset/task/1093",
+   "topic": "coins",
+   "name": "Count subsets, then undo the double counting",
+   "statement": "Splitting into two equal halves is choosing a subset with half the total. Every split is found twice, once from each side.",
+   "remark": "Halving modulo a prime needs an inverse; or avoid it by deciding in advance which side the largest number is on.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-grid-paths-1",
+   "task": 1638,
+   "title": "Grid Paths I",
+   "url": "https://cses.fi/problemset/task/1638",
+   "topic": "grids",
+   "name": "A cell from its two predecessors",
+   "statement": "The number of routes into a cell is the sum over the cells that can step into it; a blocked cell has none.",
+   "remark": "Check the start cell too: if it is blocked the answer is zero.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-minimal-grid-path",
+   "task": 3359,
+   "title": "Minimal Grid Path",
+   "url": "https://cses.fi/problemset/task/3359",
+   "topic": "grids",
+   "name": "Advance a frontier of the best",
+   "statement": "When the value being optimised is a string, do not store strings. Move diagonal by diagonal, keeping only the cells that can still lie on a best path.",
+   "remark": "All candidates on a diagonal have spelled the same string so far, which is why the cells alone are enough.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-array-description",
+   "task": 1746,
+   "title": "Array Description",
+   "url": "https://cses.fi/problemset/task/1746",
+   "topic": "carry",
+   "name": "Position and the last value",
+   "statement": "When the rule links neighbours, the state is the position together with the value placed there.",
+   "remark": "A known value simply has one allowed state at its position.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-counting-towers",
+   "task": 2413,
+   "title": "Counting Towers",
+   "url": "https://cses.fi/problemset/task/2413",
+   "topic": "carry",
+   "name": "The state is the shape of the top",
+   "statement": "Build upwards and remember only what the top edge looks like: one wide block or two separate ones. Count the ways each shape leads to each shape.",
+   "remark": "With many queries, fill the table once up to the largest height.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-edit-distance",
+   "task": 1639,
+   "title": "Edit Distance",
+   "url": "https://cses.fi/problemset/task/1639",
+   "topic": "pairs",
+   "name": "Prefix against prefix",
+   "statement": "The answer for two prefixes comes from the three ways of dealing with their last characters: match or replace, delete, insert.",
+   "remark": "The borders are not zero: turning a prefix into nothing costs its length.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-longest-common-subsequence",
+   "task": 3403,
+   "title": "Longest Common Subsequence",
+   "url": "https://cses.fi/problemset/task/3403",
+   "topic": "pairs",
+   "name": "Walk the table back",
+   "statement": "The table of lengths already contains an answer. Start at the final cell and repeatedly step to a cell that explains its value.",
+   "remark": "To walk back, the whole table must be kept.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-removal-game",
+   "task": 1097,
+   "title": "Removal Game",
+   "url": "https://cses.fi/problemset/task/1097",
+   "topic": "intervals",
+   "name": "The mover's lead on an interval",
+   "statement": "For a game on a shrinking interval, store the best possible difference (mover minus opponent). Taking an end gives that number minus the opponent's best lead on what remains.",
+   "remark": "The first player's score is half of the total plus the lead.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-rectangle-cutting",
+   "task": 1744,
+   "title": "Rectangle Cutting",
+   "url": "https://cses.fi/problemset/task/1744",
+   "topic": "intervals",
+   "name": "Try every first cut",
+   "statement": "The state is the pair of side lengths; the first cut splits it into two smaller rectangles that are solved independently.",
+   "remark": "Cutting off the largest square each time is not optimal.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-increasing-subsequence",
+   "task": 1145,
+   "title": "Increasing Subsequence",
+   "url": "https://cses.fi/problemset/task/1145",
+   "topic": "order",
+   "name": "The smallest ending for each length",
+   "statement": "Keep, for every length, the smallest value an increasing subsequence of that length can end with. The list is sorted, and each new element changes one entry, found by binary search.",
+   "remark": "For strictly increasing, replace the first entry that is not smaller than the new element.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-increasing-subsequence-2",
+   "task": 1748,
+   "title": "Increasing Subsequence II",
+   "url": "https://cses.fi/problemset/task/1748",
+   "topic": "order",
+   "name": "Sum over smaller values",
+   "statement": "The number of increasing subsequences ending at an element is one plus the sum of the counts at earlier, smaller elements: a prefix sum over values, kept in a Fenwick tree.",
+   "remark": "Values up to a billion are first replaced by their ranks.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-projects",
+   "task": 1140,
+   "title": "Projects",
+   "url": "https://cses.fi/problemset/task/1140",
+   "topic": "order",
+   "name": "Sort by end, then take or skip",
+   "statement": "Sorted by ending day, each project is either skipped or taken together with the best result among projects that end before it starts, found by binary search.",
+   "remark": "Two projects that share a day clash.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-mountain-range",
+   "task": 3314,
+   "title": "Mountain Range",
+   "url": "https://cses.fi/problemset/task/3314",
+   "topic": "order",
+   "name": "Evaluate in order of height",
+   "statement": "The states are the mountains, but a mountain depends on lower ones, wherever they stand. Process by increasing height; what a mountain can reach is the stretch between its nearest neighbours that are at least as tall.",
+   "remark": "The best value over a stretch needs a range-maximum structure.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-elevator-rides",
+   "task": 1653,
+   "title": "Elevator Rides",
+   "url": "https://cses.fi/problemset/task/1653",
+   "topic": "masks",
+   "name": "A pair as the value",
+   "statement": "For each set of people already taken up, store the pair (rides used, weight in the last ride), smallest first. Adding a person either fits in the last ride or starts a new one.",
+   "remark": "A million sets times twenty people is the whole computation.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-counting-tilings",
+   "task": 2181,
+   "title": "Counting Tilings",
+   "url": "https://cses.fi/problemset/task/2181",
+   "topic": "masks",
+   "name": "A profile of what sticks out",
+   "statement": "Go through the grid column by column. The only memory needed is which cells of the next column are already covered by tiles sticking out of this one: a mask.",
+   "remark": "The mask runs along the short side.",
+   "checked": "2026-11-26"
+  },
+  {
+   "id": "cses-counting-numbers",
+   "task": 2220,
+   "title": "Counting Numbers",
+   "url": "https://cses.fi/problemset/task/2220",
+   "topic": "masks",
+   "name": "Up to b, minus up to a - 1",
+   "statement": "A count over a range is a difference of two counts from zero. Each of those is built digit by digit, remembering the previous digit, whether the limit still binds, and whether the number has started.",
+   "remark": "Leading zeros are not digits of the number.",
+   "checked": "2026-11-26"
+  }
+ ]
+}

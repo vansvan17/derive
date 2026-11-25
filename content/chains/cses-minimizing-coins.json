@@ -1,0 +1,98 @@
+{
+ "idea": "cses-minimizing-coins",
+ "opening": "Paying a sum with as few coins as possible.",
+ "steps": [
+  {
+   "id": "eleven",
+   "kind": "number",
+   "prompt": "With coins of value 1, 5 and 7 (as many of each as you like), what is the smallest number of coins that makes 11?",
+   "answer": 3,
+   "verify": "def best(coins, x):\n    INF = 10 ** 9; b = [0] + [INF] * x\n    for s in range(1, x + 1):\n        for c in coins:\n            if c <= s and b[s - c] + 1 < b[s]: b[s] = b[s - c] + 1\n    return b\nimport itertools\ndef slow(coins, x):\n    for k in range(0, x + 1):\n        if any(sum(t) == x for t in itertools.combinations_with_replacement(coins, k)): return k\n    return -1\nresult = slow((1, 5, 7), 11)",
+   "nudges": [
+    "Which coins could be the last one added?"
+   ],
+   "showed": "5 + 5 + 1."
+  },
+  {
+   "id": "ten",
+   "kind": "number",
+   "prompt": "Same coins. What is the smallest number of coins that makes 10?",
+   "answer": 2,
+   "verify": "def best(coins, x):\n    INF = 10 ** 9; b = [0] + [INF] * x\n    for s in range(1, x + 1):\n        for c in coins:\n            if c <= s and b[s - c] + 1 < b[s]: b[s] = b[s - c] + 1\n    return b\nimport itertools\ndef slow(coins, x):\n    for k in range(0, x + 1):\n        if any(sum(t) == x for t in itertools.combinations_with_replacement(coins, k)): return k\n    return -1\nresult = slow((1, 5, 7), 10)",
+   "nudges": [
+    "What does \"always take the largest coin that fits\" give?"
+   ],
+   "showed": "Two fives. Taking the largest coin first gives 7 + 1 + 1 + 1, four coins."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Let best($s$) be the smallest number of coins that makes $s$. Then for $s > 0$:",
+   "options": [
+    "best($s$) = 1 + the smallest of best($s - c$) over the coins $c \\le s$",
+    "best($s$) = 1 + best($s$ minus the largest coin that fits)",
+    "best($s$) = best($s - 1$) + 1"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Some coin is the last one. What is the rest?"
+   ],
+   "showed": "Try every coin as the last one and keep the best."
+  },
+  {
+   "id": "gaps",
+   "kind": "number",
+   "prompt": "Now the coins are 5 and 7 only. How many of the sums from 1 to 23 cannot be made at all?",
+   "answer": 12,
+   "verify": "def best(coins, x):\n    INF = 10 ** 9; b = [0] + [INF] * x\n    for s in range(1, x + 1):\n        for c in coins:\n            if c <= s and b[s - c] + 1 < b[s]: b[s] = b[s - c] + 1\n    return b\nimport itertools\ndef slow(coins, x):\n    for k in range(0, x + 1):\n        if any(sum(t) == x for t in itertools.combinations_with_replacement(coins, k)): return k\n    return -1\nb = best((5, 7), 23)\nresult = sum(1 for s in range(1, 24) if b[s] >= 10 ** 9)",
+   "nudges": [
+    "Which sums can be made with at most three coins?"
+   ],
+   "showed": "Some sums have no answer, and the table has to say so."
+  },
+  {
+   "id": "mark",
+   "kind": "choice",
+   "prompt": "What should the table hold for a sum that cannot be made, so that the rule keeps working?",
+   "options": [
+    "A value larger than any real answer (infinity), which is left alone when \"1 + ...\" is formed and reported as -1 at the end",
+    "0",
+    "-1"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If an unreachable sum held 0, what would the rule compute for the sum one coin larger?"
+   ],
+   "showed": "Zero would be read as \"free\"; -1 would become 0 after adding a coin. Infinity survives the minimum, as long as 1 is not added to it carelessly (overflow)."
+  },
+  {
+   "id": "h-hundred",
+   "kind": "number",
+   "prompt": "Coins 3, 7 and 11. What is the smallest number of coins that makes 100?",
+   "answer": 12,
+   "verify": "def best(coins, x):\n    INF = 10 ** 9; b = [0] + [INF] * x\n    for s in range(1, x + 1):\n        for c in coins:\n            if c <= s and b[s - c] + 1 < b[s]: b[s] = b[s - c] + 1\n    return b\nimport itertools\ndef slow(coins, x):\n    for k in range(0, x + 1):\n        if any(sum(t) == x for t in itertools.combinations_with_replacement(coins, k)): return k\n    return -1\nassert all((best((3, 7, 11), s)[s] if best((3, 7, 11), s)[s] < 10 ** 9 else -1) == slow((3, 7, 11), s) for s in range(1, 25))\nresult = best((3, 7, 11), 100)[100]",
+   "nudges": [
+    "How many elevens could there be at most? Is that many actually possible?"
+   ],
+   "showed": "The table settles it without any reasoning about which mix of coins is right.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-largest",
+   "kind": "number",
+   "prompt": "Coins 6, 10 and 15. What is the largest sum that cannot be made?",
+   "answer": 29,
+   "verify": "def best(coins, x):\n    INF = 10 ** 9; b = [0] + [INF] * x\n    for s in range(1, x + 1):\n        for c in coins:\n            if c <= s and b[s - c] + 1 < b[s]: b[s] = b[s - c] + 1\n    return b\nimport itertools\ndef slow(coins, x):\n    for k in range(0, x + 1):\n        if any(sum(t) == x for t in itertools.combinations_with_replacement(coins, k)): return k\n    return -1\nb = best((6, 10, 15), 200)\nresult = max(s for s in range(1, 201) if b[s] >= 10 ** 9)",
+   "nudges": [
+    "Once enough consecutive sums can be made, what follows for all larger sums?"
+   ],
+   "showed": "From 30 on everything can be made: once six consecutive sums are reachable, adding 6 reaches all the rest.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Unreachable is a value too",
+  "statement": "The same table as for counting, with a minimum in place of a sum. Totals that cannot be made need their own value (infinity), and it must never be extended by accident.",
+  "remark": "Largest-coin-first is wrong for general coin systems; the table tries every last coin."
+ }
+}

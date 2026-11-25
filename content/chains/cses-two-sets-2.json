@@ -1,0 +1,105 @@
+{
+ "idea": "cses-two-sets-2",
+ "opening": "Dividing the numbers 1 to n into two groups with the same sum.",
+ "steps": [
+  {
+   "id": "seven",
+   "kind": "number",
+   "prompt": "In how many ways can the numbers 1, 2, ..., 7 be divided into two groups with equal sums? (The two groups are not labelled.)",
+   "answer": 4,
+   "verify": "import itertools\ndef subsets(n, target):\n    w = [1] + [0] * target\n    for v in range(1, n + 1):\n        for s in range(target, v - 1, -1): w[s] += w[s - v]\n    return w[target]\ndef splits(n):\n    total = n * (n + 1) // 2\n    return 0 if total % 2 else subsets(n, total // 2) // 2\ndef slow(n): return sum(1 for m in range(1 << n) if 2 * sum(i + 1 for i in range(n) if m >> i & 1) == n * (n + 1) // 2) // 2\nresult = slow(7)",
+   "nudges": [
+    "What must each group add up to?"
+   ],
+   "showed": "Each group adds up to 14."
+  },
+  {
+   "id": "none",
+   "kind": "list",
+   "prompt": "For which $n$ from 1 to 10 is there no way at all?",
+   "answer": [
+    1,
+    2,
+    5,
+    6,
+    9,
+    10
+   ],
+   "verify": "import itertools\ndef subsets(n, target):\n    w = [1] + [0] * target\n    for v in range(1, n + 1):\n        for s in range(target, v - 1, -1): w[s] += w[s - v]\n    return w[target]\ndef splits(n):\n    total = n * (n + 1) // 2\n    return 0 if total % 2 else subsets(n, total // 2) // 2\ndef slow(n): return sum(1 for m in range(1 << n) if 2 * sum(i + 1 for i in range(n) if m >> i & 1) == n * (n + 1) // 2) // 2\nresult = [n for n in range(1, 11) if slow(n) == 0]",
+   "nudges": [
+    "What is the total of 1 to $n$, and when can it be halved?"
+   ],
+   "showed": "Exactly when the total $n(n+1)/2$ is odd."
+  },
+  {
+   "id": "subsets",
+   "kind": "number",
+   "prompt": "How many subsets of {1, ..., 7} have sum 14?",
+   "answer": 8,
+   "verify": "import itertools\ndef subsets(n, target):\n    w = [1] + [0] * target\n    for v in range(1, n + 1):\n        for s in range(target, v - 1, -1): w[s] += w[s - v]\n    return w[target]\ndef splits(n):\n    total = n * (n + 1) // 2\n    return 0 if total % 2 else subsets(n, total // 2) // 2\ndef slow(n): return sum(1 for m in range(1 << n) if 2 * sum(i + 1 for i in range(n) if m >> i & 1) == n * (n + 1) // 2) // 2\nresult = sum(1 for m in range(128) if sum(i + 1 for i in range(7) if m >> i & 1) == 14)",
+   "nudges": [
+    "If a subset has sum 14, what about the numbers not in it?"
+   ],
+   "showed": "Twice the number of divisions: each division is seen from both of its groups."
+  },
+  {
+   "id": "which",
+   "kind": "choice",
+   "prompt": "The subsets with a given sum are counted by a table over sums, processing the numbers 1, 2, ..., $n$ one at a time. Each number may be used:",
+   "options": [
+    "once, so the sums are updated downwards",
+    "any number of times, so the sums are updated upwards",
+    "once, and the direction does not matter"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Can the number 3 be in a group twice?"
+   ],
+   "showed": "It is the each-item-once count."
+  },
+  {
+   "id": "half",
+   "kind": "choice",
+   "prompt": "The table gives the number of subsets modulo $10^9 + 7$. How do you get the number of divisions from it?",
+   "options": [
+    "Multiply by the inverse of 2 modulo the prime; or count only subsets of 1, ..., $n - 1$, which amounts to deciding that $n$ is in the other group",
+    "Divide the remainder by 2 as an ordinary number",
+    "Subtract 1"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If the true count is even but its remainder modulo the prime is odd, what does ordinary halving give?"
+   ],
+   "showed": "A remainder cannot be halved like a number. Either use the modular inverse of 2, or remove the double counting before it happens by pinning one element."
+  },
+  {
+   "id": "h-twenty",
+   "kind": "number",
+   "prompt": "In how many ways can 1, 2, ..., 20 be divided into two groups with equal sums?",
+   "answer": 7636,
+   "verify": "import itertools\ndef subsets(n, target):\n    w = [1] + [0] * target\n    for v in range(1, n + 1):\n        for s in range(target, v - 1, -1): w[s] += w[s - v]\n    return w[target]\ndef splits(n):\n    total = n * (n + 1) // 2\n    return 0 if total % 2 else subsets(n, total // 2) // 2\ndef slow(n): return sum(1 for m in range(1 << n) if 2 * sum(i + 1 for i in range(n) if m >> i & 1) == n * (n + 1) // 2) // 2\nassert all(splits(n) == slow(n) for n in range(1, 15))\nresult = splits(20)",
+   "nudges": [
+    "How large is the table?"
+   ],
+   "showed": "A table of 106 entries, updated twenty times.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-cells",
+   "kind": "number",
+   "prompt": "For $n = 500$, each group must add up to how much? (This is the length of the table.)",
+   "answer": 62625,
+   "verify": "result = 500 * 501 // 4",
+   "nudges": [
+    "What is the total of 1 to 500?"
+   ],
+   "showed": "About sixty thousand sums times 500 numbers: thirty million updates.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Count subsets, then undo the double counting",
+  "statement": "Splitting into two equal halves is choosing a subset with half the total. Every split is found twice, once from each side.",
+  "remark": "Halving modulo a prime needs an inverse; or avoid it by deciding in advance which side the largest number is on."
+ }
+}

@@ -1,0 +1,107 @@
+{
+ "idea": "cses-dice-combinations",
+ "opening": "Sums of dice throws, where the order of the throws matters.",
+ "steps": [
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "In how many ways can the total 4 be made by throwing a die one or more times? Order matters: 1+3 and 3+1 are different.",
+   "answer": 8,
+   "verify": "import functools, itertools\ndef dice(n, faces=6):\n    w = [1] + [0] * n\n    for s in range(1, n + 1): w[s] = sum(w[s - k] for k in range(1, faces + 1) if k <= s)\n    return w[n]\ndef slow(n): return sum(1 for L in range(1, n + 1) for t in itertools.product(range(1, 7), repeat=L) if sum(t) == n)\nresult = slow(4)",
+   "nudges": [
+    "What can the last throw be, and what total came before it?"
+   ],
+   "showed": "Every way ends with some last throw."
+  },
+  {
+   "id": "five",
+   "kind": "number",
+   "prompt": "And the total 5?",
+   "answer": 16,
+   "verify": "import functools, itertools\ndef dice(n, faces=6):\n    w = [1] + [0] * n\n    for s in range(1, n + 1): w[s] = sum(w[s - k] for k in range(1, faces + 1) if k <= s)\n    return w[n]\ndef slow(n): return sum(1 for L in range(1, n + 1) for t in itertools.product(range(1, 7), repeat=L) if sum(t) == n)\nresult = slow(5)",
+   "nudges": [
+    "If the last throw is 2, how many ways are there to have made 3 before it?"
+   ],
+   "showed": "So far the numbers double each time."
+  },
+  {
+   "id": "last",
+   "kind": "choice",
+   "prompt": "Group the ways of making a total $n$ by their last throw $k$. How many ways are in the group with last throw $k$?",
+   "options": [
+    "As many as there are ways to make $n - k$",
+    "One",
+    "As many as there are ways to make $n$ with $k$ throws"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Remove the last throw. What is left?"
+   ],
+   "showed": "So ways($n$) is the sum of ways($n - k$) for $k$ from 1 to 6, as far as $n - k$ is not negative."
+  },
+  {
+   "id": "zero",
+   "kind": "number",
+   "prompt": "For that rule to give the right answer for the total 1, what must ways(0) be?",
+   "answer": 1,
+   "verify": "result = 1 if 1 == 1 * 1 else 0",
+   "nudges": [
+    "The total 1 is made in one way: a single throw of 1. What does the rule say it is?"
+   ],
+   "showed": "One: there is exactly one way to make nothing, which is to throw nothing."
+  },
+  {
+   "id": "seven",
+   "kind": "number",
+   "prompt": "In how many ways can the total 7 be made?",
+   "answer": 63,
+   "verify": "import functools, itertools\ndef dice(n, faces=6):\n    w = [1] + [0] * n\n    for s in range(1, n + 1): w[s] = sum(w[s - k] for k in range(1, faces + 1) if k <= s)\n    return w[n]\ndef slow(n): return sum(1 for L in range(1, n + 1) for t in itertools.product(range(1, 7), repeat=L) if sum(t) == n)\nassert dice(7) == slow(7)\nresult = dice(7)",
+   "nudges": [
+    "Which throw is not available as the last one, compared with what the doubling pattern assumed?"
+   ],
+   "showed": "Not 64: a last throw of 7 does not exist. From here on only six earlier values are added."
+  },
+  {
+   "id": "h-work",
+   "kind": "number",
+   "prompt": "For $n = 10^6$, how many additions does filling the whole table take, at six per total?",
+   "answer": 6000000,
+   "verify": "result = 6 * 10 ** 6",
+   "nudges": [
+    "How many totals, and how many terms each?"
+   ],
+   "showed": "A few million steps, with the remainder taken as you go.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-twenty",
+   "kind": "number",
+   "prompt": "In how many ways can the total 20 be made?",
+   "answer": 463968,
+   "verify": "import functools, itertools\ndef dice(n, faces=6):\n    w = [1] + [0] * n\n    for s in range(1, n + 1): w[s] = sum(w[s - k] for k in range(1, faces + 1) if k <= s)\n    return w[n]\ndef slow(n): return sum(1 for L in range(1, n + 1) for t in itertools.product(range(1, 7), repeat=L) if sum(t) == n)\nassert all(dice(n) == slow(n) for n in range(1, 9))\nresult = dice(20)",
+   "nudges": [
+    "Do you need more than the last six values at any time?"
+   ],
+   "showed": "Computed from the six values before it; nothing else about the past matters.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-norepeat",
+   "kind": "number",
+   "prompt": "New rule: no two consecutive throws may show the same number. In how many ways can the total 8 be made?",
+   "answer": 36,
+   "verify": "import itertools\nresult = sum(1 for L in range(1, 9) for t in itertools.product(range(1, 7), repeat=L) if sum(t) == 8 and all(a != b for a, b in zip(t, t[1:])))",
+   "nudges": [
+    "Is the total alone still enough to know which last throws are allowed?",
+    "What else must the table be indexed by?"
+   ],
+   "showed": "The total is no longer the whole state: the last throw must be remembered too, giving a table over (total, last throw).",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Count by the last move",
+  "statement": "Split the ways of reaching a total by their last step. Each group is a smaller instance of the same question, so one array indexed by the total is enough.",
+  "remark": "The empty total counts as one way. That single base value is what makes the sums come out right."
+ }
+}

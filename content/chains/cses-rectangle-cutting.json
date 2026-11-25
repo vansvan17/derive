@@ -1,0 +1,94 @@
+{
+ "idea": "cses-rectangle-cutting",
+ "opening": "Cutting a rectangle into squares with straight cuts, as few as possible.",
+ "steps": [
+  {
+   "id": "small",
+   "kind": "number",
+   "prompt": "A cut divides one rectangle into two rectangles with whole-number sides. What is the smallest number of cuts that turns a 3 by 5 rectangle into squares only?",
+   "answer": 3,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef cut(a, b):\n    if a == b: return 0\n    return 1 + min([cut(i, b) + cut(a - i, b) for i in range(1, a // 2 + 1)] + [cut(a, j) + cut(a, b - j) for j in range(1, b // 2 + 1)])\ndef greedy(a, b):\n    k = 0\n    while a != b:\n        if a < b: a, b = b, a\n        a -= b; k += 1\n    return k\nresult = cut(3, 5)",
+   "nudges": [
+    "What squares could the pieces be?"
+   ],
+   "showed": "A 3 by 3 square, a 2 by 2 square and two unit squares."
+  },
+  {
+   "id": "state",
+   "kind": "choice",
+   "prompt": "After the first cut there are two rectangles. What do you need to know to finish the job as cheaply as possible?",
+   "options": [
+    "Only the side lengths of each piece; the pieces are finished independently",
+    "Where in the original rectangle each piece came from",
+    "The order in which the pieces will be cut"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Does cutting one piece affect the other?"
+   ],
+   "showed": "So the state is a pair (width, height), and the answer for a rectangle is 1 + the best sum over all first cuts."
+  },
+  {
+   "id": "square",
+   "kind": "number",
+   "prompt": "How many cuts does a 7 by 7 rectangle need?",
+   "answer": 0,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef cut(a, b):\n    if a == b: return 0\n    return 1 + min([cut(i, b) + cut(a - i, b) for i in range(1, a // 2 + 1)] + [cut(a, j) + cut(a, b - j) for j in range(1, b // 2 + 1)])\ndef greedy(a, b):\n    k = 0\n    while a != b:\n        if a < b: a, b = b, a\n        a -= b; k += 1\n    return k\nresult = cut(7, 7)",
+   "nudges": [
+    "Is it already what is wanted?"
+   ],
+   "showed": "None: this is where the recursion stops."
+  },
+  {
+   "id": "greedy",
+   "kind": "number",
+   "prompt": "A natural rule is to cut off the largest possible square every time. How many cuts does that rule use on a 5 by 6 rectangle?",
+   "answer": 5,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef cut(a, b):\n    if a == b: return 0\n    return 1 + min([cut(i, b) + cut(a - i, b) for i in range(1, a // 2 + 1)] + [cut(a, j) + cut(a, b - j) for j in range(1, b // 2 + 1)])\ndef greedy(a, b):\n    k = 0\n    while a != b:\n        if a < b: a, b = b, a\n        a -= b; k += 1\n    return k\nresult = greedy(5, 6)",
+   "nudges": [
+    "What is left after the 5 by 5 square is cut off?"
+   ],
+   "showed": "A 5 by 5 square and then a 5 by 1 strip that needs four more cuts."
+  },
+  {
+   "id": "better",
+   "kind": "number",
+   "prompt": "What is the smallest number of cuts for the 5 by 6 rectangle?",
+   "answer": 4,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef cut(a, b):\n    if a == b: return 0\n    return 1 + min([cut(i, b) + cut(a - i, b) for i in range(1, a // 2 + 1)] + [cut(a, j) + cut(a, b - j) for j in range(1, b // 2 + 1)])\ndef greedy(a, b):\n    k = 0\n    while a != b:\n        if a < b: a, b = b, a\n        a -= b; k += 1\n    return k\nresult = cut(5, 6)",
+   "nudges": [
+    "What if the first cut does not produce a square at all?"
+   ],
+   "showed": "Fewer than the greedy rule: a first cut that produces no square can be the right one."
+  },
+  {
+   "id": "h-prime",
+   "kind": "number",
+   "prompt": "What is the smallest number of cuts for an 11 by 13 rectangle?",
+   "answer": 7,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef cut(a, b):\n    if a == b: return 0\n    return 1 + min([cut(i, b) + cut(a - i, b) for i in range(1, a // 2 + 1)] + [cut(a, j) + cut(a, b - j) for j in range(1, b // 2 + 1)])\ndef greedy(a, b):\n    k = 0\n    while a != b:\n        if a < b: a, b = b, a\n        a -= b; k += 1\n    return k\nresult = cut(11, 13)",
+   "nudges": [
+    "How many first cuts are there to try?"
+   ],
+   "showed": "Trying all first cuts, with the smaller answers already in the table.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-work",
+   "kind": "number",
+   "prompt": "For a 500 by 500 table of states, a state ($a$, $b$) tries $a - 1$ vertical and $b - 1$ horizontal first cuts. Using symmetry (a cut at $i$ and at $a - i$ give the same two pieces), about half of them are needed. Without that saving, at most how many candidate cuts are examined in total, counting 998 per state?",
+   "answer": 249500000,
+   "verify": "result = 500 * 500 * 998",
+   "nudges": [
+    "How many states, and how many cuts each at most?"
+   ],
+   "showed": "A quarter of a billion at worst; the symmetry halves it, and that is comfortable.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Try every first cut",
+  "statement": "The state is the pair of side lengths; the first cut splits it into two smaller rectangles that are solved independently.",
+  "remark": "Cutting off the largest square each time is not optimal."
+ }
+}

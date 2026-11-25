@@ -1,0 +1,112 @@
+{
+ "idea": "cses-minimal-grid-path",
+ "opening": "A grid of letters, a walk from corner to corner going right or down, and the alphabetically smallest word it can spell.",
+ "steps": [
+  {
+   "id": "length",
+   "kind": "number",
+   "prompt": "In a 3000 by 3000 grid, how many letters does the word spelled by any such walk have?",
+   "answer": 5999,
+   "verify": "result = 3000 + 3000 - 1",
+   "nudges": [
+    "How many moves does a walk make?"
+   ],
+   "showed": "All walks spell words of the same length, so comparing words is comparing them letter by letter."
+  },
+  {
+   "id": "tie",
+   "kind": "choice",
+   "prompt": "A tempting rule: from the current cell, step to whichever neighbour (right or down) has the smaller letter. When does this break down?",
+   "options": [
+    "When both neighbours hold the same letter: the right choice depends on what lies beyond them",
+    "When the two letters differ",
+    "Never"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Right and down both show A. Which do you take?"
+   ],
+   "showed": "With a tie you cannot choose yet. So do not choose: keep both."
+  },
+  {
+   "id": "keep",
+   "kind": "choice",
+   "prompt": "After $k$ moves, keep the set of all cells that can be reached by a walk spelling the smallest possible word so far. What do the walks to these cells have in common?",
+   "options": [
+    "They have all spelled exactly the same word",
+    "They all end in the same row",
+    "Nothing in particular"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If two candidate walks had spelled different words, would both still be candidates?"
+   ],
+   "showed": "So the cells alone are enough; no words need to be stored per cell."
+  },
+  {
+   "id": "sizes",
+   "kind": "list",
+   "prompt": "A 4 by 4 grid, rows from the top: ABAC / BAAB / AABA / CABA. Start with the set containing only the upper-left cell. At each move, take all cells reachable by one move from the set, and keep those with the smallest letter. Give the sizes of the set at the start and after each of the 6 moves.",
+   "answer": [
+    1,
+    2,
+    3,
+    2,
+    1,
+    1,
+    1
+   ],
+   "verify": "def frontier(grid):\n    n = len(grid); cur = {(0, 0)}; sizes = [1]\n    for _ in range(2 * n - 2):\n        nxt = {(r + dr, c + dc) for r, c in cur for dr, dc in ((1, 0), (0, 1)) if r + dr < n and c + dc < n}\n        best = min(grid[r][c] for r, c in nxt)\n        cur = {(r, c) for r, c in nxt if grid[r][c] == best}; sizes.append(len(cur))\n    return sizes\nimport itertools\ndef all_paths(grid):\n    n = len(grid); out = []\n    for downs in itertools.combinations(range(2 * n - 2), n - 1):\n        r = c = 0; s = grid[0][0]\n        for i in range(2 * n - 2):\n            if i in downs: r += 1\n            else: c += 1\n            s += grid[r][c]\n        out.append(s)\n    return out\nG = [\"ABAC\", \"BAAB\", \"AABA\", \"CABA\"]\nresult = frontier(G)",
+   "nudges": [
+    "After the first move both neighbours hold B. How many cells are in the set?"
+   ],
+   "showed": "The set grows on ties and shrinks again when the letters decide.",
+   "ordered": true
+  },
+  {
+   "id": "work",
+   "kind": "number",
+   "prompt": "In a 3000 by 3000 grid, each cell enters such a set at most once. So at most how many cells are handled in all?",
+   "answer": 9000000,
+   "verify": "result = 3000 * 3000",
+   "nudges": [
+    "On which step can a given cell be in the set?"
+   ],
+   "showed": "A cell at distance $k$ from the start can only be in the set after $k$ moves. Linear in the size of the grid."
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "In the 4 by 4 grid above, how many different walks spell the alphabetically smallest word?",
+   "answer": 3,
+   "verify": "def frontier(grid):\n    n = len(grid); cur = {(0, 0)}; sizes = [1]\n    for _ in range(2 * n - 2):\n        nxt = {(r + dr, c + dc) for r, c in cur for dr, dc in ((1, 0), (0, 1)) if r + dr < n and c + dc < n}\n        best = min(grid[r][c] for r, c in nxt)\n        cur = {(r, c) for r, c in nxt if grid[r][c] == best}; sizes.append(len(cur))\n    return sizes\nimport itertools\ndef all_paths(grid):\n    n = len(grid); out = []\n    for downs in itertools.combinations(range(2 * n - 2), n - 1):\n        r = c = 0; s = grid[0][0]\n        for i in range(2 * n - 2):\n            if i in downs: r += 1\n            else: c += 1\n            s += grid[r][c]\n        out.append(s)\n    return out\nG = [\"ABAC\", \"BAAB\", \"AABA\", \"CABA\"]\np = all_paths(G)\nresult = p.count(min(p))",
+   "nudges": [
+    "Is the set after the last move enough to answer this?",
+    "What would you carry along with each cell of the set?"
+   ],
+   "showed": "Carry, with each cell of the set, the number of best walks reaching it: a count laid over the frontier.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-memory",
+   "kind": "choice",
+   "prompt": "Why not simply store, for every cell, the smallest word that reaches it, and extend it from the better of the two predecessors?",
+   "options": [
+    "The words have length up to 5999, so storing and comparing one per cell costs on the order of $n^3$ letters",
+    "It gives wrong answers",
+    "Words cannot be compared"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How many cells are there, and how long is a word?"
+   ],
+   "showed": "It is correct and hopeless: about $2.7 \\cdot 10^{10}$ letters. The frontier avoids storing any word except the answer.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Advance a frontier of the best",
+  "statement": "When the value being optimised is a string, do not store strings. Move diagonal by diagonal, keeping only the cells that can still lie on a best path.",
+  "remark": "All candidates on a diagonal have spelled the same string so far, which is why the cells alone are enough."
+ }
+}

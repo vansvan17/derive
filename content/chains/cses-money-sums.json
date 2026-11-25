@@ -1,0 +1,108 @@
+{
+ "idea": "cses-money-sums",
+ "opening": "Which amounts can be paid exactly with the coins in your pocket.",
+ "steps": [
+  {
+   "id": "four",
+   "kind": "list",
+   "prompt": "You have four coins: 4, 2, 5 and 2. List every amount that can be paid exactly with some of them (at least one coin).",
+   "answer": [
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    11,
+    13
+   ],
+   "verify": "import itertools\ndef sums(c): return sorted({sum(t) for k in range(1, len(c) + 1) for t in itertools.combinations(c, k)})\nresult = sums((4, 2, 5, 2))",
+   "nudges": [
+    "How many subsets are there? Do they all give different amounts?"
+   ],
+   "showed": "Sixteen subsets, far fewer amounts."
+  },
+  {
+   "id": "top",
+   "kind": "number",
+   "prompt": "With 100 coins of value at most 1000 each, what is the largest amount that could possibly appear?",
+   "answer": 100000,
+   "verify": "result = 100 * 1000",
+   "nudges": [
+    "What if every coin is as large as allowed?"
+   ],
+   "showed": "So a table with one entry per amount is small, although there are $2^{100}$ subsets."
+  },
+  {
+   "id": "value",
+   "kind": "choice",
+   "prompt": "What does the table hold for each amount?",
+   "options": [
+    "Yes or no: can this amount be made with the coins considered so far",
+    "The number of coins needed",
+    "The list of coins that make it"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What does the task ask about each amount?"
+   ],
+   "showed": "True and false in place of counts or best values."
+  },
+  {
+   "id": "update",
+   "kind": "choice",
+   "prompt": "A new coin of value $v$ arrives. How is the table updated?",
+   "options": [
+    "For each amount from the top down to $v$: if amount - $v$ was possible, mark the amount possible",
+    "For each amount from $v$ upwards: if amount - $v$ is possible, mark the amount possible",
+    "Mark every multiple of $v$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Each coin exists once. Which direction keeps it from being used twice?"
+   ],
+   "showed": "Downwards, as always when an item may be used once."
+  },
+  {
+   "id": "powers",
+   "kind": "number",
+   "prompt": "Coins 1, 2, 4 and 8. How many different amounts can be paid?",
+   "answer": 15,
+   "verify": "import itertools\ndef sums(c): return sorted({sum(t) for k in range(1, len(c) + 1) for t in itertools.combinations(c, k)})\nresult = len(sums((1, 2, 4, 8)))",
+   "nudges": [
+    "Do two different subsets ever give the same amount here?"
+   ],
+   "showed": "Every amount from 1 to 15, each in exactly one way."
+  },
+  {
+   "id": "h-same",
+   "kind": "number",
+   "prompt": "Coins 3, 3, 3, 3 and 3. How many different amounts can be paid?",
+   "answer": 5,
+   "verify": "import itertools\ndef sums(c): return sorted({sum(t) for k in range(1, len(c) + 1) for t in itertools.combinations(c, k)})\nresult = len(sums((3, 3, 3, 3, 3)))",
+   "nudges": [
+    "How many subsets are there, and how many amounts?"
+   ],
+   "showed": "Thirty-one non-empty subsets, five amounts. The table is indexed by amount, so equal coins cost nothing extra.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-primes",
+   "kind": "number",
+   "prompt": "Coins 5, 7, 11, 13 and 17. How many different amounts can be paid?",
+   "answer": 27,
+   "verify": "import itertools\ndef sums(c): return sorted({sum(t) for k in range(1, len(c) + 1) for t in itertools.combinations(c, k)})\nresult = len(sums((5, 7, 11, 13, 17)))",
+   "nudges": [
+    "Which pairs of subsets collide?"
+   ],
+   "showed": "Fewer than 31, because some subsets share a total.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "A table of yes and no",
+  "statement": "Which totals can be made is the same knapsack with true and false as the values.",
+  "remark": "The table is as long as the largest possible total, not as the number of subsets."
+ }
+}

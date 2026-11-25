@@ -1,0 +1,98 @@
+{
+ "idea": "cses-removal-game",
+ "opening": "Two players, a row of numbers, and each turn one number taken from either end.",
+ "steps": [
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "The row is 4, 5, 1, 3. Players alternate; each takes the first or the last number and adds it to their score. Both play as well as possible. What does the first player score?",
+   "answer": 8,
+   "verify": "import functools\ndef lead(x):\n    @functools.lru_cache(None)\n    def d(l, r): return 0 if l > r else max(x[l] - d(l + 1, r), x[r] - d(l, r - 1))\n    return d(0, len(x) - 1)\ndef first(x): return (sum(x) + lead(x)) // 2\ndef slow(x):\n    @functools.lru_cache(None)\n    def f(l, r, mine, theirs, turn):\n        if l > r: return mine\n        a = f(l + 1, r, mine + x[l] * (turn == 0), theirs + x[l] * (turn == 1), 1 - turn)\n        b = f(l, r - 1, mine + x[r] * (turn == 0), theirs + x[r] * (turn == 1), 1 - turn)\n        if turn == 0: return max(a, b)\n        # the second player maximises their own score, which minimises the first player's share of a fixed total\n        return min(a, b)\n    return f(0, len(x) - 1, 0, 0, 0)\nresult = slow((4, 5, 1, 3))",
+   "nudges": [
+    "If the first player takes 4, what does the second player take?"
+   ],
+   "showed": "Take 3, then whatever the opponent does, the 5 becomes available."
+  },
+  {
+   "id": "trap",
+   "kind": "number",
+   "prompt": "The row is 2, 100, 1, 1. What does the first player score with best play?",
+   "answer": 101,
+   "verify": "import functools\ndef lead(x):\n    @functools.lru_cache(None)\n    def d(l, r): return 0 if l > r else max(x[l] - d(l + 1, r), x[r] - d(l, r - 1))\n    return d(0, len(x) - 1)\ndef first(x): return (sum(x) + lead(x)) // 2\ndef slow(x):\n    @functools.lru_cache(None)\n    def f(l, r, mine, theirs, turn):\n        if l > r: return mine\n        a = f(l + 1, r, mine + x[l] * (turn == 0), theirs + x[l] * (turn == 1), 1 - turn)\n        b = f(l, r - 1, mine + x[r] * (turn == 0), theirs + x[r] * (turn == 1), 1 - turn)\n        if turn == 0: return max(a, b)\n        # the second player maximises their own score, which minimises the first player's share of a fixed total\n        return min(a, b)\n    return f(0, len(x) - 1, 0, 0, 0)\nresult = slow((2, 100, 1, 1))",
+   "nudges": [
+    "What happens if the first player takes the larger end?"
+   ],
+   "showed": "Taking the larger end, 2, hands over the 100. The right move is the smaller end."
+  },
+  {
+   "id": "state",
+   "kind": "choice",
+   "prompt": "After some moves, what describes the situation completely?",
+   "options": [
+    "The stretch of the row that is left (the mover is determined by its length)",
+    "The two scores",
+    "The list of moves so far"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which numbers can still be taken?"
+   ],
+   "showed": "Stretches of the row: about $n^2/2$ of them."
+  },
+  {
+   "id": "lead",
+   "kind": "choice",
+   "prompt": "Let D($l$, $r$) be the best possible value of (points of the player to move) minus (points of the other) collected from the stretch $l..r$ onwards. If the mover takes $x_l$:",
+   "options": [
+    "the result is $x_l$ - D($l+1$, $r$)",
+    "the result is $x_l$ + D($l+1$, $r$)",
+    "the result is D($l+1$, $r$)"
+   ],
+   "answer": 0,
+   "nudges": [
+    "After the move, whose turn is it, and what is D for that player?"
+   ],
+   "showed": "The opponent becomes the mover on the rest, and their lead counts against you. So D($l$, $r$) = max($x_l$ - D($l+1$, $r$), $x_r$ - D($l$, $r-1$))."
+  },
+  {
+   "id": "score",
+   "kind": "number",
+   "prompt": "For the row 4, 5, 1, 3 the first player leads by 3 at the end and the numbers add up to 13. What does the first player score?",
+   "answer": 8,
+   "verify": "import functools\ndef lead(x):\n    @functools.lru_cache(None)\n    def d(l, r): return 0 if l > r else max(x[l] - d(l + 1, r), x[r] - d(l, r - 1))\n    return d(0, len(x) - 1)\ndef first(x): return (sum(x) + lead(x)) // 2\ndef slow(x):\n    @functools.lru_cache(None)\n    def f(l, r, mine, theirs, turn):\n        if l > r: return mine\n        a = f(l + 1, r, mine + x[l] * (turn == 0), theirs + x[l] * (turn == 1), 1 - turn)\n        b = f(l, r - 1, mine + x[r] * (turn == 0), theirs + x[r] * (turn == 1), 1 - turn)\n        if turn == 0: return max(a, b)\n        # the second player maximises their own score, which minimises the first player's share of a fixed total\n        return min(a, b)\n    return f(0, len(x) - 1, 0, 0, 0)\nassert lead((4, 5, 1, 3)) == 3\nresult = (13 + 3) // 2",
+   "nudges": [
+    "If the two scores add up to 13 and differ by 3, what are they?"
+   ],
+   "showed": "Half of (total + lead). One number per stretch was enough; the two scores did not need to be stored separately."
+  },
+  {
+   "id": "h-eight",
+   "kind": "number",
+   "prompt": "The row is 7, -2, 5, 9, -6, 3, 8, 1. What does the first player score with best play?",
+   "answer": 20,
+   "verify": "import functools\ndef lead(x):\n    @functools.lru_cache(None)\n    def d(l, r): return 0 if l > r else max(x[l] - d(l + 1, r), x[r] - d(l, r - 1))\n    return d(0, len(x) - 1)\ndef first(x): return (sum(x) + lead(x)) // 2\ndef slow(x):\n    @functools.lru_cache(None)\n    def f(l, r, mine, theirs, turn):\n        if l > r: return mine\n        a = f(l + 1, r, mine + x[l] * (turn == 0), theirs + x[l] * (turn == 1), 1 - turn)\n        b = f(l, r - 1, mine + x[r] * (turn == 0), theirs + x[r] * (turn == 1), 1 - turn)\n        if turn == 0: return max(a, b)\n        # the second player maximises their own score, which minimises the first player's share of a fixed total\n        return min(a, b)\n    return f(0, len(x) - 1, 0, 0, 0)\nx = (7, -2, 5, 9, -6, 3, 8, 1)\nassert first(x) == slow(x)\nresult = first(x)",
+   "nudges": [
+    "Do negative numbers change the rule?"
+   ],
+   "showed": "Negative numbers need no special care: the rule is about differences.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-states",
+   "kind": "number",
+   "prompt": "For a row of 5000 numbers, how many stretches (with $l \\le r$) are there?",
+   "answer": 12502500,
+   "verify": "result = 5000 * 5001 // 2",
+   "nudges": [
+    "How many stretches of each length?"
+   ],
+   "showed": "Twelve and a half million states with two choices each. The values need 64 bits.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "The mover's lead on an interval",
+  "statement": "For a game on a shrinking interval, store the best possible difference (mover minus opponent). Taking an end gives that number minus the opponent's best lead on what remains.",
+  "remark": "The first player's score is half of the total plus the lead."
+ }
+}

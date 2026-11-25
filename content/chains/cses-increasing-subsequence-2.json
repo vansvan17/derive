@@ -1,0 +1,98 @@
+{
+ "idea": "cses-increasing-subsequence-2",
+ "opening": "Not the longest increasing subsequence this time, but how many there are.",
+ "steps": [
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "How many increasing subsequences does 2, 1, 3 have? (Single elements count; equal values at different positions would count separately.)",
+   "answer": 5,
+   "verify": "import itertools\ndef slow(a): return sum(1 for k in range(1, len(a) + 1) for c in itertools.combinations(a, k) if all(x < y for x, y in zip(c, c[1:])))\ndef fast(a):\n    cnt = []\n    for i, x in enumerate(a): cnt.append(1 + sum(cnt[j] for j in range(i) if a[j] < x))\n    return sum(cnt)\nresult = slow((2, 1, 3))",
+   "nudges": [
+    "Which ones end in 3?"
+   ],
+   "showed": "2; 1; 3; 2,3; 1,3."
+  },
+  {
+   "id": "sorted",
+   "kind": "number",
+   "prompt": "How many does 1, 2, 3, 4 have?",
+   "answer": 15,
+   "verify": "import itertools\ndef slow(a): return sum(1 for k in range(1, len(a) + 1) for c in itertools.combinations(a, k) if all(x < y for x, y in zip(c, c[1:])))\ndef fast(a):\n    cnt = []\n    for i, x in enumerate(a): cnt.append(1 + sum(cnt[j] for j in range(i) if a[j] < x))\n    return sum(cnt)\nresult = slow((1, 2, 3, 4))",
+   "nudges": [
+    "Which subsets of positions give an increasing subsequence?"
+   ],
+   "showed": "Every non-empty subset: $2^4 - 1$."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Let c($i$) be the number of increasing subsequences that end exactly at position $i$. Then c($i$) is:",
+   "options": [
+    "1 plus the sum of c($j$) over earlier positions $j$ with a smaller value",
+    "the sum of c($j$) over all earlier positions",
+    "1 plus c($i - 1$)"
+   ],
+   "answer": 0,
+   "nudges": [
+    "A subsequence ending at $i$ is either the element alone, or ...?"
+   ],
+   "showed": "Alone, or an increasing subsequence ending at an earlier, smaller element with this one added."
+  },
+  {
+   "id": "equal",
+   "kind": "number",
+   "prompt": "How many increasing subsequences does 3, 3, 3 have?",
+   "answer": 3,
+   "verify": "import itertools\ndef slow(a): return sum(1 for k in range(1, len(a) + 1) for c in itertools.combinations(a, k) if all(x < y for x, y in zip(c, c[1:])))\ndef fast(a):\n    cnt = []\n    for i, x in enumerate(a): cnt.append(1 + sum(cnt[j] for j in range(i) if a[j] < x))\n    return sum(cnt)\nresult = slow((3, 3, 3))",
+   "nudges": [
+    "Can two equal elements follow each other?"
+   ],
+   "showed": "Only the three single elements: \"smaller\" is strict."
+  },
+  {
+   "id": "fast",
+   "kind": "choice",
+   "prompt": "Computing each sum by a loop over earlier positions is quadratic. What structure gives \"the sum of c over all earlier elements with value below $x$\" quickly?",
+   "options": [
+    "A Fenwick tree indexed by value: add c($i$) at the value of element $i$, and ask for the prefix sum below $x$",
+    "A stack",
+    "Sorting the array"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Earlier in position is handled by processing left to right. What is left is a sum over a range of what?"
+   ],
+   "showed": "Processing left to right takes care of \"earlier\"; the tree takes care of \"smaller\". Values up to $10^9$ are replaced by their ranks first."
+  },
+  {
+   "id": "h-six",
+   "kind": "number",
+   "prompt": "How many increasing subsequences does 5, 1, 4, 2, 3, 6 have?",
+   "answer": 21,
+   "verify": "import itertools\ndef slow(a): return sum(1 for k in range(1, len(a) + 1) for c in itertools.combinations(a, k) if all(x < y for x, y in zip(c, c[1:])))\ndef fast(a):\n    cnt = []\n    for i, x in enumerate(a): cnt.append(1 + sum(cnt[j] for j in range(i) if a[j] < x))\n    return sum(cnt)\nassert fast((5, 1, 4, 2, 3, 6)) == slow((5, 1, 4, 2, 3, 6))\nresult = fast((5, 1, 4, 2, 3, 6))",
+   "nudges": [
+    "What is c for each position in turn?"
+   ],
+   "showed": "c = 1, 1, 2, 2, 4, and then the last element can follow everything.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-twenty",
+   "kind": "number",
+   "prompt": "How many increasing subsequences does 1, 2, ..., 20 have?",
+   "answer": 1048575,
+   "verify": "result = 2 ** 20 - 1",
+   "nudges": [
+    "Which subsets of positions work?"
+   ],
+   "showed": "All non-empty subsets. Counts grow this fast, which is why the task asks for a remainder.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Sum over smaller values",
+  "statement": "The number of increasing subsequences ending at an element is one plus the sum of the counts at earlier, smaller elements: a prefix sum over values, kept in a Fenwick tree.",
+  "remark": "Values up to a billion are first replaced by their ranks."
+ }
+}

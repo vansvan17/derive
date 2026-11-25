@@ -1,0 +1,99 @@
+{
+ "idea": "cses-counting-numbers",
+ "opening": "Counting the numbers in a range that have no two equal digits next to each other.",
+ "steps": [
+  {
+   "id": "hundred",
+   "kind": "number",
+   "prompt": "How many whole numbers from 1 to 100 have no two neighbouring digits equal?",
+   "answer": 90,
+   "verify": "def ok(v): s = str(v); return all(a != b for a, b in zip(s, s[1:]))\ndef upto(b): return sum(1 for v in range(b + 1) if ok(v))\nresult = sum(1 for v in range(1, 101) if ok(v))",
+   "nudges": [
+    "Which numbers up to 100 are excluded?"
+   ],
+   "showed": "11, 22, ..., 99 and 100 are out."
+  },
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "How many three-digit numbers (100 to 999) have no two neighbouring digits equal?",
+   "answer": 729,
+   "verify": "def ok(v): s = str(v); return all(a != b for a, b in zip(s, s[1:]))\ndef upto(b): return sum(1 for v in range(b + 1) if ok(v))\nresult = sum(1 for v in range(100, 1000) if ok(v))",
+   "nudges": [
+    "How many choices for the first digit, then the second, then the third?"
+   ],
+   "showed": "9 choices for each digit: the first is not 0, each later one is not the digit before it."
+  },
+  {
+   "id": "range",
+   "kind": "choice",
+   "prompt": "The task asks for the count between $a$ and $b$. How is that reduced to something simpler?",
+   "options": [
+    "Count from 0 to $b$, count from 0 to $a - 1$, and subtract",
+    "Count from $a$ upwards one by one",
+    "Count the digits of $b - a$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What is special about ranges that start at 0?"
+   ],
+   "showed": "One kind of question, asked twice. Take care when $a = 0$: there is nothing below it to subtract."
+  },
+  {
+   "id": "carry",
+   "kind": "choice",
+   "prompt": "Counting from 0 up to a limit, the digits are chosen from the left. What must be remembered while choosing?",
+   "options": [
+    "The previous digit, whether the digits so far still equal the limit's, and whether the number has started (so far only leading zeros)",
+    "Only the previous digit",
+    "The previous digit and the number of digits chosen"
+   ],
+   "answer": 0,
+   "nudges": [
+    "The limit is 352 and you have chosen 3: may the next digit be 9?",
+    "Is 007 forbidden because of its two zeros?"
+   ],
+   "showed": "Three small facts: the previous digit for the rule, a flag for the limit, and a flag for leading zeros, which are not digits of the number."
+  },
+  {
+   "id": "zeros",
+   "kind": "number",
+   "prompt": "How many numbers from 0 to 9999 have no two neighbouring digits equal?",
+   "answer": 7381,
+   "verify": "def ok(v): s = str(v); return all(a != b for a, b in zip(s, s[1:]))\ndef upto(b): return sum(1 for v in range(b + 1) if ok(v))\nresult = upto(9999)",
+   "nudges": [
+    "How many are there with one digit, with two, with three and with four?"
+   ],
+   "showed": "10 one-digit numbers (0 included), then 81, 729 and 6561."
+  },
+  {
+   "id": "h-range",
+   "kind": "number",
+   "prompt": "How many numbers from 123 to 321 have no two neighbouring digits equal?",
+   "answer": 171,
+   "verify": "def ok(v): s = str(v); return all(a != b for a, b in zip(s, s[1:]))\ndef upto(b): return sum(1 for v in range(b + 1) if ok(v))\nresult = upto(321) - upto(122)",
+   "nudges": [
+    "Which two counts from 0 do you need?"
+   ],
+   "showed": "The count up to 321 minus the count up to 122.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-million",
+   "kind": "number",
+   "prompt": "How many numbers from 0 to 1000000 have no two neighbouring digits equal?",
+   "answer": 597871,
+   "verify": "def ok(v): s = str(v); return all(a != b for a, b in zip(s, s[1:]))\ndef upto(b): return sum(1 for v in range(b + 1) if ok(v))\nresult = upto(10 ** 6)",
+   "nudges": [
+    "How many states does the digit-by-digit count have for a seven-digit limit?"
+   ],
+   "showed": "A direct loop still works for a million; for $10^{18}$ only the digit-by-digit count does, with a few hundred states.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Up to b, minus up to a - 1",
+  "statement": "A count over a range is a difference of two counts from zero. Each of those is built digit by digit, remembering the previous digit, whether the limit still binds, and whether the number has started.",
+  "remark": "Leading zeros are not digits of the number."
+ }
+}

@@ -1,0 +1,95 @@
+{
+ "idea": "cses-edit-distance",
+ "opening": "Turning one word into another with the fewest single-letter changes.",
+ "steps": [
+  {
+   "id": "love",
+   "kind": "number",
+   "prompt": "One operation adds a letter, removes a letter, or replaces a letter. What is the smallest number of operations that turns LOVE into MOVIE?",
+   "answer": 2,
+   "verify": "import functools\ndef ed(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == 0 or j == 0: return i + j\n        return min(f(i - 1, j - 1) + (a[i - 1] != b[j - 1]), f(i - 1, j) + 1, f(i, j - 1) + 1)\n    return f(len(a), len(b))\ndef bfs(s, t, letters):\n    L = max(len(s), len(t)); seen = {s: 0}; todo = [s]\n    for x in todo:\n        if x == t: return seen[x]\n        nxt = [x[:i] + x[i + 1:] for i in range(len(x))] + [x[:i] + c + x[i + 1:] for i in range(len(x)) for c in letters]\n        if len(x) < L: nxt += [x[:i] + c + x[i:] for i in range(len(x) + 1) for c in letters]\n        for y in nxt:\n            if y not in seen: seen[y] = seen[x] + 1; todo.append(y)\nresult = bfs(\"LOVE\", \"MOVIE\", \"LOVEMI\")",
+   "nudges": [
+    "Which letters already line up?"
+   ],
+   "showed": "Replace L by M, add I."
+  },
+  {
+   "id": "empty",
+   "kind": "number",
+   "prompt": "What is the smallest number of operations that turns the first 3 letters of a word into the empty word?",
+   "answer": 3,
+   "verify": "import functools\ndef ed(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == 0 or j == 0: return i + j\n        return min(f(i - 1, j - 1) + (a[i - 1] != b[j - 1]), f(i - 1, j) + 1, f(i, j - 1) + 1)\n    return f(len(a), len(b))\ndef bfs(s, t, letters):\n    L = max(len(s), len(t)); seen = {s: 0}; todo = [s]\n    for x in todo:\n        if x == t: return seen[x]\n        nxt = [x[:i] + x[i + 1:] for i in range(len(x))] + [x[:i] + c + x[i + 1:] for i in range(len(x)) for c in letters]\n        if len(x) < L: nxt += [x[:i] + c + x[i:] for i in range(len(x) + 1) for c in letters]\n        for y in nxt:\n            if y not in seen: seen[y] = seen[x] + 1; todo.append(y)\nresult = ed(\"ABC\", \"\")",
+   "nudges": [
+    "What is the only useful operation?"
+   ],
+   "showed": "Three removals. Turning nothing into $j$ letters likewise costs $j$ additions."
+  },
+  {
+   "id": "last",
+   "kind": "choice",
+   "prompt": "Let d($i$, $j$) be the answer for the first $i$ letters of the first word and the first $j$ letters of the second. Looking at the last letters of the two prefixes, d($i$, $j$) is the smallest of:",
+   "options": [
+    "d($i-1$, $j-1$) plus 0 or 1 (letters equal or not); d($i-1$, $j$) + 1; d($i$, $j-1$) + 1",
+    "d($i-1$, $j-1$) + 1 only",
+    "d($i-1$, $j$) and d($i$, $j-1$)"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What can happen to the last letter of the first prefix: it is matched with the last letter of the second, or ...?"
+   ],
+   "showed": "Match or replace the two last letters; or remove the last letter of the first; or the last letter of the second was added."
+  },
+  {
+   "id": "kitten",
+   "kind": "number",
+   "prompt": "What is the answer for KITTEN and SITTING?",
+   "answer": 3,
+   "verify": "import functools\ndef ed(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == 0 or j == 0: return i + j\n        return min(f(i - 1, j - 1) + (a[i - 1] != b[j - 1]), f(i - 1, j) + 1, f(i, j - 1) + 1)\n    return f(len(a), len(b))\ndef bfs(s, t, letters):\n    L = max(len(s), len(t)); seen = {s: 0}; todo = [s]\n    for x in todo:\n        if x == t: return seen[x]\n        nxt = [x[:i] + x[i + 1:] for i in range(len(x))] + [x[:i] + c + x[i + 1:] for i in range(len(x)) for c in letters]\n        if len(x) < L: nxt += [x[:i] + c + x[i:] for i in range(len(x) + 1) for c in letters]\n        for y in nxt:\n            if y not in seen: seen[y] = seen[x] + 1; todo.append(y)\nresult = ed(\"KITTEN\", \"SITTING\")",
+   "nudges": [
+    "Which letters stay?"
+   ],
+   "showed": "Two replacements and one addition."
+  },
+  {
+   "id": "cells",
+   "kind": "number",
+   "prompt": "For two words of 5000 letters each, how many cells does the table have, counting the row and column for empty prefixes?",
+   "answer": 25010001,
+   "verify": "result = 5001 * 5001",
+   "nudges": [
+    "How many prefixes does a word of 5000 letters have, counting the empty one?"
+   ],
+   "showed": "Twenty-five million cells, each from three neighbours. Two rows are enough to hold what is needed."
+  },
+  {
+   "id": "h-swap",
+   "kind": "number",
+   "prompt": "What is the answer for ABABABAB and BABABABA?",
+   "answer": 2,
+   "verify": "import functools\ndef ed(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == 0 or j == 0: return i + j\n        return min(f(i - 1, j - 1) + (a[i - 1] != b[j - 1]), f(i - 1, j) + 1, f(i, j - 1) + 1)\n    return f(len(a), len(b))\ndef bfs(s, t, letters):\n    L = max(len(s), len(t)); seen = {s: 0}; todo = [s]\n    for x in todo:\n        if x == t: return seen[x]\n        nxt = [x[:i] + x[i + 1:] for i in range(len(x))] + [x[:i] + c + x[i + 1:] for i in range(len(x)) for c in letters]\n        if len(x) < L: nxt += [x[:i] + c + x[i:] for i in range(len(x) + 1) for c in letters]\n        for y in nxt:\n            if y not in seen: seen[y] = seen[x] + 1; todo.append(y)\nresult = ed(\"ABABABAB\", \"BABABABA\")",
+   "nudges": [
+    "Position by position every letter differs. Is replacing all eight the best?",
+    "What if the words are shifted against each other?"
+   ],
+   "showed": "Remove the first letter and add one at the end. Comparing position by position would have said 8.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-long",
+   "kind": "number",
+   "prompt": "What is the answer for INTENTION and EXECUTION?",
+   "answer": 5,
+   "verify": "import functools\ndef ed(a, b):\n    @functools.lru_cache(None)\n    def f(i, j):\n        if i == 0 or j == 0: return i + j\n        return min(f(i - 1, j - 1) + (a[i - 1] != b[j - 1]), f(i - 1, j) + 1, f(i, j - 1) + 1)\n    return f(len(a), len(b))\ndef bfs(s, t, letters):\n    L = max(len(s), len(t)); seen = {s: 0}; todo = [s]\n    for x in todo:\n        if x == t: return seen[x]\n        nxt = [x[:i] + x[i + 1:] for i in range(len(x))] + [x[:i] + c + x[i + 1:] for i in range(len(x)) for c in letters]\n        if len(x) < L: nxt += [x[:i] + c + x[i:] for i in range(len(x) + 1) for c in letters]\n        for y in nxt:\n            if y not in seen: seen[y] = seen[x] + 1; todo.append(y)\nresult = ed(\"INTENTION\", \"EXECUTION\")",
+   "nudges": [
+    "Would you trust a guess here?"
+   ],
+   "showed": "Five; the table finds an alignment that is hard to see.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Prefix against prefix",
+  "statement": "The answer for two prefixes comes from the three ways of dealing with their last characters: match or replace, delete, insert.",
+  "remark": "The borders are not zero: turning a prefix into nothing costs its length."
+ }
+}

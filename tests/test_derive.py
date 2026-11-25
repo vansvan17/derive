@@ -397,6 +397,20 @@ class App(unittest.TestCase):
         self.assertTrue(next(s for s in after['steps'] if s['id'] == current['id'])['done'])                                  # accepted, so the chain moves on
         self.assertNotEqual(next(s for s in after['steps'] if not s['done'])['id'], current['id'])
 
+    def test_the_cses_section_lists_every_task_with_a_chain_and_stays_off_the_map(self):
+        page = self.get('/cses')
+        self.assertEqual(len(page['problems']), 23)
+        self.assertTrue(all(p['has_chain'] and p['steps_total'] >= 6 for p in page['problems']))
+        self.assertEqual({p['topic'] for p in page['problems']}, {t['id'] for t in page['topics']})
+        self.assertFalse(any(i['id'].startswith('cses-') for i in self.get('/map')['ideas']))
+        chain = self.get('/chain/cses-dice-combinations')                            # open from the start, with the task link
+        self.assertEqual(chain['cses']['title'], 'Dice Combinations')
+        self.assertIsNone(page['problems'][0]['lesson'])                             # what it teaches is told only once derived
+        self.derive('cses-dice-combinations')
+        after = next(p for p in self.get('/cses')['problems'] if p['id'] == 'cses-dice-combinations')
+        self.assertTrue(after['derived'] and after['lesson'])
+        self.assertEqual(self.get('/map') and self.request('GET', '/api/bootstrap')[1]['counts']['derived'], 0)   # not counted among the map's chains
+
     def test_solve_prefers_problems_whose_ideas_are_derived(self):
         from derive import evidence
         with self.service.store() as store:

@@ -1,0 +1,98 @@
+{
+ "idea": "cses-elevator-rides",
+ "opening": "Getting everyone to the top with as few elevator rides as possible, under a weight limit.",
+ "steps": [
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "Four people weigh 4, 8, 6 and 1, and the elevator carries at most 10. What is the smallest number of rides?",
+   "answer": 2,
+   "verify": "import itertools\ndef rides(w, x):\n    n = len(w); best = [(n + 1, 0)] * (1 << n); best[0] = (1, 0)\n    for m in range(1, 1 << n):\n        for i in range(n):\n            if m >> i & 1:\n                r, last = best[m ^ (1 << i)]\n                cand = (r, last + w[i]) if last + w[i] <= x else (r + 1, w[i])\n                if cand < best[m]: best[m] = cand\n    return best[-1][0]\ndef slow(w, x):\n    n = len(w)\n    for k in range(1, n + 1):\n        for assign in itertools.product(range(k), repeat=n):\n            if all(sum(w[i] for i in range(n) if assign[i] == g) <= x for g in range(k)): return k\nresult = slow((4, 8, 6, 1), 10)",
+   "nudges": [
+    "Who can ride together?"
+   ],
+   "showed": "4 with 6, and 8 with 1."
+  },
+  {
+   "id": "sets",
+   "kind": "number",
+   "prompt": "With 20 people, how many different sets of \"people already taken up\" are there?",
+   "answer": 1048576,
+   "verify": "result = 2 ** 20",
+   "nudges": [
+    "Each person: up or not?"
+   ],
+   "showed": "About a million sets: small enough to have a table entry each."
+  },
+  {
+   "id": "value",
+   "kind": "choice",
+   "prompt": "For a set of people already taken up, the fewest rides alone is not enough to continue well. What else should be stored with it?",
+   "options": [
+    "The smallest possible weight in the last ride, among the ways that use the fewest rides",
+    "The order in which people went up",
+    "The total weight taken up"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two ways use 3 rides for the same people; in one the last ride holds 9, in the other 2. Which is better for adding the next person?"
+   ],
+   "showed": "The value is a pair: (rides, weight in the last ride), compared in that order."
+  },
+  {
+   "id": "step",
+   "kind": "choice",
+   "prompt": "A person of weight $w$ is added to a set whose value is (rides $r$, last weight $l$), with limit $x$. The new value is:",
+   "options": [
+    "($r$, $l + w$) if $l + w \\le x$, otherwise ($r + 1$, $w$)",
+    "($r + 1$, $w$) always",
+    "($r$, $l + w$) always"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Does the person fit into the last ride?"
+   ],
+   "showed": "Join the last ride if possible, otherwise open a new one. Earlier rides are never reopened; the order of adding people covers that."
+  },
+  {
+   "id": "work",
+   "kind": "number",
+   "prompt": "For 20 people, each set tries each of its members as the last person added. At most how many such steps?",
+   "answer": 20971520,
+   "verify": "result = 20 * 2 ** 20",
+   "nudges": [
+    "How many sets, and how many members each at most?"
+   ],
+   "showed": "Twenty million steps."
+  },
+  {
+   "id": "h-six",
+   "kind": "number",
+   "prompt": "Six people weigh 5, 5, 4, 4, 3 and 3, and the limit is 12. What is the smallest number of rides?",
+   "answer": 2,
+   "verify": "import itertools\ndef rides(w, x):\n    n = len(w); best = [(n + 1, 0)] * (1 << n); best[0] = (1, 0)\n    for m in range(1, 1 << n):\n        for i in range(n):\n            if m >> i & 1:\n                r, last = best[m ^ (1 << i)]\n                cand = (r, last + w[i]) if last + w[i] <= x else (r + 1, w[i])\n                if cand < best[m]: best[m] = cand\n    return best[-1][0]\ndef slow(w, x):\n    n = len(w)\n    for k in range(1, n + 1):\n        for assign in itertools.product(range(k), repeat=n):\n            if all(sum(w[i] for i in range(n) if assign[i] == g) <= x for g in range(k)): return k\nassert rides((5, 5, 4, 4, 3, 3), 12) == slow((5, 5, 4, 4, 3, 3), 12)\nresult = rides((5, 5, 4, 4, 3, 3), 12)",
+   "nudges": [
+    "The total weight is 24. What would two rides have to look like?"
+   ],
+   "showed": "Two full rides of 12: 5 + 4 + 3 each. Pairing equal weights (5 + 5, 4 + 4, 3 + 3) would take three.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-nine",
+   "kind": "number",
+   "prompt": "Nine people weigh 9, 8, 7, 6, 5, 4, 3, 2 and 2, and the limit is 15. What is the smallest number of rides?",
+   "answer": 4,
+   "verify": "import itertools\ndef rides(w, x):\n    n = len(w); best = [(n + 1, 0)] * (1 << n); best[0] = (1, 0)\n    for m in range(1, 1 << n):\n        for i in range(n):\n            if m >> i & 1:\n                r, last = best[m ^ (1 << i)]\n                cand = (r, last + w[i]) if last + w[i] <= x else (r + 1, w[i])\n                if cand < best[m]: best[m] = cand\n    return best[-1][0]\ndef slow(w, x):\n    n = len(w)\n    for k in range(1, n + 1):\n        for assign in itertools.product(range(k), repeat=n):\n            if all(sum(w[i] for i in range(n) if assign[i] == g) <= x for g in range(k)): return k\nresult = rides((9, 8, 7, 6, 5, 4, 3, 2, 2), 15)",
+   "nudges": [
+    "What does the total weight say about the least number of rides? Is that number reachable?"
+   ],
+   "showed": "The total gives a lower limit; whether it can be met is exactly what the table over sets decides.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "A pair as the value",
+  "statement": "For each set of people already taken up, store the pair (rides used, weight in the last ride), smallest first. Adding a person either fits in the last ride or starts a new one.",
+  "remark": "A million sets times twenty people is the whole computation."
+ }
+}

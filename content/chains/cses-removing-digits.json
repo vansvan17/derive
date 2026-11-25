@@ -1,0 +1,102 @@
+{
+ "idea": "cses-removing-digits",
+ "opening": "A number, and a move that depends on the number itself.",
+ "steps": [
+  {
+   "id": "first",
+   "kind": "number",
+   "prompt": "In one step you subtract from the number one of its own digits. What is the smallest number of steps that turns 27 into 0?",
+   "answer": 5,
+   "verify": "def steps(n):\n    d = [0] * (n + 1)\n    for v in range(1, n + 1): d[v] = 1 + min(d[v - int(ch)] for ch in str(v) if ch != \"0\")\n    return d\ndef greedy(n):\n    k = 0\n    while n: n -= max(map(int, str(n))); k += 1\n    return k\nresult = steps(27)[27]",
+   "nudges": [
+    "From 27 you can go to 25 or to 20. Which looks more useful?"
+   ],
+   "showed": "27, 20, 18, 10, 9, 0."
+  },
+  {
+   "id": "state",
+   "kind": "choice",
+   "prompt": "To know the fewest steps still needed, what do you need to know about how you arrived at the current number?",
+   "options": [
+    "Nothing: only the current number matters",
+    "How many steps were taken so far",
+    "Which digits were subtracted before"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two different routes lead to 18. Do they differ in what can happen next?"
+   ],
+   "showed": "The number is the whole state. The table is indexed by numbers, not by positions in an input."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Let need($v$) be the fewest steps from $v$ to 0. Then for $v > 0$:",
+   "options": [
+    "need($v$) = 1 + the smallest of need($v - d$) over the non-zero digits $d$ of $v$",
+    "need($v$) = 1 + need($v - 9$)",
+    "need($v$) = the number of digits of $v$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Why are zero digits left out?"
+   ],
+   "showed": "Every move leads to a smaller number, so filling the table upwards from 0 always finds the values it needs."
+  },
+  {
+   "id": "size",
+   "kind": "number",
+   "prompt": "For $n = 10^6$ the table has a million entries, and a number has at most 7 digits. At most how many candidate moves are examined in all?",
+   "answer": 7000000,
+   "verify": "result = 7 * 10 ** 6",
+   "nudges": [
+    "How many entries, and how many digits each?"
+   ],
+   "showed": "Trivial for a computer."
+  },
+  {
+   "id": "greedy",
+   "kind": "choice",
+   "prompt": "Is \"always subtract the largest digit\" optimal for every number up to 10000?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Is need($v$) ever larger for a smaller $v$?"
+   ],
+   "showed": "It is, because the table turns out to be non-decreasing: getting lower never hurts. But the table did not need that insight, and for a slightly different move rule the insight could be false.",
+   "verify": "def steps(n):\n    d = [0] * (n + 1)\n    for v in range(1, n + 1): d[v] = 1 + min(d[v - int(ch)] for ch in str(v) if ch != \"0\")\n    return d\ndef greedy(n):\n    k = 0\n    while n: n -= max(map(int, str(n))); k += 1\n    return k\nd = steps(10000)\nresult = 0 if all(d[v] == greedy(v) for v in range(1, 10001)) else 1"
+  },
+  {
+   "id": "h-big",
+   "kind": "number",
+   "prompt": "What is the smallest number of steps from 999999 to 0?",
+   "answer": 128206,
+   "verify": "def steps(n):\n    d = [0] * (n + 1)\n    for v in range(1, n + 1): d[v] = 1 + min(d[v - int(ch)] for ch in str(v) if ch != \"0\")\n    return d\ndef greedy(n):\n    k = 0\n    while n: n -= max(map(int, str(n))); k += 1\n    return k\nresult = steps(999999)[999999]",
+   "nudges": [
+    "Would you do this by hand?"
+   ],
+   "showed": "Read off the table.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-twenty",
+   "kind": "number",
+   "prompt": "What is the smallest number that needs exactly 20 steps?",
+   "answer": 111,
+   "verify": "def steps(n):\n    d = [0] * (n + 1)\n    for v in range(1, n + 1): d[v] = 1 + min(d[v - int(ch)] for ch in str(v) if ch != \"0\")\n    return d\ndef greedy(n):\n    k = 0\n    while n: n -= max(map(int, str(n))); k += 1\n    return k\nd = steps(2000)\nresult = next(v for v in range(1, 2001) if d[v] == 20)",
+   "nudges": [
+    "With the table filled, how do you answer this?"
+   ],
+   "showed": "A filled table answers questions the original task never asked.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "The number itself is the state",
+  "statement": "The state does not have to be an index into the input: here it is the current number, and the moves are read off its digits.",
+  "remark": "Subtracting the largest digit happens to be optimal here, but the table needs no such insight and costs almost nothing."
+ }
+}

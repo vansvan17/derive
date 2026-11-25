@@ -1,0 +1,102 @@
+{
+ "idea": "cses-projects",
+ "opening": "Projects with starting days, ending days and rewards; you can work on one project per day.",
+ "steps": [
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "Four projects, given as (first day, last day, reward): (2, 4, 4), (3, 6, 6), (6, 8, 2), (5, 7, 3). You can attend only one project on any day. What is the largest total reward?",
+   "answer": 7,
+   "verify": "import itertools, bisect\ndef slow(ps):\n    best = 0\n    for k in range(len(ps) + 1):\n        for c in itertools.combinations(ps, k):\n            s = sorted(c)\n            if all(s[i][1] < s[i + 1][0] for i in range(len(s) - 1)): best = max(best, sum(p for _, _, p in c))\n    return best\ndef fast(ps):\n    ps = sorted(ps, key=lambda t: t[1]); ends = [p[1] for p in ps]; best = [0]\n    for i, (a, b, p) in enumerate(ps):\n        k = bisect.bisect_left(ends, a)          # projects ending strictly before day a\n        best.append(max(best[-1], best[k] + p))\n    return best[-1]\nP4 = [(2, 4, 4), (3, 6, 6), (6, 8, 2), (5, 7, 3)]\ndef gen(n): return [((17 * i) % 40 + 1, (17 * i) % 40 + 1 + (5 * i) % 9, 3 + (7 * i) % 11) for i in range(n)]\nresult = slow(P4)",
+   "nudges": [
+    "Which pairs of projects do not share a day?"
+   ],
+   "showed": "The projects (2, 4) and (5, 7)."
+  },
+  {
+   "id": "touch",
+   "kind": "number",
+   "prompt": "Two projects: (1, 3, 5) and (3, 5, 5). What is the largest total reward?",
+   "answer": 5,
+   "verify": "import itertools, bisect\ndef slow(ps):\n    best = 0\n    for k in range(len(ps) + 1):\n        for c in itertools.combinations(ps, k):\n            s = sorted(c)\n            if all(s[i][1] < s[i + 1][0] for i in range(len(s) - 1)): best = max(best, sum(p for _, _, p in c))\n    return best\ndef fast(ps):\n    ps = sorted(ps, key=lambda t: t[1]); ends = [p[1] for p in ps]; best = [0]\n    for i, (a, b, p) in enumerate(ps):\n        k = bisect.bisect_left(ends, a)          # projects ending strictly before day a\n        best.append(max(best[-1], best[k] + p))\n    return best[-1]\nP4 = [(2, 4, 4), (3, 6, 6), (6, 8, 2), (5, 7, 3)]\ndef gen(n): return [((17 * i) % 40 + 1, (17 * i) % 40 + 1 + (5 * i) % 9, 3 + (7 * i) % 11) for i in range(n)]\nresult = slow([(1, 3, 5), (3, 5, 5)])",
+   "nudges": [
+    "On which day would you be in two places?"
+   ],
+   "showed": "They share day 3, so only one can be attended. \"Ends before the other starts\" is strict."
+  },
+  {
+   "id": "greedy",
+   "kind": "choice",
+   "prompt": "Without rewards, taking the project that ends earliest is the right rule. Why does it fail with rewards?",
+   "options": [
+    "A project that ends early may have a small reward and block a valuable one",
+    "It never fails",
+    "Because projects can overlap"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What if the earliest-ending project pays 1 and overlaps one that pays 100?"
+   ],
+   "showed": "With weights, a choice has to be weighed against what it excludes."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "Sort the projects by last day. Let best($i$) be the largest reward using only the first $i$ projects in that order. For project $i$ with first day $a$ and reward $p$:",
+   "options": [
+    "best($i$) = max(best($i-1$), $p$ + best($k$)), where $k$ is the number of projects whose last day is before $a$",
+    "best($i$) = best($i-1$) + $p$",
+    "best($i$) = max(best($i-1$), $p$)"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Project $i$ is either skipped or taken. If taken, which earlier projects can go with it?"
+   ],
+   "showed": "Skip it, or take it together with the best of everything that ends before it starts. Those are exactly a prefix of the sorted order."
+  },
+  {
+   "id": "find",
+   "kind": "choice",
+   "prompt": "How is $k$ found quickly for each project?",
+   "options": [
+    "Binary search for $a$ in the sorted list of last days",
+    "A loop backwards over the earlier projects",
+    "It is always $i - 1$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "The last days are sorted. What does that allow?"
+   ],
+   "showed": "A binary search per project; the whole thing is $n \\log n$."
+  },
+  {
+   "id": "h-twelve",
+   "kind": "number",
+   "prompt": "Twelve projects: project $i$ (for $i = 0, \\dots, 11$) has first day $(17 i \\bmod 40) + 1$, lasts $(5 i \\bmod 9) + 1$ days, and pays $3 + (7 i \\bmod 11)$. What is the largest total reward?",
+   "answer": 62,
+   "verify": "import itertools, bisect\ndef slow(ps):\n    best = 0\n    for k in range(len(ps) + 1):\n        for c in itertools.combinations(ps, k):\n            s = sorted(c)\n            if all(s[i][1] < s[i + 1][0] for i in range(len(s) - 1)): best = max(best, sum(p for _, _, p in c))\n    return best\ndef fast(ps):\n    ps = sorted(ps, key=lambda t: t[1]); ends = [p[1] for p in ps]; best = [0]\n    for i, (a, b, p) in enumerate(ps):\n        k = bisect.bisect_left(ends, a)          # projects ending strictly before day a\n        best.append(max(best[-1], best[k] + p))\n    return best[-1]\nP4 = [(2, 4, 4), (3, 6, 6), (6, 8, 2), (5, 7, 3)]\ndef gen(n): return [((17 * i) % 40 + 1, (17 * i) % 40 + 1 + (5 * i) % 9, 3 + (7 * i) % 11) for i in range(n)]\nassert all(fast(gen(n)) == slow(gen(n)) for n in range(1, 13))\nresult = fast(gen(12))",
+   "nudges": [
+    "After sorting by last day, what does each project need to look up?"
+   ],
+   "showed": "Sort, then one pass with a binary search each.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-forty",
+   "kind": "number",
+   "prompt": "The same recipe with 40 projects ($i = 0, \\dots, 39$). What is the largest total reward?",
+   "answer": 128,
+   "verify": "import itertools, bisect\ndef slow(ps):\n    best = 0\n    for k in range(len(ps) + 1):\n        for c in itertools.combinations(ps, k):\n            s = sorted(c)\n            if all(s[i][1] < s[i + 1][0] for i in range(len(s) - 1)): best = max(best, sum(p for _, _, p in c))\n    return best\ndef fast(ps):\n    ps = sorted(ps, key=lambda t: t[1]); ends = [p[1] for p in ps]; best = [0]\n    for i, (a, b, p) in enumerate(ps):\n        k = bisect.bisect_left(ends, a)          # projects ending strictly before day a\n        best.append(max(best[-1], best[k] + p))\n    return best[-1]\nP4 = [(2, 4, 4), (3, 6, 6), (6, 8, 2), (5, 7, 3)]\ndef gen(n): return [((17 * i) % 40 + 1, (17 * i) % 40 + 1 + (5 * i) % 9, 3 + (7 * i) % 11) for i in range(n)]\nresult = fast(gen(40))",
+   "nudges": [
+    "How many subsets would a search over all selections try?"
+   ],
+   "showed": "A trillion subsets, or forty binary searches.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Sort by end, then take or skip",
+  "statement": "Sorted by ending day, each project is either skipped or taken together with the best result among projects that end before it starts, found by binary search.",
+  "remark": "Two projects that share a day clash."
+ }
+}

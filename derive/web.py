@@ -130,7 +130,7 @@ class Service:
             ideas.append({
                 'id': idea_id, 'area': idea['area'], 'level': depth[idea_id], 'needs': idea.get('needs', []),
                 'derived': known, 'name': idea['name'] if known else None, 'statement': idea['statement'] if known else None,
-                'has_chain': bool(chain), 'open': bool(chain) and self.chain_open(idea_id, derived),
+                'marks': idea.get('marks', []), 'has_chain': bool(chain), 'open': bool(chain) and self.chain_open(idea_id, derived),
                 'steps_total': len(chain['steps']) if chain else 0, 'steps_done': len(self.done_steps(store, idea_id)) if chain else 0,
                 'evidence': ev[idea_id],
             })

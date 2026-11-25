@@ -323,3 +323,6 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .mark-standard{color:var(--warning);background:color-mix(in srgb,var(--warning) 12%,var(--surface));border-color:color-mix(in srgb,var(--warning) 40%,var(--line))}
 .mark-common{color:var(--primary);background:var(--primary-soft);border-color:color-mix(in srgb,var(--primary) 30%,var(--line))}
 .mark-legend{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin:0 0 .75rem}
+.node-marks{font-size:.6875rem;letter-spacing:.05em;color:var(--warning);line-height:1}
+.map-card .mark-legend{margin:.75rem 0 0}
+.sym-standard{color:var(--warning)}.sym-common{color:var(--primary)}

@@ -59,7 +59,11 @@
    "area": "nt",
    "name": "Arithmetic of remainders",
    "statement": "Sums and products mod m depend only on the remainders of the parts; a factor c can be cancelled when gcd(c, m) = 1.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "mult-permutes",
@@ -68,6 +72,9 @@
    "statement": "For a prime p and a not divisible by p, the residues of a, 2a, ..., (p-1)a are 1, ..., p-1 in some order.",
    "needs": [
     "residues"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -77,6 +84,9 @@
    "statement": "For a prime p and a not divisible by p, a^(p-1) = 1 (mod p).",
    "needs": [
     "mult-permutes"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -86,6 +96,10 @@
    "statement": "Mod a prime p, every a not divisible by p has exactly one x with ax = 1, and x = a^(p-2).",
    "needs": [
     "fermat"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -93,7 +107,10 @@
    "area": "nt",
    "name": "The gcd survives subtraction",
    "statement": "gcd(a, b) = gcd(a - b, b): the pairs have the same common divisors.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "euclid",
@@ -102,6 +119,9 @@
    "statement": "gcd(a, b) = gcd(b, a mod b), and a mod b < a/2, so it finishes in O(log) steps.",
    "needs": [
     "gcd-subtraction"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -111,6 +131,9 @@
    "statement": "ax + by = c has integer solutions exactly when gcd(a, b) divides c.",
    "needs": [
     "euclid"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -118,7 +141,11 @@
    "area": "nt",
    "name": "Divisors from prime exponents",
    "statement": "If n is the product of p_i^e_i, its divisors correspond to independent choices of exponents: there are prod(e_i + 1) of them.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "harmonic-multiples",
@@ -127,6 +154,10 @@
    "statement": "Visiting every multiple of every i up to n costs n/1 + n/2 + ... + n/n = O(n log n).",
    "needs": [
     "divisor-count"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -136,6 +167,9 @@
    "statement": "Each time a running gcd changes it at least halves, so it takes at most log2(a) different values.",
    "needs": [
     "gcd-subtraction"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -145,6 +179,9 @@
    "statement": "For coprime m and n, the pair (x mod m, x mod n) determines x mod mn, and every pair occurs.",
    "needs": [
     "bezout"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -152,7 +189,10 @@
    "area": "inv",
    "name": "Parity invariant",
    "statement": "If every move changes a count by an even amount, its parity is fixed forever; a target of the other parity is unreachable.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "sum-invariant",
@@ -162,6 +202,9 @@
    "needs": [
     "parity-invariant",
     "residues"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -169,7 +212,10 @@
    "area": "inv",
    "name": "Monovariant",
    "statement": "A non-negative integer that strictly decreases with every move forces the process to stop, and bounds the number of moves.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "colouring",
@@ -178,6 +224,9 @@
    "statement": "Colour the cells so that every piece covers a fixed colour pattern; an unbalanced board cannot be covered.",
    "needs": [
     "parity-invariant"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -188,6 +237,9 @@
    "needs": [
     "parity-invariant",
     "monovariant"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -195,14 +247,20 @@
    "area": "inv",
    "name": "Extremal principle",
    "statement": "Look at the smallest, largest, first or last object: its extremeness gives a property that others lack.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "small-cases",
    "area": "con",
    "name": "Extend a small construction",
    "statement": "Solve n = 1, 2, 3 by hand and find the step that turns a solution for n into one for n + 1 or n + 2.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "necessary-sufficient",
@@ -211,6 +269,9 @@
    "statement": "Find the obstruction that rules out some inputs, then construct an answer for every input that passes it.",
    "needs": [
     "parity-invariant"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -218,7 +279,10 @@
    "area": "con",
    "name": "Pigeonhole principle",
    "statement": "More objects than boxes forces two objects into one box.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard"
+   ]
   },
   {
    "id": "prefix-pigeonhole",
@@ -229,6 +293,9 @@
     "pigeonhole",
     "residues",
     "prefix-sums"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -236,21 +303,31 @@
    "area": "cnt",
    "name": "Contribution counting",
    "statement": "A sum over all objects of a sum over their parts equals a sum over parts of how many objects contain each.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "complement",
    "area": "cnt",
    "name": "Complement counting",
    "statement": "Count everything, then subtract what fails: often the failures are far easier to describe.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "stars-bars",
    "area": "cnt",
    "name": "Stars and bars",
    "statement": "The number of ways to write n as an ordered sum of k non-negative integers is C(n + k - 1, k - 1).",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard"
+   ]
   },
   {
    "id": "lattice-paths",
@@ -259,6 +336,9 @@
    "statement": "Paths of r right steps and u up steps number C(r + u, r); many counts are such paths in disguise.",
    "needs": [
     "stars-bars"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -268,6 +348,9 @@
    "statement": "The size of a union is the alternating sum of the sizes of the intersections.",
    "needs": [
     "complement"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -277,6 +360,10 @@
    "statement": "The expected value of a sum is the sum of the expected values, whether or not the parts are independent.",
    "needs": [
     "contribution"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -284,7 +371,11 @@
    "area": "grd",
    "name": "Exchange argument",
    "statement": "If swapping two adjacent out-of-order choices never makes the answer worse, the sorted order is optimal.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "stays-ahead",
@@ -293,6 +384,9 @@
    "statement": "Show by induction that after every step the greedy choice is at least as good as any other solution's.",
    "needs": [
     "exchange"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -302,6 +396,9 @@
    "statement": "Take every option, and when a constraint breaks, undo the worst choice so far (a heap finds it).",
    "needs": [
     "exchange"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -309,7 +406,11 @@
    "area": "bs",
    "name": "Binary search on the answer",
    "statement": "If 'can it be done with x?' is false then true as x grows, the smallest workable x is found by halving.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "kth-by-counting",
@@ -318,6 +419,9 @@
    "statement": "The k-th smallest value is the least x for which at least k values are <= x.",
    "needs": [
     "search-answer"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -325,7 +429,11 @@
    "area": "seq",
    "name": "Prefix sums",
    "statement": "With P[i] = a[1] + ... + a[i], any block sum is P[r] - P[l - 1].",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "prefix-pairs",
@@ -334,6 +442,10 @@
    "statement": "Counting blocks with a given sum is counting pairs of prefix values with a given difference.",
    "needs": [
     "prefix-sums"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -343,6 +455,10 @@
    "statement": "Adding v to a whole block is two point updates on the array of differences.",
    "needs": [
     "prefix-sums"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -350,7 +466,11 @@
    "area": "seq",
    "name": "Two pointers",
    "statement": "If moving the left end right can only move the best right end right, both ends sweep once: O(n).",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "prefix-xor",
@@ -360,6 +480,9 @@
    "needs": [
     "prefix-sums",
     "xor-cancels"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -367,7 +490,10 @@
    "area": "dp",
    "name": "What a state must remember",
    "statement": "A state is a summary of the past that is enough to decide the future; two histories with the same summary can be merged.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "knapsack",
@@ -376,6 +502,10 @@
    "statement": "Looping capacity downward uses each item once; upward allows it again and again.",
    "needs": [
     "dp-state"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -386,6 +516,10 @@
    "needs": [
     "dp-state",
     "masks"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -395,6 +529,9 @@
    "statement": "Solve every block [l, r] from shorter blocks by choosing the last operation or a split point.",
    "needs": [
     "dp-state"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -404,6 +541,9 @@
    "statement": "Counting numbers up to N: build digits from the top, remembering only whether the prefix is still equal to N's.",
    "needs": [
     "dp-state"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -413,6 +553,10 @@
    "statement": "Compute each subtree's answer, then push the answer of 'everything outside the subtree' down from the parent.",
    "needs": [
     "dp-state"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -420,14 +564,20 @@
    "area": "gr",
    "name": "Configurations as a graph",
    "statement": "Make each configuration a vertex and each move an edge; fewest moves is a shortest path.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "reverse-time",
    "area": "gr",
    "name": "Run time backwards",
    "statement": "Deletions are hard, insertions are easy: process the operations in reverse and merge.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "odd-cycle",
@@ -436,6 +586,9 @@
    "statement": "A graph can be split into two sides with all edges across exactly when it has no cycle of odd length.",
    "needs": [
     "parity-invariant"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -443,7 +596,10 @@
    "area": "bit",
    "name": "XOR undoes itself",
    "statement": "x xor x = 0 and XOR is associative and commutative, so anything XORed twice disappears.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "bits-independent",
@@ -452,6 +608,10 @@
    "statement": "For AND, OR and XOR every bit position behaves independently; solve for one bit and add up 2^b times the count.",
    "needs": [
     "contribution"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -459,7 +619,10 @@
    "area": "bit",
    "name": "Subsets as bitmasks",
    "statement": "A subset of n items is an n-bit number; going through every subset of every subset costs 3^n.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard"
+   ]
   },
   {
    "id": "sum-xor-and",
@@ -468,6 +631,9 @@
    "statement": "a + b = (a xor b) + 2 (a and b): XOR adds without carries, AND is the carries.",
    "needs": [
     "xor-cancels"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -475,21 +641,30 @@
    "area": "cnt",
    "name": "Count one, multiply by the symmetry",
    "statement": "If shifting, rotating or relabelling turns every valid arrangement into another valid one, count the arrangements with one coordinate pinned and multiply by the number of ways to pin it.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "matching-bounds",
    "area": "grd",
    "name": "A bound and a strategy that meet",
    "statement": "Show that no play can do better than some value, then show one way of playing that reaches it; the two together are the answer.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "forced-pairs",
    "area": "con",
    "name": "Pairs that cannot both survive",
    "statement": "Find pairs of objects of which exactly one can be taken whatever you do; the problem then splits into one small choice per pair.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "common"
+   ]
   },
   {
    "id": "fast-power",
@@ -498,6 +673,10 @@
    "statement": "a^e needs only about 2 log2(e) multiplications: square repeatedly and multiply the powers picked out by the binary digits of e.",
    "needs": [
     "residues"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -507,6 +686,10 @@
    "statement": "Marking the multiples of each prime up to n gives every number its smallest prime factor, so any number up to n factorises in O(log n).",
    "needs": [
     "harmonic-multiples"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -517,6 +700,10 @@
    "needs": [
     "mod-inverse",
     "fast-power"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -524,7 +711,11 @@
    "area": "alg",
    "name": "Disjoint set union",
    "statement": "Keep each group as a tree of parent pointers; merge the smaller tree under the larger and shorten paths as you walk them, and each operation is almost constant time.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "mst",
@@ -534,6 +725,9 @@
    "needs": [
     "dsu",
     "exchange"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -541,7 +735,10 @@
    "area": "alg",
    "name": "Topological order",
    "statement": "Repeatedly remove a vertex with no incoming edges; if you get stuck there is a cycle, otherwise the removal order respects every edge.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard"
+   ]
   },
   {
    "id": "shortest-paths",
@@ -550,6 +747,10 @@
    "statement": "With non-negative lengths, the unsettled vertex with the smallest tentative distance already has its true distance.",
    "needs": [
     "extremal"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -559,6 +760,9 @@
    "statement": "Store sums of blocks whose lengths are the lowest set bit of the index; a prefix sum and a point update each touch O(log n) blocks.",
    "needs": [
     "prefix-sums"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -568,6 +772,10 @@
    "statement": "Store an answer for each of 2n - 1 halving blocks; any range splits into O(log n) of them and a point change touches O(log n).",
    "needs": [
     "prefix-sums"
+   ],
+   "marks": [
+    "standard",
+    "common"
    ]
   },
   {
@@ -575,7 +783,10 @@
    "area": "alg",
    "name": "Sparse table",
    "statement": "Precompute the answer for every block of length 2^k; when overlap is harmless (min, max, gcd) any range is two blocks.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard"
+   ]
   },
   {
    "id": "lca-lifting",
@@ -584,6 +795,9 @@
    "statement": "Store the 2^k-th ancestor of every vertex; lift the deeper vertex, then lift both together from the largest jump down.",
    "needs": [
     "fast-power"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -594,6 +808,9 @@
    "needs": [
     "residues",
     "prefix-sums"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -601,21 +818,31 @@
    "area": "gr",
    "name": "Bridges",
    "statement": "An edge is a bridge exactly when it lies on no cycle. In a DFS tree, the tree edge down to v is a bridge exactly when no other edge leaves the subtree of v.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard"
+   ]
   },
   {
    "id": "multi-source",
    "area": "gr",
    "name": "Many starting points at once",
    "statement": "To find the distance from every vertex to the nearest of several special vertices, start one breadth-first search with all of them at distance 0.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "win-lose-states",
    "area": "game",
    "name": "Winning and losing positions",
    "statement": "A position is losing if every move leads to a winning position, and winning if some move leads to a losing one; work backwards from the end and look for the pattern.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard"
+   ]
   },
   {
    "id": "fixed-length-game",
@@ -624,6 +851,9 @@
    "statement": "If every way of playing takes the same number of moves, nobody has a real choice: the winner is decided by the parity of that number.",
    "needs": [
     "parity-invariant"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -633,6 +863,9 @@
    "statement": "If you can always answer a move with its mirror image, you never run out of moves before your opponent does.",
    "needs": [
     "symmetry"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -642,6 +875,9 @@
    "statement": "Removing an edge of a tree leaves parts of sizes s and n - s; exactly s(n - s) pairs of vertices have their path through that edge.",
    "needs": [
     "contribution"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -652,6 +888,9 @@
    "needs": [
     "win-lose-states",
     "xor-cancels"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -661,6 +900,9 @@
    "statement": "An operation on a binary string usually changes only the boundaries between blocks of equal characters, and by at most two: count blocks, not characters.",
    "needs": [
     "difference-array"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -670,6 +912,9 @@
    "statement": "The pairs (a 1, a later 0) measure how unsorted a binary string is; a swap of neighbours changes the count by exactly one.",
    "needs": [
     "monovariant"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -679,6 +924,9 @@
    "statement": "Score +1 and -1 for the two characters: equal counts are equal prefix values, and a correct bracket sequence is a walk that never goes below zero and ends at zero.",
    "needs": [
     "prefix-sums"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -688,6 +936,9 @@
    "statement": "An operation that moves characters by two places keeps each character on positions of the same parity, so the counts on odd and on even positions are invariants.",
    "needs": [
     "parity-invariant"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -695,7 +946,10 @@
    "area": "str",
    "name": "Palindromes grow from centres",
    "statement": "A string of length n has 2n - 1 centres, and every palindromic substring is found by expanding from one of them; the first half of a palindrome determines the rest.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard"
+   ]
   },
   {
    "id": "pal-parity-mask",
@@ -704,6 +958,9 @@
    "statement": "Letters can be rearranged into a palindrome exactly when at most one letter occurs an odd number of times; for substrings, compare prefix masks of letter parities.",
    "needs": [
     "prefix-xor"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -713,6 +970,9 @@
    "statement": "The longest palindromic subsequence is the longest common subsequence of a string and its reverse; the fewest insertions to make a palindrome is the length minus it.",
    "needs": [
     "interval-dp"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -722,7 +982,8 @@
    "statement": "If a palindrome of length n has a palindromic prefix of length m, then n - m is a period of it; a string of length n has at most n different palindromic substrings.",
    "needs": [
     "pal-centres"
-   ]
+   ],
+   "marks": []
   },
   {
    "id": "gcd-counting",
@@ -731,6 +992,9 @@
    "statement": "Pairs whose gcd is a multiple of g are simply pairs of multiples of g. Going from large g to small and subtracting the counts for 2g, 3g, ... leaves the pairs with gcd exactly g.",
    "needs": [
     "harmonic-multiples"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -738,7 +1002,10 @@
    "area": "nt",
    "name": "Floor division takes few values",
    "statement": "As i runs from 1 to n, the quotient n // i takes at most about 2 sqrt(n) different values, each on a block of consecutive i, so sums involving it can be done block by block.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard"
+   ]
   },
   {
    "id": "totient",
@@ -748,6 +1015,9 @@
    "needs": [
     "fermat",
     "crt"
+   ],
+   "marks": [
+    "standard"
    ]
   },
   {
@@ -755,14 +1025,22 @@
    "area": "gr",
    "name": "Storing and walking a graph",
    "statement": "Keep, for every vertex, the list of its neighbours. A walk from a start vertex that marks vertices as it reaches them visits each vertex and each edge once, and gives distances, components, parents, and (processed in reverse) anything about subtrees.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   },
   {
    "id": "seen-table",
    "area": "seq",
    "name": "Count with a table of what you have seen",
    "statement": "To count pairs with a relation between their two elements, go left to right and, for each element, look up how many earlier elements would complete a pair; then record the element.",
-   "needs": []
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
   }
  ]
 }

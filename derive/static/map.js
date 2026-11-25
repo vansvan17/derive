@@ -1,5 +1,7 @@
 /* The map: every idea as a dot, grouped by area. An idea has no name until it is derived. */
 
+import {marks, symbols, legend} from './marks.js';
+
 const STATE_TEXT = {derived: 'Derived', open: 'Ready to derive', started: 'In progress', locked: 'Builds on something not yet derived', unwritten: 'Chain not written yet'};
 const nodeState = i => i.derived ? 'derived' : !i.has_chain ? 'unwritten' : !i.open ? 'locked' : i.steps_done ? 'started' : 'open';
 
@@ -24,9 +26,9 @@ export async function renderMap(ctx, {notice = ''} = {}) {
       <section class="surface map-card" aria-label="Map of ideas"><div class="map-stage" data-stage><svg class="map-lines" data-lines aria-hidden="true"></svg>
         ${data.areas.map(area => `<div class="map-band"><h3>${e(area.title)}</h3><div class="map-row">${data.ideas.filter(i => i.area === area.id).sort((a, b) => a.level - b.level).map(i => {
           const s = nodeState(i);
-          return `<button class="node node-${s}" type="button" data-node="${e(i.id)}" aria-label="${e(label(i))}: ${STATE_TEXT[s]}" aria-pressed="false">${i.derived ? `<span class="node-name">${e(i.name)}</span>` : `<span class="node-mark">${s === 'locked' ? icon('lock') : s === 'unwritten' ? '·' : '?'}</span>`}${s === 'started' ? `<span class="node-progress">${i.steps_done}/${i.steps_total}</span>` : ''}</button>`;
+          return `<button class="node node-${s}" type="button" data-node="${e(i.id)}" aria-label="${e(label(i))}: ${STATE_TEXT[s]}${i.marks.length ? ' (' + i.marks.join(', ') + ')' : ''}" aria-pressed="false">${i.derived ? `<span class="node-name">${e(i.name)}</span>` : `<span class="node-mark">${s === 'locked' ? icon('lock') : s === 'unwritten' ? '·' : '?'}</span>`}${s === 'started' ? `<span class="node-progress">${i.steps_done}/${i.steps_total}</span>` : ''}${i.marks.length ? `<span class="node-marks" aria-hidden="true">${symbols(i.marks)}</span>` : ''}</button>`;
         }).join('')}</div></div>`).join('')}
-      </div><p class="map-legend"><span class="key key-open">?</span> ready to derive <span class="key key-locked">${icon('lock')}</span> builds on another <span class="key key-unwritten">·</span> chain not written yet <span class="key key-derived">name</span> derived</p></section>
+      </div><p class="map-legend"><span class="key key-open">?</span> ready to derive <span class="key key-locked">${icon('lock')}</span> builds on another <span class="key key-unwritten">·</span> chain not written yet <span class="key key-derived">name</span> derived</p>${legend(e)}</section>
       <aside class="surface map-side" data-side aria-live="polite"><h2>Pick a dot</h2><p class="muted">Select an idea to see what it rests on and what it is connected to. Lines show connections for the selected idea.</p></aside>
     </div>`;
 
@@ -48,7 +50,7 @@ export async function renderMap(ctx, {notice = ''} = {}) {
     const others = data.links.filter(l => l.from === id || l.to === id).map(l => ({other: byId[l.from === id ? l.to : l.from], out: l.from === id, kind: l.kind, note: l.note}));
     const action = s === 'derived' ? `<a class="btn btn-secondary btn-sm" href="#/chain/${e(id)}">Reread the chain</a>`
       : s === 'open' || s === 'started' ? `<a class="btn btn-primary btn-sm" href="#/chain/${e(id)}">${s === 'started' ? `Continue · step ${i.steps_done + 1} of ${i.steps_total}` : 'Begin deriving'}</a>` : '';
-    side.innerHTML = `<p class="eyebrow">${e(data.areas.find(a => a.id === i.area).title)}</p><h2>${i.derived ? e(i.name) : 'An idea you have not derived yet'}</h2>
+    side.innerHTML = `<p class="eyebrow">${e(data.areas.find(a => a.id === i.area).title)}</p><h2>${i.derived ? e(i.name) : 'An idea you have not derived yet'}</h2>${i.marks.length ? `<p>${marks(i.marks, e)}</p>` : ''}
       ${i.derived ? `<p class="map-statement">${inline(i.statement)}</p>` : `<p class="muted">${STATE_TEXT[s]}.${s === 'unwritten' ? ' Its problems can still come up when you solve.' : ''}</p>`}
       ${action ? `<p>${action}</p>` : ''}
       ${i.needs.length ? `<h3>Rests on</h3><ul class="plain-list">${i.needs.map(n => `<li><button class="link-btn" type="button" data-jump="${e(n)}">${e(label(byId[n]))}</button></li>`).join('')}</ul>` : ''}

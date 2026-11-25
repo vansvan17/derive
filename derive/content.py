@@ -78,6 +78,8 @@ def problems(content):
     faults = []
     areas = {a['id'] for a in content.areas}
     for idea in content.ideas.values():
+        if any(m not in ('standard', 'common') for m in idea.get('marks', [])):
+            faults.append(f'idea {idea.get("id")}: marks may only be standard and common')
         for key in ('id', 'name', 'area', 'statement'):
             if not idea.get(key):
                 faults.append(f'idea {idea.get("id")}: missing {key}')

@@ -545,7 +545,7 @@ class Service:
     # ---------- the toolbox ----------
     def tool_list(self, store):
         done = {r['task'] for r in store.all('SELECT task FROM tasks_done')}
-        return {'tools': [{'id': t['id'], 'title': t['title'], 'when': t['when'][0], 'written': t['task'] in done} for t in self.content.tools.values()]}
+        return {'tools': [{'id': t['id'], 'title': t['title'], 'when': t['when'][0], 'marks': t.get('marks', []), 'written': t['task'] in done} for t in self.content.tools.values()]}
 
     def tool(self, store, tool_id):
         tool = self.content.tools.get(tool_id)
@@ -554,6 +554,7 @@ class Service:
         written = bool(store.one('SELECT 1 FROM tasks_done WHERE task=?', (tool['task'],)))
         out = {k: tool[k] for k in ('id', 'title', 'when', 'idea', 'traps', 'task')}
         out['written'] = written
+        out['marks'] = tool.get('marks', [])
         # The reference version is for comparing with your own, so it appears only once yours is accepted.
         out['reference'] = tool['reference'] if written else None
         return out

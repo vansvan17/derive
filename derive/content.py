@@ -179,6 +179,9 @@ def problems(content):
                 faults.append(f'{tag}: missing {key}')
         if tool.get('task') not in content.tasks:
             faults.append(f'{tag}: must name an existing task')
+        marks = tool.get('marks', [])
+        if not isinstance(marks, list) or any(m not in ('standard', 'common') for m in marks):
+            faults.append(f'{tag}: marks may only be standard and common')
     for idea, tasks in content.practice.items():
         if idea not in content.chains:
             faults.append(f'practice {idea}: practice is offered after a chain, and this idea has none')

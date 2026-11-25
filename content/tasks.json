@@ -1018,5 +1018,87 @@
    ]
   ],
   "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    if size == 'small': return f\"{rng.randint(1, 7)} {rng.randint(1, 3)}\\n\"\n    return f\"{rng.choice([10 ** 18, rng.randint(1, 10 ** 18), rng.randint(1, 10 ** 6)])} {rng.choice([1, 2, 26, 10 ** 9 + 8, rng.randint(1, 10 ** 9), 10 ** 9]) if size == 'x' else rng.choice([1, 2, 26, rng.randint(1, 10 ** 9), 10 ** 9])}\\n\"\ndef solve(text):\n    n, k = ints(text); M = 10 ** 9 + 7\n    def mul(A, B): return [[sum(A[i][t] * B[t][j] for t in range(2)) % M for j in range(2)] for i in range(2)]\n    R = [[1, 0], [0, 1]]; A = [[(k - 1) % M, (k - 1) % M], [1, 0]]; e = n - 1\n    while e:\n        if e & 1: R = mul(R, A)\n        A = mul(A, A); e >>= 1\n    return str((R[0][0] + R[1][0]) * (k % M) % M)\ndef brute(text):\n    import itertools\n    n, k = ints(text)\n    return str(sum(1 for w in itertools.product(range(k), repeat=n) if all(not (w[i] == w[i + 1] == w[i + 2]) for i in range(n - 2))) % (10 ** 9 + 7))\n"
+ },
+ {
+  "id": "longest-palindrome",
+  "title": "Longest palindrome inside",
+  "track": "toolbox",
+  "statement": "You are given a string of lowercase letters. Print the length of its longest substring that reads the same in both directions.\n\n**Input.** One line: the string, of length between 1 and $3 \\cdot 10^5$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "abacabad\n",
+    "7"
+   ],
+   [
+    "abba\n",
+    "4"
+   ],
+   [
+    "abc\n",
+    "1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': 3000, 'large': 300000}[size]; kind = rng.choice(['same', 'period', 'random', 'almost'])\n    if kind == 'same': s = 'a' * n\n    elif kind == 'period':\n        b = ''.join(rng.choice('ab') for _ in range(rng.randint(1, 5))); s = (b * (n // len(b) + 1))[:n]\n    elif kind == 'almost':\n        t = ['a'] * n\n        for _ in range(rng.randint(1, 3)): t[rng.randrange(n)] = 'b'\n        s = ''.join(t)\n    else: s = ''.join(rng.choice('ab' if size == 'small' else 'abc') for _ in range(n))\n    return s + '\\n'\ndef solve(text):\n    t = '#' + '#'.join(text.strip()) + '#'; m = len(t); rad = [0] * m; c = r = 0; best = 0\n    for i in range(m):\n        k = min(rad[2 * c - i], r - i) if i < r else 0\n        while i - k - 1 >= 0 and i + k + 1 < m and t[i - k - 1] == t[i + k + 1]: k += 1\n        rad[i] = k\n        if i + k > r: c, r = i, i + k\n        if k > best: best = k\n    return str(best)\ndef brute(text):\n    s = text.strip(); n = len(s)\n    return str(max(j - i for i in range(n) for j in range(i + 1, n + 1) if s[i:j] == s[i:j][::-1]))\n"
+ },
+ {
+  "id": "subtree-colours",
+  "title": "Colours below each vertex",
+  "track": "toolbox",
+  "statement": "A tree with $n$ vertices is rooted at vertex 1, and every vertex has a colour. For every vertex, print the number of different colours among the vertices of its subtree (the vertex itself and everything below it).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains the colours of vertices $1, \\dots, n$, each between 1 and $10^9$. Each of the next $n - 1$ lines contains an edge $a$ $b$.\n\n**Output.** $n$ numbers on one line.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5\n1 2 1 3 2\n1 2\n1 3\n3 4\n3 5\n",
+    "3 1 3 1 1"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]; kind = rng.choice(['path', 'random', 'bushy'])\n    top = 3 if size == 'small' else rng.choice([5, n, 10 ** 9])\n    label = list(range(2, n + 1)); rng.shuffle(label); label = [1] + label; edges = []\n    for i in range(1, n):\n        p = i - 1 if kind == 'path' else rng.randrange(i) if kind == 'random' else rng.randrange(max(0, i - 3), i)\n        e = (label[p], label[i]); edges.append(e if rng.random() < 0.5 else e[::-1])\n    rng.shuffle(edges)\n    return f\"{n}\\n{' '.join(str(rng.randint(1, top)) for _ in range(n))}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef tree(text):\n    v = ints(text); n = v[0]; col = [0] + v[1:n + 1]; adj = [[] for _ in range(n + 1)]\n    for i in range(n - 1):\n        a, b = v[n + 1 + 2 * i], v[n + 2 + 2 * i]; adj[a].append(b); adj[b].append(a)\n    par = [0] * (n + 1); order = [1]; par[1] = -1\n    for a in order:\n        for b in adj[a]:\n            if b != par[a]: par[b] = a; order.append(b)\n    return n, col, par, order\ndef solve(text):\n    n, col, par, order = tree(text); bag = [None] * (n + 1); ans = [0] * (n + 1)\n    for a in reversed(order):\n        s = bag[a]\n        if s is None: s = set()\n        s.add(col[a]); ans[a] = len(s); bag[a] = None; p = par[a]\n        if p > 0:\n            t = bag[p]\n            if t is None: bag[p] = s\n            else:\n                if len(t) < len(s): s, t = t, s\n                t |= s; bag[p] = t\n    return ' '.join(map(str, ans[1:]))\ndef brute(text):\n    n, col, par, order = tree(text); out = []\n    for a in range(1, n + 1):\n        seen = set()\n        for b in range(1, n + 1):\n            x = b\n            while x != a and x > 0: x = par[x]\n            if x == a: seen.add(col[b])\n        out.append(len(seen))\n    return ' '.join(map(str, out))\n"
+ },
+ {
+  "id": "crossings",
+  "title": "Crossing segments",
+  "track": "toolbox",
+  "statement": "There are $n$ segments, each horizontal or vertical. Count the pairs made of one horizontal and one vertical segment that have a common point (touching counts).\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). Each of the next $n$ lines is either `H y x1 x2` (the horizontal segment from $(x_1, y)$ to $(x_2, y)$, $x_1 \\le x_2$) or `V x y1 y2` (the vertical segment from $(x, y_1)$ to $(x, y_2)$, $y_1 \\le y_2$). All coordinates are between $-10^9$ and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "4\nH 1 0 4\nH 3 2 5\nV 2 0 3\nV 5 4 6\n",
+    "2"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 3000, 'large': 200000}[size]; top = 4 if size == 'small' else rng.choice([50, 10 ** 9]); lines = []\n    for _ in range(n):\n        a, b = sorted((rng.randint(-top, top), rng.randint(-top, top)))\n        lines.append(f\"{rng.choice('HV')} {rng.randint(-top, top)} {a} {b}\\n\")\n    return f\"{n}\\n\" + ''.join(lines)\ndef parse(text):\n    w = text.split(); n = int(w[0])\n    return [(w[1 + 4 * i], int(w[2 + 4 * i]), int(w[3 + 4 * i]), int(w[4 + 4 * i])) for i in range(n)]\ndef solve(text):\n    import bisect\n    segs = parse(text); ys = sorted({s[1] for s in segs if s[0] == 'H'}); m = len(ys); tree = [0] * (m + 1); events = []\n    for kind, c, lo, hi in segs:\n        if kind == 'H': events.append((lo, 0, c, 0)); events.append((hi, 2, c, 0))\n        else: events.append((c, 1, lo, hi))\n    events.sort(); total = 0\n    def pre(i):\n        s = 0\n        while i > 0: s += tree[i]; i -= i & -i\n        return s\n    for x, kind, a, b in events:\n        if kind == 1: total += pre(bisect.bisect_right(ys, b)) - pre(bisect.bisect_left(ys, a))\n        else:\n            i = bisect.bisect_left(ys, a) + 1; d = 1 if kind == 0 else -1\n            while i <= m: tree[i] += d; i += i & -i\n    return str(total)\ndef brute(text):\n    segs = parse(text)\n    return str(sum(1 for k, y, x1, x2 in segs if k == 'H' for q, x, y1, y2 in segs if q == 'V' and x1 <= x <= x2 and y1 <= y <= y2))\n"
+ },
+ {
+  "id": "subset-count",
+  "title": "Subsets with a given sum",
+  "track": "toolbox",
+  "statement": "You are given $n$ numbers and a target $x$. Count the ways to choose some of the numbers (possibly none) so that their sum is exactly $x$. Numbers at different positions are different choices even when their values are equal.\n\n**Input.** The first line contains $n$ and $x$ ($1 \\le n \\le 40$, $1 \\le x \\le 10^9$). The second line contains the numbers, each between 1 and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "4 5\n1 2 3 2\n",
+    "3"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 24, 'large': 40}[size]; kind = rng.choice(['equal', 'tiny', 'wide'])\n    if size == 'small': a = [rng.randint(1, 5) for _ in range(n)]; x = rng.randint(1, 12)\n    elif kind == 'equal': v = rng.randint(1, 10 ** 7); a = [v] * n; x = v * (n // 2)\n    elif kind == 'tiny': a = [rng.randint(1, 3) for _ in range(n)]; x = sum(a) // 2\n    else: a = [rng.randint(1, 10 ** 9) for _ in range(n)]; x = min(10 ** 9, sum(rng.sample(a, 2)))\n    return f\"{n} {x}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    from collections import Counter\n    v = ints(text); n, x = v[0], v[1]; a = v[2:]\n    def sums(part):\n        out = [0]\n        for y in part: out += [s + y for s in out]\n        return out\n    left = Counter(sums(a[:n // 2])); get = left.get\n    return str(sum(get(x - s, 0) for s in sums(a[n // 2:])))\ndef brute(text):\n    v = ints(text); n, x = v[0], v[1]; a = v[2:]\n    return str(sum(1 for mask in range(1 << n) if sum(a[i] for i in range(n) if mask >> i & 1) == x))\n"
+ },
+ {
+  "id": "divisible-stretches",
+  "title": "Stretches divisible by k",
+  "track": "toolbox",
+  "statement": "You are given $n$ numbers in a row and a number $k$. Count the non-empty stretches of consecutive numbers whose sum is divisible by $k$.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le n \\le 2 \\cdot 10^5$, $1 \\le k \\le 10^9$). The second line contains the numbers, each between $-10^9$ and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "5 3\n1 2 -3 4 5\n",
+    "7"
+   ],
+   [
+    "3 1\n-1 0 1\n",
+    "6"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]\n    k = rng.randint(1, 5) if size == 'small' else rng.choice([1, 2, 7, n, 10 ** 9]); top = 6 if size == 'small' else 10 ** 9\n    return f\"{n} {k}\\n{' '.join(str(rng.randint(-top, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); k = v[1]; seen = {0: 1}; p = 0; total = 0\n    for x in v[2:]:\n        p = (p + x) % k; c = seen.get(p, 0); total += c; seen[p] = c + 1\n    return str(total)\ndef brute(text):\n    v = ints(text); k = v[1]; a = v[2:]; n = len(a)\n    return str(sum(1 for l in range(n) for r in range(l, n) if sum(a[l:r + 1]) % k == 0))\n"
  }
 ]

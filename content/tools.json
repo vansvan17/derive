@@ -2,6 +2,10 @@
  {
   "id": "mono-stack",
   "title": "Monotonic stack",
+  "marks": [
+   "standard",
+   "common"
+  ],
   "when": [
    "\"Nearest element to the left (or right) that is larger (or smaller)\"",
    "How far a value stays the maximum or minimum of a stretch",
@@ -20,6 +24,9 @@
  {
   "id": "string-blocks",
   "title": "Blocks of a binary string",
+  "marks": [
+   "common"
+  ],
   "when": [
    "An operation acts on a whole substring of a binary string (flip it, reverse it, sort it, delete it)",
    "\"Minimum number of operations to make the string all equal, sorted, or alternating\"",
@@ -37,6 +44,9 @@
  {
   "id": "balance-walk",
   "title": "Balance as a walk",
+  "marks": [
+   "common"
+  ],
   "when": [
    "\"Equal numbers of 0s and 1s\", \"as many a as b\", \"twice as many\"",
    "Bracket sequences: correct, longest correct, minimum changes",
@@ -55,6 +65,9 @@
  {
   "id": "pal-centres",
   "title": "Palindromes from their centres",
+  "marks": [
+   "standard"
+  ],
   "when": [
    "Count or find palindromic substrings",
    "Longest palindromic substring",
@@ -73,6 +86,10 @@
  {
   "id": "tree-dp",
   "title": "Two answers per subtree",
+  "marks": [
+   "standard",
+   "common"
+  ],
   "when": [
    "Choose vertices or edges of a tree under a rule about neighbours (independent set, cover, matching, colouring)",
    "\"Maximum\", \"minimum\" or \"number of ways\" on a tree",
@@ -91,6 +108,9 @@
  {
   "id": "digit-dp",
   "title": "Digit by digit",
+  "marks": [
+   "standard"
+  ],
   "when": [
    "Count the numbers up to N (N as large as 10^18) with a property of their digits",
    "\"How many numbers in [L, R] ...\": answer for R minus answer for L - 1",
@@ -109,6 +129,10 @@
  {
   "id": "bitmask-dp",
   "title": "Subsets as states",
+  "marks": [
+   "standard",
+   "common"
+  ],
   "when": [
    "n is at most about 20 and something must be assigned, ordered or visited",
    "\"Each item used exactly once\" with a cost that depends on the pairing or the order",
@@ -127,6 +151,9 @@
  {
   "id": "interval-dp",
   "title": "Intervals as states",
+  "marks": [
+   "standard"
+  ],
   "when": [
    "Neighbouring elements are merged, removed or split, and the cost depends on what is merged",
    "n is a few hundred (cubic time)",
@@ -145,6 +172,9 @@
  {
   "id": "prefix-function",
   "title": "The prefix function",
+  "marks": [
+   "standard"
+  ],
   "when": [
    "A prefix of a string that is also a suffix (a border)",
    "Find all occurrences of a pattern in a text",
@@ -164,6 +194,10 @@
  {
   "id": "rerooting",
   "title": "Answers for every root",
+  "marks": [
+   "standard",
+   "common"
+  ],
   "when": [
    "\"For each vertex of the tree, compute ...\" where the answer for one vertex would take a full traversal",
    "Sum of distances from every vertex; farthest vertex from every vertex",
@@ -181,6 +215,10 @@
  {
   "id": "zero-one-bfs",
   "title": "Shortest paths with costs 0 and 1",
+  "marks": [
+   "standard",
+   "common"
+  ],
   "when": [
    "A grid or graph where some moves are free and the others cost exactly 1",
    "\"Minimum number of walls to break\", \"minimum number of switches\", \"minimum number of direction changes\"",
@@ -198,6 +236,9 @@
  {
   "id": "flag-dp",
   "title": "A position and a flag",
+  "marks": [
+   "common"
+  ],
   "when": [
    "\"At most one\" change, removal, skip or reversal is allowed somewhere in the array",
    "The best answer ending at i depends on one yes-or-no fact about the past",
@@ -216,6 +257,9 @@
  {
   "id": "stage-dp",
   "title": "A few stages in order",
+  "marks": [
+   "common"
+  ],
   "when": [
    "\"At most k\" actions with k tiny (two trades, three cuts, two disjoint stretches)",
    "The actions must happen in order, and at any moment you are \"between\" two of them",
@@ -234,6 +278,9 @@
  {
   "id": "two-index-dp",
   "title": "Two prefixes as the state",
+  "marks": [
+   "standard"
+  ],
   "when": [
    "Two sequences are compared, aligned or merged: common subsequence, edits, interleaving, matching with wildcards",
    "Both lengths are a few thousand (the table has n times m cells)",
@@ -252,6 +299,9 @@
  {
   "id": "profile-dp",
   "title": "What the top edge looks like",
+  "marks": [
+   "standard"
+  ],
   "when": [
    "Something is built or tiled row by row, and the board is very narrow (width 2 or 3) but very long",
    "Count the ways, modulo a prime, for n up to a million",
@@ -270,6 +320,9 @@
  {
   "id": "run-dp",
   "title": "Remembering how the string ends",
+  "marks": [
+   "common"
+  ],
   "when": [
    "Count strings or arrays that avoid a short local pattern: no two equal neighbours, no three in a row, no \"ab\" followed by \"a\"",
    "The alphabet is huge (k up to 10^9), so the state cannot name the last letter",
@@ -288,6 +341,10 @@
  {
   "id": "lis",
   "title": "Longest increasing subsequence",
+  "marks": [
+   "standard",
+   "common"
+  ],
   "when": [
    "The longest increasing (or non-decreasing) subsequence itself, with n too large for the quadratic DP",
    "Fewest removals to make an array sorted; fewest decreasing sequences needed to cover an array",
@@ -306,6 +363,10 @@
  {
   "id": "knapsack-once",
   "title": "Each item at most once",
+  "marks": [
+   "standard",
+   "common"
+  ],
   "when": [
    "Choose some of n items under a capacity, each item used at most once",
    "n times capacity is around 10^7 or less",
@@ -324,6 +385,10 @@
  {
   "id": "dag-dp",
   "title": "Tables on a graph without cycles",
+  "marks": [
+   "standard",
+   "common"
+  ],
   "when": [
    "Longest path, number of paths, or best score in a directed graph that has no cycles",
    "Dependencies: \"this must come before that\", and you want the longest chain",
@@ -342,6 +407,9 @@
  {
   "id": "expected-dp",
   "title": "Expected values, from the end",
+  "marks": [
+   "common"
+  ],
   "when": [
    "\"Expected number of steps / rolls / moves until ...\" with an answer modulo a prime",
    "A random process that only moves forward",
@@ -360,6 +428,9 @@
  {
   "id": "sos-dp",
   "title": "Sums over all subsets of every mask",
+  "marks": [
+   "standard"
+  ],
   "when": [
    "For every mask you need something over all its submasks (or all its supermasks)",
    "Counting pairs with a AND b = 0, or a OR b = something, for values below 2^20",
@@ -378,6 +449,9 @@
  {
   "id": "prefix-sum-dp",
   "title": "A transition that is a range sum",
+  "marks": [
+   "common"
+  ],
   "when": [
    "Counting DP where the new value is a sum of a whole stretch of old values",
    "The honest transition costs O(k) per cell and that is one factor too slow",
@@ -396,6 +470,9 @@
  {
   "id": "matrix-power",
   "title": "A recurrence taken 10^18 steps",
+  "marks": [
+   "standard"
+  ],
   "when": [
    "A DP with a handful of states and the same transition at every step",
    "n is up to 10^18, so even one pass is impossible",
@@ -410,5 +487,113 @@
   ],
   "task": "long-no-three",
   "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nconst long long M = 1000000007;\ntypedef array<array<long long, 2>, 2> Mat;\n\nMat mul(const Mat &A, const Mat &B) {\n    Mat C{};\n    for (int i = 0; i < 2; i++)\n        for (int j = 0; j < 2; j++)\n            for (int t = 0; t < 2; t++) C[i][j] = (C[i][j] + A[i][t] * B[t][j]) % M;\n    return C;\n}\n\nint main() {\n    long long n, k;\n    scanf(\"%lld %lld\", &n, &k);\n    long long c = (k - 1) % M;\n    Mat step = {{{c, c}, {1, 0}}};                       // (diff, same) -> ((k-1)(diff+same), diff)\n    Mat result = {{{1, 0}, {0, 1}}};\n    for (long long e = n - 1; e > 0; e >>= 1, step = mul(step, step))\n        if (e & 1) result = mul(result, step);\n    long long diff = result[0][0] * (k % M) % M, same = result[1][0] * (k % M) % M;   // applied to the start (k, 0)\n    printf(\"%lld\\n\", (diff + same) % M);\n}\n"
+ },
+ {
+  "id": "manacher",
+  "title": "Every palindrome in linear time",
+  "marks": [
+   "standard"
+  ],
+  "when": [
+   "The longest palindromic substring, or the number of palindromic substrings, with n in the hundreds of thousands",
+   "Queries \"is s[l..r] a palindrome\" (hashing also works)",
+   "Expanding around every centre is quadratic on strings like aaaa...a"
+  ],
+  "idea": "For each centre, store the radius of the longest palindrome around it. Expanding from scratch at every centre is slow only when palindromes are long and overlap, and that is exactly when earlier work can be reused. Keep the palindrome found so far that reaches furthest to the right, say it covers [l, r]. A new centre i inside it has a mirror image j = l + r - i on the other side of that palindrome's centre, and everything around j that stays inside [l, r] is copied around i. So start the radius at i from min(radius[j], r - i) instead of from zero, then expand by comparing letters as usual.\n\nEvery successful comparison after that start pushes r to the right, and r only ever moves right, so the total work is linear. To treat even and odd lengths together, put a separator between all letters (a#b#a): then every palindrome has a centre on a position.",
+  "traps": [
+   "The copied radius must be cut at the border r: beyond it nothing is known.",
+   "With separators, a radius in the padded string equals a length in the original; decide the conversion once and test it on \"aa\" and \"aba\".",
+   "Update l and r only when the new palindrome reaches further right.",
+   "Number of palindromic substrings: each centre contributes one per possible radius."
+  ],
+  "task": "longest-palindrome",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    string t = \"#\";                                    // a#b#a: every palindrome now has a centre on a position\n    for (char ch : s) { t += ch; t += '#'; }\n    int m = t.size(), centre = 0, right = 0, best = 0;\n    vector<int> rad(m, 0);\n    for (int i = 0; i < m; i++) {\n        int k = i < right ? min(rad[2 * centre - i], right - i) : 0;   // copied from the mirror image, cut at the border\n        while (i - k - 1 >= 0 && i + k + 1 < m && t[i - k - 1] == t[i + k + 1]) k++;\n        rad[i] = k;\n        if (i + k > right) { centre = i; right = i + k; }\n        best = max(best, k);                           // a radius in t is a length in s\n    }\n    printf(\"%d\\n\", best);\n}\n"
+ },
+ {
+  "id": "small-to-large",
+  "title": "Merge the smaller into the larger",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "For every vertex of a tree, something about the set of values in its subtree (distinct colours, most frequent colour)",
+   "Sets or maps are merged again and again, and you fear it is quadratic",
+   "Components are united and each one carries a collection"
+  ],
+  "idea": "Give every vertex the set of colours in its subtree. A parent's set is the union of its children's sets plus its own colour. Copying sets upward is quadratic on a path. Instead, the parent takes over the largest child's set as it is (a swap, no copying) and inserts the elements of the other, smaller sets into it one by one.\n\nWhy this is fast: follow one element. Each time it is moved, it lands in a set at least twice as large as the one it left. A set cannot hold more than n elements, so an element is moved at most log n times. All moves together: n log n insertions.",
+  "traps": [
+   "Always insert the smaller into the larger; compare sizes and swap first.",
+   "Take the big set over by swapping or by keeping an index to it, never by copying.",
+   "Record the answer for a vertex right after its merges; the set is about to be swallowed by the parent.",
+   "On a path of 200000 vertices recursion may overflow the stack: process vertices in reverse breadth-first order."
+  ],
+  "task": "subtree-colours",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<int> colour(n + 1);\n    for (int v = 1; v <= n; v++) scanf(\"%d\", &colour[v]);\n    vector<vector<int>> adj(n + 1);\n    for (int i = 0; i < n - 1; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    vector<int> parent(n + 1, 0), order = {1}, answer(n + 1);\n    for (size_t i = 0; i < order.size(); i++)\n        for (int u : adj[order[i]])\n            if (u != parent[order[i]]) { parent[u] = order[i]; order.push_back(u); }\n    vector<set<int>> bag(n + 1);\n    for (int i = n - 1; i >= 0; i--) {                  // children before parents\n        int v = order[i], p = parent[v];\n        bag[v].insert(colour[v]);\n        answer[v] = bag[v].size();\n        if (p == 0) continue;\n        if (bag[p].size() < bag[v].size()) swap(bag[p], bag[v]);   // keep the larger, no copying\n        for (int c : bag[v]) bag[p].insert(c);          // each element moves at most log n times\n        bag[v].clear();\n    }\n    for (int v = 1; v <= n; v++) printf(\"%d%c\", answer[v], v == n ? '\\n' : ' ');\n}\n"
+ },
+ {
+  "id": "sweep-line",
+  "title": "Sweep a line, keep what it touches",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "Geometry with axis-parallel segments or rectangles: count crossings, area of a union, points inside rectangles",
+   "Two coordinates, and a condition on both",
+   "Offline queries that can be sorted by one coordinate"
+  ],
+  "idea": "Move a vertical line from left to right. At any moment the line touches some horizontal segments; keep the heights of exactly those in a structure. A horizontal segment enters the structure at its left end and leaves at its right end. When the line reaches a vertical segment at x, the horizontals it crosses are the ones currently in the structure with height between its lower and upper end: a range count.\n\nSo: turn everything into events sorted by x, and use a Fenwick tree over the heights (compressed, since they go up to 10^9) for \"add 1 at y\", \"remove 1 at y\" and \"how many in [y1, y2]\". One dimension has become time, and the other a data structure. That sentence is the whole technique.",
+  "traps": [
+   "Ties at the same x need an order. If touching counts: insert first, then query, then remove.",
+   "Compress the coordinates that index the tree.",
+   "The count can be about n squared over 4: 64 bits.",
+   "The structure holds only what the line touches now; forgetting to remove is the usual bug."
+  ],
+  "task": "crossings",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    // event: x, kind (0 = a horizontal starts, 1 = a vertical asks, 2 = a horizontal ends), two numbers\n    vector<array<long long, 4>> events;\n    vector<long long> ys;\n    for (int i = 0; i < n; i++) {\n        char kind;\n        long long c, lo, hi;\n        scanf(\" %c %lld %lld %lld\", &kind, &c, &lo, &hi);\n        if (kind == 'H') {\n            events.push_back({lo, 0, c, 0});\n            events.push_back({hi, 2, c, 0});\n            ys.push_back(c);\n        } else events.push_back({c, 1, lo, hi});\n    }\n    sort(ys.begin(), ys.end());\n    ys.erase(unique(ys.begin(), ys.end()), ys.end());\n    int m = ys.size();\n    vector<int> tree(m + 1, 0);\n    auto add = [&](int i, int d) { for (; i <= m; i += i & -i) tree[i] += d; };\n    auto pre = [&](int i) { int s = 0; for (; i > 0; i -= i & -i) s += tree[i]; return s; };\n    sort(events.begin(), events.end());                 // at equal x: starts, then questions, then ends\n    long long total = 0;\n    for (auto &e : events) {\n        if (e[1] == 1) {\n            int hi = upper_bound(ys.begin(), ys.end(), e[3]) - ys.begin();\n            int lo = lower_bound(ys.begin(), ys.end(), e[2]) - ys.begin();\n            total += pre(hi) - pre(lo);\n        } else {\n            int at = lower_bound(ys.begin(), ys.end(), e[2]) - ys.begin() + 1;\n            add(at, e[1] == 0 ? 1 : -1);\n        }\n    }\n    printf(\"%lld\\n\", total);\n}\n"
+ },
+ {
+  "id": "meet-middle",
+  "title": "Meet in the middle",
+  "marks": [
+   "standard"
+  ],
+  "when": [
+   "n is about 40: too many for 2^n, far too few for anything polynomial to be the point",
+   "Choose a subset to hit a target sum, with values too large for a table over sums",
+   "A search of depth d where 2^d is too much but 2^(d/2) is fine"
+  ],
+  "idea": "Split the numbers into two halves of 20. Each half has only about a million subsets, so list all subset sums of each half. A subset of the whole is one subset of the left half together with one of the right half, and its sum is the target exactly when the right sum equals the target minus the left sum. So for every left sum, count how many right sums equal what is missing: sort the right list and binary search, or sort both and walk two pointers.\n\n2^40 has become 2^20 times a logarithm. The pattern is general: enumerate each half completely, then combine the halves with sorting or a lookup instead of trying all pairs.",
+  "traps": [
+   "Count equal sums with multiplicity: use the range of equal elements (upper bound minus lower bound), not a yes-or-no search.",
+   "Build the list of sums by doubling (each new number adds a shifted copy), not by looping over bits for every mask.",
+   "The answer can be as large as 2^40: 64 bits.",
+   "A hash map with a million keys is slow and easy to attack; sorted arrays are safer."
+  ],
+  "task": "subset-count",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nvector<long long> sums(const vector<long long> &part) {\n    vector<long long> out = {0};\n    for (long long y : part) {                          // every number adds a shifted copy of the list\n        size_t k = out.size();\n        for (size_t i = 0; i < k; i++) out.push_back(out[i] + y);\n    }\n    sort(out.begin(), out.end());\n    return out;\n}\n\nint main() {\n    int n;\n    long long x;\n    scanf(\"%d %lld\", &n, &x);\n    vector<long long> a(n);\n    for (auto &y : a) scanf(\"%lld\", &y);\n    vector<long long> left = sums(vector<long long>(a.begin(), a.begin() + n / 2));\n    vector<long long> right = sums(vector<long long>(a.begin() + n / 2, a.end()));\n    long long count = 0;\n    for (long long s : left) {\n        auto range = equal_range(right.begin(), right.end(), x - s);   // all right sums equal to what is missing\n        count += range.second - range.first;\n    }\n    printf(\"%lld\\n\", count);\n}\n"
+ },
+ {
+  "id": "prefix-pairs",
+  "title": "A stretch is a pair of prefixes",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "Count the stretches (subarrays) whose sum is a given value, is divisible by k, or has some property of the sum",
+   "Count substrings with equally many of two letters, or with an even count of every letter",
+   "\"Number of subarrays such that ...\" with n too large for trying every pair of ends"
+  ],
+  "idea": "The sum of a stretch is the difference of two running totals: sum(l..r) = P[r] - P[l-1]. So a condition on a stretch is a condition on a pair of running totals, and counting stretches is counting pairs. The sum is divisible by k exactly when the two running totals leave the same remainder modulo k. Walk through the array keeping a count of how many earlier running totals had each remainder; at each position, add the count for the current remainder to the answer, then record the current one.\n\nThe same sentence solves a whole family: sum equal to x (look up P - x), equal numbers of two letters (count +1 and -1), even counts of every letter (the running total is a bitmask and the operation is xor).",
+  "traps": [
+   "The empty prefix counts: start with the remainder 0 already recorded once.",
+   "Negative numbers: in C++ the % of a negative number is negative; bring it back into 0..k-1.",
+   "Look up first, then record the current prefix, or a stretch of length zero gets counted.",
+   "The number of stretches is about n squared over 2: 64 bits."
+  ],
+  "task": "divisible-stretches",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    long long k;\n    scanf(\"%d %lld\", &n, &k);\n    vector<long long> rem = {0};                        // the empty prefix\n    long long p = 0;\n    for (int i = 0; i < n; i++) {\n        long long x;\n        scanf(\"%lld\", &x);\n        p = ((p + x) % k + k) % k;                      // keep the remainder in 0..k-1 for negative numbers too\n        rem.push_back(p);\n    }\n    sort(rem.begin(), rem.end());                       // equal remainders are now neighbours\n    long long total = 0;\n    for (size_t i = 0, j; i < rem.size(); i = j) {\n        for (j = i; j < rem.size() && rem[j] == rem[i]; j++);\n        long long c = j - i;\n        total += c * (c - 1) / 2;                       // every pair of equal prefixes is one stretch\n    }\n    printf(\"%lld\\n\", total);\n}\n"
  }
 ]

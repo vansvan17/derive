@@ -399,6 +399,7 @@ class App(unittest.TestCase):
 
     def test_a_toolbox_page_shows_its_reference_only_after_your_own_is_accepted(self):
         listed = self.get('/tools')['tools']
+        self.assertTrue(all(set(t['marks']) <= {'standard', 'common'} for t in listed))   # the marks reach the page
         self.assertTrue(any(t['id'] == 'string-blocks' and not t['written'] for t in listed))
         page = self.get('/tool/string-blocks')
         self.assertTrue(page['idea'] and page['traps'] and page['when'])

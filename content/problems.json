@@ -418,6 +418,32 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2158D",
+  "site": "Codeforces",
+  "contest": 2158,
+  "index": "D",
+  "title": "Palindrome Flipping",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2158/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/148782",
+  "ideas": [
+   "small-cases",
+   "runs-boundaries"
+  ],
+  "observations": [
+   "Every operation undoes itself: flipping a palindromic substring leaves a palindromic substring in the same place. So it is enough to turn any string into all zeros in at most n operations: do that for s, and replay the operations for t backwards.",
+   "A block of equal characters is a palindrome. If the character just outside the block differs from the block, flip the whole block: now it matches and the block is one longer. If it already matches, just extend. Each operation grows the block by one.",
+   "To start you need two equal neighbours. A strictly alternating string has none, but with n at least 4 positions 2 to 4 form a palindrome (010 or 101); flipping them makes the first two characters equal.",
+   "When the block covers everything the string is constant; if it is all ones, the whole string is a palindrome and one more flip finishes. The count stays within n per string."
+  ],
+  "nudges": [
+   "If you know how to reach one fixed string from anywhere, how do you get from s to t?",
+   "Which substrings are certainly palindromes, whatever the string looks like?",
+   "You have a block of equal characters and the next character differs. What single operation fixes that?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2201C",
   "site": "Codeforces",
   "contest": 2201,
@@ -545,6 +571,32 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2238E",
+  "site": "Codeforces",
+  "contest": 2238,
+  "index": "E",
+  "title": "Cake Trial",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/2238/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/154829",
+  "ideas": [
+   "balance",
+   "dp-state"
+  ],
+  "observations": [
+   "For a fixed arrangement, score a fake cake +1 and a real cake -1. Declaring a segment fake makes (total fakes) minus (sum of the segment) mistakes, so the guesser picks the segment with the largest sum (or nothing, sum 0).",
+   "So the arranger wants to maximise (number of fakes) minus (largest segment sum). Both parts depend on the whole string, but going left to right you only need: how many fakes so far, and the best sum of a segment ending exactly here.",
+   "For each (prefix length, fakes so far, best sum ending here) store the smallest possible value of the overall largest segment sum. A fake raises the ending sum by one and may raise the overall maximum; a real cake lowers the ending sum, not below 0.",
+   "The answer is the largest value of fakes minus the stored maximum over all end states: about n cubed states with constant work each."
+  ],
+  "nudges": [
+   "For one fixed arrangement, how many mistakes does a chosen segment cost, written with counts inside and outside it?",
+   "Which scores for the two kinds of cake turn the guesser's best choice into a question you already know?",
+   "Placing cakes from the left, what must you carry along to keep track of the best segment?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2252E",
   "site": "Codeforces",
   "contest": 2252,
@@ -568,6 +620,87 @@
    "Reading the bits of a and c from the top, what must you carry from one bit position to the next to check that equation and the bound c <= n?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2143D2",
+  "site": "Codeforces",
+  "contest": 2143,
+  "index": "D2",
+  "title": "Inversion Graph Coloring (Hard Version)",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/2143/problem/D2",
+  "editorial": "https://codeforces.com/blog/entry/146526",
+  "ideas": [
+   "odd-cycle",
+   "dp-state",
+   "fenwick"
+  ],
+  "observations": [
+   "Join two chosen positions when they form an inversion. A valid red/blue colouring is a split of that graph into two sides, and three chosen elements in decreasing order form a triangle. Conversely, with no decreasing triple the chosen elements split into two non-decreasing sequences, which is a valid colouring. So a subsequence is good exactly when it contains no decreasing triple.",
+   "To extend a subsequence without creating a decreasing triple you only need two numbers about it: its largest element m, and the largest element mp that has something larger before it. A new element x is allowed exactly when x is at least mp; it then replaces m (if x is at least m) or replaces mp.",
+   "That gives a count over (position, m, mp), cubic. Drop the position: taking element x only changes row x or column x of the table, each new entry being a prefix sum of a row or of a column.",
+   "Keep a Fenwick tree for every row and every column so that those prefix sums and the point updates cost a logarithm: n squared log n."
+  ],
+  "nudges": [
+   "What is the smallest pattern of chosen elements that makes a colouring impossible?",
+   "If no such pattern occurs, how can you describe the two colour classes?",
+   "When you append an element, which facts about the elements already chosen decide whether it is allowed?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2200G",
+  "site": "Codeforces",
+  "contest": 2200,
+  "index": "G",
+  "title": "Operation Permutation",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/2200/problem/G",
+  "editorial": "https://codeforces.com/blog/entry/151625",
+  "ideas": [
+   "linearity",
+   "symmetry",
+   "dp-state"
+  ],
+  "observations": [
+   "Subtracting is adding a negative number and dividing is multiplying by an inverse modulo the prime, so there are only additions and multiplications.",
+   "For a fixed order, the final value is a sum of separate contributions: each added number y contributes y times the product of the multipliers that come after it, and the starting x contributes x times the product of all multipliers. The expectation can be taken term by term.",
+   "For one added number, look at where it stands among the m multipliers: by symmetry each of the m + 1 possible numbers of multipliers after it is equally likely, and given that number k, the multipliers after it are a uniformly random k of the m.",
+   "So you need, for every k, the average product of a random set of k multipliers: the sum of products over all k-subsets divided by the binomial. Those sums come from a table over (multipliers used so far, subset size) in quadratic time. The same factor S multiplies every added number."
+  ],
+  "nudges": [
+   "Can the four operations be reduced to fewer kinds?",
+   "In one fixed order, what does a single added number contribute to the final value?",
+   "Among the multipliers, how is the position of one added number distributed?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2207D",
+  "site": "Codeforces",
+  "contest": 2207,
+  "index": "D",
+  "title": "Boxed Like a Fish",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/2207/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/151886",
+  "ideas": [
+   "necessary-sufficient",
+   "multi-source",
+   "win-lose-states"
+  ],
+  "observations": [
+   "Solve a path first: with the blocker needing k turns to move, when can the walker be kept between two exits? Only when the exits are far enough apart for the blocker to get back in time. Find the exact threshold on a path by hand before touching the tree.",
+   "The blocker wins exactly when the start lies in a connected region without leaves in which every two exits are at least that far apart: this is enough for the blocker, and if two exits are closer the walker runs back and forth between them and gets out.",
+   "Find the region from the outside in. Leaves are outside. Whenever two outside vertices are close enough, every vertex on the path between them is outside too. Repeat until nothing changes.",
+   "Root the tree at the start and go upward keeping, for each vertex, the distance to the nearest outside vertex below it. A vertex becomes outside when its two nearest outside vertices in different child subtrees are together close enough; otherwise its distance is one more than the smallest among its children. The walker wins exactly when the start itself becomes outside."
+  ],
+  "nudges": [
+   "What happens on a simple path with the walker in the middle? For which lengths does each side win?",
+   "If the blocker wins, where does the walker spend the whole game? What must be true of the ways out of that part?",
+   "Starting from the leaves, which other vertices are certainly useless to the blocker?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2207E1",
@@ -619,6 +752,33 @@
    "Once you know the answer for every pair (smallest, largest), how many subsequences have a given smallest and largest value?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2120E",
+  "site": "Codeforces",
+  "contest": 2120,
+  "index": "E",
+  "title": "Lanes of Cars",
+  "rating": 2300,
+  "url": "https://codeforces.com/contest/2120/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/144048",
+  "ideas": [
+   "exchange",
+   "search-answer",
+   "contribution"
+  ],
+  "observations": [
+   "A lane that ends with c cars costs 1 + 2 + ... + c, whatever happened before: when a car switches does not matter, only the final lane sizes and the number of switches.",
+   "Compare two plans that differ in one car: only cars from the back of the longest lanes should move, and only to the shortest lanes. Moving the last car of a lane with x cars behind a lane with y cars pays off only while x - y is larger than k, so in the end all changed lanes lie in a window of width about k: short lanes are raised to some level v and long lanes cut down to about v + k.",
+   "The number of cars removed above a level and the number needed below a level are both monotone in the level, so the level v is found by binary search on the balance between what the long lanes give and what the short lanes need.",
+   "With v known, the final sizes are determined up to a few lanes that sit one higher; add up the triangle numbers of the final sizes plus k per moved car. Mind the size of the totals."
+  ],
+  "nudges": [
+   "Does the answer depend on when a car changes lane, or only on where the cars end up?",
+   "Take the last car of a lane with x cars and put it behind a lane with y cars. By how much does the total change?",
+   "Once no single move helps, what do the lane sizes look like, and what one number describes that picture?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2134D",

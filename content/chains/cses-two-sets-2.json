@@ -73,6 +73,17 @@
    "showed": "A remainder cannot be halved like a number. Either use the modular inverse of 2, or remove the double counting before it happens by pinning one element."
   },
   {
+   "id": "cells",
+   "kind": "number",
+   "prompt": "For $n = 500$, what must each of the two groups add up to? (The table over sums has to reach exactly this far, and no further.)",
+   "answer": 62625,
+   "verify": "result = sum(range(1, 501)) // 2",
+   "nudges": [
+    "What is the total of 1 to 500?"
+   ],
+   "showed": "About sixty thousand sums, each updated once per number: some thirty million updates."
+  },
+  {
    "id": "h-twenty",
    "kind": "number",
    "prompt": "In how many ways can 1, 2, ..., 20 be divided into two groups with equal sums?",
@@ -85,15 +96,15 @@
    "tier": "hard"
   },
   {
-   "id": "h-cells",
+   "id": "h-even",
    "kind": "number",
-   "prompt": "For $n = 500$, each group must add up to how much? (This is the length of the table.)",
-   "answer": 62625,
-   "verify": "result = 500 * 501 // 4",
+   "prompt": "In how many ways can 1, 2, ..., 12 be divided into two groups that have equal sums and also equally many numbers (six each)?",
+   "answer": 29,
+   "verify": "import itertools\nresult = sum(1 for c in itertools.combinations(range(1, 13), 6) if sum(c) == 39) // 2",
    "nudges": [
-    "What is the total of 1 to 500?"
+    "The sum alone is no longer enough to describe a partly built group. What else must the table be indexed by?"
    ],
-   "showed": "About sixty thousand sums times 500 numbers: thirty million updates.",
+   "showed": "A second index: the table is over (how many numbers taken, their sum). The same downward update, in two dimensions.",
    "tier": "hard"
   }
  ],

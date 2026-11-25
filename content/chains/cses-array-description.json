@@ -66,6 +66,17 @@
    "showed": "Known and unknown positions are handled by the same loop; a known one just has a single allowed value."
   },
   {
+   "id": "work",
+   "kind": "number",
+   "prompt": "The table has one entry for every pair (position, value): $n \\cdot m$ entries. Each entry is computed by adding up to three entries of the previous position (the same value, one less, one more). With $n = 10^5$ and $m = 100$, at most how many additions is that?",
+   "answer": 30000000,
+   "verify": "result = 10 ** 5 * 100 * 3",
+   "nudges": [
+    "How many entries are there, and how many additions for each?"
+   ],
+   "showed": "Thirty million additions, and only the previous position needs to be kept in memory."
+  },
+  {
    "id": "h-ten",
    "kind": "number",
    "prompt": "Values from 1 to 4. The array is ?, ?, 2, ?, ?, ?, 4, ?, ?, 1. In how many ways can it be completed?",
@@ -78,15 +89,16 @@
    "tier": "hard"
   },
   {
-   "id": "h-work",
+   "id": "h-return",
    "kind": "number",
-   "prompt": "With $n = 10^5$ positions and $m = 100$ values, each state adding three earlier values, how many additions in all?",
-   "answer": 30000000,
-   "verify": "result = 10 ** 5 * 100 * 3",
+   "prompt": "Values from 1 to 100. The array has 7 entries; the first and the last are 1 and the five in between are unknown. In how many ways can it be completed?",
+   "answer": 51,
+   "verify": "import itertools\ndef fast(m, xs):\n    w = [0] * (m + 2)\n    for v in range(1, m + 1): w[v] = 1 if xs[0] in (0, v) else 0\n    for x in xs[1:]:\n        w = [0] + [(w[v - 1] + w[v] + w[v + 1]) if x in (0, v) else 0 for v in range(1, m + 1)] + [0]\n    return sum(w)\ndef count(m, xs): return sum(1 for a in itertools.product(range(1, m + 1), repeat=len(xs)) if all(x == 0 or x == v for x, v in zip(xs, a)) and all(abs(p - q) <= 1 for p, q in zip(a, a[1:])))\nassert fast(4, (1, 0, 0, 0, 1)) == count(4, (1, 0, 0, 0, 1)) and fast(5, (1, 0, 0, 0, 0, 1)) == count(5, (1, 0, 0, 0, 0, 1))\nresult = fast(100, (1, 0, 0, 0, 0, 0, 1))",
    "nudges": [
-    "How many states?"
+    "Does the upper limit 100 matter here? How high can the array climb and still get back?",
+    "Which limit does matter?"
    ],
-   "showed": "Thirty million, with only two rows of 100 kept in memory.",
+   "showed": "The upper limit is out of reach, but the lower limit is not: the array may never go below 1. Walks that start and end at the floor and move by at most one each step.",
    "tier": "hard"
   }
  ],

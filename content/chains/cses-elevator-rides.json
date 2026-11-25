@@ -57,11 +57,11 @@
   {
    "id": "work",
    "kind": "number",
-   "prompt": "For 20 people, each set tries each of its members as the last person added. At most how many such steps?",
+   "prompt": "With 20 people there are $2^{20}$ sets. For each set the program tries each person in the set as the one who was added last. Counting 20 tries for every set, how many tries is that in all?",
    "answer": 20971520,
    "verify": "result = 20 * 2 ** 20",
    "nudges": [
-    "How many sets, and how many members each at most?"
+    "How many sets, and how many tries for each?"
    ],
    "showed": "Twenty million steps."
   },

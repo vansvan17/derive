@@ -62,16 +62,15 @@
    "showed": "Not 64: a last throw of 7 does not exist. From here on only six earlier values are added."
   },
   {
-   "id": "h-work",
+   "id": "work",
    "kind": "number",
-   "prompt": "For $n = 10^6$, how many additions does filling the whole table take, at six per total?",
+   "prompt": "The program keeps an array ways[0..n] and computes ways[$s$] for $s = 1, 2, \\dots, n$, each time adding up the (at most) six entries before it. Counting six additions for every $s$, how many additions does it perform for $n = 10^6$?",
    "answer": 6000000,
    "verify": "result = 6 * 10 ** 6",
    "nudges": [
-    "How many totals, and how many terms each?"
+    "How many values of $s$ are there, and how many additions for each?"
    ],
-   "showed": "A few million steps, with the remainder taken as you go.",
-   "tier": "hard"
+   "showed": "Six million additions: the solution is linear in $n$."
   },
   {
    "id": "h-twenty",

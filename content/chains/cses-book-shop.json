@@ -31,11 +31,11 @@
   {
    "id": "cells",
    "kind": "number",
-   "prompt": "With 1000 books and a budget of $10^5$, how many updates does \"for each book, for each budget\" take?",
+   "prompt": "The program keeps, for every amount of money from 1 to $x$, the most pages that amount can buy. For each book it goes through these amounts once and updates each one. Counting one update per (book, amount) pair, with 1000 books and $x = 10^5$, how many updates is that?",
    "answer": 100000000,
    "verify": "result = 1000 * 10 ** 5",
    "nudges": [
-    "How many books, how many budgets?"
+    "How many books, and how many amounts for each book?"
    ],
    "showed": "A hundred million: acceptable only if each update is a couple of machine instructions."
   },

@@ -66,6 +66,17 @@
    "showed": "Half of (total + lead). One number per stretch was enough; the two scores did not need to be stored separately."
   },
   {
+   "id": "states",
+   "kind": "number",
+   "prompt": "The table has one entry for every stretch of the row, given by its first position $l$ and last position $r$ with $l \\le r$. For a row of 5000 numbers, how many entries is that?",
+   "answer": 12502500,
+   "verify": "result = 5000 * 5001 // 2",
+   "nudges": [
+    "How many stretches have length 1? Length 2? Length 5000?"
+   ],
+   "showed": "Twelve and a half million entries, each with two choices. The values need 64 bits."
+  },
+  {
    "id": "h-eight",
    "kind": "number",
    "prompt": "The row is 7, -2, 5, 9, -6, 3, 8, 1. What does the first player score with best play?",
@@ -78,15 +89,16 @@
    "tier": "hard"
   },
   {
-   "id": "h-states",
+   "id": "h-ten",
    "kind": "number",
-   "prompt": "For a row of 5000 numbers, how many stretches (with $l \\le r$) are there?",
-   "answer": 12502500,
-   "verify": "result = 5000 * 5001 // 2",
+   "prompt": "The row is 1, 2, 3, ..., 10. What does the first player score with best play?",
+   "answer": 30,
+   "verify": "import functools\nx = tuple(range(1, 11))\n@functools.lru_cache(None)\ndef d(l, r): return 0 if l > r else max(x[l] - d(l + 1, r), x[r] - d(l, r - 1))\nresult = (sum(x) + d(0, 9)) // 2",
    "nudges": [
-    "How many stretches of each length?"
+    "With an even number of numbers, the first player can decide to take all the numbers on even positions, or all those on odd positions. How?",
+    "Is that the best the first player can do here?"
    ],
-   "showed": "Twelve and a half million states with two choices each. The values need 64 bits.",
+   "showed": "With an even count the first player can force taking every second number (always take the end that keeps the parity). The table tells whether something even better exists.",
    "tier": "hard"
   }
  ],

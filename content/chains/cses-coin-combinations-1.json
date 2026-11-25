@@ -66,6 +66,18 @@
    "showed": "Sum outside, coins inside: every coin gets its turn as the last coin of every sum."
   },
   {
+   "id": "work",
+   "kind": "number",
+   "prompt": "The program keeps an array ways[0..x] and fills it like this: for each sum $s$ from 1 to $x$, and for each coin $c$ that is not larger than $s$, it does ways[$s$] += ways[$s - c$]. Count each such += as one addition. With 100 coins and $x = 10^6$, what is the largest number of additions the program can perform?",
+   "answer": 100000000,
+   "verify": "result = 10 ** 6 * 100",
+   "nudges": [
+    "How many different sums $s$ does the outer loop go through?",
+    "For one sum, at most how many coins are tried?"
+   ],
+   "showed": "A million sums, at most a hundred coins each: $10^8$ additions. That is the running time of the solution, and it is why the remainder should be taken cheaply."
+  },
+  {
    "id": "h-fifteen",
    "kind": "number",
    "prompt": "Coins 1, 2 and 3. In how many ordered ways can 15 be paid?",
@@ -78,15 +90,16 @@
    "tier": "hard"
   },
   {
-   "id": "h-work",
+   "id": "h-million",
    "kind": "number",
-   "prompt": "With 100 coins and $x = 10^6$, how many additions does the table take at most?",
-   "answer": 100000000,
-   "verify": "result = 100 * 10 ** 6",
+   "prompt": "Coins 1 and 2 only. What is the smallest sum that can be paid in more than 1,000,000 ordered ways?",
+   "answer": 30,
+   "verify": "w = [1, 1]\nwhile w[-1] <= 10 ** 6: w.append(w[-1] + w[-2])\nresult = len(w) - 1",
    "nudges": [
-    "How many sums, how many coins each?"
+    "How is the number of ways for a sum made from the two sums before it?",
+    "How fast do these numbers grow?"
    ],
-   "showed": "A hundred million simple steps: fine in a compiled language, and a reason to take the remainder with a subtraction instead of a division if time is tight.",
+   "showed": "Each count is the sum of the two before it, so the counts grow by a factor of about 1.6 per step and pass a million after a few dozen sums. Counts like this are why the task asks for a remainder.",
    "tier": "hard"
   }
  ],

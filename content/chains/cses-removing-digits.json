@@ -46,11 +46,11 @@
   {
    "id": "size",
    "kind": "number",
-   "prompt": "For $n = 10^6$ the table has a million entries, and a number has at most 7 digits. At most how many candidate moves are examined in all?",
+   "prompt": "The program computes need($v$) for every number $v$ from 1 to $n$, each time trying every non-zero digit of $v$ as the amount to subtract. For $n = 10^6$, a number has at most 7 digits. At most how many tries is that in all?",
    "answer": 7000000,
    "verify": "result = 7 * 10 ** 6",
    "nudges": [
-    "How many entries, and how many digits each?"
+    "How many numbers $v$ are there, and at most how many tries for each?"
    ],
    "showed": "Trivial for a computer."
   },

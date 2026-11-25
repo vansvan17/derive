@@ -77,6 +77,17 @@
    "ordered": true
   },
   {
+   "id": "queries",
+   "kind": "number",
+   "prompt": "The task gives up to 100 heights, each up to $10^6$. Plan A: for every height separately, apply the two rules starting again from height 1. Plan B: apply the rules once from height 1 up to the largest height asked, storing the answer for every height on the way. In the worst case (100 heights, all equal to $10^6$), how many times more rule applications does plan A make than plan B?",
+   "answer": 100,
+   "verify": "a = 100 * (10 ** 6 - 1); b = 10 ** 6 - 1\nresult = a // b",
+   "nudges": [
+    "How many rule applications does plan B make? And plan A, per height?"
+   ],
+   "showed": "A hundred times more. With many queries, fill the table once and answer each query by looking it up."
+  },
+  {
    "id": "h-six",
    "kind": "number",
    "prompt": "How many different towers of height 6 are there?",
@@ -89,15 +100,15 @@
    "tier": "hard"
   },
   {
-   "id": "h-queries",
+   "id": "h-split",
    "kind": "number",
-   "prompt": "The task asks for 100 heights, each up to $10^6$. If the table is filled once up to the largest height, how many steps of the rule are needed in all, at most?",
-   "answer": 1000000,
-   "verify": "result = 10 ** 6",
+   "prompt": "Among all towers of height 5, how many have a top row that consists of two separate blocks?",
+   "answer": 457,
+   "verify": "import functools\ndef brute(n):\n    full = (1 << 2 * n) - 1\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        cell = next(i for i in range(2 * n) if not mask >> i & 1); r, c = divmod(cell, 2); total = 0\n        for w in range(1, 3 - c):\n            for h in range(1, n - r + 1):\n                block = sum(1 << (rr * 2 + cc) for rr in range(r, r + h) for cc in range(c, c + w))\n                if mask & block: break\n                total += go(mask | block)\n        return total\n    return go(0)\ndef shapes(n):\n    wide = split = 1\n    for _ in range(n - 1): wide, split = 2 * wide + split, wide + 4 * split\n    return wide, split\nassert all(sum(shapes(n)) == brute(n) for n in range(1, 6))\nresult = shapes(5)[1]",
    "nudges": [
-    "Does each query need its own table?"
+    "Which of the two running counts answers this directly?"
    ],
-   "showed": "One table for all queries; recomputing per query would be a hundred times more.",
+   "showed": "The table holds more than the final answer: each of its two columns is a count in its own right.",
    "tier": "hard"
   }
  ],

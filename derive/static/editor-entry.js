@@ -2,6 +2,7 @@ import {EditorView,basicSetup} from 'codemirror';
 import {EditorState,Compartment} from '@codemirror/state';
 import {keymap} from '@codemirror/view';
 import {indentWithTab} from '@codemirror/commands';
+import {indentUnit} from '@codemirror/language';
 import {cpp} from '@codemirror/lang-cpp';
 import {python} from '@codemirror/lang-python';
 
@@ -19,7 +20,7 @@ export function createEditor(parent,{value='',language='cpp',fontSize=14,tabSize
    '.cm-selectionBackground,&.cm-focused .cm-selectionBackground':{backgroundColor:'var(--selection)'},
    '.cm-cursor':{borderLeftColor:'var(--primary)'},
  });
- const view=new EditorView({parent,state:EditorState.create({doc:value,extensions:[basicSetup,theme,EditorState.tabSize.of(tabSize),lang.of(language==='python'?python():cpp()),keymap.of([{key:'Mod-Enter',run:()=>{onRun();return true;}},indentWithTab]),EditorView.updateListener.of(update=>{if(update.docChanged)onChange(update.state.doc.toString());})]})});
+ const view=new EditorView({parent,state:EditorState.create({doc:value,extensions:[basicSetup,theme,EditorState.tabSize.of(tabSize),indentUnit.of(' '.repeat(tabSize)),lang.of(language==='python'?python():cpp()),keymap.of([{key:'Mod-Enter',run:()=>{onRun();return true;}},indentWithTab]),EditorView.updateListener.of(update=>{if(update.docChanged)onChange(update.state.doc.toString());})]})});
  view.contentDOM.setAttribute('aria-label','Solution code editor');
  return {getValue:()=>view.state.doc.toString(),setValue:value=>view.dispatch({changes:{from:0,to:view.state.doc.length,insert:value}}),setLanguage:language=>view.dispatch({effects:lang.reconfigure(language==='python'?python():cpp())}),focus:()=>view.focus(),destroy:()=>view.destroy(),view};
 }

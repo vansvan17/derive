@@ -1,0 +1,152 @@
+{
+ "idea": "matching-bounds",
+ "opening": "Questions that ask for the fewest moves or the most moves, and the two halves of a complete answer.",
+ "steps": [
+  {
+   "id": "bar",
+   "kind": "number",
+   "prompt": "A chocolate bar is 3 by 4 squares. One move takes a single piece and breaks it along a line into two pieces. What is the smallest number of moves that leaves 12 single squares?",
+   "answer": 11,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef f(a, b):\n    if a * b == 1: return 0\n    return 1 + min([f(i, b) + f(a - i, b) for i in range(1, a)] + [f(a, j) + f(a, b - j) for j in range(1, b)])\nresult = f(3, 4)",
+   "nudges": [
+    "How many pieces are there before the first move, and after it?"
+   ],
+   "showed": "Eleven, whatever you do."
+  },
+  {
+   "id": "any",
+   "kind": "choice",
+   "prompt": "Why can it not be done in fewer than 11 moves, and why does every way of breaking take exactly 11?",
+   "options": [
+    "Each move raises the number of pieces by exactly one, and the count must go from 1 to 12",
+    "Because the bar has 11 internal lines",
+    "Because 3 + 4 + 4 = 11"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What does one move do to the number of pieces?"
+   ],
+   "showed": "A quantity that every move changes by the same amount gives the answer at once: a bound that every strategy meets."
+  },
+  {
+   "id": "swaps",
+   "kind": "number",
+   "prompt": "What is the smallest number of swaps of neighbours that sorts 4, 1, 3, 2?",
+   "answer": 4,
+   "verify": "def sw(s): return [s[:i] + (s[i + 1], s[i]) + s[i + 2:] for i in range(len(s) - 1)]\nseen = {(4, 1, 3, 2): 0}; todo = [(4, 1, 3, 2)]\nfor s in todo:\n    for t in sw(s):\n        if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\nresult = seen[(1, 2, 3, 4)]",
+   "nudges": [
+    "How many pairs are in the wrong order?",
+    "How many wrong pairs can one swap of neighbours fix?"
+   ],
+   "showed": "Four pairs are in the wrong order, and one swap of neighbours fixes at most one."
+  },
+  {
+   "id": "halves",
+   "kind": "choice",
+   "prompt": "For the swaps question, \"at least 4 swaps are needed\" follows from counting wrong pairs. What else must be shown before the answer 4 is established?",
+   "options": [
+    "That 4 swaps are actually enough: while the row is unsorted some two neighbours are in the wrong order, and swapping them removes exactly one wrong pair",
+    "Nothing: the bound is the answer",
+    "That no row needs more than 4 swaps"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Could a bound be true and still not be reachable?"
+   ],
+   "showed": "A bound says \"not fewer\". A strategy says \"this many suffice\". Only together do they give the answer."
+  },
+  {
+   "id": "cup",
+   "kind": "number",
+   "prompt": "A knock-out tournament has 37 players. Each match eliminates one player; when the number of remaining players is odd, one of them rests for that round. How many matches are played in total?",
+   "answer": 36,
+   "verify": "n = 37; m = 0\nwhile n > 1: m += n // 2; n -= n // 2\nresult = m",
+   "nudges": [
+    "How many players must be eliminated?"
+   ],
+   "showed": "One player leaves per match, and 36 must leave."
+  },
+  {
+   "id": "pairs",
+   "kind": "number",
+   "prompt": "Three piles hold 3, 3 and 3 stones. One move takes one stone from each of two different piles. What is the largest number of moves you can make?",
+   "answer": 4,
+   "verify": "import functools, itertools\n@functools.lru_cache(None)\ndef moves(t):\n    t = sorted(t, reverse=True)\n    best = 0\n    for i in range(len(t)):\n        for j in range(i + 1, len(t)):\n            if t[i] > 0 and t[j] > 0:\n                u = list(t); u[i] -= 1; u[j] -= 1; best = max(best, 1 + moves(tuple(sorted(u))))\n    return best\ndef drops(a): return sum(max(0, a[i] - a[i + 1]) for i in range(len(a) - 1))\ndef raise_brute(a):\n    start = tuple(a); top = max(a); seen = {start: 0}; todo = [start]\n    for s in todo:\n        if all(s[i] <= s[i + 1] for i in range(len(s) - 1)): return seen[s]\n        for l in range(len(s)):\n            for r in range(l, len(s)):\n                t = s[:l] + tuple(v + 1 for v in s[l:r + 1]) + s[r + 1:]\n                if max(t) <= top and t not in seen: seen[t] = seen[s] + 1; todo.append(t)\nresult = moves((3, 3, 3))",
+   "nudges": [
+    "How many stones does a move remove? How many are there?"
+   ],
+   "showed": "Each move removes two stones, so at most half of all the stones, rounded down; and here that can be reached."
+  },
+  {
+   "id": "lopsided",
+   "kind": "number",
+   "prompt": "Same move, piles of 1, 2 and 10 stones. What is the largest number of moves?",
+   "answer": 3,
+   "verify": "import functools, itertools\n@functools.lru_cache(None)\ndef moves(t):\n    t = sorted(t, reverse=True)\n    best = 0\n    for i in range(len(t)):\n        for j in range(i + 1, len(t)):\n            if t[i] > 0 and t[j] > 0:\n                u = list(t); u[i] -= 1; u[j] -= 1; best = max(best, 1 + moves(tuple(sorted(u))))\n    return best\ndef drops(a): return sum(max(0, a[i] - a[i + 1]) for i in range(len(a) - 1))\ndef raise_brute(a):\n    start = tuple(a); top = max(a); seen = {start: 0}; todo = [start]\n    for s in todo:\n        if all(s[i] <= s[i + 1] for i in range(len(s) - 1)): return seen[s]\n        for l in range(len(s)):\n            for r in range(l, len(s)):\n                t = s[:l] + tuple(v + 1 for v in s[l:r + 1]) + s[r + 1:]\n                if max(t) <= top and t not in seen: seen[t] = seen[s] + 1; todo.append(t)\nresult = moves((1, 2, 10))",
+   "nudges": [
+    "The bound \"half of all stones\" gives 6. Why can 6 not be reached?",
+    "Every move must use a stone from where?"
+   ],
+   "showed": "A second bound: every move takes a stone from outside the largest pile, and there are only 3 such stones. The answer is the smaller of the two bounds."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that the smallest number of swaps of neighbouring elements needed to sort a row of distinct numbers equals the number of pairs that are in the wrong order.",
+   "claims": [
+    "A swap of two neighbours changes the relative order of that pair only, so it changes the number of wrong pairs by exactly one.",
+    "A sorted row has no wrong pairs, so starting with I wrong pairs at least I swaps are needed.",
+    "If the row is not sorted, some two neighbours are in the wrong order (otherwise every element is smaller than the next and the row is sorted).",
+    "Swapping such neighbours lowers the number of wrong pairs by exactly one, so repeating this sorts the row in exactly I swaps."
+   ],
+   "nudges": [
+    "What is the most that one swap can improve?",
+    "Why is there always a swap that does improve?"
+   ],
+   "showed": "The lower bound and the strategy use the same quantity; that is the usual shape of such an argument."
+  },
+  {
+   "id": "h-four",
+   "kind": "number",
+   "prompt": "Piles of 7, 8, 9 and 30 stones; a move takes one stone from each of two different piles. What is the largest number of moves?",
+   "answer": 24,
+   "verify": "import functools, itertools\n@functools.lru_cache(None)\ndef moves(t):\n    t = sorted(t, reverse=True)\n    best = 0\n    for i in range(len(t)):\n        for j in range(i + 1, len(t)):\n            if t[i] > 0 and t[j] > 0:\n                u = list(t); u[i] -= 1; u[j] -= 1; best = max(best, 1 + moves(tuple(sorted(u))))\n    return best\ndef drops(a): return sum(max(0, a[i] - a[i + 1]) for i in range(len(a) - 1))\ndef raise_brute(a):\n    start = tuple(a); top = max(a); seen = {start: 0}; todo = [start]\n    for s in todo:\n        if all(s[i] <= s[i + 1] for i in range(len(s) - 1)): return seen[s]\n        for l in range(len(s)):\n            for r in range(l, len(s)):\n                t = s[:l] + tuple(v + 1 for v in s[l:r + 1]) + s[r + 1:]\n                if max(t) <= top and t not in seen: seen[t] = seen[s] + 1; todo.append(t)\nassert all(moves(t) == min(sum(t) // 2, sum(t) - max(t)) for t in [(1, 2, 3), (2, 2, 5), (1, 1, 1, 1), (3, 4, 9), (2, 3, 4, 20), (5, 5, 6)])\nresult = min((7 + 8 + 9 + 30) // 2, 7 + 8 + 9)",
+   "nudges": [
+    "Which of the two bounds is smaller here?",
+    "How would you play to reach it?"
+   ],
+   "showed": "Half of the stones would be 27, but only 24 stones lie outside the largest pile. Always pairing the largest pile with another reaches 24.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-raise",
+   "kind": "number",
+   "prompt": "One move chooses a stretch of consecutive positions and adds 1 to every number in it. What is the smallest number of moves that makes 5, 2, 7, 1, 4 non-decreasing from left to right?",
+   "answer": 9,
+   "verify": "import functools, itertools\n@functools.lru_cache(None)\ndef moves(t):\n    t = sorted(t, reverse=True)\n    best = 0\n    for i in range(len(t)):\n        for j in range(i + 1, len(t)):\n            if t[i] > 0 and t[j] > 0:\n                u = list(t); u[i] -= 1; u[j] -= 1; best = max(best, 1 + moves(tuple(sorted(u))))\n    return best\ndef drops(a): return sum(max(0, a[i] - a[i + 1]) for i in range(len(a) - 1))\ndef raise_brute(a):\n    start = tuple(a); top = max(a); seen = {start: 0}; todo = [start]\n    for s in todo:\n        if all(s[i] <= s[i + 1] for i in range(len(s) - 1)): return seen[s]\n        for l in range(len(s)):\n            for r in range(l, len(s)):\n                t = s[:l] + tuple(v + 1 for v in s[l:r + 1]) + s[r + 1:]\n                if max(t) <= top and t not in seen: seen[t] = seen[s] + 1; todo.append(t)\nassert all(raise_brute(a) == drops(a) for a in [(2, 1), (3, 1, 2), (2, 3, 1), (3, 2, 1), (1, 3, 2, 1), (2, 1, 2, 1)])\nresult = drops((5, 2, 7, 1, 4))",
+   "nudges": [
+    "Look at a place where the row steps down. What can one move do to the size of that step?",
+    "Can one move shrink two different steps down at once?"
+   ],
+   "showed": "A move shrinks at most one downward step, by one (the step just before where the stretch begins). So the sum of the downward steps, 3 + 6, is a bound; raising everything from the step to the end reaches it.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-rooks",
+   "kind": "number",
+   "prompt": "What is the smallest number of rooks that can be placed on a 5 by 5 board so that every cell is either occupied or attacked by a rook?",
+   "answer": 5,
+   "verify": "import itertools\ncells = [(r, c) for r in range(5) for c in range(5)]\ndef covers(ps): rows = {r for r, _ in ps}; cols = {c for _, c in ps}; return all(r in rows or c in cols for r, c in cells)\nassert not any(covers(ps) for ps in itertools.combinations(cells, 4))\nresult = 5 if covers([(i, i) for i in range(5)]) else -1",
+   "nudges": [
+    "With 4 rooks, some row has no rook. What must then be true of every column?"
+   ],
+   "showed": "With four rooks some row is empty, so each of its five cells needs a rook in its column: five columns, four rooks. And five rooks on a diagonal do it.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "A bound and a strategy that meet",
+  "statement": "For \"fewest\" and \"most\" questions, show that no play can do better than some value (a bound), and then show one way of playing that reaches exactly that value. The two together are the answer; either alone is not.",
+  "remark": "Bounds usually come from a quantity that each move changes by at most a fixed amount. When your bound cannot be reached, look for a second bound; the answer is often the stricter of two."
+ }
+}

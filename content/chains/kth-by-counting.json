@@ -1,0 +1,149 @@
+{
+ "idea": "kth-by-counting",
+ "opening": "Finding the entry at a given rank in a collection far too large to sort.",
+ "steps": [
+  {
+   "id": "upto",
+   "kind": "number",
+   "prompt": "A 4 by 4 multiplication table has the entry $i \\cdot j$ in row $i$, column $j$. How many of its 16 entries are at most 6?",
+   "answer": 10,
+   "verify": "def table(n): return sorted(i * j for i in range(1, n + 1) for j in range(1, n + 1))\ndef count(n, x): return sum(min(n, x // i) for i in range(1, n + 1))\nresult = sum(1 for v in table(4) if v <= 6)",
+   "nudges": [
+    "How many entries of each row are at most 6?"
+   ],
+   "showed": "Row by row: all entries of row 1, then those up to 6 in each further row."
+  },
+  {
+   "id": "rank",
+   "kind": "number",
+   "prompt": "Write the 16 entries in increasing order, repeats included. What is the 7th entry?",
+   "answer": 4,
+   "verify": "def table(n): return sorted(i * j for i in range(1, n + 1) for j in range(1, n + 1))\ndef count(n, x): return sum(min(n, x // i) for i in range(1, n + 1))\nresult = table(4)[6]",
+   "nudges": [
+    "How many entries are at most 3? At most 4?"
+   ],
+   "showed": "Found by listing; the point is to find it without listing."
+  },
+  {
+   "id": "grows",
+   "kind": "choice",
+   "prompt": "Let $c(x)$ be the number of entries that are at most $x$. As $x$ grows, $c(x)$:",
+   "options": [
+    "never decreases",
+    "increases by exactly one each time",
+    "can go up or down"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If an entry is at most $x$, is it at most $x + 1$?"
+   ],
+   "showed": "A count that only grows can be searched by halving."
+  },
+  {
+   "id": "least",
+   "kind": "number",
+   "prompt": "For the 4 by 4 table, what is the smallest $x$ with $c(x) \\ge 7$?",
+   "answer": 4,
+   "verify": "def table(n): return sorted(i * j for i in range(1, n + 1) for j in range(1, n + 1))\ndef count(n, x): return sum(min(n, x // i) for i in range(1, n + 1))\nresult = next(x for x in range(1, 17) if count(4, x) >= 7)",
+   "nudges": [
+    "What are $c(3)$ and $c(4)$?"
+   ],
+   "showed": "The same number as the 7th entry."
+  },
+  {
+   "id": "real",
+   "kind": "choice",
+   "prompt": "Let $x$ be the smallest number with $c(x) \\ge k$. Is $x$ certainly an entry of the table?",
+   "options": [
+    "Yes: $c(x - 1) < k \\le c(x)$, so at least one entry is exactly $x$",
+    "No, it might fall between two entries",
+    "Only when all entries are different"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What does $c(x) - c(x - 1)$ count?"
+   ],
+   "showed": "The search may look at numbers that are not in the table, but it can only stop on one that is."
+  },
+  {
+   "id": "row",
+   "kind": "number",
+   "prompt": "In a 100 by 100 multiplication table, how many entries of row 7 are at most 300?",
+   "answer": 42,
+   "verify": "result = sum(1 for j in range(1, 101) if 7 * j <= 300)",
+   "nudges": [
+    "Which is the last column whose entry in row 7 is at most 300?"
+   ],
+   "showed": "A division, cut off at the row length. So $c(x)$ costs one division per row, without ever building the table."
+  },
+  {
+   "id": "fifty",
+   "kind": "number",
+   "prompt": "How many entries of the 10 by 10 multiplication table are at most 50?",
+   "answer": 81,
+   "verify": "def table(n): return sorted(i * j for i in range(1, n + 1) for j in range(1, n + 1))\ndef count(n, x): return sum(min(n, x // i) for i in range(1, n + 1))\nassert count(10, 50) == sum(1 for v in table(10) if v <= 50)\nresult = count(10, 50)",
+   "nudges": [
+    "For each row $i$, how many entries are at most 50?"
+   ],
+   "showed": "Ten divisions."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "A collection of numbers is given, with repeats allowed, and $c(x)$ denotes how many of them are at most $x$. Prove that the $k$-th smallest number of the collection equals the smallest $x$ with $c(x) \\ge k$.",
+   "claims": [
+    "Let v be the k-th smallest. At least k numbers (the first k in sorted order) are at most v, so c(v) >= k.",
+    "For any x < v, the numbers that are at most x are all strictly smaller than v, and fewer than k numbers are strictly smaller than the k-th smallest; so c(x) < k.",
+    "Hence v is the smallest x with c(x) >= k."
+   ],
+   "nudges": [
+    "Why is $c(v) \\ge k$ for the $k$-th smallest $v$?",
+    "Why is $c(x) < k$ for every $x$ below it?"
+   ],
+   "showed": "Rank questions become counting questions, and counting is often easy when sorting is impossible."
+  },
+  {
+   "id": "h-table",
+   "kind": "number",
+   "prompt": "What is the 5000th smallest entry of the 100 by 100 multiplication table (repeats included)?",
+   "answer": 1917,
+   "verify": "def table(n): return sorted(i * j for i in range(1, n + 1) for j in range(1, n + 1))\ndef count(n, x): return sum(min(n, x // i) for i in range(1, n + 1))\nassert next(x for x in range(1, 10001) if count(100, x) >= 5000) == table(100)[4999]\nresult = table(100)[4999]",
+   "nudges": [
+    "How would you compute $c(x)$ for one $x$?",
+    "Between which two values would you search for $x$?"
+   ],
+   "showed": "Halve the range 1 to 10000, computing $c$ with 100 divisions each time. The same works for a table with a billion rows.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-gaps",
+   "kind": "number",
+   "prompt": "Take the numbers 1, 3, 6, 10, 15, 21, 28, 36. Among the 28 differences between two of them (larger minus smaller), what is the 14th smallest?",
+   "answer": 13,
+   "verify": "import itertools\nresult = sorted(b - a for a, b in itertools.combinations([1, 3, 6, 10, 15, 21, 28, 36], 2))[13]",
+   "nudges": [
+    "For a given $x$, how would you count the pairs with difference at most $x$ in a sorted list?",
+    "As the right end of a pair moves right, which way does the left end move?"
+   ],
+   "showed": "For each $x$, two pointers count the pairs with difference at most $x$ in one pass; then search for the smallest $x$ whose count reaches the rank.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-sums",
+   "kind": "number",
+   "prompt": "The row 2, -1, 3, 1, -2, 4 has 21 stretches of consecutive numbers. What is the 11th smallest of their sums?",
+   "answer": 3,
+   "verify": "a = [2, -1, 3, 1, -2, 4]\nresult = sorted(sum(a[l:r + 1]) for l in range(6) for r in range(l, 6))[10]",
+   "nudges": [
+    "A stretch sum is a difference of two running totals. What does \"sum at most $x$\" say about the two totals?"
+   ],
+   "showed": "Counting stretches with sum at most $x$ is counting pairs of running totals with a bounded difference: again a count that grows with $x$, so the rank can be searched.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "k-th value by counting",
+  "statement": "The $k$-th smallest value of a collection is the least $x$ for which at least $k$ values are $\\le x$. Counting values up to $x$ is monotone in $x$, so $x$ is found by binary search.",
+  "remark": "Use it when the collection is given implicitly (all products, all pairwise differences, all block sums) and is too large to sort, but \"how many are at most $x$\" can be counted fast."
+ }
+}

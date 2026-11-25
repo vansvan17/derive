@@ -1,0 +1,145 @@
+{
+ "idea": "regret-greedy",
+ "opening": "Choosing tasks under deadlines, and what to do when a choice made earlier turns out to be in the way.",
+ "steps": [
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "Four tasks, each given as (hours needed, deadline hour): (3, 3), (2, 4), (2, 5), (1, 6). You work on one task at a time starting at hour 0, and a task counts only if it is finished by its deadline. What is the largest number of tasks you can complete?",
+   "answer": 3,
+   "verify": "import itertools, heapq\ndef best_count(tasks):\n    for k in range(len(tasks), -1, -1):\n        for c in itertools.combinations(tasks, k):\n            t = 0; ok = True\n            for d, dl in sorted(c, key=lambda x: x[1]):\n                t += d\n                if t > dl: ok = False; break\n            if ok: return k\ndef rule(tasks):\n    heap = []; t = 0; dropped = []\n    for d, dl in sorted(tasks, key=lambda x: x[1]):\n        heapq.heappush(heap, -d); t += d\n        if t > dl: x = -heapq.heappop(heap); t -= x; dropped.append(x)\n    return len(heap), dropped\nT = [(3, 3), (2, 4), (2, 5), (1, 6)]\ndef trade(prices):\n    best = {0: 0}\n    for p in prices:\n        nxt = {}\n        for h, m in best.items():\n            for h2, m2 in ((h, m), (h + 1, m - p), (h - 1, m + p)):\n                if h2 >= 0 and m2 > nxt.get(h2, -10 ** 9): nxt[h2] = m2\n        best = nxt\n    return best[0]\ndef gen(n): return [(1 + (7 * i) % 5, 3 + (11 * i) % 17) for i in range(n)]\nresult = best_count(T)",
+   "nudges": [
+    "Can all four be done? What is the total time needed for the first two?"
+   ],
+   "showed": "Three: leave out the long first task."
+  },
+  {
+   "id": "order",
+   "kind": "choice",
+   "prompt": "You have decided which tasks to do. In which order should you do them to have the best chance of meeting every deadline?",
+   "options": [
+    "By deadline, earliest first",
+    "Shortest first",
+    "Longest first"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If two neighbouring tasks are done with the later deadline first, what happens when you swap them?"
+   ],
+   "showed": "If any order works, the order by deadline works. So the only real question is which tasks to pick."
+  },
+  {
+   "id": "clash",
+   "kind": "number",
+   "prompt": "Go through the tasks by deadline, accepting each one. After accepting (3, 3) and (2, 4) you have 5 hours of work due by hour 4: too much. One accepted task must go. Which one should you throw out? Give its number of hours.",
+   "answer": 3,
+   "verify": "import itertools, heapq\ndef best_count(tasks):\n    for k in range(len(tasks), -1, -1):\n        for c in itertools.combinations(tasks, k):\n            t = 0; ok = True\n            for d, dl in sorted(c, key=lambda x: x[1]):\n                t += d\n                if t > dl: ok = False; break\n            if ok: return k\ndef rule(tasks):\n    heap = []; t = 0; dropped = []\n    for d, dl in sorted(tasks, key=lambda x: x[1]):\n        heapq.heappush(heap, -d); t += d\n        if t > dl: x = -heapq.heappop(heap); t -= x; dropped.append(x)\n    return len(heap), dropped\nT = [(3, 3), (2, 4), (2, 5), (1, 6)]\ndef trade(prices):\n    best = {0: 0}\n    for p in prices:\n        nxt = {}\n        for h, m in best.items():\n            for h2, m2 in ((h, m), (h + 1, m - p), (h - 1, m + p)):\n                if h2 >= 0 and m2 > nxt.get(h2, -10 ** 9): nxt[h2] = m2\n        best = nxt\n    return best[0]\ndef gen(n): return [(1 + (7 * i) % 5, 3 + (11 * i) % 17) for i in range(n)]\nresult = rule(T)[1][0]",
+   "nudges": [
+    "Whichever you throw out, how many tasks do you keep?",
+    "Which choice leaves the most time for later tasks?"
+   ],
+   "showed": "Either way you keep one task; throwing out the longest leaves the least work on your hands."
+  },
+  {
+   "id": "safe",
+   "kind": "choice",
+   "prompt": "After throwing out the longest accepted task, could you still be over the deadline you just reached?",
+   "options": [
+    "No: before the newest task was added everything was on time, and you removed at least as many hours as the newest task added",
+    "Yes, sometimes two tasks must go",
+    "Yes, if the newest task is the longest"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How does the total after the removal compare with the total before the newest task was added?"
+   ],
+   "showed": "One removal always repairs the schedule."
+  },
+  {
+   "id": "rule",
+   "kind": "number",
+   "prompt": "Carry the rule through all four tasks: accept each task in order of deadline, and whenever the accepted work exceeds the current deadline, throw out the longest accepted task. How many tasks are accepted at the end?",
+   "answer": 3,
+   "verify": "import itertools, heapq\ndef best_count(tasks):\n    for k in range(len(tasks), -1, -1):\n        for c in itertools.combinations(tasks, k):\n            t = 0; ok = True\n            for d, dl in sorted(c, key=lambda x: x[1]):\n                t += d\n                if t > dl: ok = False; break\n            if ok: return k\ndef rule(tasks):\n    heap = []; t = 0; dropped = []\n    for d, dl in sorted(tasks, key=lambda x: x[1]):\n        heapq.heappush(heap, -d); t += d\n        if t > dl: x = -heapq.heappop(heap); t -= x; dropped.append(x)\n    return len(heap), dropped\nT = [(3, 3), (2, 4), (2, 5), (1, 6)]\ndef trade(prices):\n    best = {0: 0}\n    for p in prices:\n        nxt = {}\n        for h, m in best.items():\n            for h2, m2 in ((h, m), (h + 1, m - p), (h - 1, m + p)):\n                if h2 >= 0 and m2 > nxt.get(h2, -10 ** 9): nxt[h2] = m2\n        best = nxt\n    return best[0]\ndef gen(n): return [(1 + (7 * i) % 5, 3 + (11 * i) % 17) for i in range(n)]\nresult = rule(T)[0]",
+   "nudges": [
+    "After the clash, what is the total of accepted hours?"
+   ],
+   "showed": "The same three as the best possible."
+  },
+  {
+   "id": "heap",
+   "kind": "choice",
+   "prompt": "The rule needs, again and again, the longest task among those accepted so far, while tasks are added and removed. Which structure gives that quickly?",
+   "options": [
+    "A heap (priority queue) ordered by length",
+    "A sorted array rebuilt each time",
+    "A queue in order of arrival"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What operations are needed, and how often?"
+   ],
+   "showed": "Add a task, remove the largest: both in logarithmic time."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Tasks are accepted in order of deadline and the accepted ones are all on time. A new task with the latest deadline so far is added, and now the total accepted work exceeds its deadline. Prove that removing the longest accepted task (possibly the new one) leaves a set in which every task is again on time when done in order of deadline.",
+   "claims": [
+    "Let L be the longest accepted task and x the new task; the length of L is at least the length of x.",
+    "For tasks with deadline before L in the order, nothing before them changed, so they finish as before, on time.",
+    "For every task after L in the order, its finishing time drops by the length of L. Tasks other than x were on time already; they finish no later than before.",
+    "For x itself (if x is not L): before x was added the total was within the previous deadline, which is at most the deadline of x; the new total is that old total plus the length of x minus the length of L, which is at most the old total, hence within the deadline of x."
+   ],
+   "nudges": [
+    "Which tasks finish earlier after the removal, and which are unaffected?",
+    "How does the new total compare with the total before the new task arrived?"
+   ],
+   "showed": "Accept everything, and take back the worst choice only when forced."
+  },
+  {
+   "id": "h-shares",
+   "kind": "number",
+   "prompt": "The price of a share on nine consecutive days is 10, 5, 4, 7, 9, 12, 6, 2, 10. Each day you may buy one share, sell one share you hold, or do nothing. You start and end with no shares. What is the largest possible profit?",
+   "answer": 20,
+   "verify": "import itertools, heapq\ndef best_count(tasks):\n    for k in range(len(tasks), -1, -1):\n        for c in itertools.combinations(tasks, k):\n            t = 0; ok = True\n            for d, dl in sorted(c, key=lambda x: x[1]):\n                t += d\n                if t > dl: ok = False; break\n            if ok: return k\ndef rule(tasks):\n    heap = []; t = 0; dropped = []\n    for d, dl in sorted(tasks, key=lambda x: x[1]):\n        heapq.heappush(heap, -d); t += d\n        if t > dl: x = -heapq.heappop(heap); t -= x; dropped.append(x)\n    return len(heap), dropped\nT = [(3, 3), (2, 4), (2, 5), (1, 6)]\ndef trade(prices):\n    best = {0: 0}\n    for p in prices:\n        nxt = {}\n        for h, m in best.items():\n            for h2, m2 in ((h, m), (h + 1, m - p), (h - 1, m + p)):\n                if h2 >= 0 and m2 > nxt.get(h2, -10 ** 9): nxt[h2] = m2\n        best = nxt\n    return best[0]\ndef gen(n): return [(1 + (7 * i) % 5, 3 + (11 * i) % 17) for i in range(n)]\nresult = trade([10, 5, 4, 7, 9, 12, 6, 2, 10])",
+   "nudges": [
+    "On a day with a high price, which earlier purchase would you most like to pair it with?",
+    "If you sold a share at 9 and then see 12, how can you take the sale back without having planned for it?"
+   ],
+   "showed": "Keep all candidate buying prices in a heap. On each day, if the cheapest candidate is lower than today's price, sell against it, and put today's price in as a candidate: selling at 9 and \"re-buying\" at 9 to sell at 12 is the same as never having sold at 9.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-fuel",
+   "kind": "number",
+   "prompt": "A car starts with 10 litres and uses one litre per kilometre. The destination is 25 km away. Fuel stations are at kilometre 4 (4 litres), 5 (2 litres), 8 (9 litres), 15 (3 litres) and 18 (6 litres); stopping at a station takes all its fuel. What is the smallest number of stops needed to arrive?",
+   "answer": 2,
+   "verify": "import itertools\nst = [(4, 4), (5, 2), (8, 9), (15, 3), (18, 6)]\ndef ok(c):\n    fuel = 10; pos = 0\n    for p, f in sorted(c) + [(25, 0)]:\n        fuel -= p - pos; pos = p\n        if fuel < 0: return False\n        fuel += f\n    return True\nresult = min(k for k in range(6) if any(ok(c) for c in itertools.combinations(st, k)))",
+   "nudges": [
+    "Do you have to decide at a station whether to stop there?",
+    "When you run dry, which of the stations you have already passed would you wish you had used?"
+   ],
+   "showed": "Drive on, remembering the stations passed. Only when the tank is empty, \"go back\" and take the largest one passed. The decision is made as late as possible.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-many",
+   "kind": "number",
+   "prompt": "Forty tasks: task $i$ (for $i = 0, \\dots, 39$) needs $1 + (7i \\bmod 5)$ hours and has deadline $3 + (11i \\bmod 17)$. What is the largest number that can be completed on time?",
+   "answer": 13,
+   "verify": "import itertools, heapq\ndef best_count(tasks):\n    for k in range(len(tasks), -1, -1):\n        for c in itertools.combinations(tasks, k):\n            t = 0; ok = True\n            for d, dl in sorted(c, key=lambda x: x[1]):\n                t += d\n                if t > dl: ok = False; break\n            if ok: return k\ndef rule(tasks):\n    heap = []; t = 0; dropped = []\n    for d, dl in sorted(tasks, key=lambda x: x[1]):\n        heapq.heappush(heap, -d); t += d\n        if t > dl: x = -heapq.heappop(heap); t -= x; dropped.append(x)\n    return len(heap), dropped\nT = [(3, 3), (2, 4), (2, 5), (1, 6)]\ndef trade(prices):\n    best = {0: 0}\n    for p in prices:\n        nxt = {}\n        for h, m in best.items():\n            for h2, m2 in ((h, m), (h + 1, m - p), (h - 1, m + p)):\n                if h2 >= 0 and m2 > nxt.get(h2, -10 ** 9): nxt[h2] = m2\n        best = nxt\n    return best[0]\ndef gen(n): return [(1 + (7 * i) % 5, 3 + (11 * i) % 17) for i in range(n)]\nassert all(rule(gen(n))[0] == best_count(gen(n)) for n in range(1, 14))\nresult = rule(gen(40))[0]",
+   "nudges": [
+    "How many subsets do forty tasks have?",
+    "What does the rule need besides sorting by deadline?"
+   ],
+   "showed": "Sort by deadline, accept everything, and drop the longest whenever the deadline is exceeded.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Greedy with undo",
+  "statement": "Take every option as it comes. When a constraint breaks, undo the worst choice made so far; a heap finds it. This repairs the solution and keeps it as good as possible for the future.",
+  "remark": "The sign of it in a problem: a choice that looks right now may be wrong later, but exchanging it later costs nothing extra. Scheduling with deadlines, buying and selling, refuelling and \"choose at most k so far\" all work this way."
+ }
+}

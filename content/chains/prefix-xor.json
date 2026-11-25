@@ -1,0 +1,142 @@
+{
+ "idea": "prefix-xor",
+ "opening": "The same trick as running totals, with an operation that undoes itself.",
+ "steps": [
+  {
+   "id": "undo",
+   "kind": "number",
+   "prompt": "What is 5 XOR 3 XOR 5?",
+   "answer": 3,
+   "verify": "result = 5 ^ 3 ^ 5",
+   "nudges": [
+    "What is 5 XOR 5?"
+   ],
+   "showed": "The two fives cancel."
+  },
+  {
+   "id": "running",
+   "kind": "list",
+   "prompt": "Take the row 3, 5, 6, 3, 5. Write the XOR of each of its beginnings, starting with 0 for the empty beginning: six numbers in order.",
+   "answer": [
+    0,
+    3,
+    6,
+    0,
+    3,
+    6
+   ],
+   "verify": "import itertools, operator\nresult = list(itertools.accumulate([0, 3, 5, 6, 3, 5], operator.xor))",
+   "nudges": [
+    "What is 3 XOR 5? Then XOR 6?"
+   ],
+   "showed": "Six running values for five numbers.",
+   "ordered": true
+  },
+  {
+   "id": "middle",
+   "kind": "number",
+   "prompt": "What is the XOR of the numbers in positions 2 to 4 of that row (5, 6, 3)?",
+   "answer": 0,
+   "verify": "import functools, operator\ndef x(a): return functools.reduce(operator.xor, a, 0)\nresult = x([5, 6, 3])",
+   "nudges": [
+    "Can you get it from two of the running values?"
+   ],
+   "showed": "It is the running value after position 4 XOR the running value after position 1: 3 XOR 3."
+  },
+  {
+   "id": "cancel",
+   "kind": "choice",
+   "prompt": "Why is the XOR of positions $l$ to $r$ equal to (running value after $r$) XOR (running value after $l - 1$)?",
+   "options": [
+    "In that expression the first $l - 1$ numbers each appear twice and cancel; the rest appear once",
+    "Because XOR is the same as subtraction",
+    "Because the running values are increasing"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which numbers are in both running values?"
+   ],
+   "showed": "XOR is its own inverse, so \"subtracting\" a beginning is XOR-ing it again."
+  },
+  {
+   "id": "zeros",
+   "kind": "number",
+   "prompt": "How many stretches of consecutive numbers of 3, 5, 6, 3, 5 have XOR equal to 0?",
+   "answer": 3,
+   "verify": "import functools, operator\ndef x(a): return functools.reduce(operator.xor, a, 0)\na = [3, 5, 6, 3, 5]\nresult = sum(1 for l in range(5) for r in range(l, 5) if x(a[l:r + 1]) == 0)",
+   "nudges": [
+    "Which of the six running values are equal?"
+   ],
+   "showed": "One for every pair of equal running values."
+  },
+  {
+   "id": "target",
+   "kind": "number",
+   "prompt": "How many stretches of 4, 2, 2, 6, 4 have XOR equal to 6?",
+   "answer": 4,
+   "verify": "import functools, operator\ndef x(a): return functools.reduce(operator.xor, a, 0)\na = [4, 2, 2, 6, 4]\nresult = sum(1 for l in range(5) for r in range(l, 5) if x(a[l:r + 1]) == 6)",
+   "nudges": [
+    "If the running value at the right end is $R$, what must the running value at the left end be?"
+   ],
+   "showed": "For a right end with running value $R$, the left end must have running value $R$ XOR 6."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $R_0 = 0$ and $R_i = a_1 \\oplus a_2 \\oplus \\dots \\oplus a_i$. Prove that $a_l \\oplus \\dots \\oplus a_r = R_r \\oplus R_{l-1}$ for all $1 \\le l \\le r$.",
+   "claims": [
+    "XOR is associative and commutative, so the terms of R_r XOR R_{l-1} may be regrouped freely.",
+    "R_r XOR R_{l-1} contains each of a_1, ..., a_{l-1} exactly twice and each of a_l, ..., a_r exactly once.",
+    "x XOR x = 0 and y XOR 0 = y, so the terms appearing twice vanish and what remains is a_l XOR ... XOR a_r."
+   ],
+   "nudges": [
+    "Which terms occur twice in $R_r \\oplus R_{l-1}$?",
+    "What happens to a term that occurs twice?"
+   ],
+   "showed": "Everything that works for sums and differences works here, with one operation playing both roles."
+  },
+  {
+   "id": "h-even",
+   "kind": "number",
+   "prompt": "How many stretches of even length of 1, 2, 3, 0, 3, 2, 1, 1 have XOR equal to 0?",
+   "answer": 3,
+   "verify": "import functools, operator\ndef x(a): return functools.reduce(operator.xor, a, 0)\na = [1, 2, 3, 0, 3, 2, 1, 1]\nresult = sum(1 for l in range(8) for r in range(l, 8) if (r - l + 1) % 2 == 0 and x(a[l:r + 1]) == 0)",
+   "nudges": [
+    "A stretch of even length is a pair of running values at positions of what kind?",
+    "How would you keep the two kinds apart?"
+   ],
+   "showed": "Equal running values whose positions have the same parity. Keep two tables, one for even positions and one for odd.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-triples",
+   "kind": "number",
+   "prompt": "In the row 2, 3, 1, 6, 7, count the triples $(i, j, k)$ with $i < j \\le k$ for which the XOR of positions $i$ to $j - 1$ equals the XOR of positions $j$ to $k$.",
+   "answer": 4,
+   "verify": "import functools, operator\ndef x(a): return functools.reduce(operator.xor, a, 0)\na = [2, 3, 1, 6, 7]\nresult = sum(1 for i in range(5) for j in range(i + 1, 5) for k in range(j, 5) if x(a[i:j]) == x(a[j:k + 1]))",
+   "nudges": [
+    "If the two parts have equal XOR, what is the XOR of the whole stretch from $i$ to $k$?",
+    "Given such a stretch, how many places are there for the cut $j$?"
+   ],
+   "showed": "The two halves are equal exactly when the whole stretch has XOR 0, and then every cut works: a zero stretch of length $m$ gives $m - 1$ triples.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-largest",
+   "kind": "number",
+   "prompt": "What is the largest XOR of any non-empty stretch of 8, 1, 2, 12, 7, 6?",
+   "answer": 15,
+   "verify": "import functools, operator\ndef x(a): return functools.reduce(operator.xor, a, 0)\na = [8, 1, 2, 12, 7, 6]\nresult = max(x(a[l:r + 1]) for l in range(6) for r in range(l, 6))",
+   "nudges": [
+    "In terms of running values, what are you maximising?"
+   ],
+   "showed": "The largest XOR of two running values. That is a question about a set of numbers and no longer about stretches; a binary trie of the running values answers it bit by bit.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Prefix XOR",
+  "statement": "The XOR of a block equals the XOR of two prefix XORs, because $x \\oplus x = 0$ removes the common beginning. Counting blocks with a given XOR is counting pairs of prefix values, exactly as with sums.",
+  "remark": "The same works for any operation with inverses: sums, XOR, products modulo a prime, parity masks of letters. It does not work for minimum, maximum, AND or OR, which cannot be undone."
+ }
+}

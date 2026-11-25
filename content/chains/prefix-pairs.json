@@ -1,0 +1,156 @@
+{
+ "idea": "prefix-pairs",
+ "opening": "Counting stretches of a row with a given sum, without adding up a single stretch.",
+ "steps": [
+  {
+   "id": "totals",
+   "kind": "list",
+   "prompt": "Take the row 2, -1, 3, -2, 1, -3. Write its running totals, starting with 0 for the empty beginning: seven numbers in order.",
+   "answer": [
+    0,
+    2,
+    1,
+    4,
+    2,
+    3,
+    0
+   ],
+   "verify": "import itertools\nresult = list(itertools.accumulate([0, 2, -1, 3, -2, 1, -3]))",
+   "nudges": [
+    "What is the total of the first two numbers? The first three?"
+   ],
+   "showed": "Seven totals for six numbers.",
+   "ordered": true
+  },
+  {
+   "id": "diff",
+   "kind": "choice",
+   "prompt": "The sum of the numbers in positions $l$ to $r$ is:",
+   "options": [
+    "the total after position $r$ minus the total after position $l - 1$",
+    "the total after position $r$ minus the total after position $l$",
+    "the total after position $r$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which numbers are counted in the total after position $r$ but not in the earlier one?"
+   ],
+   "showed": "Every stretch is a pair of running totals, an earlier one and a later one."
+  },
+  {
+   "id": "zero",
+   "kind": "number",
+   "prompt": "How many stretches of consecutive numbers of 2, -1, 3, -2, 1, -3 have sum 0?",
+   "answer": 2,
+   "verify": "a = [2, -1, 3, -2, 1, -3]\nresult = sum(1 for l in range(6) for r in range(l, 6) if sum(a[l:r + 1]) == 0)",
+   "nudges": [
+    "Which of the seven running totals are equal to each other?"
+   ],
+   "showed": "One stretch for every pair of equal running totals."
+  },
+  {
+   "id": "five",
+   "kind": "number",
+   "prompt": "Some value occurs 5 times among the running totals of a row. How many stretches with sum 0 does that value alone account for?",
+   "answer": 10,
+   "verify": "import itertools\nresult = len(list(itertools.combinations(range(5), 2)))",
+   "nudges": [
+    "How many pairs can be formed from 5 equal totals?"
+   ],
+   "showed": "Every pair, so 5 choose 2."
+  },
+  {
+   "id": "target",
+   "kind": "number",
+   "prompt": "How many stretches of 1, 2, 1, 2, 1, -3, 3 have sum exactly 3?",
+   "answer": 7,
+   "verify": "a = [1, 2, 1, 2, 1, -3, 3]\nresult = sum(1 for l in range(7) for r in range(l, 7) if sum(a[l:r + 1]) == 3)",
+   "nudges": [
+    "If the running total at the right end is $T$, what must the running total at the left end be?"
+   ],
+   "showed": "For each right end with total $T$, count the earlier totals equal to $T - 3$."
+  },
+  {
+   "id": "walk",
+   "kind": "choice",
+   "prompt": "To count the stretches with sum $x$ in one pass over the row, what do you keep?",
+   "options": [
+    "A table of how often each running total has occurred so far; at each position look up (current total minus $x$), then record the current total",
+    "The list of all stretch sums so far",
+    "Only the current running total"
+   ],
+   "answer": 0,
+   "nudges": [
+    "At a position, which earlier totals pair with the current one?",
+    "Why must the lookup come before recording the current total?"
+   ],
+   "showed": "One lookup and one update per position."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $S_0 = 0, S_1, \\dots, S_n$ be the running totals of a row of $n$ numbers. Prove that the number of non-empty stretches of consecutive numbers with sum 0 equals the number of pairs $i < j$ with $S_i = S_j$.",
+   "claims": [
+    "The stretch from position i + 1 to position j (with 0 <= i < j <= n) has sum S_j - S_i.",
+    "Every non-empty stretch arises from exactly one pair i < j, namely i = (its first position) - 1 and j = its last position, and every such pair gives a non-empty stretch.",
+    "So stretches correspond one-to-one to pairs i < j, and the stretch has sum 0 exactly when S_i = S_j."
+   ],
+   "nudges": [
+    "Which pair of running totals belongs to the stretch from position 3 to position 5?",
+    "When is the difference of two totals zero?"
+   ],
+   "showed": "A question about stretches has become a question about pairs of equal values."
+  },
+  {
+   "id": "h-binary",
+   "kind": "number",
+   "prompt": "How many substrings of 0110100110 contain equally many 0s and 1s?",
+   "answer": 19,
+   "verify": "s = \"0110100110\"\nresult = sum(1 for l in range(10) for r in range(l + 1, 11) if s[l:r].count(\"0\") == s[l:r].count(\"1\"))",
+   "nudges": [
+    "What numbers could you write instead of 0 and 1 so that \"equally many\" becomes \"sum zero\"?"
+   ],
+   "showed": "Score a 1 as +1 and a 0 as -1: equally many means sum 0, which means two equal running totals.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-mean",
+   "kind": "number",
+   "prompt": "How many stretches of 4, 1, 7, 4, 6, 2, 4, 3, 5 have an average of exactly 4?",
+   "answer": 21,
+   "verify": "a = [4, 1, 7, 4, 6, 2, 4, 3, 5]\nresult = sum(1 for l in range(9) for r in range(l, 9) if sum(a[l:r + 1]) == 4 * (r - l + 1))",
+   "nudges": [
+    "What does \"average 4\" say about the sum and the length together?",
+    "What single change to the numbers removes the length from the condition?"
+   ],
+   "showed": "Subtract 4 from every number: average 4 becomes sum 0.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-twice",
+   "kind": "number",
+   "prompt": "How many substrings of 110110011101 contain exactly twice as many 1s as 0s?",
+   "answer": 15,
+   "verify": "s = \"110110011101\"\nresult = sum(1 for l in range(12) for r in range(l + 1, 13) if s[l:r].count(\"1\") == 2 * s[l:r].count(\"0\"))",
+   "nudges": [
+    "Which two scores for 1 and 0 make the total zero exactly when the 1s are twice the 0s?"
+   ],
+   "showed": "Score a 1 as +1 and a 0 as -2. Any condition of the form \"a times one count equals b times another\" becomes sum 0 with the right scores.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-divisible",
+   "kind": "code",
+   "task": "divisible-stretches",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Remainders of running totals in a table; equal remainders pair up. Negative numbers need their remainder brought back into range.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Blocks as pairs of prefixes",
+  "statement": "The sum of a block is a difference of two prefix sums, so counting blocks with a given sum is counting pairs of prefix values with a given difference. One pass with a table of the prefix values seen so far does it.",
+  "remark": "Rescore the elements so that the condition becomes \"sum zero\": +1 and -1 for two symbols, subtract the target average, take remainders for divisibility. The empty prefix counts as a prefix."
+ }
+}

@@ -1,0 +1,134 @@
+{
+ "idea": "forced-pairs",
+ "opening": "Choosing as many things as possible when some of them exclude each other.",
+ "steps": [
+  {
+   "id": "eleven",
+   "kind": "number",
+   "prompt": "What is the largest number of numbers you can choose from 1, 2, ..., 10 so that no two of the chosen numbers add up to 11?",
+   "answer": 5,
+   "verify": "result = max(bin(m).count(\"1\") for m in range(1024) if not any(m >> i & 1 and m >> j & 1 and i + j + 2 == 11 for i in range(10) for j in range(i + 1, 10)))",
+   "nudges": [
+    "Which numbers exclude each other?"
+   ],
+   "showed": "Five."
+  },
+  {
+   "id": "pairs",
+   "kind": "choice",
+   "prompt": "Why not six?",
+   "options": [
+    "The ten numbers split into five pairs (1,10), (2,9), (3,8), (4,7), (5,6), and from each pair at most one can be chosen",
+    "Because six numbers always contain two equal ones",
+    "Because 6 is more than half of 11"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Write next to each number the one it excludes. What structure do you get?"
+   ],
+   "showed": "The numbers fall into pairs that cannot both be taken."
+  },
+  {
+   "id": "ways",
+   "kind": "number",
+   "prompt": "In how many different ways can five numbers be chosen from 1 to 10 with no two adding up to 11?",
+   "answer": 32,
+   "verify": "import itertools\nresult = sum(1 for c in itertools.combinations(range(1, 11), 5) if not any(a + b == 11 for a, b in itertools.combinations(c, 2)))",
+   "nudges": [
+    "How many choices are there within each pair? Do the pairs affect each other?"
+   ],
+   "showed": "One of two from each of five pairs, independently: $2^5$."
+  },
+  {
+   "id": "odd",
+   "kind": "number",
+   "prompt": "What is the largest number of numbers you can choose from 1, 2, ..., 15 so that no two of them add up to 16?",
+   "answer": 8,
+   "verify": "result = max(bin(m).count(\"1\") for m in range(1 << 15) if not any(m >> i & 1 and m >> (14 - i) & 1 for i in range(7)))",
+   "nudges": [
+    "Which number has no partner?"
+   ],
+   "showed": "Seven pairs give one each, and 8 is paired with nobody: take it too."
+  },
+  {
+   "id": "mirror",
+   "kind": "number",
+   "prompt": "How many strings of length 6 made of the letters a and b read the same backwards as forwards?",
+   "answer": 8,
+   "verify": "import itertools\nresult = sum(1 for s in itertools.product(\"ab\", repeat=6) if s == s[::-1])",
+   "nudges": [
+    "Which positions must hold equal letters?"
+   ],
+   "showed": "Positions pair up from the two ends, and each pair is one free choice."
+  },
+  {
+   "id": "repair",
+   "kind": "number",
+   "prompt": "What is the smallest number of letters you must change in abcacxa to make it read the same backwards as forwards?",
+   "answer": 1,
+   "verify": "s = \"abcacxa\"\nresult = sum(1 for i in range(len(s) // 2) if s[i] != s[-1 - i])",
+   "nudges": [
+    "Which positions are paired, and which pairs disagree?"
+   ],
+   "showed": "One change for each pair of mirrored positions that disagree; the pairs do not interact."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $m \\ge 1$. Prove that the largest number of numbers that can be chosen from $1, 2, \\dots, 2m$ with no two of them adding up to $2m + 1$ is exactly $m$.",
+   "claims": [
+    "The numbers split into the m pairs (k, 2m + 1 - k) for k = 1, ..., m, and every number from 1 to 2m lies in exactly one pair.",
+    "The two numbers of a pair add up to 2m + 1, so at most one number from each pair can be chosen: at most m in all.",
+    "Choosing 1, 2, ..., m gives m numbers whose pairwise sums are at most 2m - 1, so no two add up to 2m + 1. Hence m is reached."
+   ],
+   "nudges": [
+    "Which pairs exclude each other?",
+    "Which choice of $m$ numbers works?"
+   ],
+   "showed": "A bound from the pairs, and a choice that reaches it."
+  },
+  {
+   "id": "h-count",
+   "kind": "number",
+   "prompt": "How many of the 4096 subsets of {1, 2, ..., 12} contain no two numbers that add up to 13? (The empty set counts.)",
+   "answer": 729,
+   "verify": "result = sum(1 for m in range(4096) if not any(m >> i & 1 and m >> (11 - i) & 1 for i in range(6)))",
+   "nudges": [
+    "For one pair, how many ways are there to take none or one of its two numbers?"
+   ],
+   "showed": "Three options per pair (neither, the smaller, the larger), six independent pairs: $3^6$.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-five",
+   "kind": "number",
+   "prompt": "What is the largest number of numbers you can choose from 1, 2, ..., 15 so that no two of the chosen numbers add up to a multiple of 5?",
+   "answer": 7,
+   "verify": "import itertools\nresult = max(bin(m).count(\"1\") for m in range(1 << 15) if not any(m >> i & 1 and m >> j & 1 and (i + j + 2) % 5 == 0 for i in range(15) for j in range(i + 1, 15)))",
+   "nudges": [
+    "Group the numbers by their remainder when divided by 5. Which groups exclude each other?",
+    "How many numbers with remainder 0 can be chosen together?"
+   ],
+   "showed": "Now whole groups are paired: remainder 1 against remainder 4, and 2 against 3; take one whole group from each pair. Remainder 0 excludes itself, so at most one of those.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-double",
+   "kind": "number",
+   "prompt": "What is the largest number of numbers you can choose from 1, 2, ..., 30 so that none of the chosen numbers is exactly double another chosen number?",
+   "answer": 20,
+   "verify": "def chains(n):\n    total = 0\n    for odd in range(1, n + 1, 2):\n        k = 0; v = odd\n        while v <= n: k += 1; v *= 2\n        total += (k + 1) // 2\n    return total\ndef slow(n): return max(bin(m).count(\"1\") for m in range(1 << n) if not any(m >> i & 1 and 2 * (i + 1) <= n and m >> (2 * i + 1) & 1 for i in range(n)))\nassert all(chains(n) == slow(n) for n in range(1, 15))\nresult = chains(30)",
+   "nudges": [
+    "Start from an odd number and keep doubling. Which numbers exclude each other along this chain?",
+    "From a chain of $k$ numbers in which neighbours exclude each other, how many can be taken?"
+   ],
+   "showed": "Every number is an odd number times a power of two, so the numbers fall into doubling chains, one per odd number. In a chain only neighbours clash: take every other one, starting with the first.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Pairs that cannot both survive",
+  "statement": "Find pairs (or small groups) of objects that cannot both be taken. The problem then splits into independent small choices, one per pair: the maximum is one per pair, and the number of solutions is a product.",
+  "remark": "The pairing may be between positions (mirror positions of a palindrome), between values (complements), or between whole remainder classes. When exclusions form chains instead of pairs, each chain is still its own small problem."
+ }
+}

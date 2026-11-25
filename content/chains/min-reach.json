@@ -1,0 +1,177 @@
+{
+ "idea": "min-reach",
+ "opening": "Add up the smallest element of every stretch of an array. There are far too many stretches to visit, and no running total helps. But every stretch has one element that is its minimum, and each element knows how far it reaches.",
+ "steps": [
+  {
+   "id": "one-min",
+   "kind": "number",
+   "prompt": "Call a stretch any run of consecutive positions of length at least 1. In the array 3, 1, 2, 4, how many stretches have the 1 at position 2 as their smallest element?",
+   "answer": 6,
+   "verify": "a = [3, 1, 2, 4]\nresult = sum(1 for i in range(4) for j in range(i, 4) if i <= 1 <= j and min(a[i:j + 1]) == a[1])",
+   "nudges": [
+    "Such a stretch must contain position 2. How many choices are there for its left end, and how many for its right end?"
+   ],
+   "showed": "Left end at position 1 or 2, right end at position 2, 3 or 4: $2 \\times 3 = 6$."
+  },
+  {
+   "id": "span-min",
+   "kind": "number",
+   "prompt": "The array 5, 2, 6, 3, 7, 1, 4, positions 1 to 7, all values different. In how many stretches is the 3 at position 4 the smallest element?",
+   "answer": 4,
+   "verify": "a = [5, 2, 6, 3, 7, 1, 4]\nresult = sum(1 for i in range(7) for j in range(i, 7) if i <= 3 <= j and min(a[i:j + 1]) == a[3])",
+   "nudges": [
+    "How far left can the stretch reach before it takes in something smaller than 3? How far right?"
+   ],
+   "showed": "To the left it may include the 6 but not the 2; to the right the 7 but not the 1. Two left ends times two right ends: 4."
+  },
+  {
+   "id": "span-rule",
+   "kind": "choice",
+   "prompt": "All values are different. For the element at position $i$, let $L$ be the position of the nearest smaller element to its left (0 if none) and $R$ the position of the nearest smaller element to its right ($n + 1$ if none). The number of stretches in which the element at $i$ is the smallest is:",
+   "options": [
+    "$(i - L) \\cdot (R - i)$",
+    "$R - L - 1$",
+    "$(i - L) + (R - i)$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which positions may be the left end of such a stretch? Which the right end? Are the two choices independent?"
+   ],
+   "showed": "The left end is any of $L + 1, \\dots, i$ and the right end any of $i, \\dots, R - 1$, chosen independently. Both $L$ and $R$ come from one sweep each with a stack."
+  },
+  {
+   "id": "sum-min",
+   "kind": "number",
+   "prompt": "With $L$ and $R$ found by a stack sweep from each side, every element knows its count. The array 5, 2, 6, 1, 4, 3 has 21 stretches. Take the smallest element of each stretch and add the 21 numbers up.",
+   "answer": 41,
+   "verify": "a = [5, 2, 6, 1, 4, 3]\nresult = sum(min(a[i:j + 1]) for i in range(len(a)) for j in range(i, len(a)))",
+   "nudges": [
+    "Instead of going stretch by stretch, go element by element: in how many stretches is each element the smallest?"
+   ],
+   "showed": "Element by element: value times (number of stretches where it is the smallest). 5·1 + 2·4 + 6·1 + 1·12 + 4·1 + 3·2 = 41."
+  },
+  {
+   "id": "tie-trap",
+   "kind": "number",
+   "prompt": "Equal values spoil that count. The array 2, 2, 2 has 6 stretches. For each position $i$ count the stretches that contain position $i$ and contain nothing smaller than $a_i$. What do the three counts add up to?",
+   "answer": 10,
+   "verify": "a = [2, 2, 2]\nresult = sum(1 for p in range(3) for i in range(3) for j in range(i, 3) if i <= p <= j and min(a[i:j + 1]) >= a[p])",
+   "nudges": [
+    "Position 2: which stretches contain it?"
+   ],
+   "showed": "3 + 4 + 3 = 10, although there are only 6 stretches: a stretch holding its smallest value several times is counted once for each copy."
+  },
+  {
+   "id": "tie-fix",
+   "kind": "choice",
+   "prompt": "Every stretch must be counted for exactly one of the positions holding its smallest value. Which rule achieves that?",
+   "options": [
+    "Count it for the leftmost such position: to the left stop at the nearest element smaller than or equal to $a_i$, to the right stop at the nearest strictly smaller element",
+    "Stop at the nearest strictly smaller element on both sides",
+    "Stop at the nearest smaller-or-equal element on both sides"
+   ],
+   "answer": 0,
+   "nudges": [
+    "With 2, 2, 2: under each rule, for how many positions is the whole array counted?"
+   ],
+   "showed": "Strict on one side and not strict on the other. Strict on both sides counts a stretch once per copy of its minimum; non-strict on both sides loses every stretch that holds the minimum twice."
+  },
+  {
+   "id": "tie-sum",
+   "kind": "number",
+   "prompt": "The array 2, 1, 2, 1, 1, 3. Add up the smallest element of every one of its 21 stretches.",
+   "answer": 25,
+   "verify": "a = [2, 1, 2, 1, 1, 3]\nresult = sum(min(a[i:j + 1]) for i in range(len(a)) for j in range(i, len(a)))",
+   "nudges": [
+    "By the rule from the last step, the left end may go back to just after the nearest smaller-or-equal element and the right end forward to just before the nearest strictly smaller one. How many stretches does that give each position?"
+   ],
+   "showed": "With the one-sided rule each stretch is counted once: 2·1 + 1·10 + 2·1 + 1·6 + 1·2 + 3·1 = 25."
+  },
+  {
+   "id": "hist-small",
+   "kind": "number",
+   "prompt": "Six boards of width 1 stand side by side on the ground, with heights 2, 1, 5, 6, 2, 3. What is the largest area of a rectangle with horizontal and vertical sides that rests on the ground and lies entirely on the boards?",
+   "answer": 10,
+   "verify": "a = [2, 1, 5, 6, 2, 3]\nresult = max(min(a[i:j + 1]) * (j - i + 1) for i in range(6) for j in range(i, 6))",
+   "nudges": [
+    "How tall can a rectangle covering boards $l$ to $r$ be, in terms of those boards?"
+   ],
+   "showed": "10: the boards of heights 5 and 6 carry a rectangle 2 wide and 5 tall."
+  },
+  {
+   "id": "hist-idea",
+   "kind": "choice",
+   "prompt": "The best rectangle is exactly as tall as the lowest board it covers; call that board $i$. How wide can a rectangle of height $h_i$ be?",
+   "options": [
+    "From just after the nearest strictly lower board on the left of $i$ to just before the nearest strictly lower board on its right",
+    "Only as wide as the run of boards with exactly the height $h_i$",
+    "As wide as the whole row"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which boards stop a rectangle of height $h_i$ from extending further?"
+   ],
+   "showed": "A rectangle of height $h_i$ is blocked only by a strictly lower board. So with the nearest lower board on each side at positions $L$ and $R$, the best area for board $i$ is $h_i \\cdot (R - L - 1)$; take the largest over all $i$. Here equal heights need no special rule, since over-wide ties only repeat the same rectangle."
+  },
+  {
+   "id": "h-sum",
+   "kind": "number",
+   "prompt": "No stretch-by-stretch work from here. Let $a_i = (7i^2 + 3i) \\bmod 23$ for $i = 1, \\dots, 300$; values repeat. Add up the smallest element of every stretch of this array.",
+   "answer": 10683,
+   "verify": "a = [(7 * i * i + 3 * i) % 23 for i in range(1, 301)]\ntotal = 0\nfor i in range(len(a)):\n    lo = hi = a[i]\n    for j in range(i, len(a)):\n        lo = min(lo, a[j]); hi = max(hi, a[j]); total += lo\nresult = total",
+   "nudges": [
+    "Value times the number of stretches where it is counted as the smallest. Which side is strict?"
+   ],
+   "showed": "One sweep for the nearest smaller-or-equal on the left, one for the nearest strictly smaller on the right, then add $a_i (i - L)(R - i)$.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-range",
+   "kind": "number",
+   "prompt": "The same array, $a_i = (7i^2 + 3i) \\bmod 23$ for $i = 1, \\dots, 300$. For every stretch take its largest element minus its smallest element. Add these differences up over all stretches.",
+   "answer": 967208,
+   "verify": "a = [(7 * i * i + 3 * i) % 23 for i in range(1, 301)]\ntotal = 0\nfor i in range(len(a)):\n    lo = hi = a[i]\n    for j in range(i, len(a)):\n        lo = min(lo, a[j]); hi = max(hi, a[j]); total += hi - lo\nresult = total",
+   "nudges": [
+    "A sum of differences is a difference of two sums. Which two?",
+    "How does the sweep for the smallest elements change when you want the sum of the largest elements instead?"
+   ],
+   "showed": "(Sum of maximums over all stretches) minus (sum of minimums over all stretches); each is one pass of contribution counting with a stack.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-hist",
+   "kind": "number",
+   "prompt": "Boards of width 1 with heights $h_i = \\min(i, 121 - i) + (7i \\bmod 5)$ for $i = 1, \\dots, 120$. What is the largest area of a rectangle resting on the ground that lies entirely on the boards?",
+   "answer": 1972,
+   "verify": "h = [min(i, 121 - i) + 7 * i % 5 for i in range(1, 121)]\nbest = 0\nfor i in range(120):\n    lo = h[i]\n    for j in range(i, 120):\n        lo = min(lo, h[j]); best = max(best, lo * (j - i + 1))\nresult = best",
+   "nudges": [
+    "For each board as the lowest one covered: how far does the rectangle stretch each way?"
+   ],
+   "showed": "For each board, its height times the distance between the nearest strictly lower boards on its two sides; the largest of these.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-minsum",
+   "kind": "code",
+   "task": "stretch-minimums",
+   "prompt": "The sum of minimums, at full size.",
+   "nudges": [],
+   "showed": "Two sweeps with a stack (one comparison strict, the other not) give the reach of each element to the left and right; add value × left reach × right reach in 64 bits.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-poster",
+   "kind": "code",
+   "task": "widest-poster",
+   "prompt": "And the boards.",
+   "nudges": [],
+   "showed": "For each board the nearest strictly lower board on each side, by two sweeps (or one sweep that settles a board when it is popped); area = height × (R − L − 1), 64 bits.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "How far a minimum reaches",
+  "statement": "With $L$ and $R$ the positions of the nearest smaller elements on the left and right of position $i$, the element at $i$ is the minimum of exactly $(i - L)(R - i)$ stretches. Both come from one stack sweep each, so any sum over all stretches of their minimum (or maximum) costs $O(n)$.",
+  "remark": "With equal values make one side strict and the other not, so that each stretch is counted for exactly one position. The same reach gives the largest rectangle under a histogram: height times $(R - L - 1)$, the best over all boards."
+ }
+}

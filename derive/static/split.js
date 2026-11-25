@@ -15,18 +15,22 @@ function fit(split) {
   split.style.setProperty('--split-height', Math.max(480, Math.round(room)) + 'px');
 }
 /* How wide the code pane is (side by side) and how tall the editor is (below the text): dragged, remembered in this browser. */
-const SHARE = 'derive-code-share', HEIGHT = 'derive-editor-height';
-const LIMITS = {[SHARE]: [25, 78, 50], [HEIGHT]: [12, 90, 28]};
+const SHARE = 'derive-code-share', HEIGHT = 'derive-editor-height', TALL = 'derive-editor-height-side';
+// TALL has no default: side by side the editor fills the window until its grip is pulled down.
+const LIMITS = {[SHARE]: [25, 78, 50], [HEIGHT]: [12, 90, 28], [TALL]: [10, 120, 0]};
 const clamp = (key, v) => Math.min(LIMITS[key][1], Math.max(LIMITS[key][0], v));
 function read(key) { try { const v = Number(localStorage.getItem(key)); return v ? clamp(key, v) : LIMITS[key][2]; } catch { return LIMITS[key][2]; } }
 function keep(key, v) { try { v == null ? localStorage.removeItem(key) : localStorage.setItem(key, String(Math.round(v * 10) / 10)); } catch { /* the size just does not persist */ } }
-function size(split, share = read(SHARE), height = read(HEIGHT)) {
+function size(split, share = read(SHARE), height = read(HEIGHT), tall = read(TALL)) {
+  // Side by side with a pulled-down editor: the editor gets that height and the page grows to hold it.
+  split.classList.toggle('editor-tall', !!tall && !split.classList.contains('editor-below'));
+  split.style.setProperty('--editor-tall', (tall || 28) + 'rem');
   split.style.setProperty('--code-fr', share + 'fr');
   split.style.setProperty('--text-fr', (100 - share) + 'fr');
   split.style.setProperty('--handle-at', String((split.classList.contains('editor-left') ? share : 100 - share) / 100));
   split.style.setProperty('--editor-height', height + 'rem');
 }
-const sizeAll = (share, height) => document.querySelectorAll('.split').forEach(s => size(s, share, height));
+const sizeAll = (share, height, tall) => document.querySelectorAll('.split').forEach(s => size(s, share, height, tall));
 /* A handle that follows the pointer while it is held, calls done() on release, and resets on a double click. */
 function draggable(handle, move, done, reset) {
   handle.addEventListener('pointerdown', event => {
@@ -55,13 +59,15 @@ function addHandles(split) {
   if (!host) return;
   const grip = document.createElement('div');
   grip.className = 'editor-grip'; grip.tabIndex = 0; grip.setAttribute('role', 'separator'); grip.setAttribute('aria-orientation', 'horizontal');
-  grip.title = 'Drag to make the editor taller or shorter. Double-click to reset.'; grip.setAttribute('aria-label', 'Height of the editor');
+  grip.title = 'Pull down to make the editor taller. Double-click to reset.'; grip.setAttribute('aria-label', 'Height of the editor');
   host.after(grip);
   const rem = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-  let height = read(HEIGHT);
-  const setH = v => { height = clamp(HEIGHT, v); sizeAll(undefined, height); };
-  draggable(grip, e => setH((e.clientY - host.getBoundingClientRect().top) / rem()), () => keep(HEIGHT, height), () => { keep(HEIGHT, null); height = LIMITS[HEIGHT][2]; sizeAll(); });
-  grip.addEventListener('nudge', e => { height = read(HEIGHT); setH(height + 2 * e.detail); keep(HEIGHT, height); });
+  // The same grip sets two remembered heights: one for the editor below the text, one for side by side.
+  const key = () => split.classList.contains('editor-below') ? HEIGHT : TALL;
+  let height = 0;
+  const setH = v => { height = clamp(key(), v); key() === HEIGHT ? sizeAll(undefined, height) : sizeAll(undefined, undefined, height); };
+  draggable(grip, e => setH((e.clientY - host.getBoundingClientRect().top) / rem()), () => { if (height) keep(key(), height); }, () => { keep(key(), null); height = 0; sizeAll(); });
+  grip.addEventListener('nudge', e => { setH(host.getBoundingClientRect().height / rem() + 2 * e.detail); keep(key(), height); });
 }
 function apply(split) {
   const side = editorSide();

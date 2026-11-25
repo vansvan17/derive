@@ -1,0 +1,180 @@
+{
+ "idea": "nearest-greater",
+ "opening": "People stand in a row and each wants to know the nearest person to their left who is taller. Walking left from every person is too slow for a long row. Something about the people already passed can be thrown away.",
+ "steps": [
+  {
+   "id": "nearest",
+   "kind": "list",
+   "prompt": "Heights in a row, positions 1 to 6: 5, 3, 4, 4, 6, 1. For each position give the position of the nearest strictly greater height to its left, or 0 if there is none. Six numbers, in order of position.",
+   "answer": [
+    0,
+    1,
+    1,
+    1,
+    0,
+    5
+   ],
+   "verify": "a = [5, 3, 4, 4, 6, 1]\nresult = [next((j + 1 for j in range(i - 1, -1, -1) if a[j] > a[i]), 0) for i in range(6)]",
+   "nudges": [
+    "Take position 4 (height 4) and walk left one person at a time. Who is the first person strictly taller than 4?"
+   ],
+   "showed": "0, 1, 1, 1, 0, 5. An equal height does not count: position 4 walks past the 4 at position 3 and stops at the 5.",
+   "ordered": true
+  },
+  {
+   "id": "slow",
+   "kind": "choice",
+   "prompt": "The plain method walks left from every position, one person at a time, until it meets a strictly greater height or runs out of row. For which row of $n$ heights does it take the most steps in total?",
+   "options": [
+    "Heights that keep rising, such as 1, 2, ..., n: every walk goes all the way to the start",
+    "Heights that keep falling, such as n, ..., 2, 1",
+    "Every row costs about the same"
+   ],
+   "answer": 0,
+   "nudges": [
+    "In a falling row, how far does each person have to walk before meeting someone taller?"
+   ],
+   "showed": "In a rising row nobody has a taller person to the left, so the walk from position $i$ takes $i - 1$ steps: about $n^2 / 2$ in all. In a falling row every walk stops after one step."
+  },
+  {
+   "id": "forget",
+   "kind": "choice",
+   "prompt": "Positions $i < j$ with $a_j \\ge a_i$: the later person is at least as tall. Take any position $k > j$. Can $i$ be the nearest strictly greater height to the left of $k$?",
+   "options": [
+    "Never: if $a_i > a_k$ then $a_j > a_k$ too, and $j$ is nearer",
+    "Yes, whenever $a_i > a_k$",
+    "Only when $a_i = a_j$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Suppose $a_i > a_k$. What does $a_j \\ge a_i$ then say about $a_j$ and $a_k$?"
+   ],
+   "showed": "Once a later person is at least as tall, the earlier one is useless for everybody still to come and can be forgotten for good."
+  },
+  {
+   "id": "kept",
+   "kind": "list",
+   "prompt": "The heights 4, 7, 5, 6, 2, 3 have been read, positions 1 to 6. Call a position worth remembering if no later position among these six holds a height at least as large. List the positions worth remembering.",
+   "answer": [
+    2,
+    4,
+    6
+   ],
+   "verify": "a = [4, 7, 5, 6, 2, 3]\nresult = [i + 1 for i in range(6) if not any(a[j] >= a[i] for j in range(i + 1, 6))]",
+   "nudges": [
+    "Position 3 holds 5. Is there a later height that is at least 5?"
+   ],
+   "showed": "Positions 2, 4 and 6, holding 7, 6 and 3. Everything else has a later height at least as large."
+  },
+  {
+   "id": "shape",
+   "kind": "choice",
+   "prompt": "Read from left to right, the heights at the positions worth remembering are always:",
+   "options": [
+    "strictly decreasing",
+    "strictly increasing",
+    "in no fixed order"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If two remembered positions $i < j$ had $a_i \\le a_j$, what would the rule from two steps ago say about $i$?"
+   ],
+   "showed": "If an earlier remembered height were not larger than a later one, the earlier position would have been forgotten. So they decrease strictly."
+  },
+  {
+   "id": "top",
+   "kind": "choice",
+   "prompt": "A new height $x$ arrives at position $k$. First every remembered position whose height is at most $x$ is forgotten, since $x$ now makes it useless. Among the remembered positions that are left, which one is the nearest strictly greater height to the left of $k$?",
+   "options": [
+    "The last one (the one furthest to the right)",
+    "The first one (the tallest)",
+    "It cannot be told from the remembered positions alone"
+   ],
+   "answer": 0,
+   "nudges": [
+    "The remembered heights decrease from left to right, and the ones at most $x$ have just been removed. Which heights are left, and which of them is nearest to $k$?"
+   ],
+   "showed": "Everything left is strictly greater than $x$, and the last of them is the nearest. Nothing forgotten earlier can be the answer either: each forgotten position lost to a later height at least as large."
+  },
+  {
+   "id": "pops",
+   "kind": "number",
+   "prompt": "So keep the remembered positions in a list that changes only at its end: for each new height, remove from the end every position whose height is at most the new one, read off the answer, then add the new position at the end. For the heights 4, 7, 5, 6, 2, 3, 8, 1, how many removals happen during the whole sweep? (A position is removed exactly when a later height at least as large arrives.)",
+   "answer": 6,
+   "verify": "a = [4, 7, 5, 6, 2, 3, 8, 1]\nresult = sum(1 for i in range(8) if any(a[j] >= a[i] for j in range(i + 1, 8)))",
+   "nudges": [
+    "Which of the eight positions never meet a later height at least as large?"
+   ],
+   "showed": "Six: every position except the 8 and the final 1 is removed once."
+  },
+  {
+   "id": "work",
+   "kind": "choice",
+   "prompt": "The removal loop sits inside the loop over positions. For $n$ heights, the total number of removals during the whole sweep is at most:",
+   "options": [
+    "$n$: every position is added once and can be removed only once",
+    "$n^2 / 2$",
+    "$n \\log n$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Can the same position be removed twice?"
+   ],
+   "showed": "A loop inside a loop, but the inner one runs at most $n$ times in total over the whole sweep. This list, changed only at its end, is a stack."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Sweep left to right keeping a list of positions. At position $k$: remove from the end of the list every position $p$ with $a_p \\le a_k$; then append $k$. Prove that just after the removals at position $k$ (before $k$ is appended), the last position in the list, if there is one, is the nearest position $j < k$ with $a_j > a_k$, and that if the list is empty no such $j$ exists.",
+   "claims": [
+    "A position p is only ever removed when a later position q arrives with a_q >= a_p (invariant: every position before k that is not in the list has a later position before or at k with a height at least as large).",
+    "If a position p < k has a_p > a_k and is not in the list, then following those larger-or-equal later positions leads to a position in the list that is to the right of p and also has height > a_k; so the nearest strictly greater position is itself in the list.",
+    "After the removals every position left in the list has height > a_k, and the last of them is the rightmost, hence it is the nearest strictly greater; if the list is empty there is none."
+   ],
+   "nudges": [
+    "When is a position removed from the list, stated as a fact about some later position?",
+    "Take the nearest $j < k$ with $a_j > a_k$. Could it have been removed before now?"
+   ],
+   "showed": "The nearest strictly greater position can never have been removed, because removing it needs a later height at least as large, which would be nearer and still greater."
+  },
+  {
+   "id": "h-far",
+   "kind": "number",
+   "prompt": "No walking from here. Let $a_i = (7i^2 + 3i) \\bmod 23$ for $i = 1, \\dots, 300$; values repeat. For each position $i$ let $L$ be the position of the nearest strictly greater value to its left, or 0 if there is none. Add up $i - L$ over all 300 positions.",
+   "answer": 4842,
+   "verify": "a = [(7 * i * i + 3 * i) % 23 for i in range(1, 301)]\nresult = sum(i + 1 - next((j + 1 for j in range(i - 1, -1, -1) if a[j] > a[i]), 0) for i in range(300))",
+   "nudges": [
+    "Which positions are still worth remembering when position $i$ arrives, and which of them answers for $i$?"
+   ],
+   "showed": "One sweep with the stack; the top after popping is $L$.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-see",
+   "kind": "number",
+   "prompt": "The same 300 values are heights of people in a row. Two people at positions $i < j$ can see each other if everybody standing strictly between them is strictly shorter than both of them (neighbours always can). How many pairs can see each other?",
+   "answer": 542,
+   "verify": "a = [(7 * i * i + 3 * i) % 23 for i in range(1, 301)]\ntotal = 0\nfor i in range(300):\n    tallest = -1\n    for j in range(i + 1, 300):\n        if tallest < min(a[i], a[j]): total += 1\n        tallest = max(tallest, a[j])\nresult = total",
+   "nudges": [
+    "When person $j$ arrives, which earlier people can still be seen from the right at all?",
+    "While you pop people shorter than $j$, could $j$ see each of them? What about the first person you do not pop, and people of exactly the same height as $j$?"
+   ],
+   "showed": "Sweep with the stack. Every person popped because they are strictly shorter than the newcomer is seen by the newcomer; so is the first person left who is at least as tall. A person of equal height is seen and blocks everyone behind them, so equal heights need care: pop on strictly shorter, then count one more if the stack is not empty, then pop an equal one before pushing.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-taller",
+   "kind": "code",
+   "task": "taller-left",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "One loop over the positions and a stack of positions; pop while the height on top is at most the current one, read the top, push.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Monotonic stack",
+  "statement": "Sweep the array once, keeping a stack of positions whose values strictly decrease. Before pushing position $k$, pop every position whose value is at most $a_k$; the position then on top is the nearest strictly greater element to the left of $k$. Every position is pushed once and popped at most once, so the sweep is $O(n)$.",
+  "remark": "Turn the comparison round for the nearest smaller element, and sweep from the right for the other side. What you pop and what stays on top both carry information: who is hidden behind whom, who can see whom, how far a value stays the largest."
+ }
+}

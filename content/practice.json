@@ -262,5 +262,29 @@
    "url": "https://cses.fi/problemset/task/1650",
    "checked": "2026-11-26"
   }
+ ],
+ "nearest-greater": [
+  {
+   "site": "CSES",
+   "title": "Nearest Smaller Values",
+   "url": "https://cses.fi/problemset/task/1645",
+   "checked": "2026-11-26"
+  }
+ ],
+ "min-reach": [
+  {
+   "site": "CSES",
+   "title": "Advertisement",
+   "url": "https://cses.fi/problemset/task/1142",
+   "checked": "2026-11-26"
+  }
+ ],
+ "window-max": [
+  {
+   "site": "CSES",
+   "title": "Sliding Window Minimum",
+   "url": "https://cses.fi/problemset/task/3221",
+   "checked": "2026-11-26"
+  }
  ]
 }

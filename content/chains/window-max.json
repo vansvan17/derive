@@ -1,0 +1,200 @@
+{
+ "idea": "window-max",
+ "opening": "A window of fixed width slides along an array, one step at a time, and you want the largest value in every window. Rescanning each window costs the width every step. The stack idea almost works, but now old elements also leave.",
+ "steps": [
+  {
+   "id": "maxes",
+   "kind": "list",
+   "prompt": "The array 1, 3, 2, 5, 4, 1, 2 and a window of width 3. Give the largest value in each of the 5 windows, from left to right.",
+   "answer": [
+    3,
+    5,
+    5,
+    5,
+    4
+   ],
+   "verify": "a = [1, 3, 2, 5, 4, 1, 2]\nresult = [max(a[i:i + 3]) for i in range(5)]",
+   "nudges": [
+    "The first window covers positions 1 to 3. Which positions does the second one cover?"
+   ],
+   "showed": "3, 5, 5, 5, 4.",
+   "ordered": true
+  },
+  {
+   "id": "useless",
+   "kind": "choice",
+   "prompt": "Positions $i < j$ are both inside the current window and $a_i \\le a_j$. Can position $i$ be needed as the maximum of this window or of any later window?",
+   "options": [
+    "Never: every later window that still contains $i$ also contains $j$, which is at least as large",
+    "Yes, once $j$ has left the window",
+    "Yes, if $a_i = a_j$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Windows only move right. Which of $i$ and $j$ leaves the window first?"
+   ],
+   "showed": "The earlier position leaves first, so while $i$ is inside, $j$ is inside too and at least as large. Position $i$ can be dropped at once."
+  },
+  {
+   "id": "candidates",
+   "kind": "list",
+   "prompt": "The array 4, 2, 5, 1, 3, 2, 6 and a window of width 4. Look at the window covering positions 3 to 6 (values 5, 1, 3, 2). Call a position in the window a candidate if no later position in the window holds a value at least as large. List the candidates.",
+   "answer": [
+    3,
+    5,
+    6
+   ],
+   "verify": "a = [4, 2, 5, 1, 3, 2, 6]\nresult = [i + 1 for i in range(2, 6) if not any(a[j] >= a[i] for j in range(i + 1, 6))]",
+   "nudges": [
+    "Position 4 holds 1. Is there a later value in the window that is at least 1?"
+   ],
+   "showed": "Positions 3, 5 and 6, holding 5, 3 and 2: strictly decreasing, exactly as with the stack."
+  },
+  {
+   "id": "front",
+   "kind": "choice",
+   "prompt": "The candidates, in order of position, hold strictly decreasing values. Where is the largest value of the window?",
+   "options": [
+    "At the first candidate (the oldest position)",
+    "At the last candidate (the newest position)",
+    "It has to be searched for among the candidates"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which end of a decreasing list is the largest?"
+   ],
+   "showed": "The first candidate is the maximum of the window. No search is needed."
+  },
+  {
+   "id": "two-ends",
+   "kind": "choice",
+   "prompt": "The window slides one step: a new value enters on the right and the leftmost position leaves. Where can the list of candidates change?",
+   "options": [
+    "At both ends: candidates not larger than the new value are removed from the back, and the front candidate is removed if it is the position that left",
+    "Only at the back",
+    "Anywhere in the list"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which candidates does the new value make useless? Which candidate can be the position that just left the window?"
+   ],
+   "showed": "New values eat candidates from the back, exactly like the stack. The position leaving the window is the oldest one, so if it is a candidate at all it is the front one."
+  },
+  {
+   "id": "expire",
+   "kind": "choice",
+   "prompt": "Why is it enough to look only at the front candidate when the window moves on?",
+   "options": [
+    "The candidates are in order of position, so the front one is the oldest, and only the oldest position can have just left the window",
+    "Because the front candidate is the largest",
+    "It is not enough: every candidate has to be checked"
+   ],
+   "answer": 0,
+   "nudges": [
+    "In what order are positions added to the list?"
+   ],
+   "showed": "Positions are added at the back in increasing order and never reordered, so the list is sorted by position as well as by value. Store positions rather than values, so that you can tell when the front has left."
+  },
+  {
+   "id": "work",
+   "kind": "choice",
+   "prompt": "Each step may remove several candidates. Over the whole array of $n$ elements, the total number of removals (from both ends together) is at most:",
+   "options": [
+    "$n$: each position enters the list once and leaves it at most once",
+    "$n \\cdot k$ for a window of width $k$",
+    "$n \\log k$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How many times can one position be put into the list?"
+   ],
+   "showed": "Linear in $n$ whatever the width. A list used at both ends like this is a double-ended queue."
+  },
+  {
+   "id": "short-small",
+   "kind": "number",
+   "prompt": "A different question with the same answer inside. The array 3, −5, 4, −1, 3, −6, 2. What is the largest sum of a stretch of at least 1 and at most 3 consecutive numbers?",
+   "answer": 6,
+   "verify": "a = [3, -5, 4, -1, 3, -6, 2]\nresult = max(sum(a[i:j + 1]) for i in range(7) for j in range(i, min(7, i + 3)))",
+   "nudges": [
+    "Which stretches of at most 3 numbers contain the 4, and what are their sums?"
+   ],
+   "showed": "4 − 1 + 3 = 6."
+  },
+  {
+   "id": "prefix-view",
+   "kind": "choice",
+   "prompt": "Let $P_i$ be the sum of the first $i$ numbers, with $P_0 = 0$. The best stretch that ends at position $r$ and has at most $k$ numbers has sum $P_r$ minus:",
+   "options": [
+    "the smallest of $P_{r-k}, \\dots, P_{r-1}$ (indices below 0 left out)",
+    "the largest of $P_{r-k}, \\dots, P_{r-1}$",
+    "$P_{r-k}$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "A stretch from $l$ to $r$ has sum $P_r - P_{l-1}$. Which values may $l - 1$ take when the length is at most $k$?"
+   ],
+   "showed": "To make $P_r - P_{l-1}$ large, make $P_{l-1}$ small, and $l - 1$ ranges over a window of $k$ consecutive indices that slides with $r$: a sliding window minimum over the running sums."
+  },
+  {
+   "id": "h-sum",
+   "kind": "number",
+   "prompt": "No rescanning from here. Let $a_i = 37i \\bmod 101$ for $i = 1, \\dots, 500$ and take a window of width 25. Add up the largest values of all 476 windows.",
+   "answer": 46769,
+   "verify": "a = [37 * i % 101 for i in range(1, 501)]\nresult = sum(max(a[i:i + 25]) for i in range(476))",
+   "nudges": [
+    "Which positions of the window can still become a maximum, and where among them is the current maximum?"
+   ],
+   "showed": "One sweep with a queue of positions: pop from the back while the value there is at most the new one, pop the front when it has left, add the front value once the window is full.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-spread",
+   "kind": "number",
+   "prompt": "A different array: $a_i = |(7i \\bmod 120) - 60| + (i^2 \\bmod 9)$ for $i = 1, \\dots, 500$. What is the largest number of consecutive positions in which the largest value minus the smallest value is at most 30?",
+   "answer": 11,
+   "verify": "a = [abs(7 * i % 120 - 60) + i * i % 9 for i in range(1, 501)]\nbest = 0\nfor i in range(500):\n    lo = hi = a[i]\n    for j in range(i, 500):\n        lo = min(lo, a[j]); hi = max(hi, a[j])\n        if hi - lo > 30: break\n        best = max(best, j - i + 1)\nresult = best",
+   "nudges": [
+    "If a stretch has spread at most 30, what about every stretch inside it? Which sweep does that allow?",
+    "The window now has a moving left end too. What do you need to know about the window at every moment?"
+   ],
+   "showed": "The property survives shrinking, so both ends sweep right once (two pointers). Two queues, one for the maximum and one for the minimum, give the spread of the current window; a queue only needs \"pop the front when it has left\", which works for a moving left end as well.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-short",
+   "kind": "number",
+   "prompt": "Let $b_i = (29i \\bmod 17) - 8$ for $i = 1, \\dots, 400$. What is the largest sum of a stretch of at least 1 and at most 20 consecutive numbers?",
+   "answer": 14,
+   "verify": "b = [29 * i % 17 - 8 for i in range(1, 401)]\nresult = max(sum(b[i:j + 1]) for i in range(400) for j in range(i, min(400, i + 20)))",
+   "nudges": [
+    "With running sums $P$, which earlier values of $P$ may be subtracted from $P_r$ when the stretch has at most 20 numbers?"
+   ],
+   "showed": "A sliding window minimum over the running sums $P_0, \\dots, P_{n-1}$, with the window ending just before $r$.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-window",
+   "kind": "code",
+   "task": "window-maximum",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs with a time limit.",
+   "nudges": [],
+   "showed": "A queue of positions with strictly decreasing values: pop the back while its value is at most the new one, push, pop the front if it is out of the window, print the front value.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-short",
+   "kind": "code",
+   "task": "best-short-stretch",
+   "prompt": "And the running-sum version.",
+   "nudges": [],
+   "showed": "Running sums in 64 bits and a queue holding the smallest of the last k of them; push P[r−1] before using it for position r.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Monotonic queue",
+  "statement": "Keep the positions of the current window that have no later, at-least-as-large value in the window. Their values strictly decrease, so the front is the maximum. A new value removes candidates from the back; a position leaving the window can only be the front. Each position enters and leaves once: $O(n)$ for all windows.",
+  "remark": "It works for any window whose two ends only move right, not just a fixed width. Typical uses: maximum or minimum of every window, the longest stretch whose spread is within a limit, and tables where each entry needs the best of the previous $k$ entries (for example the best sum of a stretch of bounded length, through running sums)."
+ }
+}

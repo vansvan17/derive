@@ -69,7 +69,7 @@ export async function renderSettings(ctx) {
       <dl class="shortcuts"><dt>« at the top of the sidebar</dt><dd>Folds the sidebar away to a thin strip; » brings it back.</dd>
       <dt>Left · Right · Below</dt><dd>Where the editor sits next to the text (above the editor).</dd>
       <dt>The bar between text and code</dt><dd>Drag it to give the code more or less width. Double-click to reset.</dd>
-      <dt>The grip under the editor</dt><dd>When the editor is below the text, drag it to make the editor taller. Double-click to reset.</dd></dl></section>
+      <dt>The grip under the editor</dt><dd>Pull it down to make the editor taller (the page then scrolls). Double-click to reset.</dd></dl></section>
     <section class="surface"><h2>Shortcuts</h2><dl class="shortcuts">${[['Z', 'Undo, in the editor'], ['Shift+Z', 'Redo'], ['Enter', 'Run on your own input'], ['Shift+Enter', 'Judge (Code tasks) or stress test (Solve)'], ['S', 'Save the code now (it also saves by itself)'], ['/', 'Comment or uncomment the selected lines'], ['F', 'Find in the code'], ['D', 'Select the next occurrence of the selected word'], ['\\', 'Hide or show the sidebar']].map(([k, what]) => `<dt>${MOD}${k}</dt><dd>${what}</dd>`).join('')}<dt>Tab / Shift+Tab</dt><dd>Indent or unindent the selected lines</dd></dl></section></div>`;
   root.querySelector('[data-settings]').addEventListener('submit', async event => {
     event.preventDefault();

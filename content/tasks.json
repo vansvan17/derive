@@ -1468,5 +1468,97 @@
    "If they are equal, use them as a pair and continue with the rest of both strings. If they are different, at least one of the two is not used, so drop one or the other and take the better result. That gives a table indexed by a position in the first string and a position in the second.",
    "Let t[$i$][$j$] be the length of the longest shared sequence of the first string from position $i$ onwards and the second from position $j$ onwards; fill it from the ends of the strings backwards. To print a string, walk from the two starts: when the letters are equal take the letter and advance in both; otherwise advance in the string where doing so keeps the larger table value."
   ]
+ },
+ {
+  "id": "stretch-minimums",
+  "title": "Sum of the smallest",
+  "statement": "You are given $n$ whole numbers in a row. For every stretch of consecutive positions (there are $n(n+1)/2$ of them) take the smallest number in it. Print the sum of all these smallest numbers.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^6$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "4\n3 1 2 4\n",
+    "17"
+   ],
+   [
+    "3\n2 2 2\n",
+    "12"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef row(rng, size, n, top):\n    kind = rng.choice(['random', 'down', 'up', 'few', 'equal', 'saw'])\n    if size == 'small': return [rng.randint(1, 4) for _ in range(n)]\n    if kind == 'down': return [max(1, top - i * (top // n)) for i in range(n)]\n    if kind == 'up': return [1 + i * (top // n) for i in range(n)]\n    if kind == 'few': return [rng.randint(1, 3) for _ in range(n)]\n    if kind == 'equal': return [top] * n\n    if kind == 'saw': return [1 + (i % 1000) * (top // 1000) for i in range(n)]\n    return [rng.randint(1, top) for _ in range(n)]\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    return f\"{n}\\n{' '.join(map(str, row(rng, size, n, 10 ** 6)))}\\n\"\ndef solve(text):\n    a = ints(text)[1:]; n = len(a); left = [0] * n; right = [0] * n; st = []\n    for i in range(n):\n        while st and a[st[-1]] > a[i]: st.pop()\n        left[i] = i - (st[-1] if st else -1); st.append(i)\n    st = []\n    for i in range(n - 1, -1, -1):\n        while st and a[st[-1]] >= a[i]: st.pop()\n        right[i] = (st[-1] if st else n) - i; st.append(i)\n    return str(sum(a[i] * left[i] * right[i] for i in range(n)))\ndef brute(text):\n    a = ints(text)[1:]; total = 0\n    for i in range(len(a)):\n        lo = a[i]\n        for j in range(i, len(a)):\n            lo = min(lo, a[j]); total += lo\n    return str(total)\n",
+  "track": "core",
+  "hints": [
+   "There are about $2 \\cdot 10^{10}$ stretches. Turn the sum round: instead of asking each stretch for its smallest number, ask each number in how many stretches it is the smallest.",
+   "If all numbers were different: the number at position $i$ is the smallest of a stretch exactly when the stretch does not reach the nearest smaller number on the left (position $L$) or on the right (position $R$). That is $(i - L) \\cdot (R - i)$ stretches. With equal numbers, stop at smaller-or-equal on one side and at strictly smaller on the other, so that every stretch is counted for exactly one position.",
+   "Find the nearest smaller-or-equal position to the left of every position in one left-to-right sweep: keep a list of earlier positions, remove from its end every position that can no longer be anyone's answer, and read the end. Do the same from the right with strictly smaller. Then add $a_i \\cdot (i - L) \\cdot (R - i)$. The total needs 64 bits."
+  ]
+ },
+ {
+  "id": "widest-poster",
+  "title": "The largest poster",
+  "statement": "A fence is made of $n$ boards standing side by side on the ground. Every board is 1 wide, and board $i$ is $h_i$ high. A rectangular poster with horizontal and vertical sides is to be glued on so that it lies entirely on the boards. Print the largest possible area of the poster.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains the $n$ heights, each between 1 and $10^9$.\n\n**Output.** One number.",
+  "seconds": 3.0,
+  "samples": [
+   [
+    "6\n2 1 5 6 2 3\n",
+    "10"
+   ],
+   [
+    "4\n3 3 3 3\n",
+    "12"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef row(rng, size, n, top):\n    kind = rng.choice(['random', 'down', 'up', 'few', 'equal', 'saw'])\n    if size == 'small': return [rng.randint(1, 4) for _ in range(n)]\n    if kind == 'down': return [max(1, top - i * (top // n)) for i in range(n)]\n    if kind == 'up': return [1 + i * (top // n) for i in range(n)]\n    if kind == 'few': return [rng.randint(1, 3) for _ in range(n)]\n    if kind == 'equal': return [top] * n\n    if kind == 'saw': return [1 + (i % 1000) * (top // 1000) for i in range(n)]\n    return [rng.randint(1, top) for _ in range(n)]\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    return f\"{n}\\n{' '.join(map(str, row(rng, size, n, 10 ** 9)))}\\n\"\ndef solve(text):\n    a = ints(text)[1:] + [0]; st = []; best = 0\n    for i, x in enumerate(a):\n        while st and a[st[-1]] >= x:\n            h = a[st.pop()]; w = i - (st[-1] + 1 if st else 0)\n            if h * w > best: best = h * w\n        st.append(i)\n    return str(best)\ndef brute(text):\n    a = ints(text)[1:]; best = 0\n    for i in range(len(a)):\n        lo = a[i]\n        for j in range(i, len(a)):\n            lo = min(lo, a[j]); best = max(best, lo * (j - i + 1))\n    return str(best)\n",
+  "track": "core",
+  "hints": [
+   "Trying every pair of a left board and a right board is about $2 \\cdot 10^{10}$ rectangles. A poster covering boards $l$ to $r$ can be as high as the lowest of those boards. So which board decides the height of the best poster, and could you go through the boards instead of through the pairs?",
+   "The best poster is exactly as high as the lowest board it covers. Fix that board $i$: a poster of height $h_i$ can spread left and right until it meets a strictly lower board. With the nearest strictly lower boards at positions $L$ and $R$ (0 and $n + 1$ if there are none), its area is $h_i \\cdot (R - L - 1)$.",
+   "Find the nearest strictly lower board on the left of every board in one sweep: keep a list of earlier boards, remove from its end every board that is at least as high as the current one (it can never again be the nearest lower board for anything later), and read the end. Do the same from the right. The answer is the largest $h_i \\cdot (R - L - 1)$, in 64 bits."
+  ]
+ },
+ {
+  "id": "window-maximum",
+  "title": "Largest in every window",
+  "statement": "You are given $n$ whole numbers and a window length $k$. For every window of $k$ consecutive positions, from left to right, print the largest number in it.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between 1 and $10^9$.\n\n**Output.** $n - k + 1$ numbers on one line.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "7 3\n1 3 2 5 4 1 2\n",
+    "3 5 5 5 4"
+   ],
+   [
+    "4 1\n5 2 2 9\n",
+    "5 2 2 9"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef row(rng, size, n, top):\n    kind = rng.choice(['random', 'down', 'up', 'few', 'equal', 'saw'])\n    if size == 'small': return [rng.randint(1, 4) for _ in range(n)]\n    if kind == 'down': return [max(1, top - i * (top // n)) for i in range(n)]\n    if kind == 'up': return [1 + i * (top // n) for i in range(n)]\n    if kind == 'few': return [rng.randint(1, 3) for _ in range(n)]\n    if kind == 'equal': return [top] * n\n    if kind == 'saw': return [1 + (i % 1000) * (top // 1000) for i in range(n)]\n    return [rng.randint(1, top) for _ in range(n)]\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    k = rng.randint(1, n) if size == 'small' else rng.choice([1, 2, n // 3, n // 2, n - 1, n])\n    return f\"{n} {k}\\n{' '.join(map(str, row(rng, size, n, 10 ** 9)))}\\n\"\ndef solve(text):\n    from collections import deque\n    v = ints(text); n, k = v[0], v[1]; a = v[2:]; q = deque(); out = []\n    for i, x in enumerate(a):\n        while q and a[q[-1]] <= x: q.pop()\n        q.append(i)\n        if q[0] <= i - k: q.popleft()\n        if i >= k - 1: out.append(a[q[0]])\n    return ' '.join(map(str, out))\ndef brute(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:]\n    return ' '.join(str(max(a[i:i + k])) for i in range(n - k + 1))\n",
+  "track": "core",
+  "hints": [
+   "Scanning every window costs $k$ steps per window, up to $10^{10}$ in all. Suppose two positions $i < j$ are both inside the window and the number at $j$ is at least the number at $i$. Can position $i$ ever again be where the largest number of a window sits?",
+   "No: position $i$ leaves the window before $j$ does, so it can be dropped at once. The positions that survive, read from left to right, hold strictly decreasing numbers, and the first of them holds the largest number of the window.",
+   "Keep the surviving positions in a list that is used at both ends. For each new position: remove from the back every position whose number is at most the new one, add the new position at the back, remove the front position if it has left the window, and (once $k$ numbers have been read) print the number at the front position. Each position is added once and removed at most once."
+  ]
+ },
+ {
+  "id": "best-short-stretch",
+  "title": "Best stretch of limited length",
+  "statement": "You are given $n$ whole numbers in a row, which may be negative, and a number $k$. Choose a stretch of at least 1 and at most $k$ consecutive numbers. Print the largest possible sum of the chosen stretch.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers, each between $-10^9$ and $10^9$.\n\n**Output.** One number.",
+  "seconds": 2.0,
+  "samples": [
+   [
+    "7 3\n3 -5 4 -1 3 -6 2\n",
+    "6"
+   ],
+   [
+    "3 2\n-4 -2 -7\n",
+    "-2"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\nN = {'small': 7, 'medium': 2000, 'large': 200000}\n\ndef gen(rng, size):\n    n = rng.randint(1, N[size]) if size == 'small' else N[size]\n    k = rng.randint(1, n) if size == 'small' else rng.choice([1, 2, n // 3, n // 2, n - 1, n])\n    kind = rng.choice(['random', 'negative', 'positive', 'waves'])\n    top = 5 if size == 'small' else 10 ** 9\n    if kind == 'negative': a = [-rng.randint(1, top) for _ in range(n)]\n    elif kind == 'positive': a = [rng.randint(1, top) for _ in range(n)]\n    elif kind == 'waves' and size != 'small': a = [top if (i // 700) % 2 == 0 else -top + rng.randint(0, 9) for i in range(n)]\n    else: a = [rng.randint(-top, top) for _ in range(n)]\n    return f\"{n} {k}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    from collections import deque\n    v = ints(text); n, k = v[0], v[1]; a = v[2:]; p = [0]\n    for x in a: p.append(p[-1] + x)\n    q = deque(); best = None\n    for r in range(1, n + 1):\n        while q and p[q[-1]] >= p[r - 1]: q.pop()\n        q.append(r - 1)\n        if q[0] < r - k: q.popleft()\n        c = p[r] - p[q[0]]\n        if best is None or c > best: best = c\n    return str(best)\ndef brute(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:]\n    return str(max(sum(a[i:j + 1]) for i in range(n) for j in range(i, min(n, i + k))))\n",
+  "track": "core",
+  "hints": [
+   "Trying every stretch of length up to $k$ is about $n \\cdot k$ sums, up to $4 \\cdot 10^{10}$. Write $P_i$ for the sum of the first $i$ numbers, with $P_0 = 0$. A stretch from position $l$ to position $r$ has sum $P_r - P_{l-1}$. For a fixed right end $r$, which values of $P$ are you allowed to subtract?",
+   "The index $l - 1$ may be any of $r - k, \\dots, r - 1$ (not below 0), and to make the sum large you subtract the smallest of those values of $P$. As $r$ moves one step right, that range of indices moves one step right too: it is a window of length $k$ sliding over $P$, and you need its smallest value each time.",
+   "Keep a list of indices into $P$, used at both ends, whose values of $P$ strictly increase. For each $r$ from 1 to $n$: remove from the back every index whose value of $P$ is at least $P_{r-1}$, add $r - 1$ at the back, remove the front index if it is smaller than $r - k$, then take $P_r$ minus the value of $P$ at the front as a candidate. The answer may be negative; use 64-bit numbers."
+  ]
  }
 ]

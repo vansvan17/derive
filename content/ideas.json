@@ -1041,6 +1041,43 @@
     "standard",
     "common"
    ]
+  },
+  {
+   "id": "nearest-greater",
+   "area": "seq",
+   "name": "Monotonic stack",
+   "statement": "Sweeping once and discarding every element that a later, at-least-as-large element makes useless leaves a decreasing stack whose top is the nearest greater element; each element is pushed and popped once.",
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
+  },
+  {
+   "id": "min-reach",
+   "area": "seq",
+   "name": "How far a minimum reaches",
+   "statement": "An element is the minimum of exactly (i - L)(R - i) stretches, where L and R are its nearest smaller neighbours; summing value times that count handles every stretch at once.",
+   "needs": [
+    "nearest-greater"
+   ],
+   "marks": [
+    "standard",
+    "common"
+   ]
+  },
+  {
+   "id": "window-max",
+   "area": "seq",
+   "name": "Monotonic queue",
+   "statement": "The candidates for the maximum of a sliding window form a decreasing queue: new values remove candidates from the back, expired positions leave from the front, and the front is the maximum.",
+   "needs": [
+    "nearest-greater"
+   ],
+   "marks": [
+    "standard",
+    "common"
+   ]
   }
  ]
 }

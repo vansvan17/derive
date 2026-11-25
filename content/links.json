@@ -322,5 +322,29 @@
   "to": "odd-cycle",
   "kind": "combines with",
   "note": "Both are read off one depth-first search: which edges close cycles, and of what parity."
+ },
+ {
+  "from": "nearest-greater",
+  "to": "window-max",
+  "kind": "used to prove",
+  "note": "The same \"a later, at-least-as-large element makes this one useless\" argument, with positions also leaving at the front."
+ },
+ {
+  "from": "nearest-greater",
+  "to": "min-reach",
+  "kind": "used to prove",
+  "note": "The nearest smaller element on each side is exactly where a stretch stops having this element as its minimum."
+ },
+ {
+  "from": "contribution",
+  "to": "min-reach",
+  "kind": "combines with",
+  "note": "Sum of the minimum over all stretches: count for each element the stretches in which it is the minimum, bounded by its nearest smaller neighbours."
+ },
+ {
+  "from": "two-pointers",
+  "to": "window-max",
+  "kind": "combines with",
+  "note": "Longest stretch whose largest minus smallest is within a limit: both ends sweep right, and two queues give the maximum and minimum of the moving window."
  }
 ]

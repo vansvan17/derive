@@ -49,6 +49,31 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2070D",
+  "site": "Codeforces",
+  "contest": 2070,
+  "index": "D",
+  "title": "Tree Jumps",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2070/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/140146",
+  "ideas": [
+   "complement",
+   "dp-state"
+  ],
+  "observations": [
+   "A valid sequence goes down one level per step, so count sequences by the vertex they end at: ways(v) is the sum of ways(u) over the vertices u one level higher that are allowed to jump to v.",
+   "From a non-root vertex every vertex of the next level is allowed except its own children. Seen from v: every vertex of the previous level except the parent of v. So ways(v) = (total of the previous level) - ways(parent of v), with nothing subtracted when the parent is the root.",
+   "Keep one total per level and process the levels from the top. The answer is the sum of ways over all vertices. Linear time."
+  ],
+  "nudges": [
+   "What does a valid sequence look like, level by level?",
+   "For a vertex v, which vertices can come immediately before it?",
+   "That set is almost a whole level. What is missing from it?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2167G",
   "site": "Codeforces",
   "contest": 2167,
@@ -96,6 +121,31 @@
    "Instead of going through triples, can you fix that special vertex and count the triples it is special for?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2112D",
+  "site": "Codeforces",
+  "contest": 2112,
+  "index": "D",
+  "title": "Reachability and Tree",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2112/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/144148",
+  "ideas": [
+   "necessary-sufficient",
+   "odd-cycle"
+  ],
+  "observations": [
+   "Every edge gives exactly one good pair whichever way it points, so there are always at least n - 1. Exactly n means exactly one extra pair, and it must come from a directed path of exactly two edges: a path of three edges would bring several extra pairs.",
+   "If the middle vertex of that two-edge path had a third edge, that edge would create another two-edge path whichever way it pointed. So a vertex of degree exactly 2 is necessary.",
+   "It is also enough. If every vertex is either a pure source or a pure sink, there is no path of two edges at all: that is a two-colouring of the tree with all edges pointing from one colour to the other. Take a vertex r of degree 2 with neighbours u and v, direct u to r to v, and colour the rest so that u only has outgoing edges and v only incoming ones, alternating from there."
+  ],
+  "nudges": [
+   "How many good pairs do you get for certain, whatever the directions are?",
+   "What does the one extra pair look like, and what must be true around its middle vertex?",
+   "How would you direct the edges of a tree so that no directed path has two edges?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2123F",
@@ -196,6 +246,32 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2117F",
+  "site": "Codeforces",
+  "contest": 2117,
+  "index": "F",
+  "title": "Wildflower",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2117/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/143362",
+  "ideas": [
+   "pigeonhole",
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "A leaf's subtree sum is its own value, 1 or 2. Three leaves would give three sums from two possible values: with three or more leaves the answer is 0.",
+   "With one leaf the tree is a path, sums strictly grow towards the root, and every array works: 2^n.",
+   "With two leaves the tree is a Y. Above the branching vertex everything is larger than anything below it, so those vertices are free. The two leaves must get different values, and then, walking up the two branches side by side, a collision is avoided only by forcing 2s on the shorter branch's side until one branch runs out; only the extra length of the longer branch is free.",
+   "Counting the free vertices in the two cases (which leaf gets the 1) gives two powers of two to add; equal depths leave nothing free in the branches."
+  ],
+  "nudges": [
+   "What are the possible subtree sums of a leaf?",
+   "So how many leaves can the tree have, and what shapes are left?",
+   "In the shape with two leaves, where can two subtree sums collide at all?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2145D",
   "site": "Codeforces",
   "contest": 2145,
@@ -219,6 +295,32 @@
    "Given the run lengths, how do you place the numbers so that no segment crossing two runs is increasing?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2184E",
+  "site": "Codeforces",
+  "contest": 2184,
+  "index": "E",
+  "title": "Exquisite Array",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2184/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/150033",
+  "ideas": [
+   "contribution",
+   "reverse-time",
+   "dsu"
+  ],
+  "observations": [
+   "Only the differences between neighbours matter. A subarray is k-exquisite exactly when every difference inside it is at least k, so with d_i = |p_i - p_(i+1)| the answer for k is the number of non-empty stretches of d whose minimum is at least k.",
+   "Direct way: for each position, count the stretches of d in which it is the minimum (nearest smaller on each side, with ties broken on one side). Add that count at index d_i, then take suffix sums over k. A stack finds the neighbours.",
+   "The editorial's way: go through k from large to small. At step k the differences equal to k become allowed, which merges neighbouring groups; a group of m elements holds m(m-1)/2 good subarrays, so each merge changes the total by a known amount. Thresholds going down means groups only merge, which a union-find structure handles."
+  ],
+  "nudges": [
+   "Which quantity decides whether a subarray is k-exquisite?",
+   "If a subarray works for some k, for which other k does it work?",
+   "For one subarray, which single number tells you all the k it counts for?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2259F",
@@ -316,6 +418,58 @@
    "What are the only ways mob i can be dealt with, given what happens to mob i-1?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2174B",
+  "site": "Codeforces",
+  "contest": 2174,
+  "index": "B",
+  "title": "Wishing Cards",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2174/problem/B",
+  "editorial": "https://codeforces.com/blog/entry/149003",
+  "ideas": [
+   "dp-state",
+   "exchange"
+  ],
+  "observations": [
+   "Only friends who raise the running maximum matter; everyone else may as well carry nothing. And if some friend is going to carry x cards, the earliest friend who is able to carry x should do it: moving a record earlier never hurts.",
+   "So only the positions where the capacity sets a new prefix maximum matter, and there are at most k of them, since each raises the capacity. The number of friends disappears from the complexity.",
+   "Going through those positions, what must be carried along is the cards used so far and the current maximum; the happiness collected is the value. A new record of size m at some position adds m for every later visit, which can be accounted for when it is set.",
+   "Written naively each state tries every next value, which is k to the fourth; arranging the table so that a state looks back at (sum - m) with any smaller maximum, with those maxima precomputed, makes it k cubed."
+  ],
+  "nudges": [
+   "Which friends actually change the happiness?",
+   "If someone is to carry x cards, which friend should it be?",
+   "After that, how long is the list of friends that matter, in terms of k?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2184F",
+  "site": "Codeforces",
+  "contest": 2184,
+  "index": "F",
+  "title": "Cherry Tree",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2184/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/150033",
+  "ideas": [
+   "dp-state",
+   "residues"
+  ],
+  "observations": [
+   "If a vertex is shaken, nothing below it may be shaken. So a valid plan is: either shake the vertex itself (one shake), or handle each of its children's subtrees separately.",
+   "Only the number of shakes modulo 3 matters. For every vertex keep which of the three remainders are achievable for its subtree. A leaf can only achieve remainder 1.",
+   "For an inner vertex: remainder 1 is achievable by shaking it; the other possibilities come from combining the children, adding their remainders modulo 3 (a small three-by-three combination per child).",
+   "Another way to see it: start with the root alone and repeatedly replace a shaken vertex by all its children. Each replacement changes the count by (number of children - 1), so only the numbers of children modulo 3 matter."
+  ],
+  "nudges": [
+   "If you shake a vertex, what may you do below it?",
+   "The count must be a multiple of three. How much about the count do you need to carry up the tree?",
+   "What can the subtree of a leaf achieve? And a vertex with two leaf children?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2184G",

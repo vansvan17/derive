@@ -411,6 +411,13 @@ class App(unittest.TestCase):
         self.assertTrue(after['derived'] and after['lesson'])
         self.assertEqual(self.get('/map') and self.request('GET', '/api/bootstrap')[1]['counts']['derived'], 0)   # not counted among the map's chains
 
+    def test_a_chain_has_a_code_pad_that_saves_and_runs(self):
+        self.assertIn('main', self.get('/code/residues?language=python')['files'])
+        status, reply = self.post('/run', {'kind': 'run', 'id': 'residues', 'language': 'python', 'main': 'print(105 % 7)\n', 'input': ''})
+        self.assertEqual(status, 200, reply)
+        self.assertEqual(self.get('/code/residues?language=python')['files']['main'], 'print(105 % 7)\n')      # kept for next time
+        self.assertEqual(self.post('/run', {'kind': 'run', 'id': 'no-such-thing', 'language': 'python', 'main': 'print(1)'})[0], 400)
+
     def test_a_chain_keeps_its_scratch_pad(self):
         self.assertEqual(self.get('/chain/residues')['notes'], '')
         self.assertEqual(self.post('/chain/notes', {'idea': 'residues', 'notes': '5 + 100 = 105, 105 mod 7 = 0'})[0], 200)

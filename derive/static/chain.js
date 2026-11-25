@@ -19,6 +19,7 @@ function shownOrder(key, n) {
 }
 import {askTutor} from './tutor.js';
 import {mountTask} from './tasks.js';
+import {makeEditor} from './problem.js';
 
 const HINTS = {
   number: 'A whole number, or a fraction like 3/4.',
@@ -33,7 +34,10 @@ export async function renderChain(ctx, idea) {
   let chain = await api('/chain/' + encodeURIComponent(idea));
   let notes = chain.notes || '', notesTimer = null, notesSaved = true, notesSent = notes;
   const saveNotes = async () => { if (notes === notesSent) return; const sending = notes; try { await post('/chain/notes', {idea, notes: sending}); notesSent = sending; notesSaved = true; } catch { notesSaved = false; } };
-  ctx.onCleanup(() => { clearTimeout(notesTimer); saveNotes(); });
+  let pad = null, padInput = '', padLanguage = '';            // the code pad's editor while it is open
+  const padCode = {};                                         // what was last in the pad, per language, so a redraw loses nothing
+  try { padLanguage = localStorage.getItem('derive-codepad-language') || ''; } catch { /* default below */ }
+  ctx.onCleanup(() => { clearTimeout(notesTimer); saveNotes(); pad?.destroy(); });
   if (!alive()) return;
   let feedback = null;      // {kind: 'wrong'|'unreadable', text} for the current step
 
@@ -62,6 +66,54 @@ export async function renderChain(ctx, idea) {
     return `<details class="scratch" data-scratch ${open ? 'open' : ''}><summary>Scratch pad <span class="muted small" data-scratch-status></span></summary>
       <textarea class="input notes" data-scratch-text rows="6" spellcheck="false" aria-label="Scratch pad" placeholder="Small cases, a table, a guess. Not checked, only saved.">${e(notes)}</textarea></details>`;
   }
+  /* A code pad for the chain: a small editor to compute something instead of doing it by hand
+     (how many ways for 15, the first number with some property). It runs on this computer; nothing judges it. */
+  function codePadShell() {
+    let open = false;
+    try { open = localStorage.getItem('derive-codepad') === 'open'; } catch { /* stays closed */ }
+    return `<details class="scratch" data-codepad ${open ? 'open' : ''}><summary>Code pad <span class="muted small">· run a quick program</span></summary><div data-codepad-body></div></details>`;
+  }
+  async function mountPad(host) {
+    if (pad || !host || host.dataset.mounted) return;
+    host.dataset.mounted = '1';
+    let language = ['cpp', 'python'].includes(padLanguage) ? padLanguage : (ctx.boot.settings.language || 'cpp');
+    const load = async lang => padCode[lang] != null ? {main: padCode[lang]} : (await api(`/code/${encodeURIComponent(idea)}?language=${lang}`)).files;
+    let files = await load(language);
+    if (!host.isConnected) return;
+    host.innerHTML = `<div class="codepad"><div class="editor-bar"><span class="muted small" data-pad-save role="status">Saved</span><div class="editor-meta"><label><span class="sr-only">Language</span><select data-pad-language><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option></select></label><button class="btn btn-primary btn-sm" type="button" data-pad-run>Run</button></div></div>
+      <div class="editor-host codepad-host" data-pad-editor></div>
+      <label class="field codepad-input">Input <span class="muted small">(optional)</span><textarea data-pad-input rows="2" spellcheck="false">${e(padInput)}</textarea></label>
+      <pre class="codepad-out" data-pad-out aria-live="polite">Output appears here. Ctrl or Cmd + Enter runs it.</pre></div>`;
+    const $ = q => host.querySelector(q);
+    let timer = null, busy = false;
+    const save = async () => { try { await post('/code', {id: idea, language, file: 'main', code: files.main}); if (host.isConnected) $('[data-pad-save]').textContent = 'Saved'; } catch { if (host.isConnected) $('[data-pad-save]').textContent = 'Not saved'; } };
+    const run = async () => {
+      if (busy) return;
+      busy = true; files.main = editor.getValue(); padInput = $('[data-pad-input]').value;
+      const out = $('[data-pad-out]'); out.textContent = 'Running…'; out.className = 'codepad-out';
+      try {
+        const job = await waitFor((await post('/run', {kind: 'run', id: idea, language, main: files.main, input: padInput})).job, () => host.isConnected);
+        if (!job || !host.isConnected) return;
+        const r = job.result || {};
+        if (job.status === 'error') { out.textContent = r.error || 'The run could not finish.'; out.classList.add('is-bad'); }
+        else if (r.verdict === 'OK') out.textContent = (r.output === '' ? '(no output)' : r.output) + (r.seconds != null ? `\n\n[${Number(r.seconds).toFixed(2)} s]` : '');
+        else { out.textContent = `${r.verdict}${r.detail ? ': ' + r.detail : ''}${r.output ? '\n' + r.output : ''}`; out.classList.add('is-bad'); }
+      } catch (error) { out.textContent = error.message; out.classList.add('is-bad'); }
+      finally { busy = false; }
+    };
+    const editor = await makeEditor($('[data-pad-editor]'), {value: files.main, language, fontSize: ctx.boot.settings.font_size, tabSize: 4, onRun: run,
+      onChange: value => { files.main = value; padCode[language] = value; $('[data-pad-save]').textContent = 'Editing…'; clearTimeout(timer); timer = setTimeout(save, 800); }});
+    if (!host.isConnected) { editor.destroy(); return; }
+    pad = {destroy: () => { clearTimeout(timer); try { files.main = editor.getValue(); padCode[language] = files.main; save(); editor.destroy(); } catch { /* already gone */ } pad = null; }};
+    $('[data-pad-run]').addEventListener('click', run);
+    $('[data-pad-language]').addEventListener('change', async event => {
+      files.main = editor.getValue(); padCode[language] = files.main; await save();
+      language = padLanguage = event.target.value;
+      try { localStorage.setItem('derive-codepad-language', language); } catch { /* fine */ }
+      files = await load(language);
+      editor.setLanguage(language); editor.setValue(files.main);
+    });
+  }
   function currentStep(step, index) {
     const more = step.nudges.length < step.nudges_total;
     if (step.kind === 'code') return `<li class="step is-current step-code" data-current><div class="step-num" aria-hidden="true">${index + 1}</div><div class="step-body">${step.hard ? '<p class="eyebrow">Hard part · write it</p>' : '<p class="eyebrow">Write it</p>'}<div class="step-prompt">${markdown(step.prompt)}</div>
@@ -73,10 +125,11 @@ export async function renderChain(ctx, idea) {
         ${feedback ? `<p class="step-feedback ${feedback.kind}" role="alert">${e(feedback.text)}</p>` : ''}
         ${step.nudges.length ? `<ol class="nudges">${step.nudges.map(n => `<li>${inline(n)}</li>`).join('')}</ol>` : ''}
         <div class="step-actions"><button class="btn btn-primary" type="submit">${step.kind === 'proof' ? 'Submit proof' : 'Check'}</button>${more ? `<button class="btn btn-ghost" type="button" data-nudge>Ask a smaller question (${step.nudges.length + 1} of ${step.nudges_total})</button>` : ''}<button class="btn btn-ghost" type="button" data-tutor>Ask a tutor</button></div>
-      </form>${scratch()}</div></li>`;
+      </form>${scratch()}${codePadShell()}</div></li>`;
   }
 
   function paint(focus = false) {
+    pad?.destroy();                                          // the page is redrawn: the code pad is saved and rebuilt
     const done = chain.steps.filter(s => s.done).length;
     const reveal = chain.complete ? `<section class="surface reveal" data-reveal><p class="eyebrow">You have just derived</p><h2>${e(chain.reveal.name)}</h2><div class="reveal-statement">${markdown(chain.reveal.statement)}</div>${chain.reveal.remark ? `<p class="muted">${inline(chain.reveal.remark)}</p>` : ''}<div class="step-actions"><a class="btn btn-primary" href="#/derive">Next chain</a>${chain.reveal.problems ? `<a class="btn btn-secondary" href="#/solve">Use it on a real problem</a>` : ''}<a class="btn btn-ghost" href="#/">See it on the map</a></div>${chain.practice.length ? `<h3>Practise it</h3><p class="muted small">Standard tasks from the CSES problem set that lean on this idea (some also need a little standard implementation). Tick them off as you get them accepted there.</p><ul class="plain-list practice">${chain.practice.map(t => `<li><label class="choice"><input type="checkbox" data-practice="${e(t.url)}" ${t.done ? 'checked' : ''}><span><a href="${e(t.url)}" target="_blank" rel="noopener noreferrer">${e(t.title)}</a> <span class="muted small">· CSES</span></span></label></li>`).join('')}</ul>` : ''}<p class="muted small">Want it explained properly now that you have derived it? <button class="link-btn" type="button" data-teach>Have a tutor teach it in full</button></p></section>` : '';
     root.innerHTML = `<div class="reading"><header class="chain-head"><p class="eyebrow">${e(chain.area)} · ${chain.complete ? 'derived' : `step ${Math.min(done + 1, chain.total)} of ${chain.total}`}</p><h1>${chain.cses ? e(chain.cses.title) : chain.complete ? e(chain.reveal.name) : 'A chain of questions'}</h1>${chain.cses ? `<p class="muted"><a href="#/cses">CSES dynamic programming</a> · read the statement first: <a href="${e(chain.cses.url)}" target="_blank" rel="noopener noreferrer">${e(chain.cses.title)} on CSES</a></p>` : ''}${chain.marks.length ? `<p>${marks(chain.marks, e)}</p>` : ''}<p class="chain-opening">${inline(chain.opening)}</p>
@@ -99,10 +152,16 @@ export async function renderChain(ctx, idea) {
       if (step.kind === 'proof' && step.proof?.status === 'grading') watch(step);
       if (focus) { root.querySelector('[data-current]').scrollIntoView({behavior: 'smooth', block: 'center'}); form.querySelector('input[type=text], textarea')?.focus({preventScroll: true}); }
     }
-    const pad = root.querySelector('[data-scratch-text]');
-    if (pad) {
+    const codepad = root.querySelector('[data-codepad]');
+    if (codepad) {
+      const body = codepad.querySelector('[data-codepad-body]');
+      if (codepad.open) mountPad(body);
+      codepad.addEventListener('toggle', () => { try { localStorage.setItem('derive-codepad', codepad.open ? 'open' : 'closed'); } catch { /* fine */ } if (codepad.open) mountPad(body); });
+    }
+    const padText = root.querySelector('[data-scratch-text]');
+    if (padText) {
       const status = root.querySelector('[data-scratch-status]');
-      pad.addEventListener('input', () => { notes = pad.value; status.textContent = '· editing'; clearTimeout(notesTimer); notesTimer = setTimeout(async () => { await saveNotes(); if (status.isConnected) status.textContent = notesSaved ? '· saved' : '· not saved'; }, 700); });
+      padText.addEventListener('input', () => { notes = padText.value; status.textContent = '· editing'; clearTimeout(notesTimer); notesTimer = setTimeout(async () => { await saveNotes(); if (status.isConnected) status.textContent = notesSaved ? '· saved' : '· not saved'; }, 700); });
       root.querySelector('[data-scratch]').addEventListener('toggle', event => { try { localStorage.setItem('derive-scratch', event.target.open ? 'open' : 'closed'); } catch { /* fine */ } });
     }
     root.querySelector('[data-teach]')?.addEventListener('click', () => askTutor(ctx, {scope: 'chain', idea}));

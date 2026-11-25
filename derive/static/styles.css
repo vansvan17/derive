@@ -394,3 +394,10 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .scratch summary{cursor:pointer;font-size:.875rem;font-weight:600;color:var(--muted);margin-bottom:.5rem}
 .scratch textarea{width:100%;min-height:6rem;resize:vertical;padding:.625rem .75rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
 .scratch textarea:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+/* Code pad under a question: a small editor with its output */
+.codepad{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.codepad .codepad-host{height:14rem}
+.codepad-input{padding:.5rem .75rem 0;font-size:.875rem}
+.codepad-input textarea{width:100%;font-family:var(--mono);font-size:.875rem;padding:.375rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);resize:vertical}
+.codepad-out{margin:.5rem .75rem .75rem;padding:.625rem .75rem;border-radius:6px;background:var(--canvas);color:var(--ink);font-family:var(--mono);font-size:.875rem;line-height:1.5;white-space:pre-wrap;word-break:break-word;max-height:14rem;overflow:auto}
+.codepad-out.is-bad{color:var(--danger)}

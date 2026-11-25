@@ -634,7 +634,7 @@ class Service:
 
     # ---------- code and runs ----------
     def code(self, store, owner, language):
-        if owner not in self.content.problems and owner not in self.content.tasks:
+        if owner not in self.content.problems and owner not in self.content.tasks and owner not in self.content.chains:
             raise ApiError('No such problem.', 404)
         if language not in ('cpp', 'python'):
             raise ApiError('Choose C++ or Python.')
@@ -644,7 +644,7 @@ class Service:
 
     def save_code(self, store, data):
         owner, language, file = data.get('id'), data.get('language'), data.get('file')
-        if (owner not in self.content.problems and owner not in self.content.tasks) or language not in ('cpp', 'python') or file not in FILES:
+        if (owner not in self.content.problems and owner not in self.content.tasks and owner not in self.content.chains) or language not in ('cpp', 'python') or file not in FILES:
             raise ApiError('That file cannot be saved.')
         store.run('INSERT OR REPLACE INTO code VALUES(?,?,?,?,?)', (owner, language, file, text(data.get('code'), 'Code', CODE_LIMIT), now()))
         return {'saved': True}
@@ -663,7 +663,7 @@ class Service:
         if kind not in ('run', 'stress'):
             raise ApiError('Choose run or stress.')
         owner, language = data.get('id'), data.get('language')
-        if (owner not in self.content.problems and owner not in self.content.tasks) or language not in ('cpp', 'python'):
+        if (owner not in self.content.problems and owner not in self.content.tasks and owner not in self.content.chains) or language not in ('cpp', 'python'):
             raise ApiError('That cannot be run.')
         payload = {'language': language, 'input': text(data.get('input', ''), 'Input', CODE_LIMIT)}
         for file in FILES:

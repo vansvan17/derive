@@ -556,6 +556,28 @@ class App(unittest.TestCase):
         self.assertEqual(p['by_area'][0]['causes'][0]['label'], evidence.CAUSES['wrong-conjecture'])
         self.assertEqual((p['breaks']['broken'], p['breaks']['first_try']), (1, 1))
 
+    def test_a_finished_chain_lists_its_problems_and_one_opened_from_there_is_not_cold(self):
+        self.service.content.parked = {'cf-9-a': {'id': 'cf-9-a', 'site': 'Codeforces', 'url': 'https://codeforces.com/problemset/problem/9/A', 'title': 'Parked', 'rating': 1300,
+                                                   'ideas': ['residues'], 'observations': ['x'], 'nudges': [], 'editorial': None, 'checked': '2026-11-24'}}
+        with self.service.store() as store:
+            store.set('settings', {'cf_handle': 'someone'})
+        self.assertIsNone(self.get('/chain/residues')['problems'])                    # nothing before the chain is finished: it would name the topic
+        self.assertEqual(self.post('/problem/open', {'id': 'cf-1-a', 'idea': 'residues'})[0], 404)
+        self.derive('residues')
+        listed = self.get('/chain/residues')['problems']
+        self.assertEqual([p['title'] for p in listed['easier']], ['Parked'])
+        self.assertEqual([(p['id'], p['state'], p['others']) for p in listed['set']], [('cf-1-a', 'new', 0), ('cf-2-b', 'new', 1)])
+        self.assertEqual(self.post('/practice', {'url': listed['easier'][0]['url'], 'done': True})[0], 200)
+        self.assertEqual(self.post('/problem/open', {'id': 'cses-3', 'idea': 'residues'})[0], 404)          # not a problem of this idea
+        self.assertEqual(self.post('/problem/open', {'id': 'cf-1-a', 'idea': 'residues'})[1]['id'], 'cf-1-a')
+        self.assertTrue(self.get('/problem/cf-1-a')['topic_known'])
+        self.accept(1, 'A')
+        reply = self.post('/problem/check', {'id': 'cf-1-a'})[1]
+        self.assertTrue(reply['solved'] and not reply['cold'])                        # accepted, but the topic was known
+        row = next(i for i in self.get('/mastery')['ideas'] if i['id'] == 'residues')
+        self.assertEqual((row['applied'], row['recognised']), (1, 0))
+        self.assertEqual(self.get('/chain/residues')['problems']['set'][0]['state'], 'solved')
+
     # ---- puzzles ----
     def test_puzzles_come_one_at_a_time_and_giving_up_is_not_solving(self):
         page = self.get('/puzzles?set=invariants')

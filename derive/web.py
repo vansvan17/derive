@@ -225,8 +225,30 @@ class Service:
                 'reveal': {**chain['reveal'], 'problems': len(self.content.problems_for(idea))} if complete else None,
                 # Practice tasks would give the topic away, so they are listed only once the chain is finished.
                 'practice': [{**t, 'done': t['url'] in ticked} for t in self.content.practice.get(idea, [])] if complete else [],
+                'problems': self.chain_problems(store, idea, ticked) if complete else None,
                 'marks': info.get('marks', []), 'cses': info.get('cses'), 'notes': store.get('chain_notes', {}).get(idea, ''),
                 'area': next(a['title'] for a in self.content.areas if a['id'] == info['area'])}
+
+    def chain_problems(self, store, idea, ticked):
+        """Real problems that use a derived idea: the easier ones Solve never hands out, and the ones in the Solve set."""
+        rows = evidence.attempts(store)
+        def state(p):
+            row = rows.get(p['id'])
+            return 'new' if not row else 'solved' if row['solved_at'] else 'gave up' if row['gave_up_at'] else 'open'
+        return {'easier': [{'title': p['title'], 'site': p['site'], 'url': p['url'], 'rating': p['rating'], 'done': p['url'] in ticked}
+                           for p in sorted(self.content.parked.values(), key=lambda p: p['rating']) if idea in p['ideas']],
+                'set': [{'id': p['id'], 'title': p['title'], 'site': p['site'], 'rating': p['rating'], 'state': state(p), 'others': len(p['ideas']) - 1}
+                        for p in sorted(self.content.problems_for(idea), key=lambda p: p['rating'])]}
+
+    def open_from_chain(self, store, data):
+        """Open a Solve-set problem from the end of a chain. The topic is known, so it can count as applied but never as recognised."""
+        problem = self.content.problems.get(data.get('id')) if isinstance(data.get('id'), str) else None
+        idea = data.get('idea')
+        if not problem or idea not in problem['ideas'] or idea not in self.derived(store):
+            raise ApiError('That problem is not listed under a chain you have finished.', 404)
+        if not store.one('SELECT 1 FROM attempts WHERE problem=?', (problem['id'],)):
+            store.run('INSERT INTO attempts(problem,opened_at,topic_known) VALUES(?,?,?)', (problem['id'], now(), idea))
+        return {'id': problem['id']}
 
     def settle_code_steps(self, store, idea, chain):
         """A code step is finished by the judge, not by a typed answer: once its task is accepted, the step is done."""
@@ -392,7 +414,7 @@ class Service:
             'nudges': problem.get('nudges', [])[:level], 'nudges_total': len(problem.get('nudges', [])),
             'editorial_opened': bool(row['editorial_at']), 'solved': bool(row['solved_at']), 'gave_up': bool(row['gave_up_at']),
             'cold': bool(row['cold']), 'verdict_source': row['verdict_source'], 'cause': row['cause'], 'notes': row['notes'],
-            'returned_for': bool(row['returned_for']), 'finished': finished,
+            'returned_for': bool(row['returned_for']), 'finished': finished, 'topic_known': bool(row['topic_known']),
         })
         if row['editorial_at'] or finished:
             out['editorial'] = problem.get('editorial')
@@ -432,7 +454,7 @@ class Service:
     def finish(self, store, problem, row, source, submission=None, before_open=False):
         tutored = store.one("SELECT 1 FROM tutor_uses WHERE scope='problem' AND owner=? AND gated=1", (problem['id'],))
         helped = bool(self.nudges_open(store, 'problem', problem['id'], '-') or row['editorial_at'] or tutored)
-        cold = source == 'judge' and not helped and not before_open
+        cold = source == 'judge' and not helped and not before_open and not row['topic_known']
         store.run('UPDATE attempts SET solved_at=?, verdict_source=?, submission=?, cold=? WHERE problem=?',
                   (now(), source, submission, int(cold), problem['id']))
         if cold:
@@ -916,7 +938,7 @@ class Service:
                   '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause,
                   '/code': self.save_code, '/run': self.queue_run,
                   '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer, '/task/judge': self.task_judge,
-                  '/break/try': self.break_try, '/break/nudge': self.break_nudge}
+                  '/problem/open': self.open_from_chain, '/break/try': self.break_try, '/break/nudge': self.break_nudge}
         with self.lock, self.store() as store:
             if path == '/problem/next':
                 return self.open_next(store)
@@ -948,7 +970,7 @@ class Service:
             if path in ('/contest/start', '/contest/refresh', '/contest/end', '/contest/label'):
                 return getattr(contest, path[9:])(self, store, data, ApiError)
             if path == '/practice':
-                known = {t['url'] for tasks in self.content.practice.values() for t in tasks}
+                known = {t['url'] for tasks in self.content.practice.values() for t in tasks} | {p['url'] for p in self.content.parked.values()}
                 if data.get('url') not in known:
                     raise ApiError('No such practice task.', 404)
                 ticked = set(store.get('practice_done', []))

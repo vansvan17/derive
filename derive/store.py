@@ -76,6 +76,9 @@ class Store:
         self.db.row_factory = sqlite3.Row
         self.db.execute('PRAGMA journal_mode=WAL')
         self.db.executescript(SCHEMA)
+        # added later: the idea whose finished chain a problem was opened from (the topic was known, so the solve is not cold)
+        if 'topic_known' not in {r[1] for r in self.db.execute('PRAGMA table_info(attempts)')}:
+            self.db.execute('ALTER TABLE attempts ADD COLUMN topic_known TEXT')
         self.db.commit()
 
     def close(self):

@@ -445,3 +445,8 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 /* the record page: cross-cuts of where mistakes happen */
 .patterns-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1rem 1.5rem;margin-top:1.25rem}
 .patterns-grid:empty{display:none}
+
+/* after a derivation: the Solve-set problems that use it, folded away */
+.after-set{margin:.75rem 0 1rem}
+.after-set summary{cursor:pointer;font-weight:600}
+.after-set .plain-list{margin-top:.5rem}

@@ -53,7 +53,7 @@ export async function renderProblem(ctx, id) {
   const dirty = {main: false, brute: false, gen: false};
 
   root.innerHTML = `<div class="solve-page">
-    <header class="chain-head"><p class="eyebrow">${e(p.site)} · rated ${e(p.rating)}${p.returned_for ? ' · something you have met before' : ''}</p><h1>${e(p.title)}</h1>
+    <header class="chain-head"><p class="eyebrow">${e(p.site)} · rated ${e(p.rating)}${p.returned_for ? ' · something you have met before' : ''}${p.topic_known ? ' · opened from a chain, so the topic is known' : ''}</p><h1>${e(p.title)}</h1>
       <p><a class="btn btn-secondary" href="${e(p.url)}" target="_blank" rel="noopener noreferrer">${icon('external')}Read it on ${e(p.site)}</a></p></header>
     <div class="split" data-split><div class="split-pane split-text reading">
     <section class="surface" data-commit></section>

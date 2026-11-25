@@ -228,7 +228,7 @@
    "id": "i-rotate",
    "set": "invariants",
    "kind": "choice",
-   "prompt": "A row reads 1 2 3 4 5. A move takes three neighbouring numbers a b c and turns them into b c a. Can the row ever read 2 1 3 4 5?",
+   "prompt": "A row reads 1 2 3 4 5. A move takes three numbers in consecutive positions, reading a b c, and turns them into b c a. Can the row ever read 2 1 3 4 5?",
    "options": [
     "Yes",
     "No"
@@ -289,7 +289,7 @@
    "id": "i-lamps1",
    "set": "invariants",
    "kind": "choice",
-   "prompt": "Four lamps in a row are off. A move switches two neighbouring lamps (on becomes off, off becomes on). Can you reach a state with exactly one lamp on?",
+   "prompt": "Four lamps in a row are off. A move picks two lamps standing directly next to each other and switches both (on becomes off, off becomes on). Can you reach a state with exactly one lamp on?",
    "options": [
     "Yes",
     "No"
@@ -982,7 +982,7 @@
    "id": "i-ringlamp5",
    "set": "invariants",
    "kind": "choice",
-   "prompt": "Five lamps in a circle are off. A move switches two neighbouring lamps. Can all five be on at once?",
+   "prompt": "Five lamps in a circle are off. A move picks two lamps standing directly next to each other and switches both (on becomes off, off becomes on). Can all five be on at once?",
    "options": [
     "Yes",
     "No"
@@ -1358,7 +1358,7 @@
    "id": "x-ring",
    "set": "hard",
    "kind": "number",
-   "prompt": "Eight lamps in a circle, all off. A move switches two neighbouring lamps. How many different on/off patterns can be reached, counting the starting one?",
+   "prompt": "Eight lamps in a circle, all off. A move picks two lamps standing directly next to each other and switches both (on becomes off, off becomes on). How many different on/off patterns can be reached, counting the starting one?",
    "answer": 128,
    "verify": "def reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = len(reach_set((0,) * 8, lambda s: [tuple(1 - v if j in (i, (i + 1) % 8) else v for j, v in enumerate(s)) for i in range(8)]))",
    "showed": "The only invariant is that the number of lit lamps is even, and every pattern with an even number of lit lamps is reachable (two lit lamps anywhere can be made by a chain of neighbouring switches). Half of the 256 patterns."
@@ -1430,7 +1430,7 @@
    "id": "x-reverse",
    "set": "hard",
    "kind": "number",
-   "prompt": "The row 1 2 3 4 5 6. A move takes three neighbouring entries a b c and reverses them to c b a. How many different rows can be reached, counting the starting one?",
+   "prompt": "The row 1 2 3 4 5 6. A move takes three entries in consecutive positions, reading a b c, and reverses them to c b a. How many different rows can be reached, counting the starting one?",
    "answer": 36,
    "verify": "def reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = len(reach_set((1, 2, 3, 4, 5, 6), lambda s: [s[:i] + (s[i + 2], s[i + 1], s[i]) + s[i + 3:] for i in range(4)]))",
    "showed": "Reversing three neighbours swaps two entries two places apart and leaves the middle one alone, so every number stays on positions of the same parity. Within the odd positions and within the even positions every arrangement is reachable: 3! x 3!."
@@ -1448,7 +1448,7 @@
    "id": "x-four12",
    "set": "hard",
    "kind": "number",
-   "prompt": "Twelve lamps in a row, all off. A move switches four neighbouring lamps. How many different patterns can be reached, counting the starting one?",
+   "prompt": "Twelve lamps in a row, all off. A move picks four lamps in consecutive positions ($i$, $i+1$, $i+2$, $i+3$) and switches all four (on becomes off, off becomes on). How many different patterns can be reached, counting the starting one?",
    "answer": 512,
    "verify": "def reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = len(reach_set((0,) * 12, lambda s: [s[:i] + tuple(1 - v for v in s[i:i + 4]) + s[i + 4:] for i in range(9)]))",
    "showed": "There are nine moves, their order does not matter and repeating one cancels it, so a pattern is a subset of moves. Different subsets give different patterns (look at the leftmost move in which they differ), so the count is 2 to the power 9."
@@ -1457,7 +1457,7 @@
    "id": "x-ring9",
    "set": "hard",
    "kind": "number",
-   "prompt": "Nine lamps in a circle, all off. A move switches three neighbouring lamps. How many different patterns can be reached, counting the starting one?",
+   "prompt": "Nine lamps in a circle, all off. A move picks three lamps in consecutive places round the circle and switches all three (on becomes off, off becomes on). How many different patterns can be reached, counting the starting one?",
    "answer": 128,
    "verify": "def reach_set(start, moves):\n    seen, todo = {start}, [start]\n    while todo:\n        s = todo.pop()\n        for t in moves(s):\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = len(reach_set((0,) * 9, lambda s: [tuple(1 - v if (j - i) % 9 < 3 else v for j, v in enumerate(s)) for i in range(9)]))",
    "showed": "Nine moves, but they are not independent: the three moves starting at positions 0, 3, 6 together switch every lamp once, and so do those starting at 1, 4, 7 and at 2, 5, 8. Those two coincidences halve the count twice: 2 to the power 7."

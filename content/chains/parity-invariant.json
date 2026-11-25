@@ -145,7 +145,7 @@
    "tier": "hard",
    "id": "h-lamps",
    "kind": "list",
-   "prompt": "From here on nobody tells you what to look at. A row of $n$ lamps, all off. A move switches three neighbouring lamps. For which $n$ from 3 to 12 can all $n$ lamps be on at once?",
+   "prompt": "From here on nobody tells you what to look at. A row of $n$ lamps, all off. A move picks three lamps that stand directly next to one another (positions $i$, $i+1$, $i+2$) and switches all three: on becomes off, off becomes on. For which $n$ from 3 to 12 can all $n$ lamps be on at once?",
    "answer": [
     3,
     6,
@@ -163,7 +163,7 @@
    "tier": "hard",
    "id": "h-count",
    "kind": "number",
-   "prompt": "Same move (switch three neighbouring lamps), ten lamps, all off at the start. How many different on/off patterns can be reached, counting the starting one?",
+   "prompt": "Same move (switch three lamps in consecutive positions $i$, $i+1$, $i+2$), ten lamps, all off at the start. How many different on/off patterns can be reached, counting the starting one?",
    "answer": 256,
    "verify": "def reach(n):\n    seen, todo = {(0,) * n}, [(0,) * n]\n    while todo:\n        s = todo.pop()\n        for i in range(n - 2):\n            t = s[:i] + tuple(1 - v for v in s[i:i + 3]) + s[i + 3:]\n            if t not in seen: seen.add(t); todo.append(t)\n    return seen\nresult = len(reach(10))",
    "nudges": [
@@ -189,7 +189,7 @@
    "tier": "hard",
    "id": "h-rows",
    "kind": "number",
-   "prompt": "The row 1 2 3 4 5. A move takes three neighbouring entries a b c and replaces them by b c a. How many different rows can be reached, counting the starting one?",
+   "prompt": "The row 1 2 3 4 5. A move takes three entries in consecutive positions, reading a b c, and replaces them by b c a. How many different rows can be reached, counting the starting one?",
    "answer": 60,
    "verify": "seen, todo = {(1, 2, 3, 4, 5)}, [(1, 2, 3, 4, 5)]\nwhile todo:\n    s = todo.pop()\n    for i in range(3):\n        t = s[:i] + (s[i + 1], s[i + 2], s[i]) + s[i + 3:]\n        if t not in seen: seen.add(t); todo.append(t)\nresult = len(seen)",
    "nudges": [

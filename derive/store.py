@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS tasks_done(task TEXT PRIMARY KEY, at TEXT NOT NULL, t
 -- break it: every input tried against a wrong solution, and the ones that were broken (with the input that did it)
 CREATE TABLE IF NOT EXISTS break_tries(id INTEGER PRIMARY KEY, at TEXT NOT NULL, item TEXT NOT NULL, input TEXT NOT NULL, broken INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS breaks_done(item TEXT PRIMARY KEY, at TEXT NOT NULL, tries INTEGER NOT NULL, nudges INTEGER NOT NULL, input TEXT NOT NULL);
+-- the source the judge accepted, per task and language (the editor's saved code can be changed afterwards; this cannot)
+CREATE TABLE IF NOT EXISTS accepted_code(task TEXT NOT NULL, language TEXT NOT NULL, code TEXT NOT NULL, at TEXT NOT NULL, PRIMARY KEY(task, language));
 CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 '''
 

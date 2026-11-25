@@ -557,6 +557,7 @@ class Service:
         if result['verdict'] == 'AC':
             tries = store.one('SELECT COUNT(*) FROM task_tries WHERE task=?', (task['id'],))[0]
             store.run('INSERT OR IGNORE INTO tasks_done VALUES(?,?,?)', (task['id'], now(), tries))
+            store.run('INSERT OR REPLACE INTO accepted_code VALUES(?,?,?,?)', (task['id'], payload['language'], payload['main'], now()))
         return result
 
     # ---------- break it ----------
@@ -607,6 +608,32 @@ class Service:
         # The reference version is for comparing with your own, so it appears only once yours is accepted.
         out['reference'] = tool['reference'] if written else None
         return out
+
+    def notebook(self, store):
+        """The team notebook: for every toolbox page she has written, her own accepted code.
+
+        Only her code goes in, never the reference. Tasks accepted before accepted sources were kept
+        fall back to the code saved in the editor, marked as not re-judged."""
+        done = {r['task'] for r in store.all('SELECT task FROM tasks_done')}
+        kept = {(r['task'], r['language']): r for r in store.all('SELECT * FROM accepted_code')}
+        prefer = [self.settings(store).get('language', 'cpp'), 'cpp', 'python']
+        entries = []
+        for tool in self.content.tools.values():
+            entry = {'id': tool['id'], 'title': tool['title'], 'marks': tool.get('marks', []), 'when': tool['when'], 'traps': tool['traps'], 'written': tool['task'] in done, 'code': None}
+            if entry['written']:
+                for language in prefer:
+                    row = kept.get((tool['task'], language))
+                    if row:
+                        entry.update(code=row['code'], language=language, judged=True)
+                        break
+                else:
+                    for language in prefer:
+                        row = store.one("SELECT code FROM code WHERE owner=? AND language=? AND file='main'", (tool['task'], language))
+                        if row and row['code'].strip():
+                            entry.update(code=row['code'], language=language, judged=False)
+                            break
+            entries.append(entry)
+        return {'entries': entries, 'extra': store.get('notebook_extra', ''), 'title': store.get('notebook_title', '')}
 
     # ---------- the tutor ----------
     def tutor_context(self, store, data):
@@ -819,6 +846,8 @@ class Service:
                 return self.cses_page(store)
             if path == '/tools':
                 return self.tool_list(store)
+            if path == '/notebook':
+                return self.notebook(store)
             if path == '/breaks':
                 return {'items': breaks.listing(self.content, store)}
             if path.startswith('/break/'):
@@ -861,6 +890,10 @@ class Service:
                 if not notes[idea]:
                     del notes[idea]
                 store.set('chain_notes', notes)
+                return {'saved': True}
+            if path == '/notebook':                          # the notebook's own title and free notes
+                store.set('notebook_title', text(data.get('title', ''), 'Title', 200))
+                store.set('notebook_extra', text(data.get('extra', ''), 'Notes', 100000))
                 return {'saved': True}
             if path == '/settings':
                 return {'settings': self.save_settings(store, data)}

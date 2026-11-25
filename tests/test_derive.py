@@ -501,6 +501,23 @@ class App(unittest.TestCase):
         after = self.get('/tool/string-blocks')
         self.assertTrue(after['written'] and '#include' in after['reference'])
 
+    def test_the_notebook_holds_only_her_own_accepted_code(self):
+        first = self.get('/notebook')
+        entry = next(x for x in first['entries'] if x['id'] == 'string-blocks')
+        self.assertEqual((entry['written'], entry['code']), (False, None))
+        self.assertNotIn('#include', json.dumps(first))                              # no reference version, written or not
+        task = self.get('/tool/string-blocks')['task']
+        right = "s = input().strip()\nprint(sum(1 for i, c in enumerate(s) if c == '1' and (i == 0 or s[i - 1] == '0')))\n"
+        self.assertEqual(self.judged({'id': task, 'language': 'python', 'main': right})['verdict'], 'AC')
+        self.post('/code', {'id': task, 'language': 'python', 'file': 'main', 'code': 'print("edited afterwards")\n'})
+        entry = next(x for x in self.get('/notebook')['entries'] if x['id'] == 'string-blocks')
+        self.assertEqual((entry['written'], entry['code'], entry['judged'], entry['language']), (True, right, True, 'python'))   # what was accepted, not the later edit
+        self.assertEqual(self.judged({'id': task, 'language': 'python', 'main': 'print(0)\n'})['verdict'], 'WA')
+        self.assertEqual(next(x for x in self.get('/notebook')['entries'] if x['id'] == 'string-blocks')['code'], right)          # a later wrong try changes nothing
+        self.assertEqual(self.post('/notebook', {'title': 'byte me', 'extra': 'g++ -O2'})[0], 200)
+        saved = self.get('/notebook')
+        self.assertEqual((saved['title'], saved['extra']), ('byte me', 'g++ -O2'))
+
     # ---- puzzles ----
     def test_puzzles_come_one_at_a_time_and_giving_up_is_not_solving(self):
         page = self.get('/puzzles?set=invariants')

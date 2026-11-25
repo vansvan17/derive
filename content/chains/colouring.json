@@ -1,0 +1,183 @@
+{
+ "idea": "colouring",
+ "opening": "Covering boards with pieces, and a way to see at a glance that it cannot be done.",
+ "steps": [
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "A 4 by 4 board is to be covered exactly by dominoes (each covers two neighbouring cells). In how many ways can it be done?",
+   "answer": 36,
+   "verify": "import functools\ndef tilings(cells, shapes):\n    cells = sorted(cells); idx = {c: i for i, c in enumerate(cells)}; full = (1 << len(cells)) - 1\n    place = [set() for _ in cells]\n    for shape in shapes:\n        for (r, c) in cells:\n            for (ar, ac) in shape:\n                cs = [(r + dr - ar, c + dc - ac) for dr, dc in shape]\n                if all(x in idx for x in cs): place[min(idx[x] for x in cs)].add(sum(1 << idx[x] for x in cs))\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        i = next(k for k in range(len(cells)) if not mask >> k & 1)\n        return sum(go(mask | m) for m in place[i] if not mask & m)\n    return go(0)\nDOM = [[(0, 0), (0, 1)], [(0, 0), (1, 0)]]\nTEE = [[(0, 0), (0, 1), (0, 2), (1, 1)], [(1, 0), (1, 1), (1, 2), (0, 1)], [(0, 0), (1, 0), (2, 0), (1, 1)], [(0, 1), (1, 1), (2, 1), (1, 0)]]\ndef board(h, w, gone=()): return {(r, c) for r in range(h) for c in range(w)} - set(gone)\nresult = tilings(board(4, 4), DOM)",
+   "nudges": [
+    "How many dominoes are needed?"
+   ],
+   "showed": "Plenty of ways when nothing is missing."
+  },
+  {
+   "id": "corners",
+   "kind": "number",
+   "prompt": "Remove two opposite corner cells from the 4 by 4 board. In how many ways can the remaining 14 cells be covered by dominoes?",
+   "answer": 0,
+   "verify": "import functools\ndef tilings(cells, shapes):\n    cells = sorted(cells); idx = {c: i for i, c in enumerate(cells)}; full = (1 << len(cells)) - 1\n    place = [set() for _ in cells]\n    for shape in shapes:\n        for (r, c) in cells:\n            for (ar, ac) in shape:\n                cs = [(r + dr - ar, c + dc - ac) for dr, dc in shape]\n                if all(x in idx for x in cs): place[min(idx[x] for x in cs)].add(sum(1 << idx[x] for x in cs))\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        i = next(k for k in range(len(cells)) if not mask >> k & 1)\n        return sum(go(mask | m) for m in place[i] if not mask & m)\n    return go(0)\nDOM = [[(0, 0), (0, 1)], [(0, 0), (1, 0)]]\nTEE = [[(0, 0), (0, 1), (0, 2), (1, 1)], [(1, 0), (1, 1), (1, 2), (0, 1)], [(0, 0), (1, 0), (2, 0), (1, 1)], [(0, 1), (1, 1), (2, 1), (1, 0)]]\ndef board(h, w, gone=()): return {(r, c) for r in range(h) for c in range(w)} - set(gone)\nresult = tilings(board(4, 4, [(0, 0), (3, 3)]), DOM)",
+   "nudges": [
+    "Try it. Where do you get stuck?",
+    "Is the number of cells the problem?"
+   ],
+   "showed": "None at all, although 14 is even."
+  },
+  {
+   "id": "dark",
+   "kind": "number",
+   "prompt": "Colour the 4 by 4 board like a chessboard, with the top-left cell dark. After removing the two opposite corners, how many dark cells are left?",
+   "answer": 6,
+   "verify": "result = sum(1 for r in range(4) for c in range(4) if (r + c) % 2 == 0 and (r, c) not in [(0, 0), (3, 3)])",
+   "nudges": [
+    "What colour is each of the two removed corners?"
+   ],
+   "showed": "Six dark and eight light: both removed corners were dark."
+  },
+  {
+   "id": "each",
+   "kind": "choice",
+   "prompt": "Whatever its position, a domino covers:",
+   "options": [
+    "one dark cell and one light cell",
+    "two cells of the same colour",
+    "it depends on whether it lies flat or upright"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What colours do two neighbouring cells have?"
+   ],
+   "showed": "So any region covered by dominoes has equally many dark and light cells."
+  },
+  {
+   "id": "adjacent",
+   "kind": "number",
+   "prompt": "Now remove two cells of different colours instead: the top-left corner and the cell to its right. In how many ways can the rest of the 4 by 4 board be covered?",
+   "answer": 18,
+   "verify": "import functools\ndef tilings(cells, shapes):\n    cells = sorted(cells); idx = {c: i for i, c in enumerate(cells)}; full = (1 << len(cells)) - 1\n    place = [set() for _ in cells]\n    for shape in shapes:\n        for (r, c) in cells:\n            for (ar, ac) in shape:\n                cs = [(r + dr - ar, c + dc - ac) for dr, dc in shape]\n                if all(x in idx for x in cs): place[min(idx[x] for x in cs)].add(sum(1 << idx[x] for x in cs))\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        i = next(k for k in range(len(cells)) if not mask >> k & 1)\n        return sum(go(mask | m) for m in place[i] if not mask & m)\n    return go(0)\nDOM = [[(0, 0), (0, 1)], [(0, 0), (1, 0)]]\nTEE = [[(0, 0), (0, 1), (0, 2), (1, 1)], [(1, 0), (1, 1), (1, 2), (0, 1)], [(0, 0), (1, 0), (2, 0), (1, 1)], [(0, 1), (1, 1), (2, 1), (1, 0)]]\ndef board(h, w, gone=()): return {(r, c) for r in range(h) for c in range(w)} - set(gone)\nresult = tilings(board(4, 4, [(0, 0), (0, 1)]), DOM)",
+   "nudges": [
+    "Does the colour count forbid it this time?"
+   ],
+   "showed": "Equal colour counts do not forbid a covering, and here one exists. The count is a test that can say no; it never says yes by itself."
+  },
+  {
+   "id": "three",
+   "kind": "list",
+   "prompt": "An 8 by 8 board, rows and columns numbered 0 to 7. Give the cell in row $r$, column $c$ the colour $(r + c) \\bmod 3$. How many cells have colour 0, colour 1 and colour 2? (Three numbers, in that order.)",
+   "answer": [
+    21,
+    22,
+    21
+   ],
+   "verify": "result = [sum(1 for r in range(8) for c in range(8) if (r + c) % 3 == k) for k in range(3)]",
+   "nudges": [
+    "How many cells of each colour are in one row?"
+   ],
+   "showed": "The three colours are not equally common: one has an extra cell.",
+   "ordered": true
+  },
+  {
+   "id": "strip",
+   "kind": "choice",
+   "prompt": "A straight piece of three cells in a row (flat or upright) on that board covers:",
+   "options": [
+    "one cell of each of the three colours",
+    "three cells of one colour",
+    "two of one colour and one of another"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Moving one cell right or down changes $r + c$ by how much?"
+   ],
+   "showed": "So 21 such pieces cover 21 cells of each colour, and the one cell left uncovered must have the colour that has an extra cell."
+  },
+  {
+   "id": "both",
+   "kind": "number",
+   "prompt": "Do the same with the colours $(r - c) \\bmod 3$: again the uncovered cell must have the colour that occurs once more than the others. How many cells of the 8 by 8 board pass both tests?",
+   "answer": 4,
+   "verify": "A = [sum(1 for r in range(8) for c in range(8) if (r + c) % 3 == k) for k in range(3)]\nB = [sum(1 for r in range(8) for c in range(8) if (r - c) % 3 == k) for k in range(3)]\nresult = sum(1 for r in range(8) for c in range(8) if A[(r + c) % 3] == max(A) and B[(r - c) % 3] == max(B))",
+   "nudges": [
+    "Which colour is the common one in each of the two colourings?",
+    "Which cells have both?"
+   ],
+   "showed": "Only four of the 64 cells can be the one left empty. Two colourings together say more than either alone."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "An 8 by 8 chessboard has two opposite corners removed. Prove that the remaining 62 cells cannot be covered exactly by dominoes.",
+   "claims": [
+    "Two neighbouring cells always have different colours, so every domino covers exactly one dark and one light cell.",
+    "Therefore any region that dominoes cover exactly has equally many dark and light cells.",
+    "Opposite corners of an 8 by 8 board have the same colour, so after removing them there are 30 cells of one colour and 32 of the other.",
+    "30 is not 32, so no covering exists."
+   ],
+   "nudges": [
+    "What does one domino cover, in terms of colours?",
+    "What colours are the two removed corners?"
+   ],
+   "showed": "A quantity every piece contributes to in the same way, and a board that does not have the right total."
+  },
+  {
+   "id": "h-tee",
+   "kind": "choice",
+   "prompt": "A T-shaped piece covers four cells: three in a row and one more attached to the middle one. Can a 6 by 6 board be covered exactly by nine T-pieces?",
+   "options": [
+    "No",
+    "Yes",
+    "Yes, but only with all pieces pointing the same way"
+   ],
+   "answer": 0,
+   "nudges": [
+    "On a chessboard colouring, how many dark cells can one T-piece cover?",
+    "Nine pieces: is the total number of dark cells they cover even or odd?"
+   ],
+   "showed": "Each T covers 1 or 3 dark cells, an odd number; nine odd numbers add to an odd number, but the board has 18 dark cells.",
+   "verify": "import functools\ndef tilings(cells, shapes):\n    cells = sorted(cells); idx = {c: i for i, c in enumerate(cells)}; full = (1 << len(cells)) - 1\n    place = [set() for _ in cells]\n    for shape in shapes:\n        for (r, c) in cells:\n            for (ar, ac) in shape:\n                cs = [(r + dr - ar, c + dc - ac) for dr, dc in shape]\n                if all(x in idx for x in cs): place[min(idx[x] for x in cs)].add(sum(1 << idx[x] for x in cs))\n    @functools.lru_cache(None)\n    def go(mask):\n        if mask == full: return 1\n        i = next(k for k in range(len(cells)) if not mask >> k & 1)\n        return sum(go(mask | m) for m in place[i] if not mask & m)\n    return go(0)\nDOM = [[(0, 0), (0, 1)], [(0, 0), (1, 0)]]\nTEE = [[(0, 0), (0, 1), (0, 2), (1, 1)], [(1, 0), (1, 1), (1, 2), (0, 1)], [(0, 0), (1, 0), (2, 0), (1, 1)], [(0, 1), (1, 1), (2, 1), (1, 0)]]\ndef board(h, w, gone=()): return {(r, c) for r in range(h) for c in range(w)} - set(gone)\nresult = 0 if tilings(board(6, 6), TEE) == 0 else 1",
+   "tier": "hard"
+  },
+  {
+   "id": "h-four",
+   "kind": "list",
+   "prompt": "A 10 by 10 board with colours $(r + c) \\bmod 4$. How many cells have colour 0, 1, 2 and 3? (Four numbers, in that order.)",
+   "answer": [
+    25,
+    26,
+    25,
+    24
+   ],
+   "verify": "result = [sum(1 for r in range(10) for c in range(10) if (r + c) % 4 == k) for k in range(4)]",
+   "nudges": [
+    "How many cells of each colour does a straight piece of four cells cover?"
+   ],
+   "showed": "The counts are not all 25, but 25 straight pieces of four cells would cover exactly 25 of each colour. So a 10 by 10 board cannot be covered by 1 by 4 pieces, although 100 is divisible by 4.",
+   "ordered": true,
+   "tier": "hard"
+  },
+  {
+   "id": "h-knight",
+   "kind": "choice",
+   "prompt": "A knight stands on a 5 by 5 board. Can it make a round trip that visits every cell exactly once and returns to where it started?",
+   "options": [
+    "No",
+    "Yes",
+    "Only if it starts in the centre"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What happens to the colour of the knight's cell with every move?",
+    "How many moves does the round trip have?"
+   ],
+   "showed": "Every move changes the colour, so a round trip has an even number of moves; but visiting 25 cells and returning takes 25 moves.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Colouring argument",
+  "statement": "Colour the cells so that every piece covers a fixed pattern of colours. If the board does not have the matching numbers of each colour, it cannot be covered.",
+  "remark": "The colouring is yours to choose: chessboard, stripes, or remainders of $r + c$. The test only ever proves impossibility; when the counts match you still need a construction."
+ }
+}

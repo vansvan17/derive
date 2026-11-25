@@ -1,0 +1,144 @@
+{
+ "idea": "stars-bars",
+ "opening": "Handing out identical things, and a picture that turns the count into one you already know.",
+ "steps": [
+  {
+   "id": "sweets",
+   "kind": "number",
+   "prompt": "Five identical sweets are handed out to three children; a child may get none. In how many ways? (Only how many each child gets matters.)",
+   "answer": 21,
+   "verify": "import itertools\ndef sols(total, k, ok=lambda x: True): return sum(1 for x in itertools.product(range(total + 1), repeat=k) if sum(x) == total and ok(x))\nresult = sols(5, 3)",
+   "nudges": [
+    "If the first child gets 0, in how many ways can the other two share 5?"
+   ],
+   "showed": "6 + 5 + 4 + 3 + 2 + 1."
+  },
+  {
+   "id": "row",
+   "kind": "number",
+   "prompt": "Write a row of 7 symbols: five stars and two bars, in any order (for example **|*|**). How many different rows are there?",
+   "answer": 21,
+   "verify": "import itertools\nresult = len(set(itertools.permutations(\"*****||\")))",
+   "nudges": [
+    "Once you know where the two bars are, is the row determined?"
+   ],
+   "showed": "Choose 2 of the 7 places for the bars."
+  },
+  {
+   "id": "same",
+   "kind": "choice",
+   "prompt": "The two counts agree. What is the reason?",
+   "options": [
+    "Read a row as: stars before the first bar go to the first child, between the bars to the second, after the last bar to the third. Every way of sharing is exactly one row.",
+    "Both happen to equal 6 + 5 + 4 + 3 + 2 + 1",
+    "Five plus two is seven"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What sharing does **|*|** describe? And ||***** ?"
+   ],
+   "showed": "A sharing among $k$ children is a row of the sweets with $k - 1$ separators."
+  },
+  {
+   "id": "ten",
+   "kind": "number",
+   "prompt": "In how many ways can 10 be written as $x_1 + x_2 + x_3 + x_4$ with every $x_i$ a whole number that is 0 or more? (The order matters.)",
+   "answer": 286,
+   "verify": "import itertools\ndef sols(total, k, ok=lambda x: True): return sum(1 for x in itertools.product(range(total + 1), repeat=k) if sum(x) == total and ok(x))\nresult = sols(10, 4)",
+   "nudges": [
+    "How many stars, how many bars, how many places in all?"
+   ],
+   "showed": "Thirteen places, three of them bars."
+  },
+  {
+   "id": "least",
+   "kind": "number",
+   "prompt": "Five sweets, three children, but now every child must get at least one. In how many ways?",
+   "answer": 6,
+   "verify": "import itertools\ndef sols(total, k, ok=lambda x: True): return sum(1 for x in itertools.product(range(total + 1), repeat=k) if sum(x) == total and ok(x))\nresult = sols(5, 3, lambda x: min(x) >= 1)",
+   "nudges": [
+    "Give each child one sweet first. What is left to hand out, and with what rule?"
+   ],
+   "showed": "Hand out the compulsory sweets first, then share the remaining two freely."
+  },
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "Same equation $x_1 + x_2 + x_3 + x_4 = 10$, but now $x_1$ must be at least 3. How many solutions?",
+   "answer": 120,
+   "verify": "import itertools\ndef sols(total, k, ok=lambda x: True): return sum(1 for x in itertools.product(range(total + 1), repeat=k) if sum(x) == total and ok(x))\nresult = sols(10, 4, lambda x: x[0] >= 3)",
+   "nudges": [
+    "What happens if you take 3 away from $x_1$ before counting?"
+   ],
+   "showed": "A lower bound is removed by subtracting it: the equation becomes a free one with total 7."
+  },
+  {
+   "id": "atmost",
+   "kind": "number",
+   "prompt": "How many triples of whole numbers $x_1, x_2, x_3 \\ge 0$ have $x_1 + x_2 + x_3 \\le 6$?",
+   "answer": 84,
+   "verify": "import itertools\nresult = sum(1 for x in itertools.product(range(7), repeat=3) if sum(x) <= 6)",
+   "nudges": [
+    "Where could the unused part of the 6 go?"
+   ],
+   "showed": "Add a fourth variable that takes up the slack: now the sum is exactly 6."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that the number of ways to write $n$ as an ordered sum $x_1 + \\dots + x_k$ of whole numbers $x_i \\ge 0$ equals the number of ways to choose $k - 1$ places out of $n + k - 1$.",
+   "claims": [
+    "From a solution, build a row: x_1 stars, a bar, x_2 stars, a bar, and so on, ending with x_k stars. It has n stars and k - 1 bars, so n + k - 1 symbols.",
+    "From any row of n stars and k - 1 bars, read off a solution: x_i is the number of stars between bar i - 1 and bar i (with the ends of the row as outer bars). This undoes the first construction, so solutions and rows correspond one-to-one.",
+    "A row is determined by which k - 1 of its n + k - 1 places hold bars."
+   ],
+   "nudges": [
+    "How would you draw the solution 2 + 0 + 3 as a row?",
+    "How do you read a solution back from a row?"
+   ],
+   "showed": "Solutions are rows, and rows are choices of where the bars go."
+  },
+  {
+   "id": "h-cap",
+   "kind": "number",
+   "prompt": "How many solutions has $x_1 + x_2 + x_3 = 12$ in whole numbers with $0 \\le x_i \\le 5$?",
+   "answer": 10,
+   "verify": "import itertools\ndef sols(total, k, ok=lambda x: True): return sum(1 for x in itertools.product(range(total + 1), repeat=k) if sum(x) == total and ok(x))\nresult = sols(12, 3, lambda x: max(x) <= 5)",
+   "nudges": [
+    "Count all solutions without the upper limit. Which ones are wrong?",
+    "If $x_1 \\ge 6$, what does subtracting 6 turn the equation into? Can two variables be too large at once?"
+   ],
+   "showed": "An upper limit is handled by subtracting the solutions that break it: \"at least 6\" is a lower bound, and lower bounds are easy. When two can be broken at once, add those back.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-nondec",
+   "kind": "number",
+   "prompt": "How many sequences $a_1 \\le a_2 \\le a_3 \\le a_4$ are there with every $a_i$ from 1 to 6?",
+   "answer": 126,
+   "verify": "import itertools\nresult = sum(1 for a in itertools.product(range(1, 7), repeat=4) if list(a) == sorted(a))",
+   "nudges": [
+    "Such a sequence is determined by how many times each value occurs. What do those six counts add up to?"
+   ],
+   "showed": "Six counts adding up to 4: the same picture with 4 stars and 5 bars.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-gaps",
+   "kind": "number",
+   "prompt": "In how many ways can 3 numbers be chosen from 1 to 10 so that no two of the chosen numbers are consecutive?",
+   "answer": 56,
+   "verify": "import itertools\nresult = sum(1 for c in itertools.combinations(range(1, 11), 3) if c[1] - c[0] > 1 and c[2] - c[1] > 1)",
+   "nudges": [
+    "Describe a choice by the gaps: how many unchosen numbers before the first, between each two, and after the last. What do the gaps add up to, and which must be at least 1?"
+   ],
+   "showed": "Four gaps adding up to 7, the two inner ones at least 1: subtract the compulsory ones and share the remaining 5 freely among 4.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Stars and bars",
+  "statement": "The number of ways to write $n$ as an ordered sum of $k$ whole numbers that are 0 or more is $\\binom{n + k - 1}{k - 1}$: arrange $n$ stars and $k - 1$ bars in a row.",
+  "remark": "Lower bounds are removed by subtracting them first, \"at most\" by adding a slack variable, and upper bounds by inclusion-exclusion. Non-decreasing sequences, multisets and choices with gaps are all this in disguise."
+ }
+}

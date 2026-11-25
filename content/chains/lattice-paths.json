@@ -1,0 +1,158 @@
+{
+ "idea": "lattice-paths",
+ "opening": "Walking on a grid, only right and up, and counting the routes without walking them.",
+ "steps": [
+  {
+   "id": "small",
+   "kind": "number",
+   "prompt": "You walk on a grid from the point (0, 0) to the point (3, 2), each step going one unit right or one unit up. How many different routes are there?",
+   "answer": 10,
+   "verify": "import functools\ndef paths(r, u, blocked=(), ok=lambda x, y: True):\n    @functools.lru_cache(None)\n    def go(x, y):\n        if (x, y) in blocked or not ok(x, y): return 0\n        if (x, y) == (r, u): return 1\n        return (go(x + 1, y) if x < r else 0) + (go(x, y + 1) if y < u else 0)\n    return go(0, 0)\nresult = paths(3, 2)",
+   "nudges": [
+    "How many steps does every route have, and how many of them go up?"
+   ],
+   "showed": "Every route has 5 steps, 2 of them up."
+  },
+  {
+   "id": "choose",
+   "kind": "choice",
+   "prompt": "A route from (0, 0) to (3, 2) is completely described by:",
+   "options": [
+    "which 2 of its 5 steps go up",
+    "the number of turns it makes",
+    "its length"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If you know the positions of the up-steps in the sequence of steps, what are the others?"
+   ],
+   "showed": "So the number of routes is the number of ways to choose 2 places out of 5."
+  },
+  {
+   "id": "six",
+   "kind": "number",
+   "prompt": "How many routes lead from (0, 0) to (6, 6)?",
+   "answer": 924,
+   "verify": "import functools\ndef paths(r, u, blocked=(), ok=lambda x, y: True):\n    @functools.lru_cache(None)\n    def go(x, y):\n        if (x, y) in blocked or not ok(x, y): return 0\n        if (x, y) == (r, u): return 1\n        return (go(x + 1, y) if x < r else 0) + (go(x, y + 1) if y < u else 0)\n    return go(0, 0)\nresult = paths(6, 6)",
+   "nudges": [
+    "How many steps, and how many of them are up-steps?"
+   ],
+   "showed": "Choose 6 of 12."
+  },
+  {
+   "id": "through",
+   "kind": "number",
+   "prompt": "How many routes from (0, 0) to (4, 4) pass through the point (2, 2)?",
+   "answer": 36,
+   "verify": "import functools\ndef paths(r, u, blocked=(), ok=lambda x, y: True):\n    @functools.lru_cache(None)\n    def go(x, y):\n        if (x, y) in blocked or not ok(x, y): return 0\n        if (x, y) == (r, u): return 1\n        return (go(x + 1, y) if x < r else 0) + (go(x, y + 1) if y < u else 0)\n    return go(0, 0)\nresult = paths(2, 2) ** 2",
+   "nudges": [
+    "How many ways to reach (2, 2)? How many ways to continue from there?"
+   ],
+   "showed": "A route through a point is a route to it followed by a route from it: multiply."
+  },
+  {
+   "id": "avoid",
+   "kind": "number",
+   "prompt": "How many routes from (0, 0) to (4, 4) do not pass through (2, 2)?",
+   "answer": 34,
+   "verify": "import functools\ndef paths(r, u, blocked=(), ok=lambda x, y: True):\n    @functools.lru_cache(None)\n    def go(x, y):\n        if (x, y) in blocked or not ok(x, y): return 0\n        if (x, y) == (r, u): return 1\n        return (go(x + 1, y) if x < r else 0) + (go(x, y + 1) if y < u else 0)\n    return go(0, 0)\nresult = paths(4, 4, blocked=((2, 2),))",
+   "nudges": [
+    "How many routes are there in all?"
+   ],
+   "showed": "All routes minus the ones through the forbidden point."
+  },
+  {
+   "id": "below",
+   "kind": "number",
+   "prompt": "How many routes from (0, 0) to (4, 4) never go above the diagonal, that is, always have $y \\le x$?",
+   "answer": 14,
+   "verify": "import functools\ndef paths(r, u, blocked=(), ok=lambda x, y: True):\n    @functools.lru_cache(None)\n    def go(x, y):\n        if (x, y) in blocked or not ok(x, y): return 0\n        if (x, y) == (r, u): return 1\n        return (go(x + 1, y) if x < r else 0) + (go(x, y + 1) if y < u else 0)\n    return go(0, 0)\nresult = paths(4, 4, ok=lambda x, y: y <= x)",
+   "nudges": [
+    "A route that breaks the rule touches the line $y = x + 1$ somewhere. How many routes are there in all?"
+   ],
+   "showed": "Fourteen of the seventy."
+  },
+  {
+   "id": "mirror",
+   "kind": "number",
+   "prompt": "Take a route to (4, 4) that does go above the diagonal. At the first moment it touches the line $y = x + 1$, swap all its remaining steps: every right becomes up and every up becomes right. At which point does the new route end? Give $x$ and $y$ as the number $10x + y$.",
+   "answer": 35,
+   "verify": "import itertools\nends = set()\nfor ups in itertools.combinations(range(8), 4):\n    s = [\"U\" if i in ups else \"R\" for i in range(8)]; x = y = 0; hit = None\n    for i, ch in enumerate(s):\n        x, y = (x + 1, y) if ch == \"R\" else (x, y + 1)\n        if y == x + 1: hit = i; break\n    if hit is None: continue\n    t = s[:hit + 1] + [\"U\" if ch == \"R\" else \"R\" for ch in s[hit + 1:]]\n    ends.add((t.count(\"R\"), t.count(\"U\")))\nassert len(ends) == 1\nresult = [10 * a + b for a, b in ends][0]",
+   "nudges": [
+    "At the touching moment the route has one more up than right. How many rights and ups are still to come?"
+   ],
+   "showed": "Every bad route becomes a route to (3, 5), and every route to (3, 5) comes from exactly one bad route. So the bad routes number as many as all routes to (3, 5): 56, and 70 - 56 = 14."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that the number of routes from (0, 0) to $(r, u)$ using unit steps right and up equals the number of ways to choose $u$ places out of $r + u$.",
+   "claims": [
+    "Every route consists of exactly r steps right and u steps up, so r + u steps in all, since each step raises exactly one coordinate by one.",
+    "A route is determined by the sequence of its steps, and that sequence is determined by which u of the r + u places hold the up-steps.",
+    "Conversely any choice of u places gives a sequence with r rights and u ups, which is a valid route ending at (r, u). So routes and choices correspond one-to-one."
+   ],
+   "nudges": [
+    "How many steps of each kind does a route have?",
+    "What determines the route?"
+   ],
+   "showed": "A route is a word in two letters with fixed counts."
+  },
+  {
+   "id": "h-two",
+   "kind": "number",
+   "prompt": "How many routes from (0, 0) to (6, 6) avoid both of the points (2, 3) and (4, 4)?",
+   "answer": 334,
+   "verify": "import functools\ndef paths(r, u, blocked=(), ok=lambda x, y: True):\n    @functools.lru_cache(None)\n    def go(x, y):\n        if (x, y) in blocked or not ok(x, y): return 0\n        if (x, y) == (r, u): return 1\n        return (go(x + 1, y) if x < r else 0) + (go(x, y + 1) if y < u else 0)\n    return go(0, 0)\nresult = paths(6, 6, blocked=((2, 3), (4, 4)))",
+   "nudges": [
+    "How many routes pass through (2, 3)? Through (4, 4)?",
+    "Which routes have you then subtracted twice?"
+   ],
+   "showed": "All, minus through the first, minus through the second, plus through both (first one, then the other).",
+   "tier": "hard"
+  },
+  {
+   "id": "h-lead",
+   "kind": "number",
+   "prompt": "Ten votes are counted one at a time: 6 for A and 4 for B. In how many of the possible counting orders is A strictly ahead of B after every single vote?",
+   "answer": 42,
+   "verify": "import itertools\nresult = 0\nfor b in itertools.combinations(range(10), 4):\n    lead = 0; good = True\n    for i in range(10):\n        lead += -1 if i in b else 1\n        if lead <= 0: good = False; break\n    result += good",
+   "nudges": [
+    "Draw a vote for A as a step right and a vote for B as a step up. What must the route avoid?",
+    "What must the first vote be? After it, which line may the rest never touch?"
+   ],
+   "showed": "The first vote is for A; after that the route from (1, 0) to (6, 4) must stay strictly below the diagonal, and the bad ones are counted by the same mirror trick.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-three",
+   "kind": "number",
+   "prompt": "A robot in space goes from (0, 0, 0) to (2, 2, 2), each step raising exactly one coordinate by one. How many routes?",
+   "answer": 90,
+   "verify": "import itertools\nresult = len(set(itertools.permutations(\"XXYYZZ\")))",
+   "nudges": [
+    "How many steps, and how many of each kind?",
+    "Choose the places of the first kind, then of the second: how many ways?"
+   ],
+   "showed": "Choose 2 of 6 places for one direction, then 2 of the remaining 4 for the next.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-words",
+   "kind": "number",
+   "prompt": "How many strings of 5 opening and 5 closing brackets are correctly nested?",
+   "answer": 42,
+   "verify": "import itertools\nresult = 0\nfor o in itertools.combinations(range(10), 5):\n    d = 0; good = True\n    for i in range(10):\n        d += 1 if i in o else -1\n        if d < 0: good = False; break\n    result += good",
+   "nudges": [
+    "Read an opening bracket as a step right and a closing one as a step up. Which routes are the correct strings?"
+   ],
+   "showed": "Routes to (5, 5) that never go above the diagonal: all routes to (5, 5) minus all routes to (4, 6).",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Lattice paths and binomials",
+  "statement": "The number of routes with $r$ steps right and $u$ steps up is $\\binom{r + u}{r}$. Routes through a point multiply, forbidden points are subtracted, and routes that must stay on one side of a line are counted by reflecting the bad ones.",
+  "remark": "Votes, brackets, sequences of +1 and -1 and many other counts are such routes in disguise. The numbers that come out of the diagonal rule (1, 2, 5, 14, 42, ...) are the Catalan numbers."
+ }
+}

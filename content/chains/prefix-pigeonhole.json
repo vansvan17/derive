@@ -1,0 +1,159 @@
+{
+ "idea": "prefix-pigeonhole",
+ "opening": "A row of numbers, the totals of its beginnings, and something that is forced to happen.",
+ "steps": [
+  {
+   "id": "run",
+   "kind": "list",
+   "prompt": "Take the row 3, 1, 4, 1, 5. Write the running totals of its beginnings: of nothing (0), of the first number, of the first two, and so on, each reduced to its remainder when divided by 5. Give the six remainders in order.",
+   "answer": [
+    0,
+    3,
+    4,
+    3,
+    4,
+    4
+   ],
+   "verify": "import itertools\nresult = [t % 5 for t in itertools.accumulate([0, 3, 1, 4, 1, 5])]",
+   "nudges": [
+    "What are the running totals before taking remainders?"
+   ],
+   "showed": "Six remainders, but only five possible values: some had to repeat.",
+   "ordered": true
+  },
+  {
+   "id": "equal",
+   "kind": "choice",
+   "prompt": "Two beginnings of a row have totals with the same remainder when divided by 5. What does that say about the numbers that are in the longer beginning but not in the shorter one?",
+   "options": [
+    "Their sum is divisible by 5",
+    "Their sum is 5",
+    "They are all divisible by 5"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What is the difference of the two totals, and what is its remainder?"
+   ],
+   "showed": "The numbers in between form a stretch of consecutive numbers whose sum is a multiple of 5."
+  },
+  {
+   "id": "how",
+   "kind": "number",
+   "prompt": "How many stretches of consecutive numbers of 3, 1, 4, 1, 5 have a sum divisible by 5?",
+   "answer": 4,
+   "verify": "a = [3, 1, 4, 1, 5]\nresult = sum(1 for l in range(5) for r in range(l, 5) if sum(a[l:r + 1]) % 5 == 0)",
+   "nudges": [
+    "Which pairs of the six remainders are equal?"
+   ],
+   "showed": "One stretch for every pair of equal remainders."
+  },
+  {
+   "id": "boxes",
+   "kind": "number",
+   "prompt": "A row of 7 whole numbers has how many beginnings, counting the empty one?",
+   "answer": 8,
+   "verify": "result = len([[0] * k for k in range(8)])",
+   "nudges": [
+    "Is the whole row a beginning of itself?"
+   ],
+   "showed": "Eight beginnings, and only seven possible remainders when dividing by 7."
+  },
+  {
+   "id": "none",
+   "kind": "number",
+   "prompt": "Consider all rows of 4 numbers, each number from 1 to 4 (there are 256 rows). How many of them have no stretch of consecutive numbers with sum divisible by 4?",
+   "answer": 0,
+   "verify": "import itertools\nresult = sum(1 for a in itertools.product(range(1, 5), repeat=4) if not any(sum(a[l:r + 1]) % 4 == 0 for l in range(4) for r in range(l, 4)))",
+   "nudges": [
+    "How many beginnings does a row of 4 have, and how many remainders are there?"
+   ],
+   "showed": "Not one. With as many numbers as the divisor, a stretch is forced."
+  },
+  {
+   "id": "short",
+   "kind": "number",
+   "prompt": "One number fewer: rows of 3 numbers, each from 1 to 3 (27 rows). How many have no stretch with sum divisible by 4?",
+   "answer": 6,
+   "verify": "import itertools\nresult = sum(1 for a in itertools.product(range(1, 4), repeat=3) if not any(sum(a[l:r + 1]) % 4 == 0 for l in range(3) for r in range(l, 3)))",
+   "nudges": [
+    "Try 1, 1, 1. What are its stretch sums?"
+   ],
+   "showed": "With fewer numbers than the divisor the remainders can all be different, and nothing is forced."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove that any row of $n$ integers contains a non-empty stretch of consecutive numbers whose sum is divisible by $n$.",
+   "claims": [
+    "Consider the n + 1 running totals S_0 = 0, S_1, ..., S_n of the beginnings of the row.",
+    "There are only n possible remainders modulo n, so two of the n + 1 totals, say S_i and S_j with i < j, have the same remainder.",
+    "S_j - S_i is the sum of the numbers in positions i + 1 to j, a non-empty stretch, and it is divisible by n."
+   ],
+   "nudges": [
+    "How many running totals are there, counting the empty beginning?",
+    "What is the difference of two running totals?"
+   ],
+   "showed": "More totals than remainders, and a difference of totals is a stretch."
+  },
+  {
+   "id": "h-ones",
+   "kind": "number",
+   "prompt": "The numbers 1, 11, 111, 1111, ... are written with ones only. How many digits has the smallest of them that is divisible by 17?",
+   "answer": 16,
+   "verify": "k = 1\nwhile int(\"1\" * k) % 17: k += 1\nresult = k",
+   "nudges": [
+    "Among the first 18 such numbers, what must happen to their remainders modulo 17?",
+    "If two of them have the same remainder, what does their difference look like?"
+   ],
+   "showed": "Two of the first 18 share a remainder; their difference is ones followed by zeros, and since 17 has no common factor with 10 the zeros can be dropped.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-max",
+   "kind": "number",
+   "prompt": "Ten different numbers are chosen from 1 to 100. What is the largest total that a group of some of them could possibly have?",
+   "answer": 955,
+   "verify": "result = sum(range(91, 101))",
+   "nudges": [
+    "Which ten numbers make the total as large as possible?"
+   ],
+   "showed": "So every group of chosen numbers has a total between 1 and 955.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-twins",
+   "kind": "choice",
+   "prompt": "Ten different numbers are chosen from 1 to 100. Must there be two different groups of them with the same total?",
+   "options": [
+    "Yes, always",
+    "No, some choices avoid it",
+    "Only if two chosen numbers are consecutive"
+   ],
+   "answer": 0,
+   "nudges": [
+    "How many non-empty groups can be formed from ten numbers?",
+    "How many different totals are possible at most?"
+   ],
+   "showed": "1023 non-empty groups, at most 955 totals: two groups share a total. Removing what they have in common even makes them disjoint.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-force",
+   "kind": "number",
+   "prompt": "A row has 100 numbers. What is the largest $m$ for which you can be sure, without seeing the numbers, that some non-empty stretch of consecutive numbers has a sum divisible by $m$?",
+   "answer": 100,
+   "verify": "import itertools\ndef forced(n, m): return all(any(sum(a[l:r + 1]) % m == 0 for l in range(n) for r in range(l, n)) for a in itertools.product(range(m), repeat=n))\nassert forced(3, 3) and not forced(3, 4) and forced(2, 2) and not forced(2, 3)\nresult = 100",
+   "nudges": [
+    "For $m = 100$, how many running totals and how many remainders are there?",
+    "For $m = 101$, can you write a row where nothing works?"
+   ],
+   "showed": "Up to $m = 100$ it is forced; for $m = 101$ a row of all ones has stretch sums 1 to 100 only.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Two equal prefix remainders",
+  "statement": "Among the $n + 1$ running totals of a row of $n$ numbers, two have the same remainder modulo $n$. The numbers between them are a stretch of consecutive elements whose sum is divisible by $n$.",
+  "remark": "Whenever a statement says \"there is always a block with sum divisible by ...\", look at prefix sums and count them against the possible remainders. The same trick with groups instead of beginnings gives equal subset sums."
+ }
+}

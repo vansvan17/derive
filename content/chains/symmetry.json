@@ -1,0 +1,149 @@
+{
+ "idea": "symmetry",
+ "opening": "Counting arrangements that satisfy a condition, without ever looking at the condition closely.",
+ "steps": [
+  {
+   "id": "sums",
+   "kind": "number",
+   "prompt": "Consider all arrays of 3 numbers, each from 0 to 4 (125 arrays). How many have a sum divisible by 5?",
+   "answer": 25,
+   "verify": "import itertools\nresult = sum(1 for a in itertools.product(range(5), repeat=3) if sum(a) % 5 == 0)",
+   "nudges": [
+    "How many have a sum that leaves remainder 1? Remainder 2?"
+   ],
+   "showed": "Exactly a fifth of them."
+  },
+  {
+   "id": "shift",
+   "kind": "choice",
+   "prompt": "Take an array from that collection and add 1 to its first number, wrapping 4 round to 0. What does this do to the collection of arrays whose sum leaves remainder $r$ when divided by 5?",
+   "options": [
+    "It turns them, one-to-one, into the arrays whose sum leaves remainder $r + 1$",
+    "It leaves them where they are",
+    "It turns some of them into arrays with remainder $r + 1$ and loses others"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Can two different arrays become the same array? Can the step be undone?"
+   ],
+   "showed": "So all five remainder classes have the same size, and the size is 125 / 5 without any further thought."
+  },
+  {
+   "id": "before",
+   "kind": "number",
+   "prompt": "In how many of the 120 orderings of 1, 2, 3, 4, 5 does 1 stand somewhere to the left of 2?",
+   "answer": 60,
+   "verify": "import itertools\nresult = sum(1 for p in itertools.permutations(range(1, 6)) if p.index(1) < p.index(2))",
+   "nudges": [
+    "What happens to an ordering when you exchange the 1 and the 2?"
+   ],
+   "showed": "Exchanging 1 and 2 pairs every ordering with one of the other kind: half and half."
+  },
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "In how many orderings of 1 to 6 do the numbers 1, 2, 3 appear in increasing order from left to right (not necessarily next to each other)?",
+   "answer": 120,
+   "verify": "import itertools\nresult = sum(1 for p in itertools.permutations(range(1, 7)) if p.index(1) < p.index(2) < p.index(3))",
+   "nudges": [
+    "In how many orders can 1, 2, 3 be placed on the three places they occupy?",
+    "Are all of those orders equally common among the 720 orderings?"
+   ],
+   "showed": "The three numbers can be rearranged among their places in 6 ways, all equally common: 720 / 6."
+  },
+  {
+   "id": "more",
+   "kind": "number",
+   "prompt": "How many strings of 8 zeros and ones have more ones than zeros?",
+   "answer": 93,
+   "verify": "import itertools\nresult = sum(1 for s in itertools.product((0, 1), repeat=8) if sum(s) > 4)",
+   "nudges": [
+    "What does flipping every character do to a string with more ones?",
+    "Which strings are paired with nothing new?"
+   ],
+   "showed": "Flipping pairs \"more ones\" with \"more zeros\"; the 70 ties are left over, so (256 - 70) / 2."
+  },
+  {
+   "id": "table",
+   "kind": "number",
+   "prompt": "Five people sit down at a round table with five chairs. Two seatings count as the same if one is a rotation of the other. How many different seatings are there?",
+   "answer": 24,
+   "verify": "import itertools\nresult = len({min(p[i:] + p[:i] for i in range(5)) for p in itertools.permutations(range(5))})",
+   "nudges": [
+    "Fix where one particular person sits. How many seatings of the others are there?"
+   ],
+   "showed": "Pin one person to a chair: every seating has exactly one rotation that does it, and the others can sit in 4! ways."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $m \\ge 1$ and $k \\ge 1$. Prove that among all arrays of $k$ numbers, each from 0 to $m - 1$, exactly $m^{k-1}$ have a sum divisible by $m$.",
+   "claims": [
+    "Consider the map that adds 1 to the first entry modulo m. It is a one-to-one map of the set of all arrays onto itself, since subtracting 1 undoes it.",
+    "It increases the remainder of the sum modulo m by exactly 1, so it carries the arrays with remainder r one-to-one onto the arrays with remainder r + 1.",
+    "Therefore all m remainder classes have the same number of arrays, and together they contain all m^k arrays, so each class has m^k / m."
+   ],
+   "nudges": [
+    "What map turns arrays with one remainder into arrays with the next?",
+    "Why does that force the classes to have the same size?"
+   ],
+   "showed": "A map that can be undone and moves every class to the next one makes all classes equal."
+  },
+  {
+   "id": "h-digits",
+   "kind": "number",
+   "prompt": "How many of the numbers from 0000 to 9999 (written with four digits) have a digit sum that ends in 3?",
+   "answer": 1000,
+   "verify": "result = sum(1 for n in range(10000) if sum(map(int, str(n))) % 10 == 3)",
+   "nudges": [
+    "If the first three digits are fixed, how many choices of the last digit work?"
+   ],
+   "showed": "Whatever the first three digits are, exactly one last digit gives the right remainder: pin three coordinates, and the fourth is forced.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-trap",
+   "kind": "number",
+   "prompt": "How many of the 4096 subsets of {1, 2, ..., 12} have a sum divisible by 3? (The empty set counts.)",
+   "answer": 1376,
+   "verify": "import itertools\nresult = sum(1 for m in range(4096) if sum(i + 1 for i in range(12) if m >> i & 1) % 3 == 0)",
+   "nudges": [
+    "Is there a map that turns every subset with remainder 0 into one with remainder 1, and can be undone?",
+    "Is 4096 divisible by 3?"
+   ],
+   "showed": "Not a third: 4096 is not even divisible by 3. There is no map here that shifts every sum by one, so the classes need not be equal. Before dividing, name the symmetry.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-max",
+   "kind": "number",
+   "prompt": "In how many orderings of 1 to 7 is the number in the first place larger than both the number in the second place and the number in the third place?",
+   "answer": 1680,
+   "verify": "import itertools\nresult = sum(1 for p in itertools.permutations(range(1, 8)) if p[0] > p[1] and p[0] > p[2])",
+   "nudges": [
+    "Among the three numbers that land in the first three places, which one must be first?",
+    "Is each of the three equally likely to be the largest?"
+   ],
+   "showed": "The largest of the first three numbers is equally likely to be in any of the three places: 5040 / 3.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-ring",
+   "kind": "number",
+   "prompt": "A ring of 7 beads, each bead black or white. Two rings count as the same if one is a rotation of the other. How many different rings are there?",
+   "answer": 20,
+   "verify": "import itertools\nresult = len({min(s[i:] + s[:i] for i in range(7)) for s in itertools.product(\"BW\", repeat=7)})",
+   "nudges": [
+    "How many different rotations does a string of 7 beads have, if it is not all one colour?",
+    "Which strings are exceptions?"
+   ],
+   "showed": "Seven is prime, so every string except the two one-coloured ones has 7 different rotations: (128 - 2) / 7 rings, plus those 2.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Count one, multiply by the symmetry",
+  "statement": "If a map that can be undone (a shift, a rotation, a relabelling) turns every valid arrangement into another valid one, the arrangements fall into classes of equal size. Count one class, or pin one coordinate, and multiply or divide.",
+  "remark": "Always name the map and check that it really can be undone and really lands where you claim. When some arrangements are fixed by the map (ties, one-coloured rings), count those separately."
+ }
+}

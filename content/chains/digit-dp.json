@@ -83,7 +83,7 @@
   {
    "id": "size",
    "kind": "number",
-   "prompt": "For limits up to $10^{18}$ (18 digits) and digit sums from 0 to 162, how many such summaries (position, sum, yes-or-no) are there?",
+   "prompt": "Call a summary a triple: how many digits have been chosen so far, the sum of those digits, and whether the chosen beginning still equals the limit's beginning (yes or no). For an 18-digit limit the first entry runs from 0 to 17, and the sum runs from 0 to 162. How many different triples is that?",
    "answer": 5868,
    "verify": "result = 18 * 163 * 2",
    "nudges": [

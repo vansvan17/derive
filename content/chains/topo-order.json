@@ -82,7 +82,7 @@
   {
    "id": "work",
    "kind": "number",
-   "prompt": "There are $10^5$ tasks and $2 \\cdot 10^5$ rules \"a before b\". Using the counting method, how many times in total is a rule looked at?",
+   "prompt": "The method in full: for every task keep a count of the rules \"a before b\" in which it is the b. A task can be done when its count is 0. When a task a is done, look once at every rule \"a before b\" and lower the count of b by 1. There are $10^5$ tasks and $2 \\cdot 10^5$ rules, with no ring, so every task gets done. How many times in total is a rule looked at?",
    "answer": 200000,
    "verify": "result = 2 * 10 ** 5",
    "nudges": [

@@ -108,7 +108,7 @@
   {
    "id": "work",
    "kind": "number",
-   "prompt": "There are 100 items and the weight limit is $10^4$. Processing one item visits each total once. How many table updates is that in all?",
+   "prompt": "Keep an array best[0..$10^4$] with one entry for every total weight. Processing one item means going through the totals 1 to $10^4$ once and doing one update of best[total] for each. With 100 items, how many such updates are done altogether?",
    "answer": 1000000,
    "verify": "result = 100 * 10**4",
    "nudges": [

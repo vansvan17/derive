@@ -94,7 +94,7 @@
   {
    "id": "ucost",
    "kind": "number",
-   "prompt": "For an array of $10^6$ positions, at most how many boxes does one total \"positions 1 to $i$\" have to visit?",
+   "prompt": "The array has $10^6$ positions. Take the total of positions 1 to $i$ for every $i$ from 1 to $10^6$. What is the largest number of boxes any one of these totals has to visit?",
    "answer": 19,
    "verify": "result = max(bin(i).count(\"1\") for i in (2 ** 19 - 1, 10 ** 6))",
    "nudges": [

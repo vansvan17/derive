@@ -98,7 +98,7 @@
   {
    "id": "pushes",
    "kind": "number",
-   "prompt": "With a priority queue, each road can put at most one new entry into the queue per direction. For a map with $2 \\cdot 10^5$ one-way roads, at most how many entries are ever pushed (not counting the start)?",
+   "prompt": "Run the method with a priority queue: when a town is finalised, each road leaving it is examined once, and if that road gives its end town a smaller provisional distance, one new entry is pushed into the queue. The map has $2 \\cdot 10^5$ one-way roads. At most how many entries are pushed in the whole run (do not count the entry for the start town)?",
    "answer": 200000,
    "verify": "result = 2 * 10 ** 5",
    "nudges": [

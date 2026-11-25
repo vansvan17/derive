@@ -72,7 +72,7 @@
   {
    "id": "cost",
    "kind": "number",
-   "prompt": "$10^5$ changes are made, each to a stretch of up to $10^5$ positions. If you only keep the jumps up to date, at most how many entries do you change in total?",
+   "prompt": "Keep only the array of jumps $d$, where $d_i = a_i - a_{i-1}$. There are $10^5$ changes, and each adds a value to a whole stretch of up to $10^5$ positions of $a$. Each change is carried out by altering entries of $d$ and nothing else. Over all the changes together, at most how many entries of $d$ are altered (count an entry again each time it is altered)?",
    "answer": 200000,
    "verify": "result = 2 * 10**5",
    "nudges": [

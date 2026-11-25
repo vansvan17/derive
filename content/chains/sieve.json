@@ -70,7 +70,7 @@
   {
    "id": "steps",
    "kind": "number",
-   "prompt": "With such a table up to $10^6$, what is the largest number of look-ups any number below $10^6$ can need?",
+   "prompt": "Fill the same table (each cell holds the smallest prime factor of its number) for every number up to $10^6$. Factorising a number as you just did takes one look-up for each prime factor, counted with repeats: 84 took four. What is the largest number of look-ups that any number below $10^6$ takes?",
    "answer": 19,
    "verify": "result = max(n.bit_length() - 1 for n in (2 ** 19, 10 ** 6 - 1))",
    "nudges": [

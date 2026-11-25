@@ -71,7 +71,7 @@
   {
    "id": "perquery",
    "kind": "number",
-   "prompt": "The modulus is now a large prime $p$, and all factorials and all inverses of factorials up to $10^6$ are stored in two tables. How many multiplications does one question \"choose $k$ out of $n$\" cost?",
+   "prompt": "The modulus is now a large prime $p$. Two arrays are stored: fact[i] = $i!$ and inv[i] = the inverse of $i!$, both modulo $p$, for every $i$ up to $10^6$. Answering one question \"choose $k$ out of $n$\" then needs some look-ups in these arrays and some multiplications. How many multiplications (do not count the look-ups)?",
    "answer": 2,
    "verify": "result = 2",
    "nudges": [

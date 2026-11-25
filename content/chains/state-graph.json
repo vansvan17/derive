@@ -1,0 +1,134 @@
+{
+ "idea": "state-graph",
+ "opening": "Puzzles that ask for the fewest moves, and one way of looking at all of them.",
+ "steps": [
+  {
+   "id": "jugs",
+   "kind": "number",
+   "prompt": "You have a 3-litre jug and a 5-litre jug, both empty, and a tap. A move fills one jug completely, empties one jug, or pours one into the other until the first is empty or the second is full. What is the smallest number of moves after which one of the jugs holds exactly 4 litres?",
+   "answer": 6,
+   "verify": "def bfs(start, goal, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return len(seen)\ndef jug(s):\n    a, b = s; p = min(a, 5 - b); q = min(b, 3 - a)\n    return [(3, b), (a, 5), (0, b), (a, 0), (a - p, b + p), (a + q, b - q)]\nresult = bfs((0, 0), lambda s: 4 in s, jug)",
+   "nudges": [
+    "Which jug can hold 4 litres at all?",
+    "What happens if you fill the large jug and pour into the small one?"
+   ],
+   "showed": "Six moves: fill the large jug, pour into the small, empty the small, pour again, fill the large, pour again."
+  },
+  {
+   "id": "what",
+   "kind": "choice",
+   "prompt": "To know which moves are possible next and whether you are done, what do you need to know about the situation?",
+   "options": [
+    "How much water is in each jug",
+    "The whole list of moves made so far",
+    "How many moves have been made"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two different histories lead to 3 litres in the small jug and 2 in the large. Do they differ in what can happen next?"
+   ],
+   "showed": "A situation is a pair of numbers. Everything else about the past is irrelevant."
+  },
+  {
+   "id": "reach",
+   "kind": "number",
+   "prompt": "How many different situations (litres in the small jug, litres in the large jug) can be reached from two empty jugs, counting the start?",
+   "answer": 16,
+   "verify": "def bfs(start, goal, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return len(seen)\ndef jug(s):\n    a, b = s; p = min(a, 5 - b); q = min(b, 3 - a)\n    return [(3, b), (a, 5), (0, b), (a, 0), (a - p, b + p), (a + q, b - q)]\nresult = bfs((0, 0), lambda s: False, jug)",
+   "nudges": [
+    "After any move, what can you say about at least one of the jugs?"
+   ],
+   "showed": "Fewer than the 24 pairs one could write down: after every move some jug is full or empty."
+  },
+  {
+   "id": "graph",
+   "kind": "choice",
+   "prompt": "Draw every situation as a dot and every move as an arrow from one situation to another. The fewest moves from the start to a goal is then:",
+   "options": [
+    "the length of a shortest path, found by exploring in order of distance",
+    "the number of dots",
+    "found by always making the move that looks best"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which situations are one move away? Two moves?"
+   ],
+   "showed": "Exploring level by level (breadth-first) reaches every situation by a shortest route, with no cleverness about the puzzle needed."
+  },
+  {
+   "id": "lamps",
+   "kind": "number",
+   "prompt": "Five lamps in a row, all off. Pressing a lamp toggles it and its neighbours (one or two of them). What is the smallest number of presses after which all five are on?",
+   "answer": 2,
+   "verify": "def bfs(start, goal, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return len(seen)\ndef jug(s):\n    a, b = s; p = min(a, 5 - b); q = min(b, 3 - a)\n    return [(3, b), (a, 5), (0, b), (a, 0), (a - p, b + p), (a + q, b - q)]\ndef press(s): return [tuple(v ^ (abs(i - j) <= 1) for j, v in enumerate(s)) for i in range(5)]\nresult = bfs((0,) * 5, lambda s: all(s), press)",
+   "nudges": [
+    "What is a situation here, and how many are there?"
+   ],
+   "showed": "A situation is which lamps are on: 32 of them. Press the second and the fifth lamp."
+  },
+  {
+   "id": "knight",
+   "kind": "number",
+   "prompt": "What is the smallest number of knight moves from one corner of an 8 by 8 chessboard to the opposite corner?",
+   "answer": 6,
+   "verify": "def bfs(start, goal, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return len(seen)\ndef jug(s):\n    a, b = s; p = min(a, 5 - b); q = min(b, 3 - a)\n    return [(3, b), (a, 5), (0, b), (a, 0), (a - p, b + p), (a + q, b - q)]\ndef kn(s): return [(s[0] + a, s[1] + b) for a, b in [(1, 2), (2, 1), (-1, 2), (-2, 1), (1, -2), (2, -1), (-1, -2), (-2, -1)] if 0 <= s[0] + a < 8 and 0 <= s[1] + b < 8]\nresult = bfs((0, 0), lambda s: s == (7, 7), kn)",
+   "nudges": [
+    "What is a situation here?"
+   ],
+   "showed": "Here the situation is just the square the knight is on."
+  },
+  {
+   "id": "slide",
+   "kind": "number",
+   "prompt": "A 2 by 2 frame holds three tiles and one empty cell; a move slides a neighbouring tile into the empty cell. Starting from one arrangement, how many different arrangements can be reached, counting the start?",
+   "answer": 12,
+   "verify": "def bfs(start, goal, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return len(seen)\ndef jug(s):\n    a, b = s; p = min(a, 5 - b); q = min(b, 3 - a)\n    return [(3, b), (a, 5), (0, b), (a, 0), (a - p, b + p), (a + q, b - q)]\ndef sl(s):\n    e = s.index(0); out = []\n    for d in ((e + 1) if e % 2 == 0 else -1, (e - 1) if e % 2 == 1 else -1, e + 2, e - 2):\n        if 0 <= d < 4:\n            t = list(s); t[e], t[d] = t[d], t[e]; out.append(tuple(t))\n    return out\nresult = bfs((1, 2, 3, 0), lambda s: False, sl)",
+   "nudges": [
+    "How many arrangements of three tiles and a gap are there in all?"
+   ],
+   "showed": "Twelve of the 24: the graph of situations has two separate halves, and the exploration tells you which half you are in."
+  },
+  {
+   "id": "h-number",
+   "kind": "number",
+   "prompt": "You start with the number 3. A move doubles the number or subtracts 1 from it. What is the smallest number of moves that produces 100?",
+   "answer": 10,
+   "verify": "def bfs(start, goal, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return len(seen)\ndef jug(s):\n    a, b = s; p = min(a, 5 - b); q = min(b, 3 - a)\n    return [(3, b), (a, 5), (0, b), (a, 0), (a - p, b + p), (a + q, b - q)]\nresult = bfs(3, lambda s: s == 100, lambda s: [t for t in (2 * s, s - 1) if 0 < t <= 200])",
+   "nudges": [
+    "Is there any reason to let the number grow beyond 200?"
+   ],
+   "showed": "The situations are the numbers themselves. The graph is infinite, but a bound on useful values makes it finite.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-river",
+   "kind": "number",
+   "prompt": "A farmer must take a wolf, a goat and a cabbage across a river. The boat carries the farmer and at most one of the three. The wolf may not be left with the goat, nor the goat with the cabbage, unless the farmer is there. What is the smallest number of crossings?",
+   "answer": 7,
+   "verify": "def bfs(start, goal, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return len(seen)\ndef jug(s):\n    a, b = s; p = min(a, 5 - b); q = min(b, 3 - a)\n    return [(3, b), (a, 5), (0, b), (a, 0), (a - p, b + p), (a + q, b - q)]\nimport itertools\ndef ok(s): f, w, g, c = s; return not (w == g != f) and not (g == c != f)\ndef cross(s):\n    out = []\n    for i in (None, 1, 2, 3):\n        if i is not None and s[i] != s[0]: continue\n        t = list(s); t[0] ^= 1\n        if i is not None: t[i] ^= 1\n        if ok(tuple(t)): out.append(tuple(t))\n    return out\nresult = bfs((0, 0, 0, 0), lambda s: s == (1, 1, 1, 1), cross)",
+   "nudges": [
+    "What is a situation? How many are there?"
+   ],
+   "showed": "A situation is which bank each of the four is on: 16 at most, and some forbidden. The famous puzzle is a shortest path in a tiny graph.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-wall",
+   "kind": "number",
+   "prompt": "A grid, rows listed from the top (# is a wall, . is free):  ..#..  /  .##..  /  .#.#.  /  .#.#.  /  ...#.   You walk between neighbouring free cells from the top-left to the bottom-right corner, and once during the walk you may step through a single wall cell. What is the smallest number of steps?",
+   "answer": 8,
+   "verify": "def bfs(start, goal, moves):\n    seen = {start: 0}; todo = [start]\n    for s in todo:\n        if goal(s): return seen[s]\n        for t in moves(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return len(seen)\ndef jug(s):\n    a, b = s; p = min(a, 5 - b); q = min(b, 3 - a)\n    return [(3, b), (a, 5), (0, b), (a, 0), (a - p, b + p), (a + q, b - q)]\nG = [\"..#..\", \".##..\", \".#.#.\", \".#.#.\", \"...#.\"]\ndef mv(s):\n    r, c, used = s; out = []\n    for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n        x, y = r + dr, c + dc\n        if 0 <= x < 5 and 0 <= y < 5:\n            if G[x][y] == \".\": out.append((x, y, used))\n            elif not used: out.append((x, y, 1))\n    return out\nresult = bfs((0, 0, 0), lambda s: s[:2] == (4, 4), mv)",
+   "nudges": [
+    "Is the cell you are on enough to know what you may do next?",
+    "What else must the situation record?"
+   ],
+   "showed": "The cell alone is not a situation any more: whether the one permitted wall has been used changes what is allowed. Make it part of the situation and explore as before.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Configurations as a graph",
+  "statement": "Make each configuration a vertex and each move an edge. Then \"fewest moves\" is a shortest path, \"can it be reached\" is connectivity, and breadth-first search answers both.",
+  "remark": "The art is in deciding what a configuration must contain: everything the rules can still look at, and nothing more. Count the configurations first to see whether the search is affordable."
+ }
+}

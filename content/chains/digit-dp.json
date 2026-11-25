@@ -1,0 +1,162 @@
+{
+ "idea": "digit-dp",
+ "opening": "Counting numbers with a property of their digits, up to a limit far too large to loop over.",
+ "steps": [
+  {
+   "id": "free",
+   "kind": "number",
+   "prompt": "How many of the numbers from 0 to 999 have digits that add up to 10?",
+   "answer": 63,
+   "verify": "def ds(n): return sum(map(int, str(n)))\nresult = sum(1 for n in range(1000) if ds(n) == 10)",
+   "nudges": [
+    "Write every number with three digits, like 007. How many ways to choose three digits with sum 10?"
+   ],
+   "showed": "With leading zeros allowed, it is a count of digit strings of length 3."
+  },
+  {
+   "id": "left",
+   "kind": "choice",
+   "prompt": "To count digit strings of a fixed length with a given digit sum, you choose the digits from left to right. What do you need to remember about the digits already chosen?",
+   "options": [
+    "Only their sum (and how many positions are left)",
+    "All of them",
+    "Only the last one"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two different beginnings with the same sum: can they be finished in the same ways?"
+   ],
+   "showed": "Beginnings with the same sum have the same futures, so they can be counted together."
+  },
+  {
+   "id": "limit",
+   "kind": "number",
+   "prompt": "How many of the numbers from 0 to 352 have digits that add up to 10?",
+   "answer": 34,
+   "verify": "def ds(n): return sum(map(int, str(n)))\nresult = sum(1 for n in range(353) if ds(n) == 10)",
+   "nudges": [
+    "Which numbers below 300 qualify? Which from 300 to 352?"
+   ],
+   "showed": "Now not every digit string is allowed, only those that do not exceed 352."
+  },
+  {
+   "id": "below",
+   "kind": "number",
+   "prompt": "Among those, how many have a first digit (hundreds digit, possibly 0) smaller than 3?",
+   "answer": 28,
+   "verify": "def ds(n): return sum(map(int, str(n)))\nresult = sum(1 for n in range(300) if ds(n) == 10)",
+   "nudges": [
+    "If the first digit is 0, 1 or 2, is there any restriction on the other two digits?"
+   ],
+   "showed": "Once a digit is smaller than the limit's digit, everything after it is free."
+  },
+  {
+   "id": "tight",
+   "kind": "choice",
+   "prompt": "You choose digits from the left, never exceeding the limit 352. You have chosen the first digit 3. What may the second digit be?",
+   "options": [
+    "0 to 5: the beginning is still equal to the limit's beginning, so the limit still binds",
+    "0 to 9",
+    "0 to 2"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What would 36 as a beginning lead to?"
+   ],
+   "showed": "While the chosen beginning equals the limit's beginning, the next digit is capped by the limit's digit. As soon as one digit is smaller, the cap is gone for good."
+  },
+  {
+   "id": "state",
+   "kind": "choice",
+   "prompt": "So what must be remembered while choosing digits from the left, to count numbers up to a limit with a given digit sum?",
+   "options": [
+    "The position, the sum so far, and one yes-or-no: is the beginning still equal to the limit's beginning",
+    "The position and the sum so far",
+    "The whole beginning"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which fact about the beginning decides the cap on the next digit?"
+   ],
+   "showed": "One extra bit on top of what the free count needed."
+  },
+  {
+   "id": "size",
+   "kind": "number",
+   "prompt": "For limits up to $10^{18}$ (18 digits) and digit sums from 0 to 162, how many such summaries (position, sum, yes-or-no) are there?",
+   "answer": 5868,
+   "verify": "result = 18 * 163 * 2",
+   "nudges": [
+    "How many choices for each of the three parts?"
+   ],
+   "showed": "A few thousand summaries for a range of a billion billion numbers."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $N$ have digits $d_1 d_2 \\dots d_m$. Prove that every number $x$ with $0 \\le x < N$, written with $m$ digits (leading zeros allowed), is obtained exactly once by: choosing a position $i$, copying $d_1, \\dots, d_{i-1}$, putting a digit smaller than $d_i$ at position $i$, and filling the remaining positions freely.",
+   "claims": [
+    "Write x with m digits. Since x is not N, there is a first position i where the digits of x and N differ.",
+    "Before position i the digits agree, and since x < N the digit of x at position i is smaller than d_i; the later digits of x are unrestricted.",
+    "So x is produced by the choice of this position i and its digits, and by no other position, since the first differing position is unique.",
+    "Conversely every number produced this way agrees with N before i and is smaller at i, hence is smaller than N."
+   ],
+   "nudges": [
+    "Where do $x$ and $N$ first differ?",
+    "What is known about the digits before and after that position?"
+   ],
+   "showed": "The numbers below the limit split by the first position where they drop below it."
+  },
+  {
+   "id": "h-range",
+   "kind": "number",
+   "prompt": "How many numbers from 12345 to 67890 (both included) have exactly two digits equal to 5?",
+   "answer": 5234,
+   "verify": "result = sum(1 for n in range(12345, 67891) if str(n).count(\"5\") == 2)",
+   "nudges": [
+    "Can a count \"from L to R\" be made from two counts \"from 0 to something\"?"
+   ],
+   "showed": "Count up to 67890, count up to 12344, and subtract. The summary is (position, number of fives so far, still equal to the limit).",
+   "tier": "hard"
+  },
+  {
+   "id": "h-seven",
+   "kind": "number",
+   "prompt": "How many numbers from 1 to 100000 have a digit sum divisible by 7?",
+   "answer": 14281,
+   "verify": "def ds(n): return sum(map(int, str(n)))\nresult = sum(1 for n in range(1, 100001) if ds(n) % 7 == 0)",
+   "nudges": [
+    "Do you need the whole digit sum, or less?"
+   ],
+   "showed": "Only the sum modulo 7 needs remembering: seven values instead of dozens.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-neighbours",
+   "kind": "number",
+   "prompt": "How many numbers from 1 to 1000000 have no two neighbouring digits equal?",
+   "answer": 597870,
+   "verify": "result = sum(1 for n in range(1, 1000001) if all(a != b for a, b in zip(str(n), str(n)[1:])))",
+   "nudges": [
+    "What must be remembered to check the next digit?",
+    "Is a leading zero a digit of the number? What goes wrong with 101 written as 0000101?"
+   ],
+   "showed": "Remember the previous digit, and also whether the number has started yet: leading zeros are not digits, so 0000101 must not be rejected for its zeros.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-digits",
+   "kind": "code",
+   "task": "digit-sums",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Position, sum so far and the still-equal flag; memoise only the states that are no longer bound by the limit.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Digit by digit",
+  "statement": "To count the numbers up to $N$ with a property of their digits, build the digits from the top, remembering what the property needs and one flag: whether the prefix is still equal to the prefix of $N$.",
+  "remark": "Ranges are differences of two such counts. Leading zeros need a second flag when the property looks at the digits themselves. The state must stay small: a sum, a remainder, the last digit, a small count."
+ }
+}

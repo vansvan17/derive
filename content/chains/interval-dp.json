@@ -1,0 +1,163 @@
+{
+ "idea": "interval-dp",
+ "opening": "Merging neighbours in a row, and how to think about a process whose steps can come in many orders.",
+ "steps": [
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "Three piles of stones in a row: 1, 2, 3. One step merges two neighbouring piles into one, and costs the size of the merged pile. What is the smallest total cost of merging everything into one pile?",
+   "answer": 9,
+   "verify": "import functools\ndef merge(a):\n    a = tuple(a)\n    @functools.lru_cache(None)\n    def f(t):\n        if len(t) == 1: return 0\n        return min(t[i] + t[i + 1] + f(t[:i] + (t[i] + t[i + 1],) + t[i + 2:]) for i in range(len(t) - 1))\n    return f(a)\ndef chain(d):\n    @functools.lru_cache(None)\n    def f(t):\n        if len(t) == 2: return 0\n        return min(t[i - 1] * t[i] * t[i + 1] + f(t[:i] + t[i + 1:]) for i in range(1, len(t) - 1))\n    return f(tuple(d))\nresult = merge([1, 2, 3])",
+   "nudges": [
+    "What are the two possible first steps?"
+   ],
+   "showed": "Merge 1 and 2 first (cost 3), then the rest (cost 6)."
+  },
+  {
+   "id": "four",
+   "kind": "number",
+   "prompt": "Four piles: 4, 1, 1, 4. What is the smallest total cost?",
+   "answer": 18,
+   "verify": "import functools\ndef merge(a):\n    a = tuple(a)\n    @functools.lru_cache(None)\n    def f(t):\n        if len(t) == 1: return 0\n        return min(t[i] + t[i + 1] + f(t[:i] + (t[i] + t[i + 1],) + t[i + 2:]) for i in range(len(t) - 1))\n    return f(a)\ndef chain(d):\n    @functools.lru_cache(None)\n    def f(t):\n        if len(t) == 2: return 0\n        return min(t[i - 1] * t[i] * t[i + 1] + f(t[:i] + t[i + 1:]) for i in range(1, len(t) - 1))\n    return f(tuple(d))\nresult = merge([4, 1, 1, 4])",
+   "nudges": [
+    "Which merge would you do first?",
+    "What does the very last merge cost, whatever came before?"
+   ],
+   "showed": "The last merge always costs the total of all stones; the choice is in what happens before it."
+  },
+  {
+   "id": "last",
+   "kind": "choice",
+   "prompt": "Look at the last merge of a whole row. It joins two piles. What are those two piles?",
+   "options": [
+    "Everything left of some cut, already merged into one pile, and everything right of it, already merged into one",
+    "Any two piles of the original row",
+    "The two largest piles"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Only neighbours merge. Can a pile ever contain stones from positions 1 and 3 but not 2?"
+   ],
+   "showed": "A pile is always a stretch of consecutive original piles. So the last merge splits the row at one cut."
+  },
+  {
+   "id": "apart",
+   "kind": "choice",
+   "prompt": "Before that last merge, do the merges on the left of the cut affect the cost of the merges on the right?",
+   "options": [
+    "No: the two sides are separate problems of the same kind, each on a shorter stretch",
+    "Yes, through the order in which they are interleaved",
+    "Yes, because the piles grow"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Does the cost of a merge depend on anything outside the two piles being merged?"
+   ],
+   "showed": "So the best cost for a stretch is: best for the left part, plus best for the right part, plus the total of the stretch, minimised over the cut."
+  },
+  {
+   "id": "inner",
+   "kind": "number",
+   "prompt": "For the row 4, 1, 1, 4: what is the smallest cost of merging just the last three piles (1, 1, 4) into one?",
+   "answer": 8,
+   "verify": "import functools\ndef merge(a):\n    a = tuple(a)\n    @functools.lru_cache(None)\n    def f(t):\n        if len(t) == 1: return 0\n        return min(t[i] + t[i + 1] + f(t[:i] + (t[i] + t[i + 1],) + t[i + 2:]) for i in range(len(t) - 1))\n    return f(a)\ndef chain(d):\n    @functools.lru_cache(None)\n    def f(t):\n        if len(t) == 2: return 0\n        return min(t[i - 1] * t[i] * t[i + 1] + f(t[:i] + t[i + 1:]) for i in range(1, len(t) - 1))\n    return f(tuple(d))\nresult = merge([1, 1, 4])",
+   "nudges": [
+    "Where is the best cut?"
+   ],
+   "showed": "Cut after the second 1: cost 2 for the left part, 0 for the right, plus the total 6."
+  },
+  {
+   "id": "stretches",
+   "kind": "number",
+   "prompt": "How many stretches of consecutive piles does a row of 6 piles have (from a single pile up to the whole row)?",
+   "answer": 21,
+   "verify": "result = sum(1 for l in range(6) for r in range(l, 6))",
+   "nudges": [
+    "How many stretches of length 1? Of length 2?"
+   ],
+   "showed": "About $n^2 / 2$ subproblems."
+  },
+  {
+   "id": "order",
+   "kind": "choice",
+   "prompt": "In what order should the stretches be solved?",
+   "options": [
+    "By increasing length",
+    "By increasing left end, then increasing right end",
+    "In any order"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which stretches does the stretch from 2 to 5 need to know about?"
+   ],
+   "showed": "A stretch needs the shorter stretches inside it. Looping over the left end first would ask for answers that are not there yet."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Let $B(l, r)$ be the smallest cost of merging piles $l, \\dots, r$ into one, and $T(l, r)$ their total. Prove that for $l < r$, $B(l, r) = T(l, r) + \\min_{l \\le k < r} \\big( B(l, k) + B(k + 1, r) \\big)$.",
+   "claims": [
+    "Every pile formed during the process consists of a stretch of consecutive original piles, since only neighbours are merged.",
+    "So the last merge joins a pile made of l..k and a pile made of k+1..r for some k, and it costs T(l, r).",
+    "All earlier merges happen entirely inside l..k or entirely inside k+1..r, and the cost of a merge depends only on the piles merged; so the earlier cost is the cost of merging l..k alone plus that of merging k+1..r alone, at least B(l, k) + B(k+1, r), with equality achievable by merging each side optimally.",
+    "Taking the best k gives the formula."
+   ],
+   "nudges": [
+    "What does the last merge look like?",
+    "Why are the two sides independent?"
+   ],
+   "showed": "Think about the last step, not the first: after the last step is fixed, the rest falls apart into independent pieces."
+  },
+  {
+   "id": "h-matrix",
+   "kind": "number",
+   "prompt": "Multiplying a $p \\times q$ matrix by a $q \\times r$ matrix costs $p \\cdot q \\cdot r$. Four matrices in a row have sizes $40 \\times 20$, $20 \\times 30$, $30 \\times 10$ and $10 \\times 30$. What is the smallest total cost of multiplying them all together (you choose the bracketing)?",
+   "answer": 26000,
+   "verify": "import functools\ndef merge(a):\n    a = tuple(a)\n    @functools.lru_cache(None)\n    def f(t):\n        if len(t) == 1: return 0\n        return min(t[i] + t[i + 1] + f(t[:i] + (t[i] + t[i + 1],) + t[i + 2:]) for i in range(len(t) - 1))\n    return f(a)\ndef chain(d):\n    @functools.lru_cache(None)\n    def f(t):\n        if len(t) == 2: return 0\n        return min(t[i - 1] * t[i] * t[i + 1] + f(t[:i] + t[i + 1:]) for i in range(1, len(t) - 1))\n    return f(tuple(d))\nresult = chain([40, 20, 30, 10, 30])",
+   "nudges": [
+    "What is the last multiplication, in terms of a cut?",
+    "What does that last multiplication cost?"
+   ],
+   "showed": "The last multiplication joins everything left of a cut with everything right of it: the same shape, with a different price for the last step.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-cuts",
+   "kind": "number",
+   "prompt": "A log is 10 metres long and must be cut at the marks 2, 4 and 7 metres. Each cut costs the length of the piece being cut. What is the smallest total cost?",
+   "answer": 20,
+   "verify": "import functools\nmarks = (0, 2, 4, 7, 10)\n@functools.lru_cache(None)\ndef f(i, j): return 0 if j - i < 2 else marks[j] - marks[i] + min(f(i, k) + f(k, j) for k in range(i + 1, j))\nimport itertools\ndef cost(order):\n    pieces = [(0, 10)]; c = 0\n    for m in order:\n        a, b = next(p for p in pieces if p[0] < m < p[1]); c += b - a; pieces.remove((a, b)); pieces += [(a, m), (m, b)]\n    return c\nassert f(0, 4) == min(cost(o) for o in itertools.permutations((2, 4, 7)))\nresult = f(0, 4)",
+   "nudges": [
+    "Here the first cut is the natural thing to choose. What does it split the problem into?"
+   ],
+   "showed": "Run backwards, cutting is merging: the first cut is the last merge. The stretch is a piece of log between two marks.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-wipe",
+   "kind": "number",
+   "prompt": "A row of coloured stones: 1, 4, 4, 2, 3, 2, 1. One move removes a stretch of neighbouring stones that reads the same in both directions; the remaining stones close up. What is the smallest number of moves that removes everything?",
+   "answer": 2,
+   "verify": "import functools\n@functools.lru_cache(None)\ndef f(t):\n    if not t: return 0\n    return 1 + min(f(t[:l] + t[r:]) for l in range(len(t)) for r in range(l + 1, len(t) + 1) if t[l:r] == t[l:r][::-1])\nresult = f((1, 4, 4, 2, 3, 2, 1))",
+   "nudges": [
+    "If the first and last stone of a stretch are equal, when can they leave together?"
+   ],
+   "showed": "When the two ends of a stretch are equal they can ride along with the last removal inside, so the stretch costs no more than its inside. Otherwise split it at a cut.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-merge",
+   "kind": "code",
+   "task": "merge-piles",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "A table over stretches, filled by increasing length, with running totals for the cost of the last merge.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Intervals as states",
+  "statement": "When every operation acts on neighbours, solve every block $[l, r]$ from shorter blocks: choose the last operation inside it, which splits it at a point into two independent blocks.",
+  "remark": "About $n^2/2$ states and $n$ split points each, so cubic: $n$ in the hundreds. Always fill by increasing length, and reason about the last step rather than the first."
+ }
+}

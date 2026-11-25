@@ -1,0 +1,149 @@
+{
+ "idea": "odd-cycle",
+ "opening": "Splitting things into two camps so that every quarrel is between the camps.",
+ "steps": [
+  {
+   "id": "rings",
+   "kind": "list",
+   "prompt": "A ring of $k$ people, each quarrelling with their two neighbours. For which $k$ from 3 to 8 can the people be split into two camps so that no two quarrelling people are in the same camp?",
+   "answer": [
+    4,
+    6,
+    8
+   ],
+   "verify": "import itertools\ndef colourings(n, edges): return sum(1 for c in itertools.product((0, 1), repeat=n) if all(c[a - 1] != c[b - 1] for a, b in edges))\ndef cyc(k): return [(i, i % k + 1) for i in range(1, k + 1)]\nresult = [k for k in range(3, 9) if colourings(k, cyc(k)) > 0]",
+   "nudges": [
+    "Go round the ring assigning camps. What must the camp of each next person be?",
+    "What happens when you get back to the start?"
+   ],
+   "showed": "Exactly the rings of even length."
+  },
+  {
+   "id": "flip",
+   "kind": "choice",
+   "prompt": "In a valid split, what happens to the camp as you walk along a quarrel from one person to the other?",
+   "options": [
+    "It changes every time",
+    "It stays the same",
+    "It may or may not change"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What does \"valid\" require of the two ends of a quarrel?"
+   ],
+   "showed": "So after an even number of steps you are in your own camp, after an odd number in the other."
+  },
+  {
+   "id": "closed",
+   "kind": "choice",
+   "prompt": "A walk follows quarrels and returns to the person it started from after an odd number of steps. What does that say about a valid split?",
+   "options": [
+    "None exists",
+    "One exists",
+    "Nothing"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which camp would the starting person be in after an odd number of changes?"
+   ],
+   "showed": "A person would have to be in the camp opposite to their own. An odd ring anywhere in the quarrel map kills every split."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "Seven people; the quarrels are 1-2, 2-3, 3-4, 4-1, 5-6. In how many ways can each person be assigned to camp A or camp B so that no quarrel is inside a camp?",
+   "answer": 8,
+   "verify": "import itertools\ndef colourings(n, edges): return sum(1 for c in itertools.product((0, 1), repeat=n) if all(c[a - 1] != c[b - 1] for a, b in edges))\ndef cyc(k): return [(i, i % k + 1) for i in range(1, k + 1)]\nresult = colourings(7, [(1, 2), (2, 3), (3, 4), (4, 1), (5, 6)])",
+   "nudges": [
+    "Into how many separate pieces does the quarrel map fall?",
+    "Once one person of a piece is assigned, how much freedom is left in that piece?"
+   ],
+   "showed": "In each connected piece, the camp of one person fixes all the others: two ways per piece, and three pieces here (one of them a single person)."
+  },
+  {
+   "id": "method",
+   "kind": "choice",
+   "prompt": "How would you test a large quarrel map for a valid split, and find one?",
+   "options": [
+    "Explore each piece from any person, putting each newly reached person in the camp opposite to the one they were reached from; then check every quarrel",
+    "Try all assignments",
+    "Count the quarrels of each person"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If a split exists and you fix the camp of one person, is anything else free in that piece?"
+   ],
+   "showed": "The exploration has no choices to make; it either produces a split or runs into a quarrel inside a camp."
+  },
+  {
+   "id": "shortest",
+   "kind": "number",
+   "prompt": "People 1 to 7; quarrels 1-2, 2-3, 3-4, 4-5, 5-1, 5-6, 6-7, 7-3. What is the length of the shortest ring of odd length in this map?",
+   "answer": 5,
+   "verify": "import itertools\ndef colourings(n, edges): return sum(1 for c in itertools.product((0, 1), repeat=n) if all(c[a - 1] != c[b - 1] for a, b in edges))\ndef cyc(k): return [(i, i % k + 1) for i in range(1, k + 1)]\nE = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1), (5, 6), (6, 7), (7, 3)]\nadj = {v: set() for v in range(1, 8)}\nfor a, b in E: adj[a].add(b); adj[b].add(a)\nbest = 99\nfor k in range(3, 8, 2):\n    for p in itertools.permutations(range(1, 8), k):\n        if all(p[(i + 1) % k] in adj[p[i]] for i in range(k)): best = min(best, k)\nresult = best",
+   "nudges": [
+    "Which rings can you see? What are their lengths?"
+   ],
+   "showed": "An odd ring exists, so this map has no valid split."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "A connected graph has no cycle of odd length. Pick a vertex $s$ and colour every vertex by whether its distance from $s$ is even or odd. Prove that every edge joins vertices of different colours.",
+   "claims": [
+    "Suppose an edge joins u and v with distances d(u) and d(v) from s of the same parity.",
+    "Take a shortest path from s to u and a shortest path from s to v; together with the edge u-v they form a closed walk of length d(u) + d(v) + 1, which is odd.",
+    "A closed walk of odd length contains a cycle of odd length: if the walk repeats a vertex it splits into two shorter closed walks, one of which is odd, and repeating this ends with an odd closed walk without repeated vertices, a cycle.",
+    "This contradicts the assumption, so no such edge exists."
+   ],
+   "nudges": [
+    "If an edge joined two vertices of the same colour, what closed walk could you build from it?",
+    "What is the parity of its length?"
+   ],
+   "showed": "No odd ring means the distance colouring works; an odd ring means nothing can. So the two conditions are the same."
+  },
+  {
+   "id": "h-primes",
+   "kind": "number",
+   "prompt": "Write the numbers 1 to 10. Join two different numbers when their sum is a prime. In how many ways can each number be coloured red or blue so that joined numbers always get different colours?",
+   "answer": 2,
+   "verify": "import itertools\ndef colourings(n, edges): return sum(1 for c in itertools.product((0, 1), repeat=n) if all(c[a - 1] != c[b - 1] for a, b in edges))\ndef cyc(k): return [(i, i % k + 1) for i in range(1, k + 1)]\npr = {2, 3, 5, 7, 11, 13, 17, 19}\nresult = colourings(10, [(a, b) for a in range(1, 11) for b in range(a + 1, 11) if a + b in pr])",
+   "nudges": [
+    "Two different numbers from 1 to 10 add up to a prime. Can the prime be 2? What does that say about the two numbers?",
+    "Is the map connected?"
+   ],
+   "showed": "The prime is odd, so one number is even and the other odd: evens against odds is a valid split without any search. The map is connected, so there are just the two mirror-image colourings.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-remove",
+   "kind": "number",
+   "prompt": "People 1 to 6; quarrels 1-2, 2-3, 3-1, 3-4, 4-5, 5-6, 6-4, 1-6. What is the smallest number of quarrels that must be settled (removed) so that the rest allows a valid split into two camps?",
+   "answer": 2,
+   "verify": "import itertools\ndef colourings(n, edges): return sum(1 for c in itertools.product((0, 1), repeat=n) if all(c[a - 1] != c[b - 1] for a, b in edges))\ndef cyc(k): return [(i, i % k + 1) for i in range(1, k + 1)]\nE = [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6), (6, 4), (1, 6)]\nresult = min(len(E) - sum(1 for a, b in E if c[a - 1] != c[b - 1]) for c in itertools.product((0, 1), repeat=6))",
+   "nudges": [
+    "How many rings of odd length are there, and do they share a quarrel?"
+   ],
+   "showed": "Every odd ring must lose a quarrel. The two triangles share none, so at least two; and two suffice.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-claims",
+   "kind": "number",
+   "prompt": "Five switches $x_1, \\dots, x_5$ are each on or off. You are told: $x_1$ and $x_2$ differ; $x_2$ and $x_3$ are equal; $x_3$ and $x_4$ differ; $x_4$ and $x_5$ differ; $x_1$ and $x_5$ are equal; $x_2$ and $x_4$ differ. How many settings of the five switches satisfy all six statements?",
+   "answer": 0,
+   "verify": "import itertools\nrules = [(1, 2, 1), (2, 3, 0), (3, 4, 1), (4, 5, 1), (1, 5, 0), (2, 4, 1)]\nresult = sum(1 for x in itertools.product((0, 1), repeat=5) if all((x[a - 1] ^ x[b - 1]) == d for a, b, d in rules))",
+   "nudges": [
+    "Follow the statements round the closed loop 1, 2, 3, 4, 5 and back to 1. How many of them say \"differ\"?",
+    "After an odd number of changes, where are you relative to where you started?"
+   ],
+   "showed": "None. The loop through switches 1, 2, 3, 4, 5 contains three \"differ\" statements, an odd number: going round it, switch 1 would have to differ from itself. Statements of this kind are consistent exactly when every closed loop contains an even number of \"differ\".",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Two-colourable means no odd cycle",
+  "statement": "A graph can be split into two sides with every edge going across (it is bipartite) exactly when it has no cycle of odd length. A breadth-first colouring by distance parity finds the split or exposes an odd cycle.",
+  "remark": "In disguise: enemies into two teams, cells of a grid, numbers joined by an odd difference, statements of the form \"these two are equal / different\". For the last kind, keep the parity relative to the root in a union-find structure."
+ }
+}

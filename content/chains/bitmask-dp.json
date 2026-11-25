@@ -1,0 +1,157 @@
+{
+ "idea": "bitmask-dp",
+ "opening": "Giving out jobs, one person at a time, and noticing how little of the past matters.",
+ "steps": [
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "Three people and three jobs. The cost of person $i$ doing job $j$ is given by the rows: person 1: 4, 2, 8; person 2: 4, 3, 7; person 3: 3, 1, 6. Every person gets one job and every job one person. What is the smallest total cost?",
+   "answer": 12,
+   "verify": "import itertools\nC3 = [[4, 2, 8], [4, 3, 7], [3, 1, 6]]\ndef assign(c): return min(sum(c[i][p[i]] for i in range(len(c))) for p in itertools.permutations(range(len(c))))\nD = [[0, 3, 9, 7, 5], [3, 0, 4, 8, 6], [9, 4, 0, 2, 7], [7, 8, 2, 0, 3], [5, 6, 7, 3, 0]]\nresult = assign(C3)",
+   "nudges": [
+    "How many ways are there to hand out the jobs?"
+   ],
+   "showed": "Six assignments to compare."
+  },
+  {
+   "id": "ten",
+   "kind": "number",
+   "prompt": "With 10 people and 10 jobs, how many assignments are there?",
+   "answer": 3628800,
+   "verify": "import math\nresult = math.factorial(10)",
+   "nudges": [
+    "How many choices for the first person, then the second?"
+   ],
+   "showed": "Already millions; with 20 people it is far beyond reach."
+  },
+  {
+   "id": "matters",
+   "kind": "choice",
+   "prompt": "Jobs are given to the people in order: person 1 first, then person 2, and so on. The first four people have their jobs. For choosing the cheapest way to finish, what do you need to know about what happened so far?",
+   "options": [
+    "Which jobs are taken (and the cheapest cost of getting to that point)",
+    "Exactly which person took which job",
+    "Only how many jobs are taken"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two different ways of giving the first four people the same four jobs: can they be continued differently?"
+   ],
+   "showed": "Who got what among the first four is irrelevant for the rest. Only the set of jobs used matters."
+  },
+  {
+   "id": "sets",
+   "kind": "number",
+   "prompt": "With 10 jobs, how many different sets of \"jobs taken so far\" are there in all?",
+   "answer": 1024,
+   "verify": "result = 2 ** 10",
+   "nudges": [
+    "For each job, taken or not?"
+   ],
+   "showed": "A thousand summaries instead of millions of histories."
+  },
+  {
+   "id": "cell",
+   "kind": "number",
+   "prompt": "In the three-person example, what is the cheapest way for persons 1 and 2 to take jobs 1 and 2 between them?",
+   "answer": 6,
+   "verify": "import itertools\nC3 = [[4, 2, 8], [4, 3, 7], [3, 1, 6]]\ndef assign(c): return min(sum(c[i][p[i]] for i in range(len(c))) for p in itertools.permutations(range(len(c))))\nD = [[0, 3, 9, 7, 5], [3, 0, 4, 8, 6], [9, 4, 0, 2, 7], [7, 8, 2, 0, 3], [5, 6, 7, 3, 0]]\nresult = min(C3[0][0] + C3[1][1], C3[0][1] + C3[1][0])",
+   "nudges": [
+    "What are the two ways?"
+   ],
+   "showed": "The better of the two ways is all that needs to be kept for the set {job 1, job 2}."
+  },
+  {
+   "id": "turn",
+   "kind": "choice",
+   "prompt": "A set of taken jobs is given. Whose turn is it to get a job next?",
+   "options": [
+    "The person whose number is one more than the size of the set",
+    "It must be stored separately",
+    "Any person who has no job"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If three jobs are taken and people are served in order, who has been served?"
+   ],
+   "showed": "The set already tells you: no need to make the person part of the summary."
+  },
+  {
+   "id": "work",
+   "kind": "number",
+   "prompt": "For 10 jobs, count all the single steps \"from a set of taken jobs, give one more job\": the sum, over all sets, of the number of jobs not yet in the set.",
+   "answer": 5120,
+   "verify": "result = sum(10 - bin(m).count(\"1\") for m in range(1024))",
+   "nudges": [
+    "How many sets is a given job missing from?"
+   ],
+   "showed": "Each job is missing from half of the sets: $10 \\cdot 2^9$ steps."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "People are given jobs in the order 1, 2, 3, ... Let $B(S)$ be the smallest cost at which the first $|S|$ people can be given exactly the jobs in the set $S$. Prove that for non-empty $S$, $B(S) = \\min_{j \\in S} \\big( B(S \\setminus \\{j\\}) + c_{|S|, j} \\big)$.",
+   "claims": [
+    "In any way of giving the jobs in S to the first |S| people, person |S| gets some job j in S, and the first |S| - 1 people get exactly the jobs of S without j.",
+    "The cost of that way is the cost for the first |S| - 1 people plus c_{|S|, j}, and the first part is at least B(S without j). So B(S) is at least the minimum on the right.",
+    "Conversely, for each j in S, take a cheapest way to give S without j to the first |S| - 1 people and give j to person |S|: this is a valid way with cost B(S without j) + c_{|S|, j}. So B(S) is at most the minimum."
+   ],
+   "nudges": [
+    "What does the last person served get, and what is left for the others?",
+    "Why can the others be assumed to have been served as cheaply as possible?"
+   ],
+   "showed": "The set of used items is a summary that is enough."
+  },
+  {
+   "id": "h-tour",
+   "kind": "number",
+   "prompt": "Five towns; the distance between towns $i$ and $j$ is given by the rows: town 1: 0, 3, 9, 7, 5; town 2: 3, 0, 4, 8, 6; town 3: 9, 4, 0, 2, 7; town 4: 7, 8, 2, 0, 3; town 5: 5, 6, 7, 3, 0. What is the length of the shortest round trip that starts at town 1, visits every other town exactly once and returns?",
+   "answer": 17,
+   "verify": "import itertools\nC3 = [[4, 2, 8], [4, 3, 7], [3, 1, 6]]\ndef assign(c): return min(sum(c[i][p[i]] for i in range(len(c))) for p in itertools.permutations(range(len(c))))\nD = [[0, 3, 9, 7, 5], [3, 0, 4, 8, 6], [9, 4, 0, 2, 7], [7, 8, 2, 0, 3], [5, 6, 7, 3, 0]]\nresult = min(sum(D[a][b] for a, b in zip((0,) + p, p + (0,))) for p in itertools.permutations(range(1, 5)))",
+   "nudges": [
+    "Is \"the set of towns visited\" enough to decide the cost of the next step?",
+    "What else about the past does the next step depend on?"
+   ],
+   "showed": "Here the set alone is not enough: the cost of the next leg depends on where you are. The summary becomes (set visited, current town).",
+   "tier": "hard"
+  },
+  {
+   "id": "h-states",
+   "kind": "number",
+   "prompt": "For a round trip through 15 towns, how many summaries (set of towns visited, current town) are there, counting every set together with every one of the 15 towns?",
+   "answer": 491520,
+   "verify": "result = 15 * 2 ** 15",
+   "nudges": [
+    "How many sets, and how many choices of current town?"
+   ],
+   "showed": "Half a million, each with at most 15 ways on: feasible, where 14! orders are not.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-pairs",
+   "kind": "number",
+   "prompt": "Six people; some pairs are willing to share a room: 1-2, 1-3, 2-3, 2-4, 3-5, 4-5, 4-6, 5-6. In how many ways can all six be split into three willing pairs?",
+   "answer": 2,
+   "verify": "E = {(1, 2), (1, 3), (2, 3), (2, 4), (3, 5), (4, 5), (4, 6), (5, 6)}\ndef go(left):\n    if not left: return 1\n    a = min(left)\n    return sum(go(left - {a, b}) for b in left if (a, b) in E or (b, a) in E)\nresult = go(frozenset(range(1, 7)))",
+   "nudges": [
+    "Always pair up the lowest-numbered person who is still alone. What is then the summary of the past?"
+   ],
+   "showed": "Pair the lowest unpaired person with someone: the summary is the set of people already paired, and no order needs remembering.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-assign",
+   "kind": "code",
+   "task": "assign-jobs",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "An array indexed by the set of used jobs, written as a number in binary; the person is the count of set bits.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Subsets as states",
+  "statement": "When the past matters only through which items have been used, the set of used items is the state: $2^n$ states instead of $n!$ orders. Add the last item to the state when the next step depends on it.",
+  "remark": "Sets are stored as numbers whose bits mark the members. The sign of it in a problem: $n$ is at most about 20, and something is assigned, ordered or visited."
+ }
+}

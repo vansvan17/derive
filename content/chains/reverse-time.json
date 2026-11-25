@@ -1,0 +1,165 @@
+{
+ "idea": "reverse-time",
+ "opening": "Things being destroyed one after another, and a question asked after every destruction.",
+ "steps": [
+  {
+   "id": "after",
+   "kind": "list",
+   "prompt": "Six islands are joined by six bridges: 1-2, 2-3, 3-1, 3-4, 4-5, 5-6. The bridges collapse one per day in this order: 3-4, 1-2, 5-6, 2-3, 4-5, 3-1. After each collapse, into how many groups of mutually reachable islands is the map split? Give the six numbers in order.",
+   "answer": [
+    2,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "verify": "def comps(n, edges):\n    p = list(range(n + 1))\n    def f(x):\n        while p[x] != x: x = p[x]\n        return x\n    for a, b in edges: p[f(a)] = f(b)\n    return len({f(v) for v in range(1, n + 1)})\nB = [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6)]\nORDER = [(3, 4), (1, 2), (5, 6), (2, 3), (4, 5), (3, 1)]\nresult = [comps(6, [e for e in B if e not in ORDER[:k]]) for k in range(1, 7)]",
+   "nudges": [
+    "After the first collapse, which islands can still reach each other?"
+   ],
+   "showed": "Each day needs a fresh look at the whole map, if done this way.",
+   "ordered": true
+  },
+  {
+   "id": "hard",
+   "kind": "choice",
+   "prompt": "You keep the groups of islands in a structure that can unite two groups quickly. Why does it not help directly here?",
+   "options": [
+    "Bridges are being removed, and a group cannot be split quickly: removing a bridge may or may not disconnect it",
+    "There are too many islands",
+    "The bridges are not sorted"
+   ],
+   "answer": 0,
+   "nudges": [
+    "When the bridge 1-2 collapses, does the group containing 1 and 2 split? How would you know?"
+   ],
+   "showed": "Uniting is easy; un-uniting is not."
+  },
+  {
+   "id": "film",
+   "kind": "choice",
+   "prompt": "Imagine the days filmed and played in reverse. What do you see?",
+   "options": [
+    "An empty map on which bridges appear one at a time, in the opposite order",
+    "The same collapses in the same order",
+    "Bridges collapsing in the opposite order"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What is the state after the last collapse?",
+    "What is the difference between the state after day 5 and after day 6?"
+   ],
+   "showed": "Backwards, every event is the building of a bridge, and building is the easy direction."
+  },
+  {
+   "id": "back",
+   "kind": "list",
+   "prompt": "Start from six separate islands and build the bridges in the reversed order: 3-1, 4-5, 2-3, 5-6, 1-2, 3-4. Give the number of groups before any bridge is built and then after each of the first five bridges: six numbers in order.",
+   "answer": [
+    6,
+    5,
+    4,
+    3,
+    2,
+    2
+   ],
+   "verify": "def comps(n, edges):\n    p = list(range(n + 1))\n    def f(x):\n        while p[x] != x: x = p[x]\n        return x\n    for a, b in edges: p[f(a)] = f(b)\n    return len({f(v) for v in range(1, n + 1)})\nB = [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6)]\nORDER = [(3, 4), (1, 2), (5, 6), (2, 3), (4, 5), (3, 1)]\nrev = ORDER[::-1]\nresult = [comps(6, rev[:k]) for k in range(6)]",
+   "nudges": [
+    "When does building a bridge reduce the number of groups, and when not?"
+   ],
+   "showed": "These are the same six numbers as before, in the opposite order: the answer for \"after day $k$\" is read off just before the bridge of day $k$ is rebuilt.",
+   "ordered": true
+  },
+  {
+   "id": "gaps",
+   "kind": "list",
+   "prompt": "A row holds the numbers 1, 3, 2, 5 in positions 1 to 4. The positions are destroyed in the order 3, 4, 1, 2. After each destruction, what is the largest sum of a stretch of neighbouring surviving numbers (0 if none survive)? Four numbers in order.",
+   "answer": [
+    5,
+    4,
+    3,
+    0
+   ],
+   "verify": "a = [1, 3, 2, 5]\nresult = []\ngone = set()\nfor p in [3, 4, 1, 2]:\n    gone.add(p - 1); best = 0\n    for l in range(4):\n        for r in range(l, 4):\n            if not any(i in gone for i in range(l, r + 1)): best = max(best, sum(a[l:r + 1]))\n    result.append(best)",
+   "nudges": [
+    "After position 3 is destroyed, which stretches survive?"
+   ],
+   "showed": "Destroying a position cuts a stretch in two.",
+   "ordered": true
+  },
+  {
+   "id": "grow",
+   "kind": "choice",
+   "prompt": "Played in reverse, positions come back one at a time. What happens when a position comes back?",
+   "options": [
+    "It forms a stretch with whichever of its two neighbours are already back, and the sums add up",
+    "A stretch is cut in two",
+    "Nothing changes until all positions are back"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What is next to the returning position?"
+   ],
+   "showed": "Stretches only merge, and the largest sum so far can only grow: keep it in one variable."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Edges $e_1, \\dots, e_m$ are removed from a graph one at a time, in that order. Let $G_k$ be the graph after the first $k$ removals. Prove that $G_k$ is obtained from $G_m$ (the graph with none of these edges) by adding the edges $e_m, e_{m-1}, \\dots, e_{k+1}$ in that order, so that all of $G_m, G_{m-1}, \\dots, G_0$ appear along one sequence of additions.",
+   "claims": [
+    "G_k contains exactly the original edges other than e_1, ..., e_k; in particular G_m contains none of e_1, ..., e_m.",
+    "Adding e_m, e_{m-1}, ..., e_{k+1} to G_m gives the original edges other than e_1, ..., e_k, which is G_k.",
+    "The graph obtained after adding e_m, ..., e_{j+1} is G_j for every j, so the sequence of additions passes through G_m, G_{m-1}, ..., G_0 in turn."
+   ],
+   "nudges": [
+    "Which edges does $G_k$ have?",
+    "What do you get by adding one more edge to $G_k$?"
+   ],
+   "showed": "The same states, visited in the opposite order, by the operation that is easy."
+  },
+  {
+   "id": "h-cut",
+   "kind": "number",
+   "prompt": "Eight towns and the roads 1-2, 2-3, 3-4, 4-8, 1-5, 5-6, 6-7, 7-8, 2-6, 3-7 are closed one per day in exactly this order. After how many closures are towns 1 and 8 cut off from each other for the first time?",
+   "answer": 5,
+   "verify": "def comps(n, edges):\n    p = list(range(n + 1))\n    def f(x):\n        while p[x] != x: x = p[x]\n        return x\n    for a, b in edges: p[f(a)] = f(b)\n    return len({f(v) for v in range(1, n + 1)})\nB = [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6)]\nORDER = [(3, 4), (1, 2), (5, 6), (2, 3), (4, 5), (3, 1)]\nR = [(1, 2), (2, 3), (3, 4), (4, 8), (1, 5), (5, 6), (6, 7), (7, 8), (2, 6), (3, 7)]\ndef joined(n, edges, a, b):\n    p = list(range(n + 1))\n    def f(x):\n        while p[x] != x: x = p[x]\n        return x\n    for u, v in edges: p[f(u)] = f(v)\n    return f(a) == f(b)\nresult = next(k for k in range(1, 11) if not joined(8, R[k:], 1, 8))",
+   "nudges": [
+    "Backwards, roads open one at a time. What moment are you looking for?"
+   ],
+   "showed": "Backwards: open the roads in reverse order and find the first moment 1 and 8 become joined. That moment, read forwards, is the closure that cut them off.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-paint",
+   "kind": "number",
+   "prompt": "A fence of 12 boards is painted by 6 jobs in order; job $k$ paints boards $l$ to $r$ with colour $k$, covering what was there: (1, 8), (5, 12), (3, 6), (9, 10), (2, 2), (6, 9). How many boards show the colour of job 1 at the end?",
+   "answer": 1,
+   "verify": "jobs = [(1, 8), (5, 12), (3, 6), (9, 10), (2, 2), (6, 9)]\nfence = [0] * 13\nfor k, (l, r) in enumerate(jobs, 1):\n    for b in range(l, r + 1): fence[b] = k\nresult = fence.count(1)",
+   "nudges": [
+    "Which job decides the final colour of a board?",
+    "Going through the jobs from the last to the first, when is a board's final colour settled?"
+   ],
+   "showed": "The last job to touch a board decides its colour. Going backwards, each board is settled the first time it is touched and can then be skipped for ever: every board is painted once.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-halve",
+   "kind": "number",
+   "prompt": "You start with the number 1. A move adds 1 or doubles the number. What is the smallest number of moves that produces 1000?",
+   "answer": 14,
+   "verify": "seen = {1: 0}; todo = [1]\nfor s in todo:\n    for t in (s + 1, 2 * s):\n        if t <= 1000 and t not in seen: seen[t] = seen[s] + 1; todo.append(t)\nresult = seen[1000]",
+   "nudges": [
+    "Going forwards there are two choices at every step. Start from 1000 instead: if the number is odd, what must the last move have been?",
+    "If it is even, which last move is better?"
+   ],
+   "showed": "From the end the choices disappear: an odd number must have come from adding 1, and an even number is best halved. The backward process is forced.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Run time backwards",
+  "statement": "When operations destroy (delete an edge, remove an element, overwrite), process them in reverse: deletions become insertions, splits become merges, and \"the last one to write\" becomes \"the first one to arrive\".",
+  "remark": "It needs all the operations to be known in advance (offline). Answers are collected backwards and reported in the original order. The same turn-around helps whenever the backward process has fewer choices than the forward one."
+ }
+}

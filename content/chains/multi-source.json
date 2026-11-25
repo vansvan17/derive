@@ -1,0 +1,150 @@
+{
+ "idea": "multi-source",
+ "opening": "The distance to the nearest of several places, for every cell at once.",
+ "steps": [
+  {
+   "id": "street",
+   "kind": "list",
+   "prompt": "A street has 9 houses in a row, numbered 1 to 9. There are fire stations at houses 2 and 8. For each house, give the distance to the nearest fire station: nine numbers in order.",
+   "answer": [
+    1,
+    0,
+    1,
+    2,
+    3,
+    2,
+    1,
+    0,
+    1
+   ],
+   "verify": "result = [min(abs(h - 2), abs(h - 8)) for h in range(1, 10)]",
+   "nudges": [
+    "Which houses are nearer to station 2, which to station 8?"
+   ],
+   "showed": "The distances rise away from each station and meet in the middle.",
+   "ordered": true
+  },
+  {
+   "id": "grid",
+   "kind": "number",
+   "prompt": "A 5 by 5 grid of cells, rows and columns numbered 1 to 5; you move between cells sharing a side. There are wells at (1, 1), (5, 5) and (1, 5). For the cell that is worst off, what is its distance to the nearest well?",
+   "answer": 4,
+   "verify": "def near(cells, free, sources):\n    d = {s: 0 for s in sources}; todo = list(sources)\n    for s in todo:\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            t = (s[0] + dr, s[1] + dc)\n            if t in free and t not in d: d[t] = d[s] + 1; todo.append(t)\n    return d\ndef one(free, s): return near(None, free, [s])\ndef grid(rows): return {(r, c) for r, row in enumerate(rows) for c, ch in enumerate(row) if ch != \"#\"}\nfree = {(r, c) for r in range(1, 6) for c in range(1, 6)}\nW = [(1, 1), (5, 5), (1, 5)]\nresult = max(min(one(free, w)[x] for w in W) for x in free)",
+   "nudges": [
+    "Which corner has no well?"
+   ],
+   "showed": "Found by measuring from each well separately and taking the smallest at every cell."
+  },
+  {
+   "id": "cost",
+   "kind": "number",
+   "prompt": "A map has $10^6$ cells and 1000 wells. Exploring the map from one well visits every cell once. How many cell visits does \"explore from each well separately, keep the smallest\" take?",
+   "answer": 1000000000,
+   "verify": "result = 10 ** 6 * 1000",
+   "nudges": [
+    "How many explorations, each of what size?"
+   ],
+   "showed": "A billion visits, to fill in a million numbers."
+  },
+  {
+   "id": "together",
+   "kind": "choice",
+   "prompt": "Instead, start a single level-by-level exploration with all the wells in the queue at distance 0. What does each cell receive the first time it is reached?",
+   "options": [
+    "Its distance to the nearest well",
+    "Its distance to the first well in the queue",
+    "The sum of its distances to all wells"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Which cells are reached in the first round? In the second?",
+    "Could a cell be reached in round 3 if some well is 2 steps away?"
+   ],
+   "showed": "Round $k$ reaches exactly the cells whose nearest well is $k$ steps away. One exploration, every cell visited once."
+  },
+  {
+   "id": "extra",
+   "kind": "choice",
+   "prompt": "Why is that guaranteed to be right?",
+   "options": [
+    "It is an ordinary exploration from one imaginary extra cell that is joined to every well; distances from it are one more than the distance to the nearest well",
+    "Because the wells are far apart",
+    "Because every well is explored fully before the next one starts"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Add one new cell next to all the wells and explore from it. What are the cells at distance 1?"
+   ],
+   "showed": "Many starting points are one starting point in a slightly larger graph, so everything known about level-by-level exploration still holds."
+  },
+  {
+   "id": "rot",
+   "kind": "number",
+   "prompt": "A crate of fruit, rows listed from the top: R..#. / ..#.. / ...#R / #.... / ..#.. where R is a rotten fruit, . a fresh one and # an empty slot. Every minute, rot spreads from each rotten fruit to the fresh fruits next to it (sharing a side). After how many minutes is every fruit rotten?",
+   "answer": 6,
+   "verify": "def near(cells, free, sources):\n    d = {s: 0 for s in sources}; todo = list(sources)\n    for s in todo:\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            t = (s[0] + dr, s[1] + dc)\n            if t in free and t not in d: d[t] = d[s] + 1; todo.append(t)\n    return d\ndef one(free, s): return near(None, free, [s])\ndef grid(rows): return {(r, c) for r, row in enumerate(rows) for c, ch in enumerate(row) if ch != \"#\"}\nrows = [\"R..#.\", \"..#..\", \"...#R\", \"#....\", \"..#..\"]\nfree = grid(rows)\nd = near(None, free, [(r, c) for r, row in enumerate(rows) for c, ch in enumerate(row) if ch == \"R\"])\nassert len(d) == len(free)\nresult = max(d.values())",
+   "nudges": [
+    "What is the minute at which a fruit rots, in terms of distances?"
+   ],
+   "showed": "A fruit rots at the minute equal to its distance from the nearest rotten fruit; the answer is the largest of these."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "In a graph, a set $S$ of vertices is given. A breadth-first search is started with every vertex of $S$ in the queue at distance 0. Prove that the distance it assigns to each vertex $v$ is $\\min_{s \\in S} \\operatorname{dist}(s, v)$.",
+   "claims": [
+    "Add a new vertex z joined by an edge to every vertex of S. An ordinary breadth-first search from z assigns to every vertex its true distance from z.",
+    "After z is processed, the queue holds exactly the vertices of S, all at distance 1: from this point the search proceeds exactly like the search started with S at distance 0, with all distances one larger.",
+    "A shortest path from z to v goes through some s in S and then along a shortest path from s to v, so dist(z, v) = 1 + min over s in S of dist(s, v).",
+    "Subtracting 1 gives the claim."
+   ],
+   "nudges": [
+    "What ordinary search behaves in the same way?",
+    "What is the distance from the extra vertex to $v$?"
+   ],
+   "showed": "A reduction to the single-start case, not a new algorithm."
+  },
+  {
+   "id": "h-fire",
+   "kind": "number",
+   "prompt": "A building, rows listed from the top: #.##### / #.F...# / #.###.# / #..Y..# / #.###.# / #.....# / ###.### where # is a wall, F a fire and Y you. Every minute you step to a neighbouring free cell, and then the fire spreads to every free cell next to a burning one. You may never step into a burning cell or be in a cell when the fire reaches it. You escape on reaching a free cell on the outer edge. What is the smallest number of minutes in which you can escape?",
+   "answer": 7,
+   "verify": "rows = [\"#.#####\", \"#.F...#\", \"#.###.#\", \"#..Y..#\", \"#.###.#\", \"#.....#\", \"###.###\"]\nfree = {(r, c) for r, row in enumerate(rows) for c, ch in enumerate(row) if ch != \"#\"}\ndef escape(with_fire):\n    fire = {(1, 2)} if with_fire else set(); me = {(3, 3)}; t = 0\n    while me:\n        if any(r in (0, 6) or c in (0, 6) for r, c in me): return t\n        t += 1\n        me = ({(r + dr, c + dc) for r, c in me for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1))} & free) - fire\n        if with_fire: fire = fire | ({(r + dr, c + dc) for r, c in fire for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1))} & free)\n        me -= fire\n    return -1\nassert escape(False) < escape(True)\nresult = escape(True)\n",
+   "nudges": [
+    "For each cell, at which minute does the fire arrive?",
+    "Which exit is nearest, and does the fire get to that route before you?"
+   ],
+   "showed": "The nearest exit is at the top, but the fire reaches that corridor first. Compute the fire's arrival time at every cell (with several fires, one search from all of them), then explore your own moves, entering a cell only if you arrive strictly before the fire.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-closest",
+   "kind": "number",
+   "prompt": "A graph has vertices 1 to 12 and edges 1-2, 2-3, 3-4, 4-5, 5-6, 6-7, 7-8, 8-9, 9-10, 10-11, 11-12, 2-9, 4-11. The vertices 1, 6 and 12 are special. What is the smallest distance between two different special vertices?",
+   "answer": 4,
+   "verify": "E = [(i, i + 1) for i in range(1, 12)] + [(2, 9), (4, 11)]\nadj = {v: [] for v in range(1, 13)}\nfor a, b in E: adj[a].append(b); adj[b].append(a)\ndef dist(s):\n    d = {s: 0}; todo = [s]\n    for v in todo:\n        for u in adj[v]:\n            if u not in d: d[u] = d[v] + 1; todo.append(u)\n    return d\nimport itertools\nresult = min(dist(a)[b] for a, b in itertools.combinations([1, 6, 12], 2))",
+   "nudges": [
+    "Explore from all special vertices at once, and let every vertex remember which special vertex reached it. What happens along an edge whose two ends were reached from different ones?"
+   ],
+   "showed": "Start from all special vertices together and label each vertex with its source. Every edge joining two differently labelled vertices gives a candidate: the two distances plus one. The smallest candidate is the answer, with one search instead of one per special vertex.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-far",
+   "kind": "number",
+   "prompt": "A 30 by 30 grid with rows and columns numbered 0 to 29 and no walls. There are six shops, at the cells $(7i \\bmod 30, 11i \\bmod 30)$ for $i = 0, \\dots, 5$. What is the largest distance from a cell to its nearest shop?",
+   "answer": 18,
+   "verify": "S = [((7 * i) % 30, (11 * i) % 30) for i in range(6)]\nresult = max(min(abs(r - a) + abs(c - b) for a, b in S) for r in range(30) for c in range(30))",
+   "nudges": [
+    "Would you measure from each shop separately?"
+   ],
+   "showed": "One exploration from all six shops, then the largest number written on the grid.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Many starting points at once",
+  "statement": "To find, for every vertex, the distance to the nearest of several special vertices, run one breadth-first search with all of them in the queue at distance 0. It is an ordinary search from an imaginary vertex joined to all of them.",
+  "remark": "Use it for spreading processes (fire, rot, infection), for \"distance to the nearest ...\", and, with a label carried along, for which source is nearest or the closest pair of sources."
+ }
+}

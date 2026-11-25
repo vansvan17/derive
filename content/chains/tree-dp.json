@@ -1,0 +1,177 @@
+{
+ "idea": "tree-dp",
+ "opening": "One question asked of every vertex of a tree, answered without starting again each time.",
+ "steps": [
+  {
+   "id": "one",
+   "kind": "number",
+   "prompt": "A tree has 6 vertices and the edges 1-2, 1-3, 3-4, 3-5, 5-6. What is the sum of the distances from vertex 1 to all the other vertices?",
+   "answer": 9,
+   "verify": "import itertools\ndef dists(n, edges):\n    adj = {v: [] for v in range(1, n + 1)}\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    out = {}\n    for s in adj:\n        d = {s: 0}; todo = [s]\n        for v in todo:\n            for u in adj[v]:\n                if u not in d: d[u] = d[v] + 1; todo.append(u)\n        out[s] = d\n    return out\nE = [(1, 2), (1, 3), (3, 4), (3, 5), (5, 6)]\nD = dists(6, E)\ndef total(v): return sum(D[v].values())\nresult = total(1)",
+   "nudges": [
+    "How far is each vertex from vertex 1?"
+   ],
+   "showed": "1 + 1 + 2 + 2 + 3."
+  },
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "And the sum of the distances from vertex 3 to all the others?",
+   "answer": 7,
+   "verify": "import itertools\ndef dists(n, edges):\n    adj = {v: [] for v in range(1, n + 1)}\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    out = {}\n    for s in adj:\n        d = {s: 0}; todo = [s]\n        for v in todo:\n            for u in adj[v]:\n                if u not in d: d[u] = d[v] + 1; todo.append(u)\n        out[s] = d\n    return out\nE = [(1, 2), (1, 3), (3, 4), (3, 5), (5, 6)]\nD = dists(6, E)\ndef total(v): return sum(D[v].values())\nresult = total(3)",
+   "nudges": [
+    "Compared with vertex 1, which vertices are now closer and which farther?"
+   ],
+   "showed": "Two less than for vertex 1."
+  },
+  {
+   "id": "move",
+   "kind": "choice",
+   "prompt": "Step from vertex 1 to its neighbour 3. What happens to the distance to each other vertex?",
+   "options": [
+    "Vertices on the 3 side of the edge 1-3 get one closer; vertices on the 1 side get one farther",
+    "All distances shrink by one",
+    "Only the distance between 1 and 3 changes"
+   ],
+   "answer": 0,
+   "nudges": [
+    "To reach vertex 6 from 1 you pass through 3. And to reach vertex 2 from 3?"
+   ],
+   "showed": "Every route either crosses the edge or it does not: one side gains, the other loses."
+  },
+  {
+   "id": "side",
+   "kind": "number",
+   "prompt": "Remove the edge 1-3. How many vertices are on the side containing vertex 3?",
+   "answer": 4,
+   "verify": "import itertools\ndef dists(n, edges):\n    adj = {v: [] for v in range(1, n + 1)}\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    out = {}\n    for s in adj:\n        d = {s: 0}; todo = [s]\n        for v in todo:\n            for u in adj[v]:\n                if u not in d: d[u] = d[v] + 1; todo.append(u)\n        out[s] = d\n    return out\nE = [(1, 2), (1, 3), (3, 4), (3, 5), (5, 6)]\nD = dists(6, E)\ndef total(v): return sum(D[v].values())\nresult = sum(1 for v in D[3] if D[3][v] < D[1][v])",
+   "nudges": [
+    "Which vertices are reached from 3 without passing through 1?"
+   ],
+   "showed": "Vertices 3, 4, 5, 6: this is the size of the subtree of 3 when the tree hangs from vertex 1."
+  },
+  {
+   "id": "five",
+   "kind": "number",
+   "prompt": "Use the same reasoning to step from vertex 3 to vertex 5: what is the sum of the distances from vertex 5?",
+   "answer": 9,
+   "verify": "import itertools\ndef dists(n, edges):\n    adj = {v: [] for v in range(1, n + 1)}\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    out = {}\n    for s in adj:\n        d = {s: 0}; todo = [s]\n        for v in todo:\n            for u in adj[v]:\n                if u not in d: d[u] = d[v] + 1; todo.append(u)\n        out[s] = d\n    return out\nE = [(1, 2), (1, 3), (3, 4), (3, 5), (5, 6)]\nD = dists(6, E)\ndef total(v): return sum(D[v].values())\nresult = total(5)",
+   "nudges": [
+    "How many vertices are on the 5 side of the edge 3-5? How many on the other side?"
+   ],
+   "showed": "7 minus the 2 vertices that get closer, plus the 4 that get farther."
+  },
+  {
+   "id": "all",
+   "kind": "list",
+   "prompt": "Give the sum of distances for every vertex 1, 2, ..., 6, in that order.",
+   "answer": [
+    9,
+    13,
+    7,
+    11,
+    9,
+    13
+   ],
+   "verify": "import itertools\ndef dists(n, edges):\n    adj = {v: [] for v in range(1, n + 1)}\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    out = {}\n    for s in adj:\n        d = {s: 0}; todo = [s]\n        for v in todo:\n            for u in adj[v]:\n                if u not in d: d[u] = d[v] + 1; todo.append(u)\n        out[s] = d\n    return out\nE = [(1, 2), (1, 3), (3, 4), (3, 5), (5, 6)]\nD = dists(6, E)\ndef total(v): return sum(D[v].values())\nresult = [total(v) for v in range(1, 7)]",
+   "nudges": [
+    "Start from the answer for vertex 1 and step along one edge at a time. Which sizes do you need?"
+   ],
+   "showed": "One full computation for vertex 1, then one addition and subtraction per edge.",
+   "ordered": true
+  },
+  {
+   "id": "passes",
+   "kind": "choice",
+   "prompt": "To do this for a tree with 200000 vertices, in what order are things computed?",
+   "options": [
+    "First the subtree sizes and the answer for the root, from the leaves upward; then the answers of all other vertices from the root downward",
+    "A full search from every vertex",
+    "Everything in one pass from the leaves upward"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What does a vertex need from its parent, and what does a parent need from its children?"
+   ],
+   "showed": "Two passes: children before parents for the sizes, then parents before children for the answers."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "In a tree with $n$ vertices, let $u$ and $v$ be joined by an edge, and let $s$ be the number of vertices on the $v$ side when that edge is removed. Let $A(x)$ be the sum of the distances from $x$ to all vertices. Prove that $A(v) = A(u) - s + (n - s)$.",
+   "claims": [
+    "Removing the edge splits the tree into the v side (s vertices) and the u side (n - s vertices).",
+    "For a vertex w on the v side, the unique path from u to w starts with the edge u-v, so dist(v, w) = dist(u, w) - 1.",
+    "For a vertex w on the u side, the unique path from v to w starts with the edge v-u, so dist(v, w) = dist(u, w) + 1.",
+    "Summing over all w: A(v) = A(u) - s + (n - s)."
+   ],
+   "nudges": [
+    "Which vertices get closer when you step from $u$ to $v$?",
+    "Why exactly one closer or one farther?"
+   ],
+   "showed": "The answer for a neighbour is the answer here, corrected by what changes across one edge."
+  },
+  {
+   "id": "h-path",
+   "kind": "number",
+   "prompt": "A path of 101 vertices (vertex $i$ joined to vertex $i + 1$). What is the smallest sum of distances that any vertex has?",
+   "answer": 2550,
+   "verify": "result = min(sum(abs(v - w) for w in range(101)) for v in range(101))",
+   "nudges": [
+    "Stepping along the path, when does the sum stop decreasing?"
+   ],
+   "showed": "A step lowers the sum while more vertices lie ahead than behind, so the best vertex is the middle one.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-far",
+   "kind": "list",
+   "prompt": "A tree with 9 vertices and edges 1-2, 2-3, 3-4, 4-5, 3-6, 6-7, 2-8, 8-9. For each vertex 1, ..., 9 in order, give the distance to the vertex farthest from it.",
+   "answer": [
+    4,
+    3,
+    3,
+    4,
+    5,
+    4,
+    5,
+    4,
+    5
+   ],
+   "verify": "import itertools\ndef dists(n, edges):\n    adj = {v: [] for v in range(1, n + 1)}\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    out = {}\n    for s in adj:\n        d = {s: 0}; todo = [s]\n        for v in todo:\n            for u in adj[v]:\n                if u not in d: d[u] = d[v] + 1; todo.append(u)\n        out[s] = d\n    return out\nE = [(1, 2), (1, 3), (3, 4), (3, 5), (5, 6)]\nD = dists(6, E)\ndef total(v): return sum(D[v].values())\nD2 = dists(9, [(1, 2), (2, 3), (3, 4), (4, 5), (3, 6), (6, 7), (2, 8), (8, 9)])\nresult = [max(D2[v].values()) for v in range(1, 10)]",
+   "nudges": [
+    "For a vertex, the farthest vertex is either below it or reached through its parent. What does the parent have to supply?",
+    "If the parent's deepest branch is the one containing the child, what does it supply instead?"
+   ],
+   "showed": "A maximum cannot be undone the way a sum can: the parent must keep its two deepest branches, so that it can offer the other one to the child that owns the deepest.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-binary",
+   "kind": "number",
+   "prompt": "A tree has vertices 1 to 63, and every vertex $i \\ge 2$ is joined to vertex $\\lfloor i / 2 \\rfloor$. Over all vertices, what is the largest sum of distances to all the others?",
+   "answer": 459,
+   "verify": "import itertools\ndef dists(n, edges):\n    adj = {v: [] for v in range(1, n + 1)}\n    for a, b in edges: adj[a].append(b); adj[b].append(a)\n    out = {}\n    for s in adj:\n        d = {s: 0}; todo = [s]\n        for v in todo:\n            for u in adj[v]:\n                if u not in d: d[u] = d[v] + 1; todo.append(u)\n        out[s] = d\n    return out\nE = [(1, 2), (1, 3), (3, 4), (3, 5), (5, 6)]\nD = dists(6, E)\ndef total(v): return sum(D[v].values())\nD3 = dists(63, [(i // 2, i) for i in range(2, 64)])\nresult = max(sum(D3[v].values()) for v in range(1, 64))",
+   "nudges": [
+    "Where is the sum smallest? Moving away from there, what does each step add?",
+    "From a parent to a child with a subtree of $s$ vertices, the sum changes by how much?"
+   ],
+   "showed": "From the root downward every step adds $n - 2s$, which is positive: the sum is largest at a leaf.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-all",
+   "kind": "code",
+   "task": "all-distances",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Sizes and one answer from the leaves up, then every other answer from the root down across one edge at a time.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Answers for every root",
+  "statement": "To answer a question for every vertex as root: compute each subtree's answer bottom-up, then push the contribution of \"everything outside the subtree\" down from each parent to its children (rerooting).",
+  "remark": "For sums, the outside part is found by subtraction. For maxima it cannot be, so each vertex keeps its best two children, or prefix and suffix combinations over its children."
+ }
+}

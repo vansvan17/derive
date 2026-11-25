@@ -135,9 +135,14 @@ def next_problem(content, store):
     last = store.one('SELECT problem FROM attempts ORDER BY opened_at DESC LIMIT 1')
     last_areas = {content.ideas[i]['area'] for i in content.problems[last['problem']]['ideas']} if last and last['problem'] in content.problems else set()
 
+    derived = {r['idea'] for r in store.all('SELECT idea FROM discoveries')}
+
     def cost(problem):
         areas = {content.ideas[i]['area'] for i in problem['ideas']}
         # nearest to the working level; slightly below is preferred to far above
         gap = problem['rating'] - level
-        return (abs(gap) + (60 if gap > 100 else 0) + (40 if areas & last_areas else 0), problem['id'])
+        # Deriving feeds solving: a problem resting only on ideas already derived is preferred to one that is not,
+        # as long as it is within about a level of where she is working.
+        unknown = 0 if all(i in derived for i in problem['ideas']) else 120
+        return (abs(gap) + (60 if gap > 100 else 0) + (40 if areas & last_areas else 0) + unknown, problem['id'])
     return min(fresh, key=cost)['id'], 'new'

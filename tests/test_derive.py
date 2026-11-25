@@ -397,6 +397,16 @@ class App(unittest.TestCase):
         self.assertTrue(next(s for s in after['steps'] if s['id'] == current['id'])['done'])                                  # accepted, so the chain moves on
         self.assertNotEqual(next(s for s in after['steps'] if not s['done'])['id'], current['id'])
 
+    def test_solve_prefers_problems_whose_ideas_are_derived(self):
+        from derive import evidence
+        with self.service.store() as store:
+            first, _ = evidence.next_problem(self.service.content, store)
+            problems = self.service.content.problems
+            other = next(p for p in problems.values() if p['id'] != first and abs(p['rating'] - problems[first]['rating']) <= 100 and not set(p['ideas']) & set(problems[first]['ideas']))
+            for idea in other['ideas']:
+                store.run('INSERT OR IGNORE INTO discoveries(idea, at) VALUES(?, ?)', (idea, '2026-01-01T00:00:00+00:00'))
+            self.assertEqual(evidence.next_problem(self.service.content, store)[0], other['id'])
+
     def test_a_task_with_many_right_outputs_is_judged_by_its_checker(self):
         from derive import tasks
         code = ("def gen(rng, size): return f'{rng.randint(2, 50)}\\n'\n"

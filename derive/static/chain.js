@@ -2,6 +2,21 @@
    when this one is right, and the name of the result only at the very end. */
 
 import {marks} from './marks.js';
+
+/* The stored options list the right one first. On screen they are shown in an order that is fixed for
+   each question (so it does not jump about while you think) but differs from question to question.
+   The value sent is still the stored index. */
+function shownOrder(key, n) {
+  let h = 2166136261;
+  for (const ch of key) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; }
+  const order = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--) {
+    h ^= h << 13; h >>>= 0; h ^= h >>> 17; h ^= h << 5; h >>>= 0;
+    const j = h % (i + 1);
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return order;
+}
 import {askTutor} from './tutor.js';
 import {mountTask} from './tasks.js';
 
@@ -25,7 +40,7 @@ export async function renderChain(ctx, idea) {
       <p class="step-showed">${inline(step.showed)}</p></div></li>`;
   }
   function input(step) {
-    if (step.kind === 'choice') return `<fieldset class="choices"><legend class="sr-only">Options</legend>${step.options.map((o, i) => `<label class="choice"><input type="radio" name="answer" value="${i}"><span>${inline(o)}</span></label>`).join('')}</fieldset>`;
+    if (step.kind === 'choice') return `<fieldset class="choices"><legend class="sr-only">Options</legend>${shownOrder(chain.idea + '/' + step.id, step.options.length).map(i => `<label class="choice"><input type="radio" name="answer" value="${i}"><span>${inline(step.options[i])}</span></label>`).join('')}</fieldset>`;
     if (step.kind === 'proof') {
       const p = step.proof, status = p?.status;
       const note = status === 'fail' ? `<div class="grade grade-fail" role="status"><strong>Not yet.</strong> ${e(p.feedback.gap || '')}${p.feedback.question ? `<p class="grade-question">${e(p.feedback.question)}</p>` : ''}</div>`

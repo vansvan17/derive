@@ -595,5 +595,27 @@
   ],
   "task": "divisible-stretches",
   "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    long long k;\n    scanf(\"%d %lld\", &n, &k);\n    vector<long long> rem = {0};                        // the empty prefix\n    long long p = 0;\n    for (int i = 0; i < n; i++) {\n        long long x;\n        scanf(\"%lld\", &x);\n        p = ((p + x) % k + k) % k;                      // keep the remainder in 0..k-1 for negative numbers too\n        rem.push_back(p);\n    }\n    sort(rem.begin(), rem.end());                       // equal remainders are now neighbours\n    long long total = 0;\n    for (size_t i = 0, j; i < rem.size(); i = j) {\n        for (j = i; j < rem.size() && rem[j] == rem[i]; j++);\n        long long c = j - i;\n        total += c * (c - 1) / 2;                       // every pair of equal prefixes is one stretch\n    }\n    printf(\"%lld\\n\", total);\n}\n"
+ },
+ {
+  "id": "rebuild-answer",
+  "title": "Printing the answer, not just its size",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "\"Print the length, and then one such sequence / path / set\" after an optimisation that a table solves",
+   "Any DP where the judge wants the actual choices: the subsequence, the items in the knapsack, the route",
+   "\"If there are several answers, print any\""
+  ],
+  "idea": "The table of best values already contains the answer; it only has to be read back. Stand on the cell that holds the final value and ask which transition produced it: the cell says \"I am 1 more than the diagonal cell because the letters match\" or \"I am equal to the cell below\" or \"I am equal to the cell to the right\". Follow that transition and repeat until you fall off the table.\n\nFilling the table from the far ends towards the start (so that len[i][j] speaks about the two endings) lets you read the answer back from the front, in the right order, with no reversing. The other common way is to fill forwards and store in each cell where its value came from, then walk back from the end and reverse.",
+  "traps": [
+   "The whole table must be kept: the two-row memory trick destroys what the walk needs.",
+   "Compare with the same rule the table was filled with; when two neighbours tie, either may be followed.",
+   "Filling forwards means walking backwards: the result comes out reversed.",
+   "Any valid answer is accepted by a checker, so your output need not match the sample; but the length must be optimal."
+  ],
+  "task": "shared-letters",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string a, b;\n    cin >> a >> b;\n    int n = a.size(), m = b.size();\n    // len[i][j]: the answer for a from position i on and b from position j on\n    vector<vector<unsigned short>> len(n + 1, vector<unsigned short>(m + 1, 0));\n    for (int i = n - 1; i >= 0; i--)\n        for (int j = m - 1; j >= 0; j--)\n            len[i][j] = a[i] == b[j] ? len[i + 1][j + 1] + 1 : max(len[i + 1][j], len[i][j + 1]);\n    string out;\n    for (int i = 0, j = 0; i < n && j < m;) {           // walk forward, always towards a cell that keeps the best value\n        if (a[i] == b[j]) { out += a[i]; i++; j++; }\n        else if (len[i + 1][j] >= len[i][j + 1]) i++;\n        else j++;\n    }\n    printf(\"%d\\n%s\\n\", (int)out.size(), out.c_str());\n}\n"
  }
 ]

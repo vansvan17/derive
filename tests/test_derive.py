@@ -397,6 +397,23 @@ class App(unittest.TestCase):
         self.assertTrue(next(s for s in after['steps'] if s['id'] == current['id'])['done'])                                  # accepted, so the chain moves on
         self.assertNotEqual(next(s for s in after['steps'] if not s['done'])['id'], current['id'])
 
+    def test_a_task_with_many_right_outputs_is_judged_by_its_checker(self):
+        from derive import tasks
+        code = ("def gen(rng, size): return f'{rng.randint(2, 50)}\\n'\n"
+                "def solve(text): return f'1 {int(text) - 1}\\n'\n"
+                "def brute(text): return solve(text)\n"
+                "def check(text, output, expected):\n"
+                "    a, b = map(int, output.split())\n"
+                "    return '' if a >= 1 and b >= 1 and a + b == int(text) else 'The two numbers must be positive and add up to n.'\n")
+        task = {'id': 'test-split', 'code': code, 'samples': [], 'seconds': 1.0}
+        other = tasks.judge(task, 'python', 'n = int(input())\nprint(n - 1, 1)\n')              # right, but not the stored output
+        self.assertEqual(other['verdict'], 'AC', other)
+        wrong = tasks.judge(task, 'python', 'n = int(input())\nprint(n, 0)\n')
+        self.assertEqual(wrong['verdict'], 'WA')
+        self.assertIn('add up to n', wrong['detail'])
+        junk = tasks.judge(task, 'python', 'print("hello")\n')
+        self.assertEqual(junk['verdict'], 'WA')                                                  # unreadable output is wrong, not a crash
+
     def test_a_chain_already_started_is_not_locked_by_a_prerequisite(self):
         self.assertFalse(self.service.chain_open('fermat', set()))                    # builds on something not derived
         self.assertTrue(self.service.chain_open('fermat', set(), started=True))       # but stays open once begun

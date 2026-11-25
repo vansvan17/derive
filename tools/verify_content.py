@@ -142,13 +142,16 @@ def main():
     for task in course.tasks.values():
         try:
             gen, solve, brute_force = task_module.load(task)
+            check = task_module.checker(task)
+            # With a checker, both solutions must be accepted by it (it compares against the optimum), and it must refuse rubbish.
+            agree = (lambda t: not check(t, solve(t), solve(t)) and not check(t, brute_force(t), solve(t)) and bool(check(t, 'x', solve(t))) and bool(check(t, '', solve(t)))) if check else (lambda t: solve(t).split() == brute_force(t).split())
             rng = random.Random(7)
             for _ in range(150):
                 text = gen(rng, 'small')
-                if solve(text).split() != brute_force(text).split():
+                if not agree(text):
                     faults.append(f'task {task["id"]}: the intended solution and the brute force disagree on {text!r}'); break
             for sample in task['samples']:
-                if solve(sample[0]).split() != sample[1].split():
+                if (check(sample[0], sample[1], solve(sample[0])) if check else solve(sample[0]).split() != sample[1].split()):
                     faults.append(f'task {task["id"]}: a sample output is wrong')
             task_module.tests(task)
         except Exception as exc:

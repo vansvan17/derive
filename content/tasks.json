@@ -1100,5 +1100,23 @@
    ]
   ],
   "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]\n    k = rng.randint(1, 5) if size == 'small' else rng.choice([1, 2, 7, n, 10 ** 9]); top = 6 if size == 'small' else 10 ** 9\n    return f\"{n} {k}\\n{' '.join(str(rng.randint(-top, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); k = v[1]; seen = {0: 1}; p = 0; total = 0\n    for x in v[2:]:\n        p = (p + x) % k; c = seen.get(p, 0); total += c; seen[p] = c + 1\n    return str(total)\ndef brute(text):\n    v = ints(text); k = v[1]; a = v[2:]; n = len(a)\n    return str(sum(1 for l in range(n) for r in range(l, n) if sum(a[l:r + 1]) % k == 0))\n"
+ },
+ {
+  "id": "shared-letters",
+  "title": "Longest shared sequence",
+  "track": "toolbox",
+  "seconds": 3.0,
+  "code": "\ndef table(a, b):\n    from array import array\n    n, m = len(a), len(b); rows = [array('H', [0]) * (m + 1) for _ in range(n + 1)]\n    for i in range(n - 1, -1, -1):\n        r = rows[i]; nx = rows[i + 1]; ai = a[i]\n        for j in range(m - 1, -1, -1):\n            if ai == b[j]: r[j] = nx[j + 1] + 1\n            else: r[j] = nx[j] if nx[j] >= r[j + 1] else r[j + 1]\n    return rows\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 300, 'large': 1500}[size]; m = rng.randint(1, 7) if size == 'small' else rng.randint(n // 2, n)\n    la, lb = rng.choice([('ab', 'ab'), ('abc', 'abc'), ('ab', 'cd'), ('abcdefgh', 'abcdefgh')])\n    return ''.join(rng.choice(la) for _ in range(n)) + '\\n' + ''.join(rng.choice(lb) for _ in range(m)) + '\\n'\ndef solve(text):\n    a, b = text.split(); t = table(a, b); i = j = 0; out = []\n    while i < len(a) and j < len(b):\n        if a[i] == b[j]: out.append(a[i]); i += 1; j += 1\n        elif t[i + 1][j] >= t[i][j + 1]: i += 1\n        else: j += 1\n    return f\"{len(out)}\\n{''.join(out)}\\n\"\ndef inside(s, big):\n    it = iter(big); return all(ch in it for ch in s)\ndef brute(text):\n    import itertools\n    a, b = text.split()\n    for k in range(len(a), -1, -1):\n        for c in itertools.combinations(a, k):\n            if inside(c, b): return f\"{k}\\n{''.join(c)}\\n\"\ndef check(text, output, expected):\n    a, b = text.split(); want = int(expected.split()[0]); toks = output.split()\n    if not toks: return 'Nothing was printed.'\n    k = int(toks[0]); s = toks[1] if len(toks) > 1 else ''\n    if len(toks) > 2: return 'More was printed than a length and one string.'\n    if len(s) != k: return 'The length printed does not match the string printed.'\n    if not inside(s, a) or not inside(s, b): return 'The string printed cannot be obtained from both strings by crossing out letters.'\n    if k != want: return 'A longer common string exists.'\n    return ''\n",
+  "samples": [
+   [
+    "abcbdab\nbdcaba\n",
+    "4\nbdab\n"
+   ],
+   [
+    "ab\ncd\n",
+    "0\n\n"
+   ]
+  ],
+  "statement": "You are given two strings of lowercase letters. Find a longest string that can be obtained from each of them by crossing out letters (keeping the order of the rest). Print its length, and on the next line the string itself. If there are several longest strings, print any one of them. If the length is 0, print an empty second line.\n\n**Input.** Two lines, one string on each. Each has between 1 and 1500 letters.\n\n**Output.** The length, then one longest shared string."
  }
 ]

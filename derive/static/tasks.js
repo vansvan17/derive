@@ -73,5 +73,22 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
 }
 
 export async function renderTask(ctx, id) {
-  await mountTask(ctx, ctx.root, id);
+  const {api, escape: e} = ctx;
+  const root = ctx.root;
+  // The tasks in the order the Code page lists them: track by track.
+  const page = await api('/tasks');
+  const order = page.tracks.flatMap(track => page.tasks.filter(t => t.track === track.id));
+  const at = order.findIndex(t => t.id === id);
+  await mountTask(ctx, root, id);
+  if (ctx.root !== root || at < 0) return;
+  const prev = order[at - 1], next = order[at + 1];
+  const track = page.tracks.find(t => t.id === order[at].track);
+  const mine = order.filter(t => t.track === order[at].track);
+  const link = (t, label, cls) => t ? `<a class="btn ${cls} btn-sm" href="#/task/${e(t.id)}" title="${e(t.title)}">${label}</a>` : `<span class="btn btn-ghost btn-sm" aria-disabled="true">${label}</span>`;
+  const nav = document.createElement('nav');
+  nav.className = 'task-nav';
+  nav.setAttribute('aria-label', 'Other tasks');
+  nav.innerHTML = `<span class="muted small">${e(track?.title || '')} · ${mine.findIndex(t => t.id === id) + 1} of ${mine.length}</span>${link(prev, '← Previous', 'btn-ghost')}${link(next, 'Next →', 'btn-secondary')}`;
+  root.querySelector('.page-head')?.after(nav);
+  window.dispatchEvent(new Event('resize'));                 // the split below is re-fitted now that this row is above it
 }

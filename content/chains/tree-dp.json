@@ -144,7 +144,8 @@
     "If the parent's deepest branch is the one containing the child, what does it supply instead?"
    ],
    "showed": "A maximum cannot be undone the way a sum can: the parent must keep its two deepest branches, so that it can offer the other one to the child that owns the deepest.",
-   "tier": "hard"
+   "tier": "hard",
+   "ordered": true
   },
   {
    "id": "h-binary",

@@ -222,6 +222,32 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2229D",
+  "site": "Codeforces",
+  "contest": 2229,
+  "index": "D",
+  "title": "Me When Median Problem",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2229/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/153948",
+  "ideas": [
+   "search-answer",
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "To ask whether the result can be at least m, replace every value by 1 if it is at least m and by 0 otherwise. The operation commutes with this replacement, and the answers are monotone in m: search for the largest m that works.",
+   "In the 0/1 version an operation discards the smallest and the largest of four values. That removes one 0 and one 1 unless all four are equal: four 0s lose two 0s, four 1s lose two 1s. So (number of 1s) - (number of 0s) changes only in those two cases, and you want the first kind as often as possible and the second kind never.",
+   "Between two columns that are both 1/1, the columns are 0/0 or 0/1. Merging inside such a stretch never wastes anything: a 0/0 with a 0/1 gives a 0/0. Each stretch ends up as one column, a 0/0 if it contained one.",
+   "After that no further gain is possible. The result is 1 exactly when the 1s now outnumber the 0s: if a column with a 0 remains it can always be used to avoid merging two 1/1 columns."
+  ],
+  "nudges": [
+   "How would you test whether the final value can be at least a given m?",
+   "With only 0s and 1s, what does one operation remove from the four values?",
+   "Which operations change the balance between 1s and 0s, and in which direction?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
   "id": "cf-2230D",
   "site": "Codeforces",
   "contest": 2230,
@@ -243,6 +269,32 @@
    "If [L, R] is good, what about [L, R - 1]?",
    "Starting on day L, what is the first thing that can go wrong?",
    "If nothing goes wrong with the first episode, what does the rest of the question look like?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2236E",
+  "site": "Codeforces",
+  "contest": 2236,
+  "index": "E",
+  "title": "Friendly Gifts",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2236/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/154496",
+  "ideas": [
+   "necessary-sufficient",
+   "seen-table"
+  ],
+  "observations": [
+   "A segment can be rearranged into consecutive numbers exactly when its values are all different and its largest minus its smallest equals its length minus one. Both can be maintained while the right end of the segment moves.",
+   "If both pieces are good and their concatenation is good, the two pieces hold disjoint sets of values that together form one run of consecutive numbers. So one piece holds the values l..l+k-1 and the other l+k..l+2k-1, and two such pieces cannot overlap in the array, because their values are different.",
+   "So forget positions: go over all segments (n is 6000, so n squared is fine) and record in a table, for each good segment, the pair (smallest value, largest value).",
+   "Then for each length k from large to small and each l, check whether both value ranges were recorded. The first k that succeeds is the answer."
+  ],
+  "nudges": [
+   "When can a segment be rearranged into consecutive numbers? Can you say it with its minimum, maximum and length?",
+   "If the two pieces and their concatenation are all good, what do the two sets of values look like?",
+   "Do you still need to know where in the array a good segment lies?"
   ],
   "checked": "2026-11-25"
  },
@@ -445,6 +497,32 @@
    "Which quantity decides whether a subarray is k-exquisite?",
    "If a subarray works for some k, for which other k does it work?",
    "For one subarray, which single number tells you all the k it counts for?"
+  ],
+  "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2222D",
+  "site": "Codeforces",
+  "contest": 2222,
+  "index": "D",
+  "title": "Permutation Construction",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2222/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/153275",
+  "ideas": [
+   "prefix-sums",
+   "matching-bounds"
+  ],
+  "observations": [
+   "With running totals b_i = a_1 + ... + a_(i-1), the value of an inversion (i, j) is b_j - b_i. So each pair i < j either contributes b_j - b_i (if you make it an inversion) or nothing.",
+   "An upper limit: take every pair with b_j > b_i and none with b_j < b_i. Pairs with equal totals contribute 0 either way.",
+   "That limit can be met exactly: make p_i larger exactly when b_i is smaller. Sort the positions by b in decreasing order and hand out 1, 2, ..., n in that order. Then for i < j, p_i > p_j precisely when b_i < b_j.",
+   "Sorting is all the work."
+  ],
+  "nudges": [
+   "Can the value of an inversion be written as a difference of two numbers, one for each end?",
+   "For a single pair of positions, when do you want it to be an inversion?",
+   "Can all pairs get what they want at the same time?"
   ],
   "checked": "2026-11-25"
  },
@@ -979,6 +1057,32 @@
    "How do you find, for the whole tree at once, the leaf whose removal helps the most?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2237E",
+  "site": "Codeforces",
+  "contest": 2237,
+  "index": "E",
+  "title": "Permutation Commutation",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/2237/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/154603",
+  "ideas": [
+   "necessary-sufficient",
+   "exchange"
+  ],
+  "observations": [
+   "Follow a around its cycles. The condition a(b(i)) = b(a(i)) says that if i goes to b(i), then the next element of i's cycle goes to the next element of b(i)'s cycle. So b maps each cycle of a onto a cycle of the same length, and one value of b on a cycle fixes b on the whole cycle.",
+   "So for each cycle of a, the known entries of b must all point into one cycle of the same length and agree on the same shift; and no target cycle may be claimed by two source cycles. Otherwise there is no answer.",
+   "Cycles with no known entry are free: any unused cycle of the same length and any shift will do. For the smallest result, go through positions from left to right; when the first position of a still-free cycle is reached, give it the smallest value available in an unused cycle of that length, which fixes the rest of that cycle.",
+   "Group cycles by length and keep the unused ones in buckets; everything is linear."
+  ],
+  "nudges": [
+   "Apply the condition along a cycle of a. What does it force about where the cycle's elements go?",
+   "If one entry of b on a cycle is known, how much of b is determined?",
+   "For the smallest answer, which position gets to choose first, and what does its choice cost the others?"
+  ],
+  "checked": "2026-11-25"
  },
  {
   "id": "cf-2238E",

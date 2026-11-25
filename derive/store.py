@@ -79,6 +79,11 @@ class Store:
         # added later: the idea whose finished chain a problem was opened from (the topic was known, so the solve is not cold)
         if 'topic_known' not in {r[1] for r in self.db.execute('PRAGMA table_info(attempts)')}:
             self.db.execute('ALTER TABLE attempts ADD COLUMN topic_known TEXT')
+        if 'move' not in {r[1] for r in self.db.execute('PRAGMA table_info(attempts)')}:
+            # the move that cracks the problem, whether she made it herself (1/0), and her one-sentence lesson
+            self.db.execute('ALTER TABLE attempts ADD COLUMN move TEXT')
+            self.db.execute('ALTER TABLE attempts ADD COLUMN move_made INTEGER')
+            self.db.execute("ALTER TABLE attempts ADD COLUMN lesson TEXT NOT NULL DEFAULT ''")
         self.db.commit()
 
     def close(self):

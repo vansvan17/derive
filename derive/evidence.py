@@ -23,6 +23,19 @@ CAUSES = {
     'implementation': 'The idea was right; the code was wrong',
 }
 
+# The moves that produce an observation when no known technique fits. After a problem is finished she names
+# the one that cracks it and says whether she made it herself; the record then shows which moves she keeps missing.
+MOVES = {
+    'small-cases': 'Work small cases by hand and look for the pattern',
+    'brute-pattern': 'Write a brute force, print small answers, guess and test',
+    'invariant': 'Ask what never changes (parity, a sum, a count, an order)',
+    'bound': 'Find an obvious bound on the answer, then show it can be reached',
+    'simplify': 'Solve an easier version first (sorted, all equal, a path, n = 2)',
+    'reverse': 'Go backwards or flip the viewpoint (per element, fix the answer)',
+    'extremes': 'Look at the extreme: the largest, the leftmost, the first move',
+    'technique': 'None of these: it was recognising a known technique',
+}
+
 
 def attempts(store):
     return {r['problem']: r for r in store.all('SELECT * FROM attempts')}

@@ -416,6 +416,20 @@ class App(unittest.TestCase):
         after = self.get('/task/equal-pairs')
         self.assertEqual((after['solved'], after['tries']), (True, 3))
 
+    def test_the_move_that_cracks_a_problem_is_recorded_and_counted(self):
+        pid = self.open(); self.commit(pid)
+        self.assertEqual(self.post('/problem/move', {'id': pid, 'move': 'invariant'})[0], 409)          # only once it is finished
+        self.post('/problem/giveup', {'id': pid})
+        self.assertEqual(self.post('/problem/move', {'id': pid, 'move': 'luck'})[0], 400)
+        self.assertEqual(self.post('/problem/move', {'id': pid, 'made': 'no'})[0], 400)
+        self.assertEqual(self.post('/problem/move', {'id': pid, 'move': 'invariant'})[0], 200)
+        self.assertEqual(self.get('/mastery')['patterns']['moves'], [])                                # not counted until she says whether she made it
+        page = self.post('/problem/move', {'id': pid, 'made': False, 'lesson': '  Check the sum first.  '})[1]
+        self.assertEqual((page['move'], page['move_made'], page['lesson']), ('invariant', 0, 'Check the sum first.'))
+        patterns = self.get('/mastery')['patterns']
+        self.assertEqual([(m['made'], m['missed']) for m in patterns['moves']], [(0, 1)])
+        self.assertEqual(patterns['lessons'][0]['lesson'], 'Check the sum first.')
+
     def test_task_hints_open_one_at_a_time_and_are_never_sent_early(self):
         page = self.get('/task/range-sums')
         self.assertEqual((page['hints'], page['hints_total']), ([], 3))                  # nothing is sent before it is asked for

@@ -413,7 +413,7 @@ class Service:
             'approach': row['approach'], 'cue': row['cue'], 'committed': bool(row['committed_at']),
             'nudges': problem.get('nudges', [])[:level], 'nudges_total': len(problem.get('nudges', [])),
             'editorial_opened': bool(row['editorial_at']), 'solved': bool(row['solved_at']), 'gave_up': bool(row['gave_up_at']),
-            'cold': bool(row['cold']), 'verdict_source': row['verdict_source'], 'cause': row['cause'], 'notes': row['notes'],
+            'cold': bool(row['cold']), 'verdict_source': row['verdict_source'], 'cause': row['cause'], 'notes': row['notes'], 'move': row['move'], 'move_made': row['move_made'], 'lesson': row['lesson'],
             'returned_for': bool(row['returned_for']), 'finished': finished, 'topic_known': bool(row['topic_known']),
         })
         if row['editorial_at'] or finished:
@@ -504,6 +504,23 @@ class Service:
         if cause == 'none' and not row['cold']:
             raise ApiError('This was not a cold solve, so something was in the way. Pick what it was.')
         store.run('UPDATE attempts SET cause=? WHERE problem=?', (cause, problem['id']))
+        return self.problem(store, problem['id'])
+
+    def move(self, store, data):
+        """After a problem: which move cracks it, whether she made it herself, and the lesson in a sentence."""
+        problem, row = self.attempt(store, data.get('id'))
+        if not (row['solved_at'] or row['gave_up_at']):
+            raise ApiError('Finish the problem before recording the move that cracks it.', 409)
+        if 'move' in data:
+            if data['move'] not in evidence.MOVES:
+                raise ApiError('Pick one of the listed moves.')
+            store.run('UPDATE attempts SET move=? WHERE problem=?', (data['move'], problem['id']))
+        if 'made' in data:
+            if type(data['made']) is not bool:
+                raise ApiError('Say whether you made the move yourself.')
+            store.run('UPDATE attempts SET move_made=? WHERE problem=?', (int(data['made']), problem['id']))
+        if 'lesson' in data:
+            store.run('UPDATE attempts SET lesson=? WHERE problem=?', (text(data['lesson'], 'The lesson', 600).strip(), problem['id']))
         return self.problem(store, problem['id'])
 
     # ---------- puzzles ----------
@@ -871,6 +888,12 @@ class Service:
             problem = self.content.problems.get(r['problem'])
             for area in sorted({ideas[i]['area'] for i in problem['ideas']}) if problem else []:
                 by_area.setdefault(area, {})[r['cause']] = by_area.setdefault(area, {}).get(r['cause'], 0) + 1
+        # the move that cracks each finished problem: made by her, or missed
+        moves = {}
+        for r in store.all('SELECT move, move_made, COUNT(*) AS n FROM attempts WHERE move IS NOT NULL AND move_made IS NOT NULL GROUP BY move, move_made'):
+            moves.setdefault(r['move'], {})['made' if r['move_made'] else 'missed'] = r['n']
+        lessons = [{'title': self.content.problems[r['problem']]['title'], 'id': r['problem'], 'move': evidence.MOVES.get(r['move']), 'made': r['move_made'], 'lesson': r['lesson']}
+                   for r in store.all("SELECT problem, move, move_made, lesson FROM attempts WHERE lesson != '' ORDER BY COALESCE(solved_at, gave_up_at) DESC LIMIT 30") if r['problem'] in self.content.problems]
         # chains: wrong answers, smaller questions opened, tutor asked while unfinished
         chains = {}
         for r in store.all('SELECT idea, COUNT(*) AS n FROM step_attempts WHERE correct=0 GROUP BY idea'):
@@ -894,6 +917,7 @@ class Service:
             row = puzzles.setdefault(of_set.get(r['puzzle']), {'done': 0, 'clean': 0, 'shown': 0})
             row['done'] += 1; row['clean'] += int(not r['wrong'] and not r['shown']); row['shown'] += int(bool(r['shown']))
         return {
+            'moves': [{'label': v, 'made': moves[k].get('made', 0), 'missed': moves[k].get('missed', 0)} for k, v in evidence.MOVES.items() if k in moves], 'lessons': lessons,
             'by_area': [{'area': areas.get(a, a), 'total': sum(c.values()), 'causes': [{'label': evidence.CAUSES[k], 'count': n} for k, n in sorted(c.items(), key=lambda x: -x[1])]} for a, c in sorted(by_area.items(), key=lambda x: -sum(x[1].values()))],
             'chains': [{'id': i, 'name': label(i), 'area': areas.get(ideas[i]['area'], ''), 'track': ideas[i].get('track'), 'title': ideas[i].get('cses', {}).get('title'),
                         'wrong': v.get('wrong', 0), 'nudges': v.get('nudges', 0), 'tutor': v.get('tutor', 0)} for i, v in hardest],
@@ -952,7 +976,7 @@ class Service:
             raise ApiError('Send a JSON object.')
         routes = {'/chain/answer': self.answer, '/chain/skip': self.skip_easy, '/nudge': self.nudge, '/chain/proof': self.submit_proof, '/proof/verdict': self.manual_verdict,
                   '/problem/commit': self.commit, '/problem/editorial': self.editorial, '/problem/check': self.check_submissions,
-                  '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause,
+                  '/problem/report': self.report, '/problem/giveup': self.give_up, '/problem/cause': self.cause, '/problem/move': self.move,
                   '/code': self.save_code, '/run': self.queue_run,
                   '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer, '/task/judge': self.task_judge, '/task/hint': self.task_hint,
                   '/problem/open': self.open_from_chain, '/break/try': self.break_try, '/break/nudge': self.break_nudge}

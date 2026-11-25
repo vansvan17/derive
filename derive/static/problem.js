@@ -5,6 +5,9 @@ import {askTutor} from './tutor.js';
 
 const VERDICTS = {OK: 'Ran', TLE: 'Time limit exceeded', MLE: 'Memory limit exceeded', RE: 'Runtime error', CE: 'Did not compile', OLE: 'Too much output',
   SAME: 'No difference found', DIFF: 'Different answers', GEN: 'Generator failed', BRUTE: 'Brute force failed'};
+const MOVES = [['small-cases', 'Work small cases by hand and look for the pattern'], ['brute-pattern', 'Write a brute force, print small answers, guess and test'], ['invariant', 'Ask what never changes (parity, a sum, a count, an order)'],
+  ['bound', 'Find an obvious bound on the answer, then show it can be reached'], ['simplify', 'Solve an easier version first (sorted, all equal, a path, n = 2)'], ['reverse', 'Go backwards or flip the viewpoint (per element, fix the answer)'],
+  ['extremes', 'Look at the extreme: the largest, the leftmost, the first move'], ['technique', 'None of these: it was recognising a known technique']];
 const CAUSES = [['unknown-fact', 'I did not know the fact it rests on'], ['unrecognised', 'I knew the idea but did not see that it applied'], ['wrong-conjecture', 'I believed something false'],
   ['no-proof', 'I had the idea but could not prove it'], ['implementation', 'The idea was right; the code was wrong']];
 const FILES = [['main', 'Solution'], ['brute', 'Brute force'], ['gen', 'Generator']];
@@ -161,8 +164,17 @@ export async function renderProblem(ctx, id) {
       ${p.editorial ? `<p><a href="${e(p.editorial)}" target="_blank" rel="noopener noreferrer">Editorial</a></p>` : ''}
       <h3>${p.cold ? 'Anything in the way?' : 'What was in the way?'}</h3>
       <form data-cause class="choices">${causes.map(([k, label]) => `<label class="choice"><input type="radio" name="cause" value="${k}" ${p.cause === k ? 'checked' : ''}><span>${label}</span></label>`).join('')}</form>
+      <h3>Which move cracks it?</h3><p class="muted small">Not the solution: the thing to try that leads to the first observation above. The record page then shows which moves you keep missing.</p>
+      <form data-move class="choices">${MOVES.map(([k, label]) => `<label class="choice"><input type="radio" name="move" value="${k}" ${p.move === k ? 'checked' : ''}><span>${label}</span></label>`).join('')}</form>
+      <h3>Did you make that move yourself, before any help?</h3>
+      <form data-made class="choices choices-row">${[[1, 'Yes, I tried it'], [0, 'No, I did not try it']].map(([k, label]) => `<label class="choice"><input type="radio" name="made" value="${k}" ${p.move_made === k ? 'checked' : ''}><span>${label}</span></label>`).join('')}</form>
+      <label class="field">In one sentence: what should you try next time that leads here?<input type="text" data-lesson maxlength="600" value="${e(p.lesson || '')}" placeholder="e.g. When every operation keeps the sum, check the sum of the target first."></label>
       <div class="step-actions"><a class="btn btn-primary" href="#/solve">Next problem</a><button class="btn btn-secondary" type="button" data-teach>Have a tutor teach the solution</button><a class="btn btn-ghost" href="#/mastery">What you can do</a></div></section>`;
     host.querySelector('[data-teach]').addEventListener('click', () => askTutor(ctx, {scope: 'problem', id}));
+    const record = async body => { try { const lesson = host.querySelector('[data-lesson]').value; p = await post('/problem/move', {id, ...body}); p.lesson = body.lesson ?? lesson; } catch (error) { toast(error.message, 'error'); } };
+    host.querySelector('[data-move]').addEventListener('change', event => record({move: event.target.value}));
+    host.querySelector('[data-made]').addEventListener('change', event => record({made: event.target.value === '1'}));
+    host.querySelector('[data-lesson]').addEventListener('change', event => record({lesson: event.target.value}));
     host.querySelector('[data-cause]').addEventListener('change', async event => {
       try { p = await post('/problem/cause', {id, cause: event.target.value}); toast('Recorded.', 'success'); } catch (error) { toast(error.message, 'error'); }
     });

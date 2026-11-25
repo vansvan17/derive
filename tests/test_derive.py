@@ -411,6 +411,13 @@ class App(unittest.TestCase):
         self.assertTrue(after['derived'] and after['lesson'])
         self.assertEqual(self.get('/map') and self.request('GET', '/api/bootstrap')[1]['counts']['derived'], 0)   # not counted among the map's chains
 
+    def test_a_chain_keeps_its_scratch_pad(self):
+        self.assertEqual(self.get('/chain/residues')['notes'], '')
+        self.assertEqual(self.post('/chain/notes', {'idea': 'residues', 'notes': '5 + 100 = 105, 105 mod 7 = 0'})[0], 200)
+        self.assertEqual(self.get('/chain/residues')['notes'], '5 + 100 = 105, 105 mod 7 = 0')
+        self.assertEqual(self.get('/chain/fermat' if False else '/chain/gcd-subtraction')['notes'], '')      # each chain has its own
+        self.assertEqual(self.post('/chain/notes', {'idea': 'no-such-chain', 'notes': 'x'})[0], 404)
+
     def test_solve_prefers_problems_whose_ideas_are_derived(self):
         from derive import evidence
         with self.service.store() as store:

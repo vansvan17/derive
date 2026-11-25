@@ -31,6 +31,9 @@ export async function renderChain(ctx, idea) {
   const {api, post, waitFor, escape: e, icon, inline, markdown, toast, dialog, navigate} = ctx;
   const root = ctx.root, alive = () => ctx.root === root;
   let chain = await api('/chain/' + encodeURIComponent(idea));
+  let notes = chain.notes || '', notesTimer = null, notesSaved = true, notesSent = notes;
+  const saveNotes = async () => { if (notes === notesSent) return; const sending = notes; try { await post('/chain/notes', {idea, notes: sending}); notesSent = sending; notesSaved = true; } catch { notesSaved = false; } };
+  ctx.onCleanup(() => { clearTimeout(notesTimer); saveNotes(); });
   if (!alive()) return;
   let feedback = null;      // {kind: 'wrong'|'unreadable', text} for the current step
 
@@ -51,6 +54,14 @@ export async function renderChain(ctx, idea) {
     const names = step.vars ? ` (${step.vars.join(', ')})` : '';
     return `<label class="field"><span class="sr-only">Your answer</span><input type="text" name="answer" autocomplete="off" spellcheck="false" inputmode="${step.kind === 'number' ? 'text' : 'text'}" placeholder="${step.kind === 'counterexample' ? e(step.vars.join(', ')) : 'Your answer'}"></label><p class="step-hint">${HINTS[step.kind] || ''}${step.kind === 'counterexample' ? e(names) : ''}</p>`;
   }
+  /* A scratch pad for the chain: small cases, tables, guesses. It belongs to the chain, not to one question,
+     so what you wrote for an earlier question is still there for the next. Saved as you type. */
+  function scratch() {
+    let open = true;
+    try { open = localStorage.getItem('derive-scratch') !== 'closed'; } catch { /* stays open */ }
+    return `<details class="scratch" data-scratch ${open ? 'open' : ''}><summary>Scratch pad <span class="muted small" data-scratch-status></span></summary>
+      <textarea class="input notes" data-scratch-text rows="6" spellcheck="false" aria-label="Scratch pad" placeholder="Small cases, a table, a guess. Not checked, only saved.">${e(notes)}</textarea></details>`;
+  }
   function currentStep(step, index) {
     const more = step.nudges.length < step.nudges_total;
     if (step.kind === 'code') return `<li class="step is-current step-code" data-current><div class="step-num" aria-hidden="true">${index + 1}</div><div class="step-body">${step.hard ? '<p class="eyebrow">Hard part · write it</p>' : '<p class="eyebrow">Write it</p>'}<div class="step-prompt">${markdown(step.prompt)}</div>
@@ -62,7 +73,7 @@ export async function renderChain(ctx, idea) {
         ${feedback ? `<p class="step-feedback ${feedback.kind}" role="alert">${e(feedback.text)}</p>` : ''}
         ${step.nudges.length ? `<ol class="nudges">${step.nudges.map(n => `<li>${inline(n)}</li>`).join('')}</ol>` : ''}
         <div class="step-actions"><button class="btn btn-primary" type="submit">${step.kind === 'proof' ? 'Submit proof' : 'Check'}</button>${more ? `<button class="btn btn-ghost" type="button" data-nudge>Ask a smaller question (${step.nudges.length + 1} of ${step.nudges_total})</button>` : ''}<button class="btn btn-ghost" type="button" data-tutor>Ask a tutor</button></div>
-      </form></div></li>`;
+      </form>${scratch()}</div></li>`;
   }
 
   function paint(focus = false) {
@@ -87,6 +98,12 @@ export async function renderChain(ctx, idea) {
       root.querySelector('[data-manual]')?.replaceChildren(manualLink(step));
       if (step.kind === 'proof' && step.proof?.status === 'grading') watch(step);
       if (focus) { root.querySelector('[data-current]').scrollIntoView({behavior: 'smooth', block: 'center'}); form.querySelector('input[type=text], textarea')?.focus({preventScroll: true}); }
+    }
+    const pad = root.querySelector('[data-scratch-text]');
+    if (pad) {
+      const status = root.querySelector('[data-scratch-status]');
+      pad.addEventListener('input', () => { notes = pad.value; status.textContent = '· editing'; clearTimeout(notesTimer); notesTimer = setTimeout(async () => { await saveNotes(); if (status.isConnected) status.textContent = notesSaved ? '· saved' : '· not saved'; }, 700); });
+      root.querySelector('[data-scratch]').addEventListener('toggle', event => { try { localStorage.setItem('derive-scratch', event.target.open ? 'open' : 'closed'); } catch { /* fine */ } });
     }
     root.querySelector('[data-teach]')?.addEventListener('click', () => askTutor(ctx, {scope: 'chain', idea}));
     root.querySelector('[data-skip]')?.addEventListener('click', async () => { try { chain = await post('/chain/skip', {idea}); feedback = null; paint(true); ctx.sync(); } catch (error) { toast(error.message, 'error'); } });

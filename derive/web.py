@@ -225,7 +225,7 @@ class Service:
                 'reveal': {**chain['reveal'], 'problems': len(self.content.problems_for(idea))} if complete else None,
                 # Practice tasks would give the topic away, so they are listed only once the chain is finished.
                 'practice': [{**t, 'done': t['url'] in ticked} for t in self.content.practice.get(idea, [])] if complete else [],
-                'marks': info.get('marks', []), 'cses': info.get('cses'),
+                'marks': info.get('marks', []), 'cses': info.get('cses'), 'notes': store.get('chain_notes', {}).get(idea, ''),
                 'area': next(a['title'] for a in self.content.areas if a['id'] == info['area'])}
 
     def settle_code_steps(self, store, idea, chain):
@@ -812,6 +812,16 @@ class Service:
             if path == '/problem/notes':
                 problem, _ = self.attempt(store, data.get('id'))
                 store.run('UPDATE attempts SET notes=? WHERE problem=?', (text(data.get('notes', ''), 'Notes', 100000), problem['id']))
+                return {'saved': True}
+            if path == '/chain/notes':                       # the scratch pad of one chain
+                idea = data.get('idea')
+                if idea not in self.content.chains:
+                    raise ApiError('No such chain.', 404)
+                notes = store.get('chain_notes', {})
+                notes[idea] = text(data.get('notes', ''), 'Notes', 100000)
+                if not notes[idea]:
+                    del notes[idea]
+                store.set('chain_notes', notes)
                 return {'saved': True}
             if path == '/settings':
                 return {'settings': self.save_settings(store, data)}

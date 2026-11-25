@@ -24,7 +24,26 @@ export async function renderMastery(ctx) {
     <div class="start-grid">
       <section class="surface"><h2>What got in the way</h2>${total ? `<ul class="bars">${m.causes.map(c => `<li><span>${e(c.label)}</span><span class="bar"><span style="width:${Math.round(100 * c.count / total)}%"></span></span><strong>${c.count}</strong></li>`).join('')}</ul>` : '<p class="muted">Recorded after each problem. Different causes need different practice, so they are counted separately.</p>'}</section>
       <section class="surface"><h2>Owed a return</h2>${m.returns.length ? `<ul class="plain-list">${m.returns.map(r => `<li>${name(r.name)} <span class="muted small">· ${e(r.reason)} · due ${when(r.due)}</span></li>`).join('')}</ul>` : '<p class="muted">Nothing. An idea lands here when you needed help with it, and leaves when you solve a different problem on it cold.</p>'}</section>
-    </div>`;
+    </div>
+    ${patterns(m.patterns, e)}`;
+}
+
+/* Where the mistakes are, cut several ways. Counts only: a sentence drawn from a handful of rows would say more than is known. */
+function patterns(p, e) {
+  const any = p.by_area.length || p.chains.length || p.code.verdicts.length || p.breaks.broken || p.recognise.some(r => r.count) || p.puzzles.length;
+  const stat = (label, value, note = '') => `<div><dt>${e(label)}</dt><dd>${value}${note ? `<small> ${e(note)}</small>` : ''}</dd></div>`;
+  const chain = c => c.title ? `CSES: ${e(c.title)}` : c.name ? e(c.name) : `<span class="muted">a chain in ${e(c.area || 'the map')}, not yet derived</span>`;
+  const tried = p.code.verdicts.reduce((a, v) => a + v.count, 0), rated = p.recognise.reduce((a, r) => a + r.count, 0);
+  return `<section class="surface"><h2>Where it goes wrong</h2><p class="muted small">The same record cut by place, so that practice can go where the mistakes are. These are counts, not conclusions: a row with two or three entries says very little.</p>
+    ${any ? '' : '<p class="muted">Nothing yet. This fills in as you answer chain steps, solve problems, write code, break solutions and rate yourself on Recognise.</p>'}
+    ${p.by_area.length ? `<h3>Problems: what got in the way, by area</h3><div class="table-scroll"><table class="table"><thead><tr><th>Area</th><th>Misses</th><th>Causes</th></tr></thead><tbody>${p.by_area.map(a => `<tr><td>${e(a.area)}</td><td>${a.total}</td><td>${a.causes.map(c => `${e(c.label)} <strong>× ${c.count}</strong>`).join('<br>')}</td></tr>`).join('')}</tbody></table></div>` : ''}
+    ${p.chains.length ? `<h3>Chains that cost the most</h3><div class="table-scroll"><table class="table"><thead><tr><th>Chain</th><th>Wrong answers</th><th>Smaller questions opened</th><th>Tutor asked mid-step</th></tr></thead><tbody>${p.chains.map(c => `<tr><td><a href="#/chain/${e(c.id)}">${chain(c)}</a></td><td>${c.wrong}</td><td>${c.nudges}</td><td>${c.tutor}</td></tr>`).join('')}</tbody></table></div>` : ''}
+    <dl class="evidence patterns-grid">
+      ${tried ? p.code.verdicts.map(v => stat('Code: ' + ({AC: 'accepted', WA: 'wrong answer', TLE: 'too slow', RE: 'crashed', MLE: 'too much memory', CE: 'did not compile'}[v.verdict] || v.verdict), v.count, 'of ' + tried + ' judged')).join('') + stat('Code: accepted on the first try', p.code.first_try, 'of ' + p.code.accepted + ' tasks') : ''}
+      ${p.breaks.broken ? stat('Break it: broken', p.breaks.broken, 'of ' + p.breaks.of) + stat('Break it: on the first input', p.breaks.first_try, 'of ' + p.breaks.broken) + stat('Break it: after a smaller question', p.breaks.with_questions, 'of ' + p.breaks.broken) : ''}
+      ${rated ? p.recognise.map(r => stat('Recognise: ' + r.label.toLowerCase(), r.count, 'of ' + rated)).join('') : ''}
+      ${p.puzzles.map(s => stat('Puzzles, ' + s.set + ': right first time', s.clean, 'of ' + s.done + (s.shown ? ', ' + s.shown + ' shown' : ''))).join('')}
+    </dl></section>`;
 }
 
 export async function renderSettings(ctx) {

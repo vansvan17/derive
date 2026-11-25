@@ -158,6 +158,8 @@ def main():
             faults.append(f'task {task["id"]}: checking crashed: {exc!r}')
     from derive import breaks as break_module
     faults += break_module.faults(course)
+    from derive import recognise as recognise_module
+    faults += recognise_module.faults(course)
     if args.links:
         faults += verify_links(course)
     for fault in faults:

@@ -518,6 +518,44 @@ class App(unittest.TestCase):
         saved = self.get('/notebook')
         self.assertEqual((saved['title'], saved['extra']), ('byte me', 'g++ -O2'))
 
+    def test_recognise_never_shows_a_problem_still_waiting_under_solve(self):
+        parked = [{'id': 'cf-9-a', 'site': 'Codeforces', 'url': 'https://codeforces.com/problemset/problem/9/A', 'title': 'Parked', 'rating': 1300,
+                   'ideas': ['residues'], 'observations': ['Look at remainders.'], 'nudges': [], 'editorial': None, 'checked': '2026-11-24'}]
+        self.service.content.parked = {p['id']: p for p in parked}
+        first = self.get('/recognise')
+        self.assertEqual((first['pool'], first['card']['id'], first['card']['revealed']), (1, 'cf-9-a', False))
+        self.assertNotIn('observations', first['card']); self.assertNotIn('ideas', first['card'])       # nothing before she commits
+        self.assertEqual(self.post('/recognise/reveal', {'id': 'cf-9-a', 'guess': 'hm'})[0], 400)           # an answer first
+        self.assertEqual(self.post('/recognise/reveal', {'id': 'cf-1-a', 'guess': 'It is about remainders.'})[0], 409)   # a Solve problem is never a card
+        shown = self.post('/recognise/reveal', {'id': 'cf-9-a', 'guess': 'It is about remainders.', 'seconds': 95})[1]['card']
+        self.assertEqual((shown['observations'], shown['seconds'], shown['ideas'][0]['name']), (['Look at remainders.'], 95, None))   # the idea's name stays hidden until derived
+        self.assertEqual(self.post('/recognise/rate', {'id': 'cf-9-a', 'rating': 'brilliant'})[0], 400)
+        after = self.post('/recognise/rate', {'id': 'cf-9-a', 'rating': 'part'})[1]
+        self.assertEqual(next(c['count'] for c in after['counts'] if c['id'] == 'part'), 1)
+        self.assertEqual((after['card']['id'], after['card']['times_before']), ('cf-9-a', 1))                 # not seen fully, so it comes back
+        self.post('/recognise/reveal', {'id': 'cf-9-a', 'guess': 'Only the remainder matters.'})
+        self.assertIsNone(self.post('/recognise/rate', {'id': 'cf-9-a', 'rating': 'saw'})[1]['card'])         # seen: not repeated
+        self.assertEqual(self.get('/mastery')['counts']['solved'], 0)                                           # and none of it is evidence
+        problem = self.post('/problem/next', {})[1]['id']
+        self.post('/problem/giveup', {'id': problem})
+        self.assertEqual(self.get('/recognise')['card']['id'], problem)                                         # a finished problem joins the pool
+
+    def test_the_record_cuts_mistakes_by_place_without_naming_what_is_not_derived(self):
+        chain = json.loads((self.root / 'content/chains/residues.json').read_text())
+        first = chain['steps'][0]
+        self.post('/chain/answer', {'idea': 'residues', 'step': first['id'], 'answer': '987654'})
+        self.post('/nudge', {'scope': 'chain', 'idea': 'residues', 'step': first['id']})
+        problem = self.post('/problem/next', {})[1]['id']
+        self.post('/problem/giveup', {'id': problem})
+        self.post('/problem/cause', {'id': problem, 'cause': 'wrong-conjecture'})
+        self.tried({'id': 'museum-ties', 'input': '2\n1 3\n3 5\n'})
+        p = self.get('/mastery')['patterns']
+        row = next(c for c in p['chains'] if c['id'] == 'residues')
+        self.assertEqual((row['wrong'], row['nudges'], row['name']), (1, 1, None))            # counted, and the name is still hidden
+        self.assertEqual(sum(a['total'] for a in p['by_area']) >= 1, True)
+        self.assertEqual(p['by_area'][0]['causes'][0]['label'], evidence.CAUSES['wrong-conjecture'])
+        self.assertEqual((p['breaks']['broken'], p['breaks']['first_try']), (1, 1))
+
     # ---- puzzles ----
     def test_puzzles_come_one_at_a_time_and_giving_up_is_not_solving(self):
         page = self.get('/puzzles?set=invariants')

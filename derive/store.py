@@ -57,6 +57,9 @@ CREATE TABLE IF NOT EXISTS break_tries(id INTEGER PRIMARY KEY, at TEXT NOT NULL,
 CREATE TABLE IF NOT EXISTS breaks_done(item TEXT PRIMARY KEY, at TEXT NOT NULL, tries INTEGER NOT NULL, nudges INTEGER NOT NULL, input TEXT NOT NULL);
 -- the source the judge accepted, per task and language (the editor's saved code can be changed afterwards; this cannot)
 CREATE TABLE IF NOT EXISTS accepted_code(task TEXT NOT NULL, language TEXT NOT NULL, code TEXT NOT NULL, at TEXT NOT NULL, PRIMARY KEY(task, language));
+-- recognise: what she said cracks a statement, how long she took, and how she rated herself against the stored observations
+CREATE TABLE IF NOT EXISTS recognitions(id INTEGER PRIMARY KEY, at TEXT NOT NULL, problem TEXT NOT NULL, guess TEXT NOT NULL, seconds INTEGER NOT NULL,
+  rating TEXT, rated_at TEXT);
 CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 '''
 

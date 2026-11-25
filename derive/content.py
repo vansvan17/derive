@@ -51,6 +51,9 @@ class Content:
         # Toolbox pages: techniques that are recognised and written rather than derived.
         path = self.root / 'content/tools.json'
         self.tools = {t['id']: t for t in json.loads(path.read_text())} if path.exists() else {}
+        # Real problems read and tagged but below the working level: never handed out under Solve, used by the recognition drill.
+        path = self.root / 'content/parked_below_1600.json'
+        self.parked = {p['id']: p for p in json.loads(path.read_text())} if path.exists() else {}
         # Break it: wrong solutions to existing tasks, to be broken with an input.
         path = self.root / 'content/breaks.json'
         self.breaks = {b['id']: b for b in json.loads(path.read_text())} if path.exists() else {}

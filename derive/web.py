@@ -22,7 +22,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import uuid
 import webbrowser
 
-from . import breaks, contest, evidence, grader, sync, tasks, tutor
+from . import breaks, contest, evidence, grader, recognise, sync, tasks, tutor
 from .checks import CheckError, check
 from .content import Content
 from .runner import Executable, JudgeError, same_output
@@ -821,7 +821,48 @@ class Service:
         causes = {r['cause']: r[1] for r in store.all('SELECT cause, COUNT(*) FROM attempts WHERE cause IS NOT NULL GROUP BY cause')}
         owed = [{'idea': r['idea'], 'name': named(r['idea']), 'due': r['due'], 'reason': r['reason']} for r in store.all('SELECT * FROM returns WHERE done_at IS NULL ORDER BY due')]
         return {'ideas': ideas, 'pairs': pairs, 'causes': [{'id': k, 'label': v, 'count': causes.get(k, 0)} for k, v in evidence.CAUSES.items()],
-                'returns': owed, 'band': evidence.band(self.content, store), 'counts': self.counts(store), 'areas': self.content.areas}
+                'returns': owed, 'band': evidence.band(self.content, store), 'counts': self.counts(store), 'areas': self.content.areas,
+                'patterns': self.patterns(store, derived)}
+
+    def patterns(self, store, derived):
+        """Where the mistakes are, cut several ways. Counts only: with few rows a sentence would claim more than is known."""
+        ideas, areas = self.content.ideas, {a['id']: a['title'] for a in self.content.areas}
+        label = lambda i: ideas[i]['name'] if i in derived else None
+        # what got in the way, by area of the problem (a problem with ideas in two areas counts in both)
+        by_area = {}
+        for r in store.all("SELECT problem, cause FROM attempts WHERE cause IS NOT NULL AND cause != 'none'"):
+            problem = self.content.problems.get(r['problem'])
+            for area in sorted({ideas[i]['area'] for i in problem['ideas']}) if problem else []:
+                by_area.setdefault(area, {})[r['cause']] = by_area.setdefault(area, {}).get(r['cause'], 0) + 1
+        # chains: wrong answers, smaller questions opened, tutor asked while unfinished
+        chains = {}
+        for r in store.all('SELECT idea, COUNT(*) AS n FROM step_attempts WHERE correct=0 GROUP BY idea'):
+            chains.setdefault(r['idea'], {})['wrong'] = r['n']
+        for r in store.all("SELECT owner, COUNT(*) AS n FROM nudges WHERE scope='chain' GROUP BY owner"):
+            chains.setdefault(r['owner'], {})['nudges'] = r['n']
+        for r in store.all("SELECT owner, COUNT(*) AS n FROM tutor_uses WHERE scope='chain' AND gated=1 GROUP BY owner"):
+            chains.setdefault(r['owner'], {})['tutor'] = r['n']
+        hardest = sorted(((i, v) for i, v in chains.items() if i in ideas), key=lambda x: -(x[1].get('wrong', 0) + 2 * x[1].get('nudges', 0) + 2 * x[1].get('tutor', 0)))[:10]
+        # code: what the judge said, and how many tasks went through on the first try
+        verdicts = {r['verdict']: r['n'] for r in store.all('SELECT verdict, COUNT(*) AS n FROM task_tries GROUP BY verdict')}
+        accepted = store.all('SELECT tries FROM tasks_done')
+        broken = store.all('SELECT tries, nudges FROM breaks_done')
+        recog = {r['rating']: r['n'] for r in store.all('SELECT rating, COUNT(*) AS n FROM recognitions WHERE rating IS NOT NULL GROUP BY rating')}
+        sets = {s['id']: s['title'] for s in self.content.puzzles.get('sets', [])}
+        of_set = {p['id']: p.get('set') for p in self.content.puzzles.get('puzzles', [])}
+        puzzles = {}
+        for r in store.all('SELECT puzzle, wrong, shown FROM puzzles_done'):
+            row = puzzles.setdefault(of_set.get(r['puzzle']), {'done': 0, 'clean': 0, 'shown': 0})
+            row['done'] += 1; row['clean'] += int(not r['wrong'] and not r['shown']); row['shown'] += int(bool(r['shown']))
+        return {
+            'by_area': [{'area': areas.get(a, a), 'total': sum(c.values()), 'causes': [{'label': evidence.CAUSES[k], 'count': n} for k, n in sorted(c.items(), key=lambda x: -x[1])]} for a, c in sorted(by_area.items(), key=lambda x: -sum(x[1].values()))],
+            'chains': [{'id': i, 'name': label(i), 'area': areas.get(ideas[i]['area'], ''), 'track': ideas[i].get('track'), 'title': ideas[i].get('cses', {}).get('title'),
+                        'wrong': v.get('wrong', 0), 'nudges': v.get('nudges', 0), 'tutor': v.get('tutor', 0)} for i, v in hardest],
+            'code': {'verdicts': [{'verdict': k, 'count': verdicts[k]} for k in ('AC', 'WA', 'TLE', 'RE', 'MLE', 'CE') if verdicts.get(k)], 'accepted': len(accepted), 'first_try': sum(1 for r in accepted if r['tries'] == 1)},
+            'breaks': {'broken': len(broken), 'of': len(self.content.breaks), 'first_try': sum(1 for r in broken if r['tries'] == 1), 'with_questions': sum(1 for r in broken if r['nudges'])},
+            'recognise': [{'label': v, 'count': recog.get(k, 0)} for k, v in recognise.RATINGS.items()],
+            'puzzles': [{'set': sets.get(k, k or 'Other'), **v} for k, v in puzzles.items()],
+        }
 
     # ---------- routing ----------
     def get(self, path, query):
@@ -848,6 +889,8 @@ class Service:
                 return self.tool_list(store)
             if path == '/notebook':
                 return self.notebook(store)
+            if path == '/recognise':
+                return recognise.overview(self.content, store, self.derived(store))
             if path == '/breaks':
                 return {'items': breaks.listing(self.content, store)}
             if path.startswith('/break/'):
@@ -895,6 +938,11 @@ class Service:
                 store.set('notebook_title', text(data.get('title', ''), 'Title', 200))
                 store.set('notebook_extra', text(data.get('extra', ''), 'Notes', 100000))
                 return {'saved': True}
+            if path in ('/recognise/reveal', '/recognise/rate'):
+                if path.endswith('reveal'):
+                    self.no_contest(store)                   # what cracks a problem is help
+                getattr(recognise, path[11:])(self.content, store, data, ApiError)
+                return recognise.overview(self.content, store, self.derived(store))
             if path == '/settings':
                 return {'settings': self.save_settings(store, data)}
             if path in ('/contest/start', '/contest/refresh', '/contest/end', '/contest/label'):

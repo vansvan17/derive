@@ -430,3 +430,18 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
   .main-inner{max-width:none!important;margin:0!important}
   .notebook-sheet{border:0;border-radius:0;padding:0;column-count:var(--nb-columns,2)!important}
 }
+
+/* Recognise: one statement, one sentence, then the comparison */
+.recog-counts .evidence{margin-bottom:.75rem}
+.recog-row{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1rem;margin:.75rem 0 1rem}
+.recog-clock{font-family:var(--mono);font-size:.9375rem;color:var(--muted)}
+.recog-clock.is-over{color:var(--warning,#b45309);font-weight:700}
+.recog-compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 1.5rem;margin:1rem 0 1.25rem}
+.recog-compare>div{border:1px solid var(--line);border-radius:10px;padding:1rem 1.125rem;background:var(--canvas);min-width:0}
+.recog-compare h3{margin:0 0 .5rem}
+.recog-compare ol{padding-left:1.25rem;display:grid;gap:.5rem;margin:0 0 .75rem}
+.recog-guess{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+
+/* the record page: cross-cuts of where mistakes happen */
+.patterns-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1rem 1.5rem;margin-top:1.25rem}
+.patterns-grid:empty{display:none}

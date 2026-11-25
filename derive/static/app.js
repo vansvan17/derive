@@ -12,6 +12,7 @@ import {renderTools, renderTool} from './tools.js';
 import {renderCses} from './cses.js';
 import {renderBreaks, renderBreak} from './breaks.js';
 import {renderNotebook} from './notebook.js';
+import {renderRecognise} from './recognise.js';
 
 const state = {boot: null, token: 0, cleanups: [], root: null};
 
@@ -116,7 +117,7 @@ export function dialog({title, body = '', html = '', confirm = 'Continue', cance
 }
 
 /* ---------- Shell ---------- */
-const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['tools', 'settings', 'Toolbox'], ['cses', 'chain', 'CSES DP'], ['code', 'play', 'Code'], ['break', 'target', 'Break it'], ['contest', 'target', 'Contest'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
+const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['tools', 'settings', 'Toolbox'], ['cses', 'chain', 'CSES DP'], ['code', 'play', 'Code'], ['break', 'target', 'Break it'], ['recognise', 'target', 'Recognise'], ['contest', 'target', 'Contest'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
 const section = () => { const name = location.hash.replace(/^#\/?/, '').split('/')[0] || ''; return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name === 'task' ? 'code' : name === 'tool' || name === 'notebook' ? 'tools' : name; };
 function paintNav() {
   const host = document.querySelector('[data-nav-host]');
@@ -198,6 +199,7 @@ async function route() {
     else if (name === 'puzzles') await renderPuzzles(ctx, rest[0] || '');
     else if (name === 'tools') await renderTools(ctx);
     else if (name === 'notebook') await renderNotebook(ctx);
+    else if (name === 'recognise') await renderRecognise(ctx);
     else if (name === 'cses') await renderCses(ctx);
     else if (name === 'tool' && rest[0]) await renderTool(ctx, rest[0]);
     else if (name === 'code') await renderTasks(ctx);

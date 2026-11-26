@@ -213,6 +213,12 @@
    "title": "String Matching",
    "url": "https://cses.fi/problemset/task/1753",
    "checked": "2026-11-26"
+  },
+  {
+   "site": "CSES",
+   "title": "Palindrome Queries",
+   "url": "https://cses.fi/problemset/task/2420",
+   "checked": "2026-11-27"
   }
  ],
  "bridges": [
@@ -245,6 +251,18 @@
    "title": "Nim Game I",
    "url": "https://cses.fi/problemset/task/1730",
    "checked": "2026-11-26"
+  },
+  {
+   "site": "CSES",
+   "title": "Nim Game II",
+   "url": "https://cses.fi/problemset/task/1098",
+   "checked": "2026-11-27"
+  },
+  {
+   "site": "CSES",
+   "title": "Stair Game",
+   "url": "https://cses.fi/problemset/task/1099",
+   "checked": "2026-11-27"
   }
  ],
  "win-lose-states": [
@@ -285,6 +303,168 @@
    "title": "Sliding Window Minimum",
    "url": "https://cses.fi/problemset/task/3221",
    "checked": "2026-11-26"
+  }
+ ],
+ "harmonic-multiples": [
+  {
+   "site": "CSES",
+   "title": "Common Divisors",
+   "url": "https://cses.fi/problemset/task/1081",
+   "checked": "2026-11-27"
+  }
+ ],
+ "floor-blocks": [
+  {
+   "site": "CSES",
+   "title": "Sum of Divisors",
+   "url": "https://cses.fi/problemset/task/1082",
+   "checked": "2026-11-27"
+  }
+ ],
+ "gcd-counting": [
+  {
+   "site": "CSES",
+   "title": "Counting Coprime Pairs",
+   "url": "https://cses.fi/problemset/task/2417",
+   "checked": "2026-11-27"
+  }
+ ],
+ "inclusion-exclusion": [
+  {
+   "site": "CSES",
+   "title": "Prime Multiples",
+   "url": "https://cses.fi/problemset/task/2185",
+   "checked": "2026-11-27"
+  },
+  {
+   "site": "CSES",
+   "title": "Christmas Party",
+   "url": "https://cses.fi/problemset/task/1717",
+   "checked": "2026-11-27"
+  }
+ ],
+ "lattice-paths": [
+  {
+   "site": "CSES",
+   "title": "Bracket Sequences I",
+   "url": "https://cses.fi/problemset/task/2064",
+   "checked": "2026-11-27"
+  },
+  {
+   "site": "CSES",
+   "title": "Grid Paths II",
+   "url": "https://cses.fi/problemset/task/1078",
+   "checked": "2026-11-27"
+  }
+ ],
+ "stars-bars": [
+  {
+   "site": "CSES",
+   "title": "Distributing Apples",
+   "url": "https://cses.fi/problemset/task/1716",
+   "checked": "2026-11-27"
+  }
+ ],
+ "pal-centres": [
+  {
+   "site": "CSES",
+   "title": "Longest Palindrome",
+   "url": "https://cses.fi/problemset/task/1111",
+   "checked": "2026-11-27"
+  }
+ ],
+ "pal-parity-mask": [
+  {
+   "site": "CSES",
+   "title": "Palindrome Reorder",
+   "url": "https://cses.fi/problemset/task/1755",
+   "checked": "2026-11-27"
+  }
+ ],
+ "graph-walk": [
+  {
+   "site": "CSES",
+   "title": "Counting Rooms",
+   "url": "https://cses.fi/problemset/task/1192",
+   "checked": "2026-11-27"
+  },
+  {
+   "site": "CSES",
+   "title": "Message Route",
+   "url": "https://cses.fi/problemset/task/1667",
+   "checked": "2026-11-27"
+  }
+ ],
+ "stays-ahead": [
+  {
+   "site": "CSES",
+   "title": "Movie Festival",
+   "url": "https://cses.fi/problemset/task/1629",
+   "checked": "2026-11-27"
+  }
+ ],
+ "prefix-pigeonhole": [
+  {
+   "site": "CSES",
+   "title": "Subarray Divisibility",
+   "url": "https://cses.fi/problemset/task/1662",
+   "checked": "2026-11-27"
+  }
+ ],
+ "state-graph": [
+  {
+   "site": "CSES",
+   "title": "Swap Game",
+   "url": "https://cses.fi/problemset/task/1670",
+   "checked": "2026-11-27"
+  }
+ ],
+ "interval-dp": [
+  {
+   "site": "CSES",
+   "title": "Empty String",
+   "url": "https://cses.fi/problemset/task/1080",
+   "checked": "2026-11-27"
+  }
+ ],
+ "prefix-xor": [
+  {
+   "site": "CSES",
+   "title": "Maximum Xor Subarray",
+   "url": "https://cses.fi/problemset/task/1655",
+   "checked": "2026-11-27"
+  }
+ ],
+ "bits-independent": [
+  {
+   "site": "CSES",
+   "title": "Counting Bits",
+   "url": "https://cses.fi/problemset/task/1146",
+   "checked": "2026-11-27"
+  }
+ ],
+ "multi-source": [
+  {
+   "site": "CSES",
+   "title": "Monsters",
+   "url": "https://cses.fi/problemset/task/1194",
+   "checked": "2026-11-27"
+  }
+ ],
+ "tree-dp": [
+  {
+   "site": "CSES",
+   "title": "Tree Distances II",
+   "url": "https://cses.fi/problemset/task/1133",
+   "checked": "2026-11-27"
+  }
+ ],
+ "two-pointers": [
+  {
+   "site": "CSES",
+   "title": "Playlist",
+   "url": "https://cses.fi/problemset/task/1141",
+   "checked": "2026-11-27"
   }
  ]
 }

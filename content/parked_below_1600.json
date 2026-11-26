@@ -25,6 +25,31 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2134B",
+  "site": "Codeforces",
+  "contest": 2134,
+  "index": "B",
+  "title": "Add 0 or K",
+  "rating": 1200,
+  "url": "https://codeforces.com/contest/2134/problem/B",
+  "editorial": "https://codeforces.com/blog/entry/145832",
+  "ideas": [
+   "residues",
+   "mult-permutes"
+  ],
+  "observations": [
+   "Each element ends as a_i + k * c_i with 0 <= c_i <= k, so it is enough to find one g > 1 and suitable c_i making every element a multiple of g.",
+   "Take g = k + 1 and c_i = a_i mod (k + 1): since k = -1 (mod k + 1), a_i + k * c_i = a_i - a_i = 0.",
+   "Another way: take the smallest g that shares no factor with k (it is at most 29). Then a_i, a_i + k, a_i + 2k, ... run through every remainder modulo g, so one of the first g of them is a multiple of g."
+  ],
+  "nudges": [
+   "You do not need to know the gcd. What is enough to guarantee it exceeds 1?",
+   "Modulo which number is adding k the same as subtracting 1?",
+   "If g shares no factor with k, what remainders do a, a + k, a + 2k, ... take modulo g?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2135A",
   "site": "Codeforces",
   "contest": 2135,
@@ -95,6 +120,30 @@
    "If you decide that x must stay divisible by a prime p throughout, which piles can you empty?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2091E",
+  "site": "Codeforces",
+  "contest": 2091,
+  "index": "E",
+  "title": "Interesting Ratio",
+  "rating": 1300,
+  "url": "https://codeforces.com/contest/2091/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/141047",
+  "ideas": [
+   "sieve"
+  ],
+  "observations": [
+   "Write a = g x and b = g y with g the gcd; then lcm / gcd = x y.",
+   "x y is prime only if one factor is 1 and the other is a prime; a < b forces x = 1. So b = a * p for a prime p.",
+   "For each prime p there are n // p choices of a. Sum n // p over the primes up to n, found with a sieve."
+  ],
+  "nudges": [
+   "Divide both numbers by their gcd. What does lcm / gcd become?",
+   "When is a product of two positive integers a prime?",
+   "For one fixed prime, how many pairs are there?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2160C",
@@ -171,6 +220,30 @@
    "Which group's value appears in no shadow at all?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2104D",
+  "site": "Codeforces",
+  "contest": 2104,
+  "index": "D",
+  "title": "Array and GCD",
+  "rating": 1400,
+  "url": "https://codeforces.com/contest/2104/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/142472",
+  "ideas": [
+   "sieve"
+  ],
+  "observations": [
+   "The coin rule only says that the final sum may not exceed the starting sum.",
+   "Any ideal array can be pushed down without losing the property: replace each element by one of its prime factors, then replace any prime by a smaller unused one. So the cheapest ideal array of length k is the first k primes.",
+   "Keep the k largest elements and compare their sum with the sum of the first k primes, for every k. That needs about 4 * 10^5 primes, so sieve up to roughly 6 * 10^6."
+  ],
+  "nudges": [
+   "Forget the individual moves: what single quantity do the two operations constrain?",
+   "Among all arrays of length k with pairwise coprime elements >= 2, which has the smallest sum?",
+   "How do you get the first 400000 primes quickly?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2126E",
@@ -297,6 +370,79 @@
    "Which small pieces inside a graph already force a third colouring, and which connected graphs contain none of them?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2057C",
+  "site": "Codeforces",
+  "contest": 2057,
+  "index": "C",
+  "title": "Trip to the Olympiad",
+  "rating": 1500,
+  "url": "https://codeforces.com/contest/2057/problem/C",
+  "editorial": "https://codeforces.com/blog/entry/138119",
+  "ideas": [
+   "bits-independent"
+  ],
+  "observations": [
+   "Look at one bit: if all three numbers agree on it, it adds nothing; if one or two of them have it, it adds 2 * 2^i.",
+   "Let k be the highest bit where l and r differ. Higher bits are the same for everyone, so the total is at most 2 * (2^0 + ... + 2^k).",
+   "Take x = the one multiple of 2^k in the range and y = x - 1: they differ in every bit from 0 to k, so any third number reaches the bound."
+  ],
+  "nudges": [
+   "For a single bit position, what are the possible contributions to the sum?",
+   "Which bits can never contribute, whatever three numbers you pick from the range?",
+   "Can you find two numbers in the range that differ in every remaining bit?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2115A",
+  "site": "Codeforces",
+  "contest": 2115,
+  "index": "A",
+  "title": "Gellyfish and Flaming Peony",
+  "rating": 1500,
+  "url": "https://codeforces.com/contest/2115/problem/A",
+  "editorial": "https://codeforces.com/blog/entry/143418",
+  "ideas": [
+   "euclid",
+   "dp-state"
+  ],
+  "observations": [
+   "Every element only ever becomes a divisor of what it was, and the common value at the end divides everything, so the final value is g, the gcd of the whole array.",
+   "Once one element equals g, each other element needs exactly one operation with it. If g is already present the answer is the number of elements different from g.",
+   "Otherwise find the fewest operations that turn some element into g: f(x) = fewest operations to hold the value x, and from x one operation with a_i reaches gcd(x, a_i). Values are at most 5000, so prepare the whole gcd table with gcd(x, y) = gcd(y, x mod y)."
+  ],
+  "nudges": [
+   "What must all the elements be equal to at the end?",
+   "Suppose one element already has that value. How many more operations are needed?",
+   "If no element has it yet, think of the values an element can hold as places, and an operation as a step between places. What is being asked?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2200E",
+  "site": "Codeforces",
+  "contest": 2200,
+  "index": "E",
+  "title": "Divisive Battle",
+  "rating": 1500,
+  "url": "https://codeforces.com/contest/2200/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/151625",
+  "ideas": [
+   "sieve"
+  ],
+  "observations": [
+   "If the array is already non-decreasing Bob has won. Otherwise, if some element has two different prime factors p < q, Alice splits it into x / p followed by p: a multiple of q now stands before the smaller prime p, and no later move can repair that.",
+   "If every element is 1 or a power of one prime, replace each by that prime (or 1). If this array is non-decreasing Bob wins, because that is what everything ends as; otherwise Alice wins with one split.",
+   "So the whole game is decided by the prime factors of each element: a table of smallest prime factors gives them."
+  ],
+  "nudges": [
+   "On which numbers can no move be made at all?",
+   "Which single move by Alice creates a disorder that can never be undone?",
+   "If no element allows that move, what does the array look like when nobody can move any more?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2222C",

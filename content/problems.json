@@ -74,6 +74,31 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-2125D",
+  "site": "Codeforces",
+  "contest": 2125,
+  "index": "D",
+  "title": "Segments Covering",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2125/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/144998",
+  "ideas": [
+   "dp-state",
+   "mod-inverse"
+  ],
+  "observations": [
+   "Let dp(x) be the probability that cells 1..x are each covered exactly once and no segment reaches beyond x. dp(0) is the product over all segments of the probability that it is absent.",
+   "To get dp(x), take each segment i ending at x: it contributes dp(l_i - 1) times p_i / q_i, divided by (q_i - p_i) / q_i because dp(l_i - 1) had already counted segment i as absent.",
+   "All of this is arithmetic modulo a prime, so each division is a multiplication by a modular inverse."
+  ],
+  "nudges": [
+   "Reading the strip from left to right, what do you need to know about the cells so far?",
+   "Which segment covers cell x, if everything up to x is covered exactly once? What does choosing it force about the others?",
+   "Your state assumed some segment was absent and now you want it present. How do you swap one factor of a product for another, modulo a prime?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2167G",
   "site": "Codeforces",
   "contest": 2167,
@@ -173,6 +198,31 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-2086D",
+  "site": "Codeforces",
+  "contest": 2086,
+  "index": "D",
+  "title": "Even String",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2086/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/141425",
+  "ideas": [
+   "knapsack",
+   "ncr-mod"
+  ],
+  "observations": [
+   "All copies of a letter lie on positions of one parity, so the letters split into a group for the odd positions and a group for the even ones, and the odd group's counts must add up to the number of odd positions.",
+   "The number of valid splits is a subset-sum count over the 26 letter counts.",
+   "For any valid split the number of strings is odd! * even! divided by the product of all c_i!, the same for every split: multiply the two. Factorials and their inverses are prepared modulo the prime."
+  ],
+  "nudges": [
+   "What does the condition say about where the copies of one letter can stand?",
+   "Once you know which letters go to the odd positions, how many strings are there? Does it depend on which letters they are?",
+   "Counting the ways to pick letters whose counts add up to a target: which standard table is that?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2112D",
   "site": "Codeforces",
   "contest": 2112,
@@ -198,6 +248,30 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-2118D1",
+  "site": "Codeforces",
+  "contest": 2118,
+  "index": "D1",
+  "title": "Red Light, Green Light (Easy version)",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2118/problem/D1",
+  "editorial": "https://codeforces.com/blog/entry/143702",
+  "ideas": [
+   "state-graph"
+  ],
+  "observations": [
+   "What happens next depends only on which traffic light you have just reached, the direction you face, and the time modulo k.",
+   "A given light can only be met from a given side at one time modulo k, so there are at most 2n situations: (light, direction).",
+   "Simulate from light to light, finding the next one you meet on red by a scan; if a situation repeats you loop for ever, otherwise you leave the strip."
+  ],
+  "nudges": [
+   "Between two turns nothing interesting happens. What are the only moments worth recording?",
+   "How many different situations can there be at those moments?",
+   "With finitely many situations and a fixed rule for the next one, what are the only two ways a walk can end?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2123F",
   "site": "Codeforces",
   "contest": 2123,
@@ -220,6 +294,105 @@
    "How can you split 2..n into groups, each sharing a prime, so that as few groups as possible have size one?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2147D",
+  "site": "Codeforces",
+  "contest": 2147,
+  "index": "D",
+  "title": "Game on Array",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2147/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/146633",
+  "ideas": [
+   "mirror-strategy",
+   "matching-bounds"
+  ],
+  "observations": [
+   "Choosing an even x is never profitable: the opponent answers with x - 1 and collects at least as many points. Choosing an odd x cannot always be answered this way, because 0 cannot be chosen.",
+   "So only the values that are odd matter. Sort their frequencies f_0 >= f_1 >= ...; the players in effect take them alternately from the largest.",
+   "The first player's lead is f_0 - f_1 + f_2 - ...; the copying reply shows neither player can do better, and the total of all points is the sum of the array."
+  ],
+  "nudges": [
+   "If your opponent picks an even value x, what reply gives you at least as much as they just got?",
+   "Why does that reply fail for some values?",
+   "Once only the 'safe' picks matter, in what order would two greedy players take them?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2152D",
+  "site": "Codeforces",
+  "contest": 2152,
+  "index": "D",
+  "title": "Division Versus Addition",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2152/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/146988",
+  "ideas": [
+   "mirror-strategy",
+   "matching-bounds",
+   "prefix-sums"
+  ],
+  "observations": [
+   "One number alone, with the adder always answering on it, behaves like x -> floor((x + 1) / 2): that takes floor(log2 x) halvings for a power of two and one more otherwise.",
+   "Numbers of the form 2^k + 1 are the contested ones: they cost the extra move only if the adder touches them first. Whoever is answered in kind on another such number gets half of them, so the value is the sum of floor(log2 a_i), plus the count of other non-powers, plus half the count of the 2^k + 1 numbers rounded down.",
+   "Both players reach this with a copying strategy, so it is the value. Each query is three prefix sums."
+  ],
+  "nudges": [
+   "Play the game on a single number. How many halvings does it take if every halving is answered by +1?",
+   "For which starting values does it matter who touches the number first?",
+   "If your opponent grabs one of the contested numbers, what is your best reply?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2203D",
+  "site": "Codeforces",
+  "contest": 2203,
+  "index": "D",
+  "title": "Divisibility Game",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2203/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/151612",
+  "ideas": [
+   "harmonic-multiples"
+  ],
+  "observations": [
+   "Each number of b is one of three kinds: only Alice can remove it (every element of a divides it), only Bob can (no element of a divides it), or either can. Both players spend the shared numbers first, so the winner depends only on the three counts.",
+   "The kind of y is decided by c(y) = how many elements of a divide y: it is n, 0, or something in between.",
+   "Compute c for every value at once: for each i, add the number of copies of i in a to every multiple of i. That costs (n + m)(1 + 1/2 + 1/3 + ...) steps."
+  ],
+  "nudges": [
+   "Which numbers of b can only one of the players ever remove?",
+   "For one y, what single count about the array a tells you which kind it is?",
+   "Instead of finding the divisors of each y, can each value of a announce itself to the numbers it divides? How many steps is that in total?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2205D",
+  "site": "Codeforces",
+  "contest": 2205,
+  "index": "D",
+  "title": "Simons and Beating Peaks",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2205/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/151310",
+  "ideas": [
+   "extremal"
+  ],
+  "observations": [
+   "Fewest operations means the longest array left at the end.",
+   "The maximum can never be removed, and in the end everything on one of its two sides is gone. The surviving side is the same problem again, with its own maximum.",
+   "So a final array is a chain: the maximum, then the maximum of one side, and so on. In the tree where each block hangs under its maximum, that is a path from the root; the answer is n minus the largest depth."
+  ],
+  "nudges": [
+   "Which element can certainly never be deleted?",
+   "What must eventually happen to the elements on its left and on its right?",
+   "After choosing a side, what does the remaining question look like?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2229D",
@@ -373,6 +546,31 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2069D",
+  "site": "Codeforces",
+  "contest": 2069,
+  "index": "D",
+  "title": "Palindrome Shuffle",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2069/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/139774",
+  "ideas": [
+   "search-answer",
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "Strip equal characters from both ends while they match. In what is left the two ends differ, so the shuffled block must be a prefix or a suffix (solve for a prefix, then for the reversed string).",
+   "If shuffling a prefix of length m works, so does length m + 1: binary search m.",
+   "A prefix works exactly when every mismatched mirror pair has at least one end inside it, and for each letter the number of pairs that an untouched end forces to be that letter is at most half of that letter's count."
+  ],
+  "nudges": [
+   "Which characters is there never a reason to touch?",
+   "After those are removed, where can the shuffled block lie?",
+   "For a fixed prefix, which mirror pairs have their letter decided already, and what must be true about the letter counts?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2091F",
   "site": "Codeforces",
   "contest": 2091,
@@ -396,6 +594,31 @@
    "The next holds form what kind of set of columns?"
   ],
   "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2101B",
+  "site": "Codeforces",
+  "contest": 2101,
+  "index": "B",
+  "title": "Quartet Swapping",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2101/problem/B",
+  "editorial": "https://codeforces.com/blog/entry/142788",
+  "ideas": [
+   "position-parity",
+   "permutation-parity"
+  ],
+  "observations": [
+   "Every operation moves elements by exactly two places, so an element on an odd position stays on odd positions for ever, and likewise for even.",
+   "The operation is two swaps, so the parity of the number of inversions never changes either.",
+   "Within each parity class the elements can be arranged freely until only the last few are left: sort both classes, and the parity of inversions then forces the order of the final elements."
+  ],
+  "nudges": [
+   "Can an element ever get from an odd index to an even one?",
+   "The operation is how many swaps? What does that keep fixed?",
+   "If both classes could be sorted completely, what single fact about the starting permutation might forbid it, and what is the smallest repair?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2117F",
@@ -574,6 +797,80 @@
    "What short summary of a prefix product is enough to tell whether one more factor makes it a square?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2059D",
+  "site": "Codeforces",
+  "contest": 2059,
+  "index": "D",
+  "title": "Graph and Graph",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2059/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/139094",
+  "ideas": [
+   "state-graph",
+   "shortest-paths"
+  ],
+  "observations": [
+   "The total stays finite only if both tokens reach the same vertex number v where some edge (v, u) is present in both graphs: from then on they go back and forth at cost 0.",
+   "Make a graph whose vertices are the pairs (v1, v2); a move goes to (u1, u2) and costs |u1 - u2|. It has n^2 vertices and at most m1 * m2 edges.",
+   "Run a shortest-path search from (s1, s2) and take the smallest distance to a good pair (v, v)."
+  ],
+  "nudges": [
+   "After the tokens have moved for a while, what would let them continue for ever at no cost?",
+   "What do you need to know about the present moment to decide everything about the future? How many such situations are there?",
+   "Once the situations are vertices and the moves are edges with costs, what standard question is being asked?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2094H",
+  "site": "Codeforces",
+  "contest": 2094,
+  "index": "H",
+  "title": "La Vaca Saturno Saturnita",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2094/problem/H",
+  "editorial": "https://codeforces.com/blog/entry/141796",
+  "ideas": [
+   "divisor-count",
+   "harmonic-multiples"
+  ],
+  "observations": [
+   "k changes at position i only when a[i] divides the current k, and after that k is no longer divisible by that value: each divisor of the starting k acts at most once.",
+   "So k changes at most d(k) times, which is small for k up to 10^5. For each divisor, find its first position at or after l with a binary search in that value's list of positions.",
+   "Sort those positions, walk through them, and add (current k) times (length of the stretch) between consecutive changes. The divisors of every number can be prepared by pushing i into the lists of its multiples."
+  ],
+  "nudges": [
+   "What must a[i] be for k to change at position i?",
+   "Can the same value of a[i] change k twice within one query?",
+   "How many positions can matter in one query, and how do you find each of them without scanning the range?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2109D",
+  "site": "Codeforces",
+  "contest": 2109,
+  "index": "D",
+  "title": "D/D/D",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2109/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/142960",
+  "ideas": [
+   "state-graph"
+  ],
+  "observations": [
+   "A walk can always be made two edges longer by stepping to a neighbour and back, so for each vertex only two numbers matter: the shortest walk of even length and the shortest of odd length.",
+   "Those come from one breadth-first search over the pairs (vertex, parity of the length so far).",
+   "Use every element of A (total S) if the parity fits; to get the other parity, leave out the smallest odd element. Vertex i is reachable exactly when the needed distance is at most the total used."
+  ],
+  "nudges": [
+   "If a walk of length d reaches a vertex, which other lengths certainly reach it too?",
+   "What should a vertex of your search remember besides where you are?",
+   "What is the cheapest way to change the parity of the total length you walk?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2117G",
@@ -777,6 +1074,30 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2085D",
+  "site": "Codeforces",
+  "contest": 2085,
+  "index": "D",
+  "title": "Serval and Kaitenzushi Buffet",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2085/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/140933",
+  "ideas": [
+   "regret-greedy"
+  ],
+  "observations": [
+   "A plate taken needs k later minutes of eating, so the last plate must be taken by minute n - (k + 1) + 1, the one before it by minute n - 2(k + 1) + 1, and so on.",
+   "These deadlines are the only constraints: when the i-th deadline from the end arrives, one more plate has to be chosen, and it may be any plate that has already gone by.",
+   "Go through the minutes in order, keeping the plates not taken in a heap; each time a deadline minute is reached, take the most delicious plate seen so far."
+  ],
+  "nudges": [
+   "How late can the last plate be taken? The one before it?",
+   "Do you need to decide which plates to take at the moment they pass?",
+   "At a deadline, which of the plates that have gone by should you commit to, and what structure hands it to you?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2096D",
   "site": "Codeforces",
   "contest": 2096,
@@ -827,6 +1148,30 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-2154C2",
+  "site": "Codeforces",
+  "contest": 2154,
+  "index": "C2",
+  "title": "No Cost Too Great (Hard Version)",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2154/problem/C2",
+  "editorial": "https://codeforces.com/blog/entry/147471",
+  "ideas": [
+   "sieve"
+  ],
+  "observations": [
+   "Any two elements can both be made even with at most one operation each, so the answer is at most the two smallest costs added together.",
+   "So raising two different elements by more than one each is never needed. Either at most one operation is made on each of two elements, or many operations go on a single element, and then that element may as well be the cheapest one.",
+   "Both cases need the prime factors of every a_i and a_i + 1: a table of smallest prime factors gives them quickly. For the cheapest element, try each prime that divides some other element and count the steps to the next multiple."
+  ],
+  "nudges": [
+   "What cost can you always achieve, whatever the numbers are?",
+   "If k >= 2 operations are spent on one element, which element should it be?",
+   "You need to know, for many numbers up to 2 * 10^5, which primes divide them. How do you get that for all of them at once?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2158D",
   "site": "Codeforces",
   "contest": 2158,
@@ -851,6 +1196,30 @@
    "You have a block of equal characters and the next character differs. What single operation fixes that?"
   ],
   "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2171G",
+  "site": "Codeforces",
+  "contest": 2171,
+  "index": "G",
+  "title": "Sakura Adachi and Optimal Sequences",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2171/problem/G",
+  "editorial": "https://codeforces.com/blog/entry/148567",
+  "ideas": [
+   "ncr-mod"
+  ],
+  "observations": [
+   "Fix the number k of doublings. An increment made before j of the remaining doublings adds 2^j at the end, so element i needs floor(b_i / 2^k) - a_i increments at the start and then one for each set bit of b_i below bit k.",
+   "A doubling is worth more than any increment, so k is as large as a_i * 2^k <= b_i allows for every i.",
+   "Between two doublings the increments can come in any order: multiply together, for each gap, the multinomial coefficient of the increments made there. Only the first gap has counts above 1."
+  ],
+  "nudges": [
+   "If you add 1 and afterwards double j times, how much have you added to the final value?",
+   "Why should the number of doublings be as large as possible?",
+   "Within one gap between doublings, what distinguishes two different sequences?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2201C",
@@ -957,6 +1326,30 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2074G",
+  "site": "Codeforces",
+  "contest": 2074,
+  "index": "G",
+  "title": "Game With Triangles: Season 2",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/2074/problem/G",
+  "editorial": "https://codeforces.com/blog/entry/140540",
+  "ideas": [
+   "interval-dp"
+  ],
+  "observations": [
+   "Cut the polygon open into a line of points. Triangles that do not overlap behave like nested or side-by-side brackets, so the best score for a block of consecutive points depends only on that block.",
+   "For a block [L, R] either its two ends belong to one triangle (L, i, R), leaving the blocks strictly between them, or the block splits into two neighbouring blocks.",
+   "The obvious version tries all three corners inside the block, which is far too slow; pinning two corners to the ends and allowing a plain split loses nothing, because a triangle not touching the ends appears in a smaller block."
+  ],
+  "nudges": [
+   "What does 'no common area' mean for the index ranges of two triangles?",
+   "What smaller pieces of the same kind does one triangle leave behind?",
+   "Do you really have to try all three corners freely? Where must a triangle's outer corners be, in the smallest block that contains it?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2092E",
   "site": "Codeforces",
   "contest": 2092,
@@ -980,6 +1373,30 @@
    "If one of those cells is still unpainted, how do the colourings with an even count compare in number with those with an odd count?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2123G",
+  "site": "Codeforces",
+  "contest": 2123,
+  "index": "G",
+  "title": "Modular Sorting",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/2123/problem/G",
+  "editorial": "https://codeforces.com/blog/entry/144363",
+  "ideas": [
+   "bezout"
+  ],
+  "observations": [
+   "Adding k repeatedly modulo m moves a value exactly through the numbers below m that agree with it modulo g = gcd(k, m): the remainder modulo g cannot change, and every such number is reached.",
+   "Greedy: make each element the smallest allowed value that is at least the previous one. The step from a[i-1] to a[i] is then (a[i] - a[i-1]) mod g, so the last value is the sum of these, and the answer is yes exactly when that sum is below m.",
+   "g is always a divisor of m, and m has few divisors: keep that sum for every divisor of m and repair it in the two places an assignment touches."
+  ],
+  "nudges": [
+   "Starting from x, which values below m can x + k + k + ... (mod m) reach?",
+   "If every element is made as small as allowed, how much bigger than its left neighbour is each one?",
+   "How many different values can gcd(k, m) take over all k?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2132F",
@@ -1134,6 +1551,31 @@
    "Reading the bits of a and c from the top, what must you carry from one bit position to the next to check that equation and the bound c <= n?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2060F",
+  "site": "Codeforces",
+  "contest": 2060,
+  "index": "F",
+  "title": "Multiplicative Arrays",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/2060/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/138342",
+  "ideas": [
+   "harmonic-multiples",
+   "dp-state"
+  ],
+  "observations": [
+   "Most entries of a long array are 1. An array with product x <= 10^5 has at most 16 entries different from 1, since 2^17 > 10^5.",
+   "Let dp[x][j] count arrays of exactly j entries, none equal to 1, with product x: dp[x][j] is the sum of dp[x / d][j - 1] over divisors d > 1 of x. Looping over multiples makes this about k log k work per value of j.",
+   "An array of length i with j such entries is a choice of their positions, C(i, j) ways. Summing over all lengths 1..n gives C(n + 1, j + 1), so the answer for x is the sum over j of C(n + 1, j + 1) * dp[x][j]."
+  ],
+  "nudges": [
+   "n can be 9 * 10^8. What are almost all the entries of such an array?",
+   "How many entries bigger than 1 can an array with product at most 10^5 have?",
+   "Once the entries bigger than 1 are fixed in order, how many arrays of length i contain them? And over all lengths up to n?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2143D2",

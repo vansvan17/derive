@@ -757,6 +757,43 @@ class App(unittest.TestCase):
         self.assertEqual([l['lesson'] for l in page['lessons']], ['Read everything in the first half hour.'])
         self.assertEqual([(u['label'], u['url']) for u in page['upsolve']], [(f'Mixed set {run["id"]} · {letter["Middle"]}', 'https://codeforces.com/problemset/problem/52/C')])
 
+    # ---- stars and the revise page ----
+    def test_a_star_keeps_a_card_whose_back_exists_only_for_finished_things(self):
+        self.assertEqual(self.get('/bootstrap')['stars'], [])
+        self.assertEqual(self.post('/star', {'kind': 'step', 'ref': 'residues/sum'})[0], 404)           # the second question has not been seen yet
+        self.assertEqual(self.post('/star', {'kind': 'luck', 'ref': 'x'})[0], 400)
+        self.assertEqual(self.post('/star', {'kind': 'problem', 'ref': 'cf-1-a'})[0], 404)              # a problem that has not come up
+        self.assertEqual(self.post('/star', {'kind': 'step', 'ref': 'residues/clock'})[1]['on'], True)
+        self.assertEqual(self.get('/bootstrap')['stars'], ['step:residues/clock'])
+        chain = json.loads((self.root / 'content/chains/residues.json').read_text())
+        card = self.get('/revise')['cards'][0]
+        self.assertEqual((card['kind'], card['front'], card['back'], card['finished']), ('step', chain['steps'][0]['prompt'], None, False))
+        self.assertNotIn(chain['steps'][0]['showed'], json.dumps(card))                                  # nothing of the answer leaks
+        self.assertNotIn(chain['reveal']['name'], json.dumps(card))                                      # nor the name of an idea not yet derived
+        self.post('/chain/answer', {'idea': 'residues', 'step': 'clock', 'answer': '0'})
+        back = self.get('/revise')['cards'][0]['back']
+        self.assertEqual(back, [{'label': 'Your answer', 'text': '0'}, {'label': 'What it showed', 'text': chain['steps'][0]['showed']}])
+        with self.service.store() as store:
+            self.assertEqual(store.one('SELECT COUNT(*) FROM nudges')[0], 0)                             # starring is not help
+        # a puzzle, a task, a Toolbox page and notes; then a contest hides every back
+        for kind, ref in (('puzzle', 'i-sum'), ('task', 'equal-pairs'), ('chain-notes', 'residues')):
+            self.assertEqual(self.post('/star', {'kind': kind, 'ref': ref})[0], 200, kind)
+        self.post('/chain/notes', {'idea': 'residues', 'notes': 'remainders wrap'})
+        cards = {c['kind']: c for c in self.get('/revise')['cards']}
+        self.assertEqual((cards['chain-notes']['note'], cards['task']['back'], cards['puzzle']['back']), ('remainders wrap', None, None))
+        listing = {'status': 'OK', 'result': {'problems': [{'contestId': 7, 'index': 'A', 'name': 'One'}]}}
+        self.service.fetch = lambda url: listing if 'problemset.problems' in url else {'status': 'OK', 'result': []}
+        run = self.post('/contest/start', {'contest': 7, 'minutes': 60, 'handles': ['ann']})[1]
+        locked = self.get('/revise')
+        self.assertTrue(locked['locked'] and all(c['back'] is None for c in locked['cards']))
+        self.post('/contest/end', {'run': run['id']})
+        self.assertTrue(next(c for c in self.get('/revise')['cards'] if c['kind'] == 'step')['back'])
+        with self.service.store() as store:                                                              # a star whose target has gone is skipped, not a crash
+            store.run("INSERT INTO stars VALUES('puzzle','no-such-puzzle','2026-01-01')")
+        self.assertEqual(len(self.get('/revise')['cards']), 4)
+        self.assertEqual(self.post('/star', {'kind': 'step', 'ref': 'residues/clock'})[1]['on'], False)
+        self.assertEqual(len(self.get('/revise')['cards']), 3)
+
     # ---- real problems ----
     def open(self):
         return self.post('/problem/next')[1]['id']

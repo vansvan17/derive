@@ -42,7 +42,7 @@ export async function renderChain(ctx, idea) {
   let feedback = null;      // {kind: 'wrong'|'unreadable', text} for the current step
 
   function doneStep(step, index) {
-    return `<li class="step is-done"><div class="step-num" aria-hidden="true">${icon('check')}</div><div class="step-body"><div class="step-prompt">${markdown(step.prompt)}</div>
+    return `<li class="step is-done"><div class="step-num" aria-hidden="true">${icon('check')}</div><div class="step-body">${ctx.star('step', idea + '/' + step.id)}<div class="step-prompt">${markdown(step.prompt)}</div>
       ${step.kind === 'proof' ? `<p class="step-answer"><span class="muted">Why it is true${step.answer === '(proof accepted)' ? ' (your own proof was accepted)' : ''}:</span></p><ol class="argument">${(step.argument || []).map(c => `<li>${inline(c)}</li>`).join('')}</ol>`
         : `<p class="step-answer"><span class="muted">${step.kind === 'code' ? 'Your program:' : 'Your answer:'}</span> ${step.kind === 'choice' ? inline(step.options[Number(step.answer)] ?? step.answer) : e(step.answer)}</p>`}
       <p class="step-showed">${inline(step.showed)}</p></div></li>`;
@@ -66,7 +66,7 @@ export async function renderChain(ctx, idea) {
   function scratch() {
     let open = true;
     try { open = localStorage.getItem('derive-scratch') !== 'closed'; } catch { /* stays open */ }
-    return `<details class="scratch" data-scratch ${open ? 'open' : ''}><summary>Scratch pad <span class="muted small" data-scratch-status></span></summary>
+    return `<details class="scratch" data-scratch ${open ? 'open' : ''}><summary>Scratch pad <span class="muted small" data-scratch-status></span>${ctx.star('chain-notes', idea)}</summary>
       <textarea class="input notes" data-scratch-text rows="6" spellcheck="false" aria-label="Scratch pad" placeholder="Small cases, a table, a guess. Not checked, only saved.">${e(notes)}</textarea></details>`;
   }
   /* A code pad for the chain: a small editor to compute something instead of doing it by hand
@@ -119,11 +119,11 @@ export async function renderChain(ctx, idea) {
   }
   function currentStep(step, index) {
     const more = step.nudges.length < step.nudges_total;
-    if (step.kind === 'code') return `<li class="step is-current step-code" data-current><div class="step-num" aria-hidden="true">${index + 1}</div><div class="step-body">${step.hard ? '<p class="eyebrow">Hard part · write it</p>' : '<p class="eyebrow">Write it</p>'}<div class="step-prompt">${markdown(step.prompt)}</div>
+    if (step.kind === 'code') return `<li class="step is-current step-code" data-current><div class="step-num" aria-hidden="true">${index + 1}</div><div class="step-body">${ctx.star('step', idea + '/' + step.id)}${step.hard ? '<p class="eyebrow">Hard part · write it</p>' : '<p class="eyebrow">Write it</p>'}<div class="step-prompt">${markdown(step.prompt)}</div>
       ${step.nudges.length ? `<ol class="nudges">${step.nudges.map(n => `<li>${inline(n)}</li>`).join('')}</ol>` : ''}
       <div class="step-actions">${more ? `<button class="btn btn-ghost" type="button" data-nudge>Ask a smaller question (${step.nudges.length + 1} of ${step.nudges_total})</button>` : ''}<button class="btn btn-ghost" type="button" data-tutor>Ask a tutor</button></div>
       <div data-code-step></div></div></li>`;
-    return `<li class="step is-current" data-current><div class="step-num" aria-hidden="true">${index + 1}</div><div class="step-body">${step.hard ? '<p class="eyebrow">Hard part</p>' : ''}<div class="step-prompt">${markdown(step.prompt)}</div>
+    return `<li class="step is-current" data-current><div class="step-num" aria-hidden="true">${index + 1}</div><div class="step-body">${ctx.star('step', idea + '/' + step.id)}${step.hard ? '<p class="eyebrow">Hard part</p>' : ''}<div class="step-prompt">${markdown(step.prompt)}</div>
       <form data-answer novalidate>${input(step)}
         ${feedback ? `<p class="step-feedback ${feedback.kind}" role="alert">${e(feedback.text)}</p>` : ''}
         ${step.nudges.length ? `<ol class="nudges">${step.nudges.map(n => `<li>${inline(n)}</li>`).join('')}</ol>` : ''}

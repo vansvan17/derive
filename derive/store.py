@@ -50,6 +50,8 @@ CREATE TABLE IF NOT EXISTS contest_mistakes(run INTEGER NOT NULL, submission TEX
 CREATE TABLE IF NOT EXISTS contest_stalls(run INTEGER NOT NULL, problem TEXT NOT NULL, label TEXT NOT NULL, at TEXT NOT NULL,
   PRIMARY KEY(run, problem));
 CREATE TABLE IF NOT EXISTS contest_notes(run INTEGER PRIMARY KEY, lesson TEXT NOT NULL, at TEXT NOT NULL);
+-- stars: anything kept for revision, as a reference (never a copy)
+CREATE TABLE IF NOT EXISTS stars(kind TEXT NOT NULL, ref TEXT NOT NULL, at TEXT NOT NULL, PRIMARY KEY(kind, ref));
 -- puzzles: every answer given, and how each puzzle ended (solved, with how many wrong tries first, or shown)
 CREATE TABLE IF NOT EXISTS puzzle_tries(id INTEGER PRIMARY KEY, at TEXT NOT NULL, puzzle TEXT NOT NULL, answer TEXT NOT NULL, correct INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS puzzles_done(puzzle TEXT PRIMARY KEY, at TEXT NOT NULL, wrong INTEGER NOT NULL, shown INTEGER NOT NULL);

@@ -22,7 +22,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import uuid
 import webbrowser
 
-from . import breaks, contest, evidence, grader, recognise, sync, tasks, tutor
+from . import breaks, contest, evidence, grader, recognise, stars, sync, tasks, tutor
 from .checks import CheckError, check
 from .content import Content
 from .runner import Executable, JudgeError, same_output
@@ -171,7 +171,7 @@ class Service:
     def bootstrap(self, store):
         return {'csrf': self.csrf, 'settings': self.settings(store), 'grader_available': grader.available(), 'tutor_available': tutor.available(),
                 'counts': self.counts(store), 'band': evidence.band(self.content, store),
-                'open_problem': evidence.open_problem(store), 'next_chain': self.next_chain(store)}
+                'open_problem': evidence.open_problem(store), 'next_chain': self.next_chain(store), 'stars': stars.keys(store)}
 
     # ---------- chains ----------
     def nudges_open(self, store, scope, owner, step):
@@ -983,6 +983,8 @@ class Service:
             if path == '/puzzles':
                 at = query.get('at', [''])[0]
                 return self.puzzles(store, query.get('set', [''])[0], int(at) if at.isdigit() else None)
+            if path == '/revise':
+                return stars.cards(self, store, bool(contest.active(store)))
             if path == '/contests':
                 return contest.overview(store)
         raise ApiError('Not found.', 404)
@@ -1024,6 +1026,8 @@ class Service:
                 return recognise.overview(self.content, store, self.derived(store))
             if path == '/settings':
                 return {'settings': self.save_settings(store, data)}
+            if path == '/star':
+                return stars.toggle(self, store, data, ApiError)
             if path in ('/contest/start', '/contest/refresh', '/contest/end', '/contest/label', '/contest/stall', '/contest/lesson'):
                 return getattr(contest, path[9:])(self, store, data, ApiError)
             if path == '/practice':

@@ -13,6 +13,7 @@ import {renderCses} from './cses.js';
 import {renderBreaks, renderBreak} from './breaks.js';
 import {renderNotebook} from './notebook.js';
 import {renderRecognise} from './recognise.js';
+import {renderRevise} from './revise.js';
 
 const state = {boot: null, token: 0, cleanups: [], root: null};
 
@@ -28,6 +29,7 @@ const ICONS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   play: '<path d="M8 5l11 7-11 7z"/>',
   external: '<path d="M14 5h5v5M19 5l-8 8"/><path d="M11 6H6a1 1 0 00-1 1v11a1 1 0 001 1h11a1 1 0 001-1v-5"/>',
+  star: '<path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>',
   lock: '<rect x="6" y="11" width="12" height="9" rx="2"/><path d="M9 11V8a3 3 0 016 0v3"/>',
 };
 export const icon = name => ICONS[name] ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>` : '';
@@ -118,13 +120,13 @@ export function dialog({title, body = '', html = '', confirm = 'Continue', cance
 
 /* ---------- Shell ---------- */
 export const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
-const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['tools', 'settings', 'Toolbox'], ['cses', 'chain', 'CSES DP'], ['code', 'play', 'Code'], ['break', 'target', 'Break it'], ['recognise', 'target', 'Recognise'], ['contest', 'target', 'Contest'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
+const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['tools', 'settings', 'Toolbox'], ['cses', 'chain', 'CSES DP'], ['code', 'play', 'Code'], ['break', 'target', 'Break it'], ['recognise', 'target', 'Recognise'], ['contest', 'target', 'Contest'], ['revise', 'star', 'Revise'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
 const section = () => { const name = location.hash.replace(/^#\/?/, '').split('/')[0] || ''; return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name === 'task' ? 'code' : name === 'tool' || name === 'notebook' ? 'tools' : name; };
 function paintNav() {
   const host = document.querySelector('[data-nav-host]');
   if (!host) return;
   const here = section(), c = state.boot?.counts;
-  host.innerHTML = NAV.map(([name, glyph, label]) => `<a class="nav-link" href="#/${name}" ${name === here ? 'aria-current="page"' : ''}>${icon(glyph)}<span>${label}</span></a>`).join('')
+  host.innerHTML = NAV.map(([name, glyph, label]) => `<a class="nav-link" href="#/${name}" ${name === here ? 'aria-current="page"' : ''}>${icon(glyph)}<span>${label}${name === 'revise' && state.boot?.stars?.length ? ` · ${state.boot.stars.length}` : ''}</span></a>`).join('')
     + (c ? `<p class="sidebar-count">${c.derived} of ${c.chains} chains derived<br>${c.cold} cold solves · working at ${state.boot.band.band}</p>` : '');
 }
 export function applyTheme(theme) {
@@ -178,10 +180,29 @@ function buildShell() {
 /* ---------- What every page is handed ---------- */
 async function sync() { state.boot = await api('/bootstrap'); paintNav(); return state.boot; }
 function navigate(hash) { const target = hash.startsWith('#') ? hash : '#' + hash; if (location.hash === target) route(); else location.hash = target; }
+/* ---------- Stars ----------
+   Any page can drop in star(kind, ref). Pages rebuild their HTML often, so one listener on the document serves every button. */
+export const star = (kind, ref) => { const key = kind + ':' + ref, on = state.boot?.stars?.includes(key);
+  return `<button class="star-btn ${on ? 'is-on' : ''}" type="button" data-star="${escape(key)}" aria-pressed="${on ? 'true' : 'false'}" title="${on ? 'Starred for revision: click to remove' : 'Star for revision'}" aria-label="Star for revision">${icon('star')}</button>`; };
+document.addEventListener('click', async event => {
+  const button = event.target.closest?.('[data-star]');
+  if (!button) return;
+  event.preventDefault();                          // a star inside a fold-out heading must not fold it
+  const key = button.dataset.star, cut = key.indexOf(':');
+  try {
+    const r = await post('/star', {kind: key.slice(0, cut), ref: key.slice(cut + 1)});
+    if (state.boot) state.boot.stars = r.stars;
+    document.querySelectorAll('[data-star]').forEach(b => { if (b.dataset.star !== key) return; b.classList.toggle('is-on', r.on); b.setAttribute('aria-pressed', r.on ? 'true' : 'false'); b.title = r.on ? 'Starred for revision: click to remove' : 'Star for revision'; });
+    paintNav();
+    toast(r.on ? 'Starred. It is on the Revise page.' : 'Star removed.');
+    document.dispatchEvent(new CustomEvent('derive-star'));
+  } catch (error) { toast(error.message, 'error'); }
+});
+
 const ctx = {
   get root() { return state.root; },
   get boot() { return state.boot; },
-  api, post, waitFor, escape, icon, inline, markdown, toast, dialog, navigate, sync,
+  api, post, waitFor, escape, icon, inline, markdown, toast, dialog, navigate, sync, star,
   onCleanup: fn => state.cleanups.push(fn),
 };
 
@@ -220,6 +241,7 @@ async function route() {
     else if (name === 'task' && rest[0]) await renderTask(ctx, rest[0]);
     else if (name === 'break') await (rest[0] ? renderBreak(ctx, rest[0]) : renderBreaks(ctx));
     else if (name === 'contest') await renderContest(ctx);
+    else if (name === 'revise') await renderRevise(ctx);
     else if (name === 'mastery') await renderMastery(ctx);
     else if (name === 'settings') await renderSettings(ctx);
     else root.innerHTML = '<section class="surface empty-state"><h1>Nothing lives at this address</h1><a class="btn btn-primary" href="#/">Back to the map</a></section>';

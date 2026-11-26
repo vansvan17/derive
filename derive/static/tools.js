@@ -27,7 +27,7 @@ export async function renderTool(ctx, id) {
   let tool = await api('/tool/' + encodeURIComponent(id));
   if (!alive()) return;
   const reference = () => tool.reference ? `<section class="surface"><h2>A reference version</h2><p class="muted small">Yours is accepted, so here is one clean way to write it. Compare the loop structure and the edge cases with your own.</p><pre class="tool-code">${e(tool.reference)}</pre></section>` : '<p class="muted small">A reference version appears here once your own program is accepted.</p>';
-  root.innerHTML = `<header class="page-head"><div><p class="eyebrow"><a href="#/tools">Toolbox</a></p><h1>${e(tool.title)}</h1><p>${marks(tool.marks, e)}</p></div></header>
+  root.innerHTML = `<header class="page-head"><div><p class="eyebrow"><a href="#/tools">Toolbox</a></p><h1>${e(tool.title)} ${ctx.star('tool', tool.id)}</h1><p>${marks(tool.marks, e)}</p></div></header>
     <div data-intro></div><div data-task></div>`;
   // The reading comes first, at full width, above the editor: you read the page, then scroll down to write it.
   const intro = `<section class="surface tool-intro"><h2>Reach for it when you see</h2><ul>${tool.when.map(w => `<li>${inline(w)}</li>`).join('')}</ul>

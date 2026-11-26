@@ -56,11 +56,11 @@ export async function renderProblem(ctx, id) {
   const dirty = {main: false, brute: false, gen: false};
 
   root.innerHTML = `<div class="solve-page">
-    <header class="chain-head"><p class="eyebrow">${e(p.site)} · rated ${e(p.rating)}${p.returned_for ? ' · something you have met before' : ''}${p.topic_known ? ' · opened from a chain, so the topic is known' : ''}</p><h1>${e(p.title)}</h1>
+    <header class="chain-head"><p class="eyebrow">${e(p.site)} · rated ${e(p.rating)}${p.returned_for ? ' · something you have met before' : ''}${p.topic_known ? ' · opened from a chain, so the topic is known' : ''}</p><h1>${e(p.title)} ${ctx.star('problem', p.id)}</h1>
       <p><a class="btn btn-secondary" href="${e(p.url)}" target="_blank" rel="noopener noreferrer">${icon('external')}Read it on ${e(p.site)}</a></p></header>
     <div class="split" data-split><div class="split-pane split-text reading">
     <section class="surface" data-commit></section>
-    <section class="surface" aria-label="Notes"><h2>Scratch notes</h2><p class="muted small">Small cases, observations, dead ends. Saved as you type.</p><textarea class="input notes" data-notes rows="5" spellcheck="false" placeholder="n = 1: …">${e(p.notes || '')}</textarea></section>
+    <section class="surface" aria-label="Notes"><h2>Scratch notes ${ctx.star('problem-notes', p.id)}</h2><p class="muted small">Small cases, observations, dead ends. Saved as you type.</p><textarea class="input notes" data-notes rows="5" spellcheck="false" placeholder="n = 1: …">${e(p.notes || '')}</textarea></section>
     <section class="surface" data-help></section>
     <section class="surface" data-finish></section>
     <div data-after></div>

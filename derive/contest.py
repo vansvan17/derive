@@ -64,6 +64,10 @@ def _now():
     return datetime.now(timezone.utc)
 
 
+def topics_of(problem):
+    return [t for t in problem.get('tags', []) if not t.startswith('*')]
+
+
 def all_problems(fetch, cache):
     if 'all' not in cache:
         data = fetch(API + 'problemset.problems')
@@ -76,7 +80,7 @@ def all_problems(fetch, cache):
 def problems_of(contest_id, fetch, cache):
     """The problems of one round, from the public problem list (kept in memory after the first call)."""
     all_problems(fetch, cache)
-    found = [{'index': p['index'], 'name': p['name'], 'rating': p.get('rating')} for p in cache['all'] if p.get('contestId') == contest_id]
+    found = [{'index': p['index'], 'name': p['name'], 'rating': p.get('rating'), 'tags': topics_of(p)} for p in cache['all'] if p.get('contestId') == contest_id]
     return sorted(found, key=lambda p: (len(p['index']), p['index']))
 
 
@@ -127,7 +131,37 @@ def read_submissions(handles, contest_id, fetch, rows=()):
     return out
 
 
-def draw_mixed(handles, count, low, high, fetch, cache, avoid=(), rng=None, avoid_names=()):
+def histories(handles, fetch):
+    """Everything each handle has ever submitted (the whole list, not just the last few)."""
+    out = {}
+    for handle in handles:
+        data = fetch(API + 'user.status?' + urllib.parse.urlencode({'handle': handle}))
+        if data.get('status') != 'OK':
+            raise SyncError(f'Codeforces did not recognise the handle {handle}.')
+        out[handle] = data['result']
+    return out
+
+
+def topic_levels(history, before):
+    """How far each handle has got in each topic: per Codeforces tag, the rating of the third-hardest
+    problem with that tag they had solved before the run started. Three, so that one lucky accept does not count.
+    A topic with fewer than three solved problems has no level."""
+    out = {}
+    for handle, subs in history.items():
+        solved = {}
+        for sub in subs:
+            p = sub.get('problem', {})
+            if sub.get('verdict') == 'OK' and p.get('rating') and sub.get('creationTimeSeconds', 0) < before:
+                solved[p.get('name')] = p
+        by_tag = {}
+        for p in solved.values():
+            for tag in p.get('tags', []):
+                by_tag.setdefault(tag, []).append(p['rating'])
+        out[handle] = {tag: sorted(r, reverse=True)[2] for tag, r in by_tag.items() if len(r) >= 3 and not tag.startswith('*')}
+    return out
+
+
+def draw_mixed(handles, count, low, high, fetch, cache, avoid=(), rng=None, avoid_names=(), history=None):
     """A mixed set: `count` recent problems with ratings spread evenly from `low` to `high`, shuffled, lettered from A.
 
     Left out: anything one of the handles has ever submitted (by round and letter, and by name, since a problem shared by
@@ -140,11 +174,8 @@ def draw_mixed(handles, count, low, high, fetch, cache, avoid=(), rng=None, avoi
         cache['dates'] = {c['id']: c.get('startTimeSeconds', 0) for c in data['result'] if c.get('phase') == 'FINISHED'}
     recent = {cid for cid, at in cache['dates'].items() if at >= SINCE}
     seen, names = set(avoid), set(avoid_names)
-    for handle in handles:
-        data = fetch(API + 'user.status?' + urllib.parse.urlencode({'handle': handle}))            # the whole history, not just the last few
-        if data.get('status') != 'OK':
-            raise SyncError(f'Codeforces did not recognise the handle {handle}.')
-        for sub in data['result']:
+    for subs in (history if history is not None else histories(handles, fetch)).values():
+        for sub in subs:
             p = sub.get('problem', {})
             seen.add((p.get('contestId'), p.get('index'))); names.add(p.get('name'))
     pool = {}
@@ -161,31 +192,26 @@ def draw_mixed(handles, count, low, high, fetch, cache, avoid=(), rng=None, avoi
     if len(chosen) < count:
         raise SyncError('Not enough unseen recent problems in that rating range. Widen the range or ask for fewer.')
     rng.shuffle(chosen)
-    return [{'index': chr(65 + i), 'name': p['name'], 'rating': p['rating'], 'contest': p['contestId'], 'cf_index': p['index']} for i, p in enumerate(chosen)]
+    return [{'index': chr(65 + i), 'name': p['name'], 'rating': p['rating'], 'tags': topics_of(p), 'contest': p['contestId'], 'cf_index': p['index']} for i, p in enumerate(chosen)]
 
 
-def levels_of(handles, fetch):
-    """Each handle's current Codeforces rating (one public call). A handle with no rating yet is left out; if the call fails, so is everyone."""
-    try:
-        data = fetch(API + 'user.info?' + urllib.parse.urlencode({'handles': ';'.join(handles)}))
-    except SyncError:
-        return {}
-    found = {u['handle'].lower(): u['rating'] for u in data.get('result', []) if isinstance(u, dict) and isinstance(u.get('handle'), str) and type(u.get('rating')) is int}
-    return {h: found[h.lower()] for h in handles if h.lower() in found}
+def reach(rating, tags, topics):
+    """Was an unsolved problem one the team should have had? Judged topic by topic, not by overall rating.
 
-
-def reach(rating, levels):
-    """Was an unsolved problem one the team should have had? Judged against each member's own rating.
-
-    A Codeforces rating is the level at which that person solves a problem about half the time, alone and in a short round.
-    So a problem at least 100 below someone is one they should get; up to 200 above the strongest is a fair fight; beyond that it is above the team."""
-    if not rating or not levels:
+    Someone who had solved problems at least this hard in every topic the problem is tagged with should have had it.
+    Someone at this level in some of its topics, or within 200 in all of them, had a fair fight. Otherwise it was above the team."""
+    if not rating or not tags or not any(topics.values()):
         return None
-    should = sorted((h for h, own in levels.items() if rating <= own - 100), key=lambda h: -levels[h])
+    has = {h: [t for t in tags if own.get(t, 0) >= rating] for h, own in topics.items()}
+    strength = lambda h: (len(has[h]), sum(topics[h].get(t, 0) for t in tags))
+    should = sorted((h for h in topics if len(has[h]) == len(tags)), key=strength, reverse=True)
     if should:
-        return {'kind': 'should', 'who': should}
-    best = max(levels, key=levels.get)
-    return {'kind': 'fair', 'who': [best]} if rating <= levels[best] + 200 else {'kind': 'above', 'who': []}
+        return {'kind': 'should', 'who': should, 'has': tags, 'lacks': []}
+    close = [h for h, own in topics.items() if has[h] or all(own.get(t, 0) >= rating - 200 for t in tags)]
+    if close:
+        best = max(close, key=strength)
+        return {'kind': 'fair', 'who': [best], 'has': has[best], 'lacks': [t for t in tags if t not in has[best]]}
+    return {'kind': 'above', 'who': [], 'has': [], 'lacks': tags}
 
 
 def link(contest_id, row):
@@ -226,13 +252,16 @@ def view(store, row):
     note = store.one('SELECT lesson FROM contest_notes WHERE run=?', (row['id'],))
     board = json.loads(row['board'])
     handles = json.loads(row['handles'])
-    levels = board.get('levels') or {}
+    topics = board.get('topics') or {}
+    board.pop('levels', None)
+    if not over:
+        board.pop('topics', None)                                   # the topics of a problem, and who is good at them, are for the debrief
     for r in board.get('rows', []):
         r['url'] = link(row['contest'], r)
-        r['reach'] = reach(r['rating'], levels) if over and not r['solved'] else None
+        r['reach'] = reach(r['rating'], r.get('tags'), topics) if over and not r['solved'] else None
         r['stall'] = stalls.get(r['index'])
         if not over:
-            r.pop('contest', None); r.pop('cf_index', None)        # the round a problem came from hints at how hard it is
+            r.pop('contest', None); r.pop('cf_index', None); r.pop('tags', None)        # the round a problem came from hints at how hard it is; its tags say how to solve it
         for w in r['wrong']:
             w['label'] = labels.get(w['id'])
     mixed = not row['contest']
@@ -269,10 +298,11 @@ def start(service, store, data, ApiError):
     if not isinstance(handles, list) or not 1 <= len(handles) <= 3 or not all(isinstance(h, str) and HANDLE.fullmatch(h) for h in handles):
         raise ApiError('Give one to three Codeforces handles.')
     try:
+        history = histories(handles, service.fetch)
         if mixed:
             used = [*service.content.problems.values(), *service.content.parked.values()]          # never spend a problem the Solve page is keeping
             avoid = {(p.get('contest'), p.get('index')) for p in used if p.get('site') == 'Codeforces'}
-            problems = draw_mixed(handles, mixed['count'], mixed['low'], mixed['high'], service.fetch, service.cf_cache, avoid, getattr(service, 'rng', None), {p.get('title') for p in used})
+            problems = draw_mixed(handles, mixed['count'], mixed['low'], mixed['high'], service.fetch, service.cf_cache, avoid, getattr(service, 'rng', None), {p.get('title') for p in used}, history)
         else:
             problems = problems_of(contest_id, service.fetch, service.cf_cache)
     except SyncError as exc:
@@ -280,7 +310,7 @@ def start(service, store, data, ApiError):
     if not problems:
         raise ApiError('Codeforces lists no problems for that round. Check the number.')
     board = score(problems, [], 0, 0)
-    board['levels'] = levels_of(handles, service.fetch)
+    board['topics'] = topic_levels(history, _now().timestamp())
     store.run('INSERT INTO contests(contest,started_at,minutes,handles,board) VALUES(?,?,?,?,?)',
               (contest_id, _now().isoformat(), minutes, json.dumps(handles), json.dumps(board)))
     return view(store, store.one('SELECT * FROM contests ORDER BY id DESC LIMIT 1'))
@@ -290,16 +320,21 @@ def refresh(service, store, data, ApiError):
     row = store.one('SELECT * FROM contests WHERE id=?', (data.get('run'),)) if type(data.get('run')) is int else None
     if not row:
         raise ApiError('No such contest run.', 404)
-    problems = [{k: r[k] for k in ('index', 'name', 'rating', 'contest', 'cf_index') if k in r} for r in json.loads(row['board'])['rows']]
+    problems = [{k: r[k] for k in ('index', 'name', 'rating', 'tags', 'contest', 'cf_index') if k in r} for r in json.loads(row['board'])['rows']]
+    start_at = datetime.fromisoformat(row['started_at']).timestamp()
+    topics = json.loads(row['board']).get('topics')
     try:
+        if topics is None:                                         # a run from before topics were kept: work them out now, from what was solved before it started
+            listed = {(p.get('contestId'), p['index']): topics_of(p) for p in all_problems(service.fetch, service.cf_cache)}
+            for r in problems:
+                r.setdefault('tags', listed.get((r.get('contest') or row['contest'], r.get('cf_index') or r['index']), []))
+            topics = topic_levels(histories(json.loads(row['handles']), service.fetch), start_at)
         subs = read_submissions(json.loads(row['handles']), row['contest'], service.fetch, problems)
     except SyncError as exc:
         raise ApiError(str(exc), 502) from exc
-    start_at = datetime.fromisoformat(row['started_at']).timestamp()
     stop = datetime.fromisoformat(row['ended_at']).timestamp() if row['ended_at'] else start_at + row['minutes'] * 60
     board = score(problems, subs, start_at, min(stop, start_at + row['minutes'] * 60))
-    # the ratings the team had when the run started; a run from before these were kept gets today's
-    board['levels'] = json.loads(row['board']).get('levels') or levels_of(json.loads(row['handles']), service.fetch)
+    board['topics'] = topics
     store.run('UPDATE contests SET board=?, checked_at=? WHERE id=?', (json.dumps(board), _now().isoformat(), row['id']))
     return view(store, store.one('SELECT * FROM contests WHERE id=?', (row['id'],)))
 

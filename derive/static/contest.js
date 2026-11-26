@@ -14,15 +14,25 @@ export async function renderContest(ctx) {
   ctx.onCleanup(() => { clearInterval(tick); clearInterval(poll); });
 
   const board = (run, labelling) => `<div class="table-scroll"><table class="table"><thead><tr><th>#</th><th>Problem</th><th>Result</th><th>Minute</th>${run.handles.length > 1 ? '<th>By</th>' : ''}<th>Wrong tries</th>${labelling ? '<th>If unsolved: what stalled you</th>' : ''}</tr></thead><tbody>
-    ${run.rows.map(r => `<tr><td>${e(r.index)}</td><td><a href="${e(r.url)}" target="_blank" rel="noopener noreferrer">${e(r.name)}</a>${run.ended && r.rating ? ` <span class="muted small">· ${r.rating}</span>` : ''}</td>
+    ${run.rows.map(r => `<tr><td>${e(r.index)}</td><td><a href="${e(r.url)}" target="_blank" rel="noopener noreferrer">${e(r.name)}</a>${run.ended && r.rating ? ` <span class="muted small">· ${r.rating}${r.tags?.length ? ' · ' + e(r.tags.join(', ')) : ''}</span>` : ''}</td>
       <td>${r.solved ? '<span class="badge badge-success">Accepted</span>' : r.upsolved ? '<span class="badge badge-primary">Upsolved</span>' : r.wrong.length ? '<span class="badge">Tried</span>' : '<span class="muted">·</span>'}</td>
       <td>${r.minute ?? ''}</td>${run.handles.length > 1 ? `<td>${e(r.by || '')}</td>` : ''}
       <td>${r.wrong.length ? (labelling ? r.wrong.map(w => `<label class="mistake"><span class="muted small">min ${w.minute} · ${e(String(w.verdict).replaceAll('_', ' ').toLowerCase())}</span><select data-label="${e(w.id)}" data-run="${run.id}"><option value="">what went wrong?</option>${page.mistakes.map(m => `<option value="${m.id}" ${w.label === m.id ? 'selected' : ''}>${e(m.label)}</option>`).join('')}</select></label>`).join('') : r.wrong.length) : ''}</td>${labelling ? `<td>${r.solved ? '' : `${r.reach ? `<span class="reach reach-${r.reach.kind}">${reach(r, run.handles.length === 1)}</span>` : ''}<select data-stall="${e(r.index)}" data-run="${run.id}" aria-label="What stalled you on ${e(r.index)}"><option value="">choose</option>${page.stalls.map(m => `<option value="${m.id}" ${r.stall === m.id ? 'selected' : ''}>${e(m.label)}</option>`).join('')}</select>`}</td>` : ''}</tr>`).join('')}
     </tbody></table></div>`;
 
-  // Was an unsolved problem within reach? Judged against each teammate's own Codeforces rating.
+  // Was an unsolved problem within reach? Judged topic by topic: a teammate's level in a topic is the third-hardest
+  // problem with that Codeforces tag they had solved before the run started.
   const names = who => who.length > 1 ? who.slice(0, -1).map(e).join(', ') + ' and ' + e(who.at(-1)) : e(who[0] || '');
-  const reach = (r, solo) => !r.reach ? '' : r.reach.kind === 'should' ? `<strong>${solo ? 'You' : names(r.reach.who)} should have been able to solve it.</strong>` : r.reach.kind === 'fair' ? `About ${solo ? 'your' : names(r.reach.who) + "'s"} level: a fair fight.` : `Above ${solo ? 'your' : "the team's"} level for now. It's okay.`;
+  const list = tags => tags.length > 1 ? tags.slice(0, -1).map(e).join(', ') + ' and ' + e(tags.at(-1)) : e(tags[0] || '');
+  const reach = (r, solo) => { const x = r.reach; if (!x) return ''; const who = solo ? 'you' : names(x.who);
+    if (x.kind === 'should') return `<strong>${solo ? 'You' : who} should have been able to solve it.</strong> ${solo ? 'You have' : x.who.length > 1 ? 'Each has' : 'Has'} solved ${list(x.has)} at this rating.`;
+    if (x.kind === 'fair') return `A fair fight for ${who}: ${x.has.length ? `at this rating in ${list(x.has)}, not yet in ${list(x.lacks)}` : `close to this rating in ${list(x.lacks)}`}.`;
+    return `Above ${solo ? 'your' : "the team's"} level in ${list(x.lacks)} for now. It's okay.`; };
+  // The topic division: per topic, how far each teammate has got, strongest first.
+  const division = run => { const t = run.topics || {}, people = run.handles.filter(h => t[h] && Object.keys(t[h]).length); if (!people.length) return '';
+    const tags = [...new Set(people.flatMap(h => Object.keys(t[h])))].map(tag => ({tag, best: Math.max(...people.map(h => t[h][tag] || 0))})).sort((a, b) => b.best - a.best || a.tag.localeCompare(b.tag));
+    return `<details class="division"><summary>Topic division: who is how far in what</summary><p class="muted small">Each number is the rating of the third-hardest problem with that Codeforces tag the person had solved before this contest started; a dash means fewer than three solved. The strongest in each topic is in bold: that is whose problem it is.</p>
+      <div class="table-scroll"><table class="table"><thead><tr><th>Topic</th>${people.map(h => `<th>${e(h)}</th>`).join('')}</tr></thead><tbody>${tags.map(x => `<tr><td>${e(x.tag)}</td>${people.map(h => `<td>${t[h][x.tag] ? (t[h][x.tag] === x.best && people.length > 1 ? `<strong>${t[h][x.tag]}</strong>` : t[h][x.tag]) : '–'}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`; };
 
   // What the judge's record says about the run. Every line is computed; none of it is typed in.
   const debrief = run => { const d = run.debrief; if (!d) return ''; const team = run.handles.length > 1; const lines = [];
@@ -30,9 +40,8 @@ export async function renderContest(ctx) {
     if (d.first != null) lines.push(`Longest stretch with no accept: <strong>${d.dry.minutes} minutes</strong> (minute ${d.dry.from} to ${d.dry.to}).`);
     if (d.first != null) lines.push(d.final_third ? `${d.final_third} accepted in the final third of the time.` : '<strong>Nothing accepted in the final third of the time.</strong>');
     const owed = run.rows.filter(r => r.reach?.kind === 'should');
-    if (owed.length) lines.push(`Within reach and unsolved: ${owed.map(r => `${e(r.index)} (${r.rating}${team ? ', ' + names(r.reach.who) : ''})`).join('; ')}. These are the ones that cost you; upsolve them first.`);
-    else if (run.rows.some(r => r.reach)) lines.push('Every unsolved problem was at or above your level. Nothing was thrown away.');
-    if (Object.keys(run.levels || {}).length) lines.push(`<span class="muted small">Judged against Codeforces ratings: ${Object.entries(run.levels).map(([h, x]) => `${e(h)} ${x}`).join(', ')}. "Should have" means the problem is rated at least 100 below that person.</span>`);
+    if (owed.length) lines.push(`Within reach and unsolved: ${owed.map(r => `${e(r.index)} (${r.rating}, ${list(r.tags || [])}${team ? ': ' + names(r.reach.who) : ''})`).join('; ')}. These are the ones that cost you; upsolve them first.`);
+    else if (run.rows.some(r => r.reach)) lines.push('No unsolved problem was one you had clearly solved the like of before. Nothing was thrown away.');
     if (d.left.length) lines.push(`Left on the table: ${d.left.map(l => `${e(l.index)} (${l.rating})`).join(', ')}, rated below a problem you did solve.`);
     if (d.late.length) lines.push(`Found late: ${d.late.map(l => `${e(l.index)} (${l.rating}, minute ${l.minute})`).join(', ')}, accepted at least half an hour after a clearly harder problem.`);
     if (team) lines.push(d.people.map(p => `${e(p.handle)}: ${p.accepted} accepted, ${p.wrong} wrong`).join(' · ') + '. <span class="muted small">This shows whose account submitted, which on one computer may be whoever was logged in.</span>');
@@ -63,7 +72,7 @@ export async function renderContest(ctx) {
           <div class="step-actions"><button class="btn btn-primary" type="submit">Start the clock</button></div></form></section>`}
     ${last ? `<section class="surface"><h2>Debrief: ${e(last.title.toLowerCase())}</h2><p><strong>${last.solved}</strong> solved · penalty <strong>${last.penalty}</strong> · ${last.minutes} minutes · ${e(last.handles.join(', '))}</p>
         ${last.rows.some(r => r.wrong.length) ? '<p class="muted small">Each wrong submission cost 20 minutes. Say what each one was; the pattern is on the right.</p>' : ''}${board(last, true)}
-        ${debrief(last)}
+        ${debrief(last)}${division(last)}
         <form data-lesson="${last.id}" novalidate><label class="field">One thing to do differently next time, in your own words<textarea name="lesson" rows="2" maxlength="600" placeholder="e.g. Nobody read H until minute 200. Next time all eleven are read in the first 40 minutes.">${e(lessonDraft ?? last.lesson)}</textarea></label>
         <div class="step-actions"><button class="btn btn-primary btn-sm" type="submit">Save the lesson</button><button class="btn btn-secondary btn-sm" type="button" data-recheck="${last.id}">Read my submissions again (for upsolves)</button></div></form></section>` : ''}
     <div class="start-grid">

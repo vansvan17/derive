@@ -713,7 +713,7 @@ class App(unittest.TestCase):
                                                              prob(52, 'C', 'Middle', 1500), prob(50, 'E', 'Same round as Easy', 1500), prob(51, 'C', 'Odd', 1500, ['*special']), prob(51, 'F', 'Hard', 2000), {'contestId': 51, 'index': 'G', 'name': 'Unrated'}]}}
         subs = [{'who': 'bob', 'id': 1, 'verdict': 'WRONG_ANSWER', 'creationTimeSeconds': 5, 'problem': {'contestId': 50, 'index': 'B', 'name': 'Seen'}},
                 {'who': 'ann', 'id': 2, 'verdict': 'OK', 'creationTimeSeconds': 6, 'problem': {'contestId': 77, 'index': 'C', 'name': 'Twin'}}]          # the other division's copy of Twin
-        self.service.fetch = lambda url: listing if 'problemset.problems' in url else rounds if 'contest.list' in url else {'status': 'OK', 'result': [s for s in subs if 'handle=' + s['who'] in url]}
+        self.service.fetch = lambda url: listing if 'problemset.problems' in url else rounds if 'contest.list' in url else {'status': 'OK', 'result': [{'handle': 'Ann', 'rating': 1650}, {'handle': 'bob'}]} if 'user.info' in url else {'status': 'OK', 'result': [s for s in subs if 'handle=' + s['who'] in url]}
         self.service.rng = random.Random(4)
         self.assertEqual(self.post('/contest/start', {'mixed': {'count': 3, 'low': 1000, 'high': 900}, 'minutes': 60, 'handles': ['ann']})[0], 400)
         self.assertEqual(self.post('/contest/start', {'mixed': {'count': 4, 'low': 1000, 'high': 2000}, 'minutes': 60, 'handles': ['ann', 'bob']})[0], 502)   # only three unseen ones exist
@@ -740,6 +740,9 @@ class App(unittest.TestCase):
         self.assertEqual([x['index'] for x in d['left']], [letter['Middle']])                          # 1500 unsolved although the 2000 fell
         self.assertEqual([x['index'] for x in d['late']], [letter['Easy']])                            # the 1000 came an hour after the 2000
         self.assertEqual(d['people'], [{'handle': 'ann', 'accepted': 1, 'wrong': 1}, {'handle': 'bob', 'accepted': 1, 'wrong': 0}])
+        self.assertEqual((ended['levels'], {r['name']: r['reach'] for r in ended['rows']}), ({'ann': 1650}, {'Easy': None, 'Hard': None, 'Middle': {'kind': 'should', 'who': ['ann']}}))   # bob has no rating yet
+        self.assertEqual([contest_module.reach(x, {'ann': 1650, 'bob': 1900})for x in (1500, 1800, 2100, 2200)],
+                         [{'kind': 'should', 'who': ['bob', 'ann']}, {'kind': 'should', 'who': ['bob']}, {'kind': 'fair', 'who': ['bob']}, {'kind': 'above', 'who': []}])
         self.assertEqual(self.post('/contest/stall', {'run': run['id'], 'problem': letter['Easy'], 'label': 'unread'})[0], 400)        # it was solved
         self.assertEqual(self.post('/contest/stall', {'run': run['id'], 'problem': letter['Middle'], 'label': 'unread'})[0], 200)
         self.assertEqual(self.post('/contest/lesson', {'run': run['id'], 'lesson': 'Read everything in the first half hour.'})[0], 200)

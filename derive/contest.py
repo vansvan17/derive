@@ -164,6 +164,30 @@ def draw_mixed(handles, count, low, high, fetch, cache, avoid=(), rng=None, avoi
     return [{'index': chr(65 + i), 'name': p['name'], 'rating': p['rating'], 'contest': p['contestId'], 'cf_index': p['index']} for i, p in enumerate(chosen)]
 
 
+def levels_of(handles, fetch):
+    """Each handle's current Codeforces rating (one public call). A handle with no rating yet is left out; if the call fails, so is everyone."""
+    try:
+        data = fetch(API + 'user.info?' + urllib.parse.urlencode({'handles': ';'.join(handles)}))
+    except SyncError:
+        return {}
+    found = {u['handle'].lower(): u['rating'] for u in data.get('result', []) if isinstance(u, dict) and isinstance(u.get('handle'), str) and type(u.get('rating')) is int}
+    return {h: found[h.lower()] for h in handles if h.lower() in found}
+
+
+def reach(rating, levels):
+    """Was an unsolved problem one the team should have had? Judged against each member's own rating.
+
+    A Codeforces rating is the level at which that person solves a problem about half the time, alone and in a short round.
+    So a problem at least 100 below someone is one they should get; up to 200 above the strongest is a fair fight; beyond that it is above the team."""
+    if not rating or not levels:
+        return None
+    should = sorted((h for h, own in levels.items() if rating <= own - 100), key=lambda h: -levels[h])
+    if should:
+        return {'kind': 'should', 'who': should}
+    best = max(levels, key=levels.get)
+    return {'kind': 'fair', 'who': [best]} if rating <= levels[best] + 200 else {'kind': 'above', 'who': []}
+
+
 def link(contest_id, row):
     return f'https://codeforces.com/problemset/problem/{row["contest"]}/{row["cf_index"]}' if row.get('contest') else f'https://codeforces.com/contest/{contest_id}/problem/{row["index"]}'
 
@@ -202,8 +226,10 @@ def view(store, row):
     note = store.one('SELECT lesson FROM contest_notes WHERE run=?', (row['id'],))
     board = json.loads(row['board'])
     handles = json.loads(row['handles'])
+    levels = board.get('levels') or {}
     for r in board.get('rows', []):
         r['url'] = link(row['contest'], r)
+        r['reach'] = reach(r['rating'], levels) if over and not r['solved'] else None
         r['stall'] = stalls.get(r['index'])
         if not over:
             r.pop('contest', None); r.pop('cf_index', None)        # the round a problem came from hints at how hard it is
@@ -254,6 +280,7 @@ def start(service, store, data, ApiError):
     if not problems:
         raise ApiError('Codeforces lists no problems for that round. Check the number.')
     board = score(problems, [], 0, 0)
+    board['levels'] = levels_of(handles, service.fetch)
     store.run('INSERT INTO contests(contest,started_at,minutes,handles,board) VALUES(?,?,?,?,?)',
               (contest_id, _now().isoformat(), minutes, json.dumps(handles), json.dumps(board)))
     return view(store, store.one('SELECT * FROM contests ORDER BY id DESC LIMIT 1'))
@@ -271,6 +298,8 @@ def refresh(service, store, data, ApiError):
     start_at = datetime.fromisoformat(row['started_at']).timestamp()
     stop = datetime.fromisoformat(row['ended_at']).timestamp() if row['ended_at'] else start_at + row['minutes'] * 60
     board = score(problems, subs, start_at, min(stop, start_at + row['minutes'] * 60))
+    # the ratings the team had when the run started; a run from before these were kept gets today's
+    board['levels'] = json.loads(row['board']).get('levels') or levels_of(json.loads(row['handles']), service.fetch)
     store.run('UPDATE contests SET board=?, checked_at=? WHERE id=?', (json.dumps(board), _now().isoformat(), row['id']))
     return view(store, store.one('SELECT * FROM contests WHERE id=?', (row['id'],)))
 

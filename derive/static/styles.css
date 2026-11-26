@@ -499,3 +499,5 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .choices-row label{display:inline-flex;gap:.5rem;align-items:center}
 form[data-start] .choices-row{margin-bottom:1rem}
 .table-scroll + h3{margin-top:1.5rem}
+.reach{display:block;font-size:.875rem;margin-bottom:.375rem}
+.reach-above{color:var(--muted)}

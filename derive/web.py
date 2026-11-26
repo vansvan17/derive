@@ -1024,7 +1024,7 @@ class Service:
                 return recognise.overview(self.content, store, self.derived(store))
             if path == '/settings':
                 return {'settings': self.save_settings(store, data)}
-            if path in ('/contest/start', '/contest/refresh', '/contest/end', '/contest/label'):
+            if path in ('/contest/start', '/contest/refresh', '/contest/end', '/contest/label', '/contest/stall', '/contest/lesson'):
                 return getattr(contest, path[9:])(self, store, data, ApiError)
             if path == '/practice':
                 known = {t['url'] for tasks in self.content.practice.values() for t in tasks} | {p['url'] for p in self.content.parked.values()}

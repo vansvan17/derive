@@ -494,3 +494,8 @@ dialog.modal::backdrop{background:rgba(13,20,32,.55)}
 .own-proof{margin:.5rem 0}
 .own-proof summary{cursor:pointer;color:var(--muted);font-size:.875rem}
 .own-proof .field{margin-top:.5rem}
+.debrief{margin:.25rem 0 1.25rem;padding-left:1.25rem}
+.debrief li{padding:.2rem 0}
+.choices-row label{display:inline-flex;gap:.5rem;align-items:center}
+form[data-start] .choices-row{margin-bottom:1rem}
+.table-scroll + h3{margin-top:1.5rem}

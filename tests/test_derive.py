@@ -702,6 +702,47 @@ class App(unittest.TestCase):
         after = self.post('/contest/refresh', {'run': run['id']})[1]
         self.assertEqual((after['solved'], self.get('/contests')['upsolve']), (1, []))                                     # not a contest solve, but upsolved
 
+    def test_a_mixed_set_avoids_what_the_team_has_seen_and_ends_in_a_debrief(self):
+        import random
+        from datetime import datetime, timedelta, timezone
+        new, old = int(datetime(2026, 3, 1, tzinfo=timezone.utc).timestamp()), int(datetime(2023, 3, 1, tzinfo=timezone.utc).timestamp())
+        rounds = {'status': 'OK', 'result': [{'id': 50, 'phase': 'FINISHED', 'startTimeSeconds': new}, {'id': 51, 'phase': 'FINISHED', 'startTimeSeconds': new}, {'id': 52, 'phase': 'FINISHED', 'startTimeSeconds': new}, {'id': 9, 'phase': 'FINISHED', 'startTimeSeconds': old}]}
+        prob = lambda cid, index, name, rating, tags=(): {'contestId': cid, 'index': index, 'name': name, 'rating': rating, 'tags': list(tags)}
+        listing = {'status': 'OK', 'result': {'problems': [prob(50, 'A', 'Easy', 1000), prob(50, 'B', 'Seen', 1000), prob(51, 'A', 'Twin', 1000), prob(50, 'D', 'Twin', 1000), prob(9, 'A', 'Ancient', 1000),
+                                                             prob(52, 'C', 'Middle', 1500), prob(50, 'E', 'Same round as Easy', 1500), prob(51, 'C', 'Odd', 1500, ['*special']), prob(51, 'F', 'Hard', 2000), {'contestId': 51, 'index': 'G', 'name': 'Unrated'}]}}
+        subs = [{'who': 'bob', 'id': 1, 'verdict': 'WRONG_ANSWER', 'creationTimeSeconds': 5, 'problem': {'contestId': 50, 'index': 'B', 'name': 'Seen'}},
+                {'who': 'ann', 'id': 2, 'verdict': 'OK', 'creationTimeSeconds': 6, 'problem': {'contestId': 77, 'index': 'C', 'name': 'Twin'}}]          # the other division's copy of Twin
+        self.service.fetch = lambda url: listing if 'problemset.problems' in url else rounds if 'contest.list' in url else {'status': 'OK', 'result': [s for s in subs if 'handle=' + s['who'] in url]}
+        self.service.rng = random.Random(4)
+        self.assertEqual(self.post('/contest/start', {'mixed': {'count': 3, 'low': 1000, 'high': 900}, 'minutes': 60, 'handles': ['ann']})[0], 400)
+        self.assertEqual(self.post('/contest/start', {'mixed': {'count': 4, 'low': 1000, 'high': 2000}, 'minutes': 60, 'handles': ['ann', 'bob']})[0], 502)   # only three unseen ones exist
+        status, run = self.post('/contest/start', {'mixed': {'count': 3, 'low': 1000, 'high': 2000}, 'minutes': 90, 'handles': ['ann', 'bob']})
+        self.assertEqual((status, run['mixed'], [r['index'] for r in run['rows']]), (200, True, ['A', 'B', 'C']))
+        self.assertEqual(sorted(r['name'] for r in run['rows']), ['Easy', 'Hard', 'Middle'])           # not Seen, Twin, Ancient, Odd or Unrated
+        letter = {r['name']: r['index'] for r in run['rows']}
+        self.assertTrue(all('/problemset/problem/5' in r['url'] and 'contest' not in r for r in run['rows']))
+        began = (datetime.now(timezone.utc) - timedelta(minutes=80)).replace(microsecond=0)
+        with self.service.store() as store:
+            store.run('UPDATE contests SET started_at=?', (began.isoformat(),))
+        sub = lambda who, cid, index, verdict, minute, sid: {'who': who, 'id': sid, 'verdict': verdict, 'creationTimeSeconds': int(began.timestamp()) + 60 * minute, 'problem': {'contestId': cid, 'index': index}}
+        subs += [sub('bob', 51, 'F', 'OK', 10, 10), sub('ann', 50, 'A', 'WRONG_ANSWER', 30, 11), sub('ann', 50, 'A', 'OK', 70, 12), sub('ann', 50, 'B', 'OK', 20, 13)]   # 50B is not in the set
+        board = self.post('/contest/refresh', {'run': run['id']})[1]
+        self.assertEqual((board['solved'], board['penalty'], board['debrief']), (2, 10 + 70 + 20, None))
+        self.assertEqual(self.post('/contest/stall', {'run': run['id'], 'problem': letter['Middle'], 'label': 'unread'})[0], 409)      # only afterwards
+        ended = self.post('/contest/end', {'run': run['id']})[1]
+        d = ended['debrief']
+        self.assertEqual((d['first'], d['last'], d['dry'], d['wrong']), (10, 70, {'minutes': 60, 'from': 10, 'to': 70}, 1))
+        self.assertEqual([x['index'] for x in d['left']], [letter['Middle']])                          # 1500 unsolved although the 2000 fell
+        self.assertEqual([x['index'] for x in d['late']], [letter['Easy']])                            # the 1000 came an hour after the 2000
+        self.assertEqual(d['people'], [{'handle': 'ann', 'accepted': 1, 'wrong': 1}, {'handle': 'bob', 'accepted': 1, 'wrong': 0}])
+        self.assertEqual(self.post('/contest/stall', {'run': run['id'], 'problem': letter['Easy'], 'label': 'unread'})[0], 400)        # it was solved
+        self.assertEqual(self.post('/contest/stall', {'run': run['id'], 'problem': letter['Middle'], 'label': 'unread'})[0], 200)
+        self.assertEqual(self.post('/contest/lesson', {'run': run['id'], 'lesson': 'Read everything in the first half hour.'})[0], 200)
+        page = self.get('/contests')
+        self.assertEqual(next(m['count'] for m in page['stalls'] if m['id'] == 'unread'), 1)
+        self.assertEqual([l['lesson'] for l in page['lessons']], ['Read everything in the first half hour.'])
+        self.assertEqual([(u['label'], u['url']) for u in page['upsolve']], [(f'Mixed set {run["id"]} · {letter["Middle"]}', 'https://codeforces.com/problemset/problem/52/C')])
+
     # ---- real problems ----
     def open(self):
         return self.post('/problem/next')[1]['id']

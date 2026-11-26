@@ -705,6 +705,7 @@ class App(unittest.TestCase):
     def test_a_mixed_set_avoids_what_the_team_has_seen_and_ends_in_a_debrief(self):
         import random
         from datetime import datetime, timedelta, timezone
+        from derive import contest as contest_module
         new, old = int(datetime(2026, 3, 1, tzinfo=timezone.utc).timestamp()), int(datetime(2023, 3, 1, tzinfo=timezone.utc).timestamp())
         rounds = {'status': 'OK', 'result': [{'id': 50, 'phase': 'FINISHED', 'startTimeSeconds': new}, {'id': 51, 'phase': 'FINISHED', 'startTimeSeconds': new}, {'id': 52, 'phase': 'FINISHED', 'startTimeSeconds': new}, {'id': 9, 'phase': 'FINISHED', 'startTimeSeconds': old}]}
         prob = lambda cid, index, name, rating, tags=(): {'contestId': cid, 'index': index, 'name': name, 'rating': rating, 'tags': list(tags)}
@@ -732,6 +733,10 @@ class App(unittest.TestCase):
         ended = self.post('/contest/end', {'run': run['id']})[1]
         d = ended['debrief']
         self.assertEqual((d['first'], d['last'], d['dry'], d['wrong']), (10, 70, {'minutes': 60, 'from': 10, 'to': 70}, 1))
+        self.assertEqual(d['final_third'], 1)                                                          # a third of the 80 minutes sat, not of the 90 on the clock
+        with self.service.store() as store:                                                            # had it been ended at minute 75, the tail is 5 minutes, not 20
+            early = contest_module.debrief(json.loads(store.one('SELECT board FROM contests')['board']), ['ann', 'bob'], 75)
+        self.assertEqual((early['dry']['minutes'], early['final_third']), (60, 1))
         self.assertEqual([x['index'] for x in d['left']], [letter['Middle']])                          # 1500 unsolved although the 2000 fell
         self.assertEqual([x['index'] for x in d['late']], [letter['Easy']])                            # the 1000 came an hour after the 2000
         self.assertEqual(d['people'], [{'handle': 'ann', 'accepted': 1, 'wrong': 1}, {'handle': 'bob', 'accepted': 1, 'wrong': 0}])

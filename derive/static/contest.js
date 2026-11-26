@@ -67,7 +67,7 @@ export async function renderContest(ctx) {
     ${ended.length > 1 ? `<section class="surface"><h2>Earlier contests</h2><div class="table-scroll"><table class="table"><thead><tr><th>Set</th><th>Date</th><th>Solved</th><th>Penalty</th><th>Wrong tries</th><th>Longest dry spell</th><th>Last accept</th><th>Team</th></tr></thead><tbody>${ended.map(r => `<tr><td>${r.url ? `<a href="${e(r.url)}" target="_blank" rel="noopener noreferrer">${e(r.title)}</a>` : e(r.title)}</td><td>${new Date(r.started_at).toLocaleDateString([], {day: 'numeric', month: 'short'})}</td><td>${r.solved} of ${r.rows.length}</td><td>${r.penalty}</td><td>${r.debrief.wrong}</td><td>${r.debrief.dry.minutes} min</td><td>${r.debrief.last == null ? '' : 'min ' + r.debrief.last}</td><td>${e(r.handles.join(', '))}</td></tr>`).join('')}</tbody></table></div></section>` : ''}`;
 
     const reload = async () => { page = await api('/contests'); if (alive()) { paint(); ctx.sync(); } };
-    const act = async (path, body, quiet) => { try { await post(path, body); await reload(); } catch (error) { if (!quiet) toast(error.message, 'error'); } };
+    const act = async (path, body, quiet) => { try { await post(path, body); await reload(); return true; } catch (error) { if (!quiet) toast(error.message, 'error'); return false; } };
 
     root.querySelector('[data-start]')?.addEventListener('submit', async event => {
       event.preventDefault();
@@ -87,7 +87,7 @@ export async function renderContest(ctx) {
     root.querySelectorAll('[data-stall]').forEach(select => select.addEventListener('change', () => { if (select.value) act('/contest/stall', {run: Number(select.dataset.run), problem: select.dataset.stall, label: select.value}); }));
     const lessonForm = root.querySelector('[data-lesson]');
     lessonForm?.elements.lesson.addEventListener('input', event => { lessonDraft = event.target.value; });
-    lessonForm?.addEventListener('submit', async event => { event.preventDefault(); await act('/contest/lesson', {run: Number(lessonForm.dataset.lesson), lesson: lessonForm.elements.lesson.value}); lessonDraft = null; toast('Saved.'); });
+    lessonForm?.addEventListener('submit', async event => { event.preventDefault(); if (await act('/contest/lesson', {run: Number(lessonForm.dataset.lesson), lesson: lessonForm.elements.lesson.value})) { lessonDraft = null; toast('Saved.'); } });
     root.querySelectorAll('[data-label]').forEach(select => select.addEventListener('change', () => { if (select.value) act('/contest/label', {run: Number(select.dataset.run), submission: select.dataset.label, label: select.value}); }));
 
     if (run) {

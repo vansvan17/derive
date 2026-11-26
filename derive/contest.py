@@ -127,7 +127,7 @@ def read_submissions(handles, contest_id, fetch, rows=()):
     return out
 
 
-def draw_mixed(handles, count, low, high, fetch, cache, avoid=(), rng=None):
+def draw_mixed(handles, count, low, high, fetch, cache, avoid=(), rng=None, avoid_names=()):
     """A mixed set: `count` recent problems with ratings spread evenly from `low` to `high`, shuffled, lettered from A.
 
     Left out: anything one of the handles has ever submitted (by round and letter, and by name, since a problem shared by
@@ -139,7 +139,7 @@ def draw_mixed(handles, count, low, high, fetch, cache, avoid=(), rng=None):
             raise SyncError('Codeforces did not return its list of rounds.')
         cache['dates'] = {c['id']: c.get('startTimeSeconds', 0) for c in data['result'] if c.get('phase') == 'FINISHED'}
     recent = {cid for cid, at in cache['dates'].items() if at >= SINCE}
-    seen, names = set(avoid), set()
+    seen, names = set(avoid), set(avoid_names)
     for handle in handles:
         data = fetch(API + 'user.status?' + urllib.parse.urlencode({'handle': handle}))            # the whole history, not just the last few
         if data.get('status') != 'OK':
@@ -169,13 +169,15 @@ def link(contest_id, row):
 
 
 def debrief(board, handles, minutes):
-    """What the judge's record says about how the run went. Nothing here is typed in by anyone."""
+    """What the judge's record says about how the run went. Nothing here is typed in by anyone.
+
+    `minutes` is the time actually sat: a clock ended early is not counted as a dry spell."""
     rows = board.get('rows', [])
     solved = sorted((r for r in rows if r['solved']), key=lambda r: r['minute'])
     marks = [0] + [r['minute'] for r in solved] + [minutes]
     gaps = [(b - a, a, b) for a, b in zip(marks, marks[1:])]
     dry = max(gaps) if gaps else (minutes, 0, minutes)
-    people = [{'handle': h, 'accepted': sum(1 for r in solved if r['by'] == h), 'wrong': sum(1 for r in rows for w in r['wrong'] if w['handle'] == h)} for h in handles]
+    people = [{'handle': h, 'accepted': sum(1 for r in solved if r.get('by') == h), 'wrong': sum(1 for r in rows for w in r['wrong'] if w.get('handle') == h)} for h in handles]
     hardest = max((r['rating'] or 0 for r in solved), default=0)
     table = sorted((r for r in rows if not r['solved'] and r['rating'] and r['rating'] < hardest), key=lambda r: r['rating'])
     # an easier problem that fell at least half an hour after a harder one: it was found late
@@ -208,11 +210,12 @@ def view(store, row):
         for w in r['wrong']:
             w['label'] = labels.get(w['id'])
     mixed = not row['contest']
+    sat = min(row['minutes'], max(1, int((datetime.fromisoformat(row['ended_at']).timestamp() - start) // 60))) if row['ended_at'] else row['minutes']
     return {'id': row['id'], 'contest': row['contest'], 'mixed': mixed, 'title': 'Mixed set' if mixed else f'Round {row["contest"]}',
             'url': None if mixed else f'https://codeforces.com/contest/{row["contest"]}', 'handles': handles,
             'minutes': row['minutes'], 'started_at': row['started_at'], 'ended': over, 'closed': bool(row['ended_at']),
             'seconds_left': max(0, int(end - _now().timestamp())) if not over else 0, 'checked_at': row['checked_at'],
-            'debrief': debrief(board, handles, row['minutes']) if over else None, 'lesson': note['lesson'] if note else '', **board}
+            'debrief': debrief(board, handles, sat) if over else None, 'lesson': note['lesson'] if note else '', **board}
 
 
 def active(store):
@@ -243,7 +246,7 @@ def start(service, store, data, ApiError):
         if mixed:
             used = [*service.content.problems.values(), *service.content.parked.values()]          # never spend a problem the Solve page is keeping
             avoid = {(p.get('contest'), p.get('index')) for p in used if p.get('site') == 'Codeforces'}
-            problems = draw_mixed(handles, mixed['count'], mixed['low'], mixed['high'], service.fetch, service.cf_cache, avoid, getattr(service, 'rng', None))
+            problems = draw_mixed(handles, mixed['count'], mixed['low'], mixed['high'], service.fetch, service.cf_cache, avoid, getattr(service, 'rng', None), {p.get('title') for p in used})
         else:
             problems = problems_of(contest_id, service.fetch, service.cf_cache)
     except SyncError as exc:

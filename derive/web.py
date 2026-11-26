@@ -918,6 +918,9 @@ class Service:
         # code: what the judge said, and how many tasks went through on the first try
         verdicts = {r['verdict']: r['n'] for r in store.all('SELECT verdict, COUNT(*) AS n FROM task_tries GROUP BY verdict')}
         accepted = store.all('SELECT tries FROM tasks_done')
+        # the 'standard' track is drill: what matters there is being right on the first submission
+        drill = {t['id'] for t in self.content.tasks.values() if t.get('track') == 'standard'}
+        drilled = [r['tries'] for r in store.all('SELECT task, tries FROM tasks_done') if r['task'] in drill]
         # a hint counts against an accept only if it was opened before the program was accepted
         hinted = store.one("SELECT COUNT(*) FROM tasks_done d WHERE EXISTS(SELECT 1 FROM nudges n WHERE n.scope='task' AND n.owner=d.task AND n.at<=d.at)")[0]
         broken = store.all('SELECT tries, nudges FROM breaks_done')
@@ -933,7 +936,8 @@ class Service:
             'by_area': [{'area': areas.get(a, a), 'total': sum(c.values()), 'causes': [{'label': evidence.CAUSES[k], 'count': n} for k, n in sorted(c.items(), key=lambda x: -x[1])]} for a, c in sorted(by_area.items(), key=lambda x: -sum(x[1].values()))],
             'chains': [{'id': i, 'name': label(i), 'area': areas.get(ideas[i]['area'], ''), 'track': ideas[i].get('track'), 'title': ideas[i].get('cses', {}).get('title'),
                         'wrong': v.get('wrong', 0), 'nudges': v.get('nudges', 0), 'tutor': v.get('tutor', 0)} for i, v in hardest],
-            'code': {'verdicts': [{'verdict': k, 'count': verdicts[k]} for k in ('AC', 'WA', 'TLE', 'RE', 'MLE', 'CE') if verdicts.get(k)], 'accepted': len(accepted), 'first_try': sum(1 for r in accepted if r['tries'] == 1), 'no_hint': len(accepted) - hinted},
+            'code': {'verdicts': [{'verdict': k, 'count': verdicts[k]} for k in ('AC', 'WA', 'TLE', 'RE', 'MLE', 'CE') if verdicts.get(k)], 'accepted': len(accepted), 'first_try': sum(1 for r in accepted if r['tries'] == 1), 'no_hint': len(accepted) - hinted,
+                     'standard': {'of': len(drill), 'accepted': len(drilled), 'first_try': sum(1 for n in drilled if n == 1)}},
             'breaks': {'broken': len(broken), 'of': len(self.content.breaks), 'first_try': sum(1 for r in broken if r['tries'] == 1), 'with_questions': sum(1 for r in broken if r['nudges'])},
             'recognise': [{'label': v, 'count': recog.get(k, 0)} for k, v in recognise.RATINGS.items()],
             'puzzles': [{'set': sets.get(k, k or 'Other'), **v} for k, v in puzzles.items()],

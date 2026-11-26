@@ -431,6 +431,16 @@ class App(unittest.TestCase):
         after = self.get('/task/equal-pairs')
         self.assertEqual((after['solved'], after['tries']), (True, 3))
 
+    def test_standard_moves_count_first_submission_accepts_on_their_own(self):
+        listed = [t for t in self.get('/tasks')['tasks'] if t['track'] == 'standard']
+        self.assertEqual(len(listed), 12)
+        runs = 'import itertools\nr = [c + str(len(list(g))) for c, g in itertools.groupby(input().strip())]\nprint(len(r)); print(*r)\n'
+        ranks = 'input(); a = list(map(int, input().split())); r = {x: i + 1 for i, x in enumerate(sorted(set(a)))}\nprint(len(r)); print(*[r[x] for x in a])\n'
+        self.assertEqual(self.judged({'id': 's-runs', 'language': 'python', 'main': runs})['verdict'], 'AC')
+        self.assertEqual(self.judged({'id': 's-ranks', 'language': 'python', 'main': ranks.replace('set(a)', 'a')})['verdict'], 'WA')   # repeats left in
+        self.assertEqual(self.judged({'id': 's-ranks', 'language': 'python', 'main': ranks})['verdict'], 'AC')
+        self.assertEqual(self.get('/mastery')['patterns']['code']['standard'], {'of': 12, 'accepted': 2, 'first_try': 1})
+
     def test_the_move_that_cracks_a_problem_is_recorded_and_counted(self):
         pid = self.open(); self.commit(pid)
         self.assertEqual(self.post('/problem/move', {'id': pid, 'move': 'invariant'})[0], 409)          # only once it is finished

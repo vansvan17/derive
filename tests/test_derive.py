@@ -759,12 +759,14 @@ class App(unittest.TestCase):
 
     # ---- stars and the revise page ----
     def test_a_star_keeps_a_card_whose_back_exists_only_for_finished_things(self):
-        self.assertEqual(self.get('/bootstrap')['stars'], [])
+        self.assertEqual(self.get('/bootstrap')['stars'], {})
         self.assertEqual(self.post('/star', {'kind': 'step', 'ref': 'residues/sum'})[0], 404)           # the second question has not been seen yet
         self.assertEqual(self.post('/star', {'kind': 'luck', 'ref': 'x'})[0], 400)
         self.assertEqual(self.post('/star', {'kind': 'problem', 'ref': 'cf-1-a'})[0], 404)              # a problem that has not come up
-        self.assertEqual(self.post('/star', {'kind': 'step', 'ref': 'residues/clock'})[1]['on'], True)
-        self.assertEqual(self.get('/bootstrap')['stars'], ['step:residues/clock'])
+        self.assertEqual(self.post('/star', {'kind': 'step', 'ref': 'residues/clock', 'on': True, 'note': ' count the laps '})[1]['on'], True)
+        self.assertEqual(self.get('/bootstrap')['stars'], {'step:residues/clock': 'count the laps'})
+        self.post('/star', {'kind': 'step', 'ref': 'residues/clock', 'on': True, 'note': '100 = 14 laps + 2'})            # starring again edits the note
+        self.assertEqual((len(self.get('/revise')['cards']), self.get('/revise')['cards'][0]['my_note']), (1, '100 = 14 laps + 2'))
         chain = json.loads((self.root / 'content/chains/residues.json').read_text())
         card = self.get('/revise')['cards'][0]
         self.assertEqual((card['kind'], card['front'], card['back'], card['finished']), ('step', chain['steps'][0]['prompt'], None, False))
@@ -789,7 +791,7 @@ class App(unittest.TestCase):
         self.post('/contest/end', {'run': run['id']})
         self.assertTrue(next(c for c in self.get('/revise')['cards'] if c['kind'] == 'step')['back'])
         with self.service.store() as store:                                                              # a star whose target has gone is skipped, not a crash
-            store.run("INSERT INTO stars VALUES('puzzle','no-such-puzzle','2026-01-01')")
+            store.run("INSERT INTO stars(kind,ref,at) VALUES('puzzle','no-such-puzzle','2026-01-01')")
         self.assertEqual(len(self.get('/revise')['cards']), 4)
         self.assertEqual(self.post('/star', {'kind': 'step', 'ref': 'residues/clock'})[1]['on'], False)
         self.assertEqual(len(self.get('/revise')['cards']), 3)

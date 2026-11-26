@@ -16,6 +16,7 @@ export async function renderRevise(ctx) {
   const card = (c, big) => { const k = key(c), flipped = open.has(k);
     return `<article class="surface revise-card ${big ? 'is-big' : ''}" data-card="${e(k)}">
       <div class="revise-head"><p class="eyebrow">${e(c.label)} · ${e(c.title)}</p>${star(c.kind, c.ref)}</div>
+      ${c.my_note ? `<p class="card-mine"><span class="muted small">Your note</span>${e(c.my_note)}</p>` : ''}
       ${c.note != null ? (c.note.trim() ? `<pre class="card-note">${e(c.note)}</pre>` : '<p class="muted">These notes are empty.</p>') : `<div class="step-prompt">${markdown(c.front)}</div>`}
       ${c.options ? `<ol class="card-options" type="A">${c.options.map(o => `<li>${inline(o)}</li>`).join('')}</ol>` : ''}
       ${c.url ? `<p><a class="btn btn-secondary btn-sm" href="${e(c.url)}" target="_blank" rel="noopener noreferrer">${icon('external')}Read it on ${e(c.site)}</a></p>` : ''}
@@ -25,7 +26,7 @@ export async function renderRevise(ctx) {
 
   function paint() {
     const list = shown();
-    const head = `<header class="page-head"><div><p class="eyebrow">What you starred</p><h1>Revise</h1><p class="muted">Star a question, a problem, a task, a Toolbox page or your own notes with the <span class="inline-icon">${icon('star')}</span> button on its page, and it is kept here as a card. The back of a card is only there for things you have finished.</p></div></header>`;
+    const head = `<header class="page-head"><div><p class="eyebrow">What you starred</p><h1>Revise</h1><p class="muted">Star a question, a problem, a task, a Toolbox page or your scratch notes with the <span class="inline-icon">${icon('star')}</span> button on its page, and it is kept here as a card, with the note you write when you star it. Click a card's star to edit the note or remove it. The back of a card is only there for things you have finished.</p></div></header>`;
     if (!page.cards.length) { root.innerHTML = head + `<section class="surface empty-state"><h2>Nothing starred yet</h2><p>Look for the star next to a chain question, a puzzle, a problem title, a task title, or your notes.</p><a class="btn btn-primary" href="#/derive">Go to a chain</a></section>`; return; }
     const chips = `<div class="puzzle-sets" role="tablist"><button class="btn ${filter ? 'btn-secondary' : 'btn-primary'} btn-sm" type="button" data-filter="">All · ${page.cards.length}</button>${page.kinds.filter(k => k.count).map(k => `<button class="btn ${filter === k.id ? 'btn-primary' : 'btn-secondary'} btn-sm" type="button" data-filter="${e(k.id)}">${e(k.label)} · ${k.count}</button>`).join('')}
       <span class="spacer"></span><button class="btn btn-secondary btn-sm" type="button" data-one>${one ? 'Show them all' : 'One at a time, shuffled'}</button></div>`;

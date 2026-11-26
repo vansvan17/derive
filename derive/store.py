@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS contest_stalls(run INTEGER NOT NULL, problem TEXT NOT
   PRIMARY KEY(run, problem));
 CREATE TABLE IF NOT EXISTS contest_notes(run INTEGER PRIMARY KEY, lesson TEXT NOT NULL, at TEXT NOT NULL);
 -- stars: anything kept for revision, as a reference (never a copy)
-CREATE TABLE IF NOT EXISTS stars(kind TEXT NOT NULL, ref TEXT NOT NULL, at TEXT NOT NULL, PRIMARY KEY(kind, ref));
+CREATE TABLE IF NOT EXISTS stars(kind TEXT NOT NULL, ref TEXT NOT NULL, at TEXT NOT NULL, note TEXT NOT NULL DEFAULT '', PRIMARY KEY(kind, ref));
 -- puzzles: every answer given, and how each puzzle ended (solved, with how many wrong tries first, or shown)
 CREATE TABLE IF NOT EXISTS puzzle_tries(id INTEGER PRIMARY KEY, at TEXT NOT NULL, puzzle TEXT NOT NULL, answer TEXT NOT NULL, correct INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS puzzles_done(puzzle TEXT PRIMARY KEY, at TEXT NOT NULL, wrong INTEGER NOT NULL, shown INTEGER NOT NULL);
@@ -83,6 +83,8 @@ class Store:
         self.db.execute('PRAGMA journal_mode=WAL')
         self.db.executescript(SCHEMA)
         # added later: the idea whose finished chain a problem was opened from (the topic was known, so the solve is not cold)
+        if 'note' not in {r[1] for r in self.db.execute('PRAGMA table_info(stars)')}:      # a star can carry a note to yourself
+            self.db.execute("ALTER TABLE stars ADD COLUMN note TEXT NOT NULL DEFAULT ''")
         if 'topic_known' not in {r[1] for r in self.db.execute('PRAGMA table_info(attempts)')}:
             self.db.execute('ALTER TABLE attempts ADD COLUMN topic_known TEXT')
         if 'move' not in {r[1] for r in self.db.execute('PRAGMA table_info(attempts)')}:

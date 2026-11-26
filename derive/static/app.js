@@ -103,16 +103,17 @@ export function toast(message, type = 'info') {
   setTimeout(() => node.remove(), type === 'error' ? 8000 : 4500);
 }
 /* Resolves false on cancel; true, or the typed text when an input was asked for. */
-export function dialog({title, body = '', html = '', confirm = 'Continue', cancel = 'Cancel', danger = false, input = null, wide = false}) {
+export function dialog({title, body = '', html = '', confirm = 'Continue', cancel = 'Cancel', danger = false, input = null, wide = false, extra = ''}) {
   return new Promise(resolve => {
     const node = document.createElement('dialog');
     node.className = 'modal' + (wide ? ' modal-wide' : '');
     node.setAttribute('aria-labelledby', 'modal-title');
-    node.innerHTML = `<form method="dialog"><div class="modal-body"><h2 id="modal-title">${escape(title)}</h2>${body ? `<p class="muted">${escape(body)}</p>` : ''}${html}${input ? `<label class="field">${escape(input.label)}<textarea name="value" rows="${input.rows || 3}" placeholder="${escape(input.placeholder || '')}"></textarea></label>` : ''}</div><div class="modal-actions">${cancel ? `<button type="button" class="btn btn-secondary" data-cancel>${escape(cancel)}</button>` : ''}<button type="submit" class="btn ${danger ? 'btn-danger' : 'btn-primary'}">${escape(confirm)}</button></div></form>`;
+    node.innerHTML = `<form method="dialog"><div class="modal-body"><h2 id="modal-title">${escape(title)}</h2>${body ? `<p class="muted">${escape(body)}</p>` : ''}${html}${input ? `<label class="field">${escape(input.label)}<textarea name="value" rows="${input.rows || 3}" placeholder="${escape(input.placeholder || '')}">${escape(input.value || '')}</textarea></label>` : ''}${extra ? `<p><button type="button" class="btn btn-ghost btn-sm" data-extra>${escape(extra)}</button></p>` : ''}</div><div class="modal-actions">${cancel ? `<button type="button" class="btn btn-secondary" data-cancel>${escape(cancel)}</button>` : ''}<button type="submit" class="btn ${danger ? 'btn-danger' : 'btn-primary'}">${escape(confirm)}</button></div></form>`;
     document.body.append(node);
     let result = false;
     node.querySelector('form').addEventListener('submit', () => { result = input ? node.querySelector('textarea').value.trim() || true : true; });
     node.querySelector('[data-cancel]')?.addEventListener('click', () => node.close());
+    node.querySelector('[data-extra]')?.addEventListener('click', () => { result = 'extra'; node.close(); });
     node.addEventListener('close', () => { node.remove(); resolve(result); });
     node.showModal();
   });
@@ -126,7 +127,7 @@ function paintNav() {
   const host = document.querySelector('[data-nav-host]');
   if (!host) return;
   const here = section(), c = state.boot?.counts;
-  host.innerHTML = NAV.map(([name, glyph, label]) => `<a class="nav-link" href="#/${name}" ${name === here ? 'aria-current="page"' : ''}>${icon(glyph)}<span>${label}${name === 'revise' && state.boot?.stars?.length ? ` · ${state.boot.stars.length}` : ''}</span></a>`).join('')
+  host.innerHTML = NAV.map(([name, glyph, label]) => `<a class="nav-link" href="#/${name}" ${name === here ? 'aria-current="page"' : ''}>${icon(glyph)}<span>${label}${name === 'revise' && state.boot?.stars && Object.keys(state.boot.stars).length ? ` · ${Object.keys(state.boot.stars).length}` : ''}</span></a>`).join('')
     + (c ? `<p class="sidebar-count">${c.derived} of ${c.chains} chains derived<br>${c.cold} cold solves · working at ${state.boot.band.band}</p>` : '');
 }
 export function applyTheme(theme) {
@@ -182,19 +183,25 @@ async function sync() { state.boot = await api('/bootstrap'); paintNav(); return
 function navigate(hash) { const target = hash.startsWith('#') ? hash : '#' + hash; if (location.hash === target) route(); else location.hash = target; }
 /* ---------- Stars ----------
    Any page can drop in star(kind, ref). Pages rebuild their HTML often, so one listener on the document serves every button. */
-export const star = (kind, ref) => { const key = kind + ':' + ref, on = state.boot?.stars?.includes(key);
+export const star = (kind, ref) => { const key = kind + ':' + ref, on = state.boot?.stars && key in state.boot.stars;
   return `<button class="star-btn ${on ? 'is-on' : ''}" type="button" data-star="${escape(key)}" aria-pressed="${on ? 'true' : 'false'}" title="${on ? 'Starred for revision: click to remove' : 'Star for revision'}" aria-label="Star for revision">${icon('star')}</button>`; };
 document.addEventListener('click', async event => {
   const button = event.target.closest?.('[data-star]');
   if (!button) return;
   event.preventDefault();                          // a star inside a fold-out heading must not fold it
   const key = button.dataset.star, cut = key.indexOf(':');
+  // Starring asks for a note to yourself; a star that is already on opens its note for editing, with a way to remove it.
+  const has = state.boot?.stars && key in state.boot.stars;
+  const answer = await dialog({title: has ? 'Starred for revision' : 'Star for revision', confirm: has ? 'Save the note' : 'Star it', extra: has ? 'Remove the star' : '',
+    input: {label: 'A note to yourself (optional)', rows: 4, value: has ? state.boot.stars[key] : '', placeholder: 'e.g. Missed that only the parity matters. Try small cases first next time.'}});
+  if (answer === false) return;
+  const taken = answer === 'extra' ? false : true, note = typeof answer === 'string' && answer !== 'extra' ? answer : '';
   try {
-    const r = await post('/star', {kind: key.slice(0, cut), ref: key.slice(cut + 1)});
+    const r = await post('/star', {kind: key.slice(0, cut), ref: key.slice(cut + 1), on: taken, note});
     if (state.boot) state.boot.stars = r.stars;
     document.querySelectorAll('[data-star]').forEach(b => { if (b.dataset.star !== key) return; b.classList.toggle('is-on', r.on); b.setAttribute('aria-pressed', r.on ? 'true' : 'false'); b.title = r.on ? 'Starred for revision: click to remove' : 'Star for revision'; });
     paintNav();
-    toast(r.on ? 'Starred. It is on the Revise page.' : 'Star removed.');
+    toast(!r.on ? 'Star removed.' : has ? 'Note saved.' : 'Starred. It is on the Revise page.');
     document.dispatchEvent(new CustomEvent('derive-star'));
   } catch (error) { toast(error.message, 'error'); }
 });

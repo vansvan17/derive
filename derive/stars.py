@@ -8,7 +8,9 @@ A card has a front and, sometimes, a back. The back is built here, on the server
 what the learner has already earned: her answer and what the step showed once the step is done,
 a puzzle's reason once it is finished, a problem's observations once it is solved or given up,
 her own accepted code for a task. An unfinished item is a front and a link, nothing more.
-Starring is not help: it writes nothing but the star. There are no due dates and no scores.
+A star can carry a note to yourself, written when you star it and editable afterwards; the note is
+shown on the front of the card. Starring is not help: it writes nothing but the star and its note.
+There are no due dates and no scores.
 """
 from __future__ import annotations
 from datetime import datetime, timezone
@@ -120,19 +122,28 @@ def card(service, store, kind, ref, derived, locked=False):
 
 
 def keys(store):
-    return [f'{r["kind"]}:{r["ref"]}' for r in store.all('SELECT kind, ref FROM stars ORDER BY at')]
+    """Every star as "kind:ref", with the note it carries."""
+    return {f'{r["kind"]}:{r["ref"]}': r['note'] for r in store.all('SELECT kind, ref, note FROM stars ORDER BY at')}
 
 
 def toggle(service, store, data, ApiError):
     kind, ref = data.get('kind'), data.get('ref')
     if kind not in KINDS or not isinstance(ref, str) or not 0 < len(ref) <= 200:
         raise ApiError('That cannot be starred.')
-    if store.one('SELECT 1 FROM stars WHERE kind=? AND ref=?', (kind, ref)):
+    have = store.one('SELECT 1 FROM stars WHERE kind=? AND ref=?', (kind, ref))
+    want = data.get('on') if isinstance(data.get('on'), bool) else not have       # without "on" it simply flips
+    note = data.get('note', '')
+    if not isinstance(note, str) or len(note) > 4000:
+        raise ApiError('Keep the note under 4000 characters.')
+    if not want:
         store.run('DELETE FROM stars WHERE kind=? AND ref=?', (kind, ref))
         return {'on': False, 'stars': keys(store)}
+    if have:                                                                      # already starred: this is an edit of its note
+        store.run('UPDATE stars SET note=? WHERE kind=? AND ref=?', (note.strip(), kind, ref))
+        return {'on': True, 'stars': keys(store)}
     if not card(service, store, kind, ref, service.derived(store)):
         raise ApiError('That cannot be starred yet.', 404)
-    store.run('INSERT INTO stars VALUES(?,?,?)', (kind, ref, datetime.now(timezone.utc).isoformat()))
+    store.run('INSERT INTO stars(kind,ref,at,note) VALUES(?,?,?,?)', (kind, ref, datetime.now(timezone.utc).isoformat(), note.strip()))
     return {'on': True, 'stars': keys(store)}
 
 
@@ -146,5 +157,5 @@ def cards(service, store, locked):
         except Exception:
             built = None                             # a star must never take the page down
         if built:
-            out.append({'kind': r['kind'], 'ref': r['ref'], 'label': KINDS[r['kind']], 'at': r['at'], **built})
+            out.append({'kind': r['kind'], 'ref': r['ref'], 'label': KINDS[r['kind']], 'at': r['at'], 'my_note': r['note'], **built})
     return {'cards': out, 'locked': locked, 'kinds': [{'id': k, 'label': v, 'count': sum(1 for c in out if c['kind'] == k)} for k, v in KINDS.items()]}

@@ -524,3 +524,5 @@ summary .star-btn{float:right;margin-top:-.25rem}
 .card-options{padding-left:1.5rem}
 .puzzle-sets .spacer{flex:1}
 .inline-icon svg{width:1em;height:1em;vertical-align:-.125em}
+.card-mine{background:var(--canvas);border-left:3px solid #d69a00;border-radius:.375rem;padding:.5rem .75rem;margin:0 0 .75rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.card-mine .muted{display:block;margin-bottom:.125rem}

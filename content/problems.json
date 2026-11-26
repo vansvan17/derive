@@ -1074,30 +1074,6 @@
   "checked": "2026-11-24"
  },
  {
-  "id": "cf-2085D",
-  "site": "Codeforces",
-  "contest": 2085,
-  "index": "D",
-  "title": "Serval and Kaitenzushi Buffet",
-  "rating": 2000,
-  "url": "https://codeforces.com/contest/2085/problem/D",
-  "editorial": "https://codeforces.com/blog/entry/140933",
-  "ideas": [
-   "regret-greedy"
-  ],
-  "observations": [
-   "A plate taken needs k later minutes of eating, so the last plate must be taken by minute n - (k + 1) + 1, the one before it by minute n - 2(k + 1) + 1, and so on.",
-   "These deadlines are the only constraints: when the i-th deadline from the end arrives, one more plate has to be chosen, and it may be any plate that has already gone by.",
-   "Go through the minutes in order, keeping the plates not taken in a heap; each time a deadline minute is reached, take the most delicious plate seen so far."
-  ],
-  "nudges": [
-   "How late can the last plate be taken? The one before it?",
-   "Do you need to decide which plates to take at the moment they pass?",
-   "At a deadline, which of the plates that have gone by should you commit to, and what structure hands it to you?"
-  ],
-  "checked": "2026-11-27"
- },
- {
   "id": "cf-2096D",
   "site": "Codeforces",
   "contest": 2096,
@@ -1212,7 +1188,7 @@
   "observations": [
    "Fix the number k of doublings. An increment made before j of the remaining doublings adds 2^j at the end, so element i needs floor(b_i / 2^k) - a_i increments at the start and then one for each set bit of b_i below bit k.",
    "A doubling is worth more than any increment, so k is as large as a_i * 2^k <= b_i allows for every i.",
-   "Between two doublings the increments can come in any order: multiply together, for each gap, the multinomial coefficient of the increments made there. Only the first gap has counts above 1."
+   "Between two doublings the increments can come in any order: multiply together, for each gap, the multinomial coefficient of the increments made there. Only the first gap has counts above 1. Factorials below the modulus 10^6 + 3 and their inverses are enough: a larger total makes the factorial 0, and every single count is below the modulus."
   ],
   "nudges": [
    "If you add 1 and afterwards double j times, how much have you added to the final value?",

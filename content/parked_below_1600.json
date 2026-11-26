@@ -405,42 +405,17 @@
   "url": "https://codeforces.com/contest/2115/problem/A",
   "editorial": "https://codeforces.com/blog/entry/143418",
   "ideas": [
-   "euclid",
    "dp-state"
   ],
   "observations": [
    "Every element only ever becomes a divisor of what it was, and the common value at the end divides everything, so the final value is g, the gcd of the whole array.",
    "Once one element equals g, each other element needs exactly one operation with it. If g is already present the answer is the number of elements different from g.",
-   "Otherwise find the fewest operations that turn some element into g: f(x) = fewest operations to hold the value x, and from x one operation with a_i reaches gcd(x, a_i). Values are at most 5000, so prepare the whole gcd table with gcd(x, y) = gcd(y, x mod y)."
+   "Otherwise find the fewest operations that turn some element into g: f(x) = fewest operations to hold the value x, and from x one operation with a_i reaches gcd(x, a_i). Values are at most 5000, so go through x from large to small with a prepared table of gcds."
   ],
   "nudges": [
    "What must all the elements be equal to at the end?",
    "Suppose one element already has that value. How many more operations are needed?",
    "If no element has it yet, think of the values an element can hold as places, and an operation as a step between places. What is being asked?"
-  ],
-  "checked": "2026-11-27"
- },
- {
-  "id": "cf-2200E",
-  "site": "Codeforces",
-  "contest": 2200,
-  "index": "E",
-  "title": "Divisive Battle",
-  "rating": 1500,
-  "url": "https://codeforces.com/contest/2200/problem/E",
-  "editorial": "https://codeforces.com/blog/entry/151625",
-  "ideas": [
-   "sieve"
-  ],
-  "observations": [
-   "If the array is already non-decreasing Bob has won. Otherwise, if some element has two different prime factors p < q, Alice splits it into x / p followed by p: a multiple of q now stands before the smaller prime p, and no later move can repair that.",
-   "If every element is 1 or a power of one prime, replace each by that prime (or 1). If this array is non-decreasing Bob wins, because that is what everything ends as; otherwise Alice wins with one split.",
-   "So the whole game is decided by the prime factors of each element: a table of smallest prime factors gives them."
-  ],
-  "nudges": [
-   "On which numbers can no move be made at all?",
-   "Which single move by Alice creates a disorder that can never be undone?",
-   "If no element allows that move, what does the array look like when nobody can move any more?"
   ],
   "checked": "2026-11-27"
  },

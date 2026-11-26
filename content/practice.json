@@ -403,14 +403,6 @@
    "checked": "2026-11-27"
   }
  ],
- "prefix-pigeonhole": [
-  {
-   "site": "CSES",
-   "title": "Subarray Divisibility",
-   "url": "https://cses.fi/problemset/task/1662",
-   "checked": "2026-11-27"
-  }
- ],
  "state-graph": [
   {
    "site": "CSES",
@@ -464,6 +456,14 @@
    "site": "CSES",
    "title": "Playlist",
    "url": "https://cses.fi/problemset/task/1141",
+   "checked": "2026-11-27"
+  }
+ ],
+ "prefix-pairs": [
+  {
+   "site": "CSES",
+   "title": "Subarray Divisibility",
+   "url": "https://cses.fi/problemset/task/1662",
    "checked": "2026-11-27"
   }
  ]

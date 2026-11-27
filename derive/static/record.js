@@ -6,8 +6,9 @@ export async function renderMastery(ctx) {
   const root = ctx.root;
   const m = await api('/mastery');
   if (ctx.root !== root) return;
-  const name = (n, id) => n ? e(n) : '<span class="muted">not yet derived</span>';
-  const tick = on => on ? '<span class="badge badge-success">yes</span>' : '<span class="muted">no</span>';
+  const name = (n, id) => n ? e(n) : '<span class="zero">not yet derived</span>';
+  const num = n => n ? n : '<span class="zero">0</span>';
+  const tick = on => on ? '<span class="badge badge-success">yes</span>' : '<span class="zero">–</span>';
   const when = iso => new Date(iso).toLocaleDateString([], {day: 'numeric', month: 'short'});
   const total = m.causes.reduce((a, c) => a + c.count, 0);
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow">The record</p><h1>What you can do</h1><p class="muted">Four different kinds of evidence, kept apart. Reading or being shown something is not on this page at all.</p></div></header>
@@ -17,7 +18,7 @@ export async function renderMastery(ctx) {
     </div>
     <section class="surface"><h2>By idea</h2><p class="muted small"><strong>Derived</strong>: finished its chain. <strong>Applied</strong>: a real judge accepted a problem that needs it. <strong>Recognised</strong>: accepted with no help and no topic given. <strong>Combined</strong>: recognised in a problem needing two or more ideas.</p>
       <div class="table-scroll"><table class="table"><thead><tr><th>Idea</th><th>Derived</th><th>Applied</th><th>Recognised</th><th>Combined</th><th>Problems in set</th></tr></thead><tbody>
-      ${m.areas.map(area => `<tr class="table-group"><th colspan="6">${e(area.title)}</th></tr>` + m.ideas.filter(i => i.area === area.id).map(i => `<tr><td>${name(i.name)}${i.has_chain ? '' : ' <span class="muted small">· chain not written</span>'}</td><td>${tick(i.derived)}</td><td>${i.applied}</td><td>${i.recognised}</td><td>${i.combined}</td><td>${i.problems}</td></tr>`).join('')).join('')}
+      ${m.areas.map(area => `<tr class="table-group"><th colspan="6">${e(area.title)}</th></tr>` + m.ideas.filter(i => i.area === area.id).map(i => `<tr><td>${name(i.name)}${i.has_chain ? '' : ' <span class="muted small">· chain not written</span>'}</td><td>${tick(i.derived)}</td><td>${num(i.applied)}</td><td>${num(i.recognised)}</td><td>${num(i.combined)}</td><td>${num(i.problems)}</td></tr>`).join('')).join('')}
       </tbody></table></div></section>
     <section class="surface"><h2>Connections</h2><p class="muted small">Knowing two ideas separately is not the same as seeing them together. Only pairs you have derived both ends of are listed.</p>
       ${m.pairs.length ? `<div class="table-scroll"><table class="table"><thead><tr><th>Pair</th><th>Applied together</th><th>Recognised together</th><th>Problems in set</th></tr></thead><tbody>${m.pairs.map(p => `<tr><td>${e(p.a_name)} + ${e(p.b_name)}</td><td>${p.applied}</td><td>${p.recognised}</td><td>${p.problems}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nothing yet: no problem in the set joins two ideas you have derived.</p>'}</section>

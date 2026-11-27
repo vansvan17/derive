@@ -17,6 +17,19 @@ function behindFold(behind, e) {
     : `<li><a href="#/chain/${e(b.id)}">${b.name ? e(b.name) : `A chain in ${e(b.area)}`}</a> <span class="muted small">· ${b.name ? 'derived, revise it' : 'a chain of questions, not derived yet'}</span></li>`).join('')}</ul></details>`;
 }
 
+/* One row of a task list: a numbered ring that turns into a tick when the task is accepted, the title, and what is known about it.
+   The whole row is the link; links inside the note stay clickable. */
+function taskRow(t, k, e, note = '') {
+  const mark = t.solved ? `<span class="row-mark is-done" title="Accepted"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="sr-only">Accepted</span></span>` : `<span class="row-mark${t.tries ? ' is-tried' : ''}">${k}</span>`;
+  const state = t.solved ? '' : t.tries ? `<span class="row-state">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : '';
+  return `<li class="row">${mark}<a class="row-title" href="#/task/${e(t.id)}">${e(String(t.title).replace(/^\d+\.\s*/, ''))}</a>${note ? `<span class="row-note">${note}</span>` : ''}${state}</li>`;
+}
+/* The heading of one group of tasks, with how many are accepted and a thin bar. */
+function groupHead(title, about, list, e) {
+  const done = list.filter(t => t.solved).length;
+  return `<div class="group-head"><div><h2>${e(title)}</h2>${about ? `<p class="muted small">${e(about)}</p>` : ''}</div><div class="group-count" aria-label="${done} of ${list.length} accepted"><span>${done} / ${list.length}</span><div class="meter"><span style="width:${list.length ? Math.round(100 * done / list.length) : 0}%"></span></div></div></div>`;
+}
+
 function basisNote(basis, e) {
   if (!basis || !basis.length) return '';
   const chains = basis.filter(b => b.kind === 'chain'), tools = basis.filter(b => b.kind === 'tool');
@@ -32,8 +45,8 @@ export async function renderTasks(ctx) {
   page.tracks = page.tracks.filter(t => !OWN_PAGE.includes(t.id));
   const done = page.tasks.filter(t => t.solved).length;
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow">Write it</p><h1>Code</h1><p class="muted">Short tasks where you write the program yourself. No topic is given; the tests include inputs large enough that the first loop you think of is too slow. ${done} of ${page.tasks.length} accepted.</p></div></header>
-    ${page.tracks.map(track => { const mine = page.tasks.filter(t => t.track === track.id); return mine.length ? `<section class="surface"><h2>${e(track.title)}</h2><p class="muted small">${e(track.about)}</p>
-      <ol class="task-list">${mine.map(t => `<li><a href="#/task/${e(t.id)}">${e(t.title)}</a> ${t.solved ? '<span class="badge badge-success">accepted</span>' : t.tries ? `<span class="badge">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : ''}${t.basis.length ? ` <span class="muted small basis-inline">rests on ${basisLinks(t.basis, e)}</span>` : ''}</li>`).join('')}</ol></section>` : ''; }).join('')}`;
+    ${page.tracks.map(track => { const mine = page.tasks.filter(t => t.track === track.id); return mine.length ? `<section class="surface">${groupHead(track.title, track.about, mine, e)}
+      <ol class="rows">${mine.map((t, k) => taskRow(t, k + 1, e, t.basis.length ? `rests on ${basisLinks(t.basis, e)}` : '')).join('')}</ol></section>` : ''; }).join('')}`;
 }
 
 const OWN_PAGE = ['predictions', 'ladder'];
@@ -49,9 +62,9 @@ export async function renderLadder(ctx) {
   const rungs = [...new Set(mine.map(t => t.rung))].sort((a, b) => a - b);
   const done = mine.filter(t => t.solved).length;
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow">Come up with it yourself</p><h1>Think it up</h1><p class="muted">No named technique solves these. Each one gives way to an observation you find yourself, and the program is short once you have it. The rungs go from easy to genuinely hard; nothing is locked, but starting at the bottom is the point. ${done} of ${mine.length} accepted.</p></div></header>
-    <section class="surface"><h2>How to attack one</h2><ul><li>Work out the answer for the smallest cases by hand and write the answers in a row.</li><li>Look for a pattern, or for something a move can never change, or for a choice that is forced.</li><li>Guess a rule, test it on one more small case, then ask why it is true.</li><li>Stay with it for a while before opening a hint. The first hint is always a nudge towards small cases, not the idea.</li></ul></section>
-    ${rungs.map(r => { const here = mine.filter(t => t.rung === r); return `<section class="surface"><h2>Rung ${e(r)} · ${e(RUNGS[r] || '')}</h2><p class="muted small">${here.filter(t => t.solved).length} of ${here.length} accepted.</p>
-      <ol class="task-list">${here.map(t => `<li><a href="#/task/${e(t.id)}">${e(t.title)}</a> ${t.solved ? '<span class="badge badge-success">accepted</span>' : t.tries ? `<span class="badge">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : ''}</li>`).join('')}</ol></section>`; }).join('')}`;
+    <section class="surface attack"><h2>How to attack one</h2><ol><li>Work out the answer for the smallest cases by hand and write the answers in a row.</li><li>Look for a pattern, or for something a move can never change, or for a choice that is forced.</li><li>Guess a rule, test it on one more small case, then ask why it is true.</li><li>Stay with it for a while before opening a hint. The first hint is always a nudge towards small cases, not the idea.</li></ol></section>
+    ${rungs.map(r => { const here = mine.filter(t => t.rung === r); return `<section class="surface">${groupHead(`Rung ${r} · ${RUNGS[r] || ''}`, '', here, e)}
+      <ol class="rows">${here.map((t, k) => taskRow(t, k + 1, e)).join('')}</ol></section>`; }).join('')}`;
 }
 
 /* Predictions: original problems written for this course in the style of a regional, kept apart from the real ones. */
@@ -64,8 +77,8 @@ export async function renderPredictions(ctx) {
   const sets = [...new Set(mine.map(t => t.id.split('-')[0]))];
   const done = mine.filter(t => t.solved).length;
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow">This they can ask</p><h1>Predictions</h1><p class="muted">Original problems written the way a setter for an Indian ICPC regional might write them. They are guesses at the style and the topics, not real or leaked problems, and nobody knows what will actually be asked. No topic is shown; the judge runs on this computer. ${done} of ${mine.length} accepted.</p></div></header>
-    ${sets.map((set, k) => `<section class="surface"><h2>Set ${k + 1}</h2><p class="muted small">Ordered roughly from easiest to hardest, like a real problem set. Treat it as a mock: read all of them first, then pick.</p>
-      <ol class="task-list task-list-plain">${mine.filter(t => t.id.startsWith(set + '-')).map(t => `<li><a href="#/task/${e(t.id)}">${e(t.title)}</a> <span class="muted small">· ${e(t.level || '')}</span> ${t.solved ? '<span class="badge badge-success">accepted</span>' : t.tries ? `<span class="badge">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : ''}</li>`).join('')}</ol></section>`).join('')}`;
+    ${sets.map((set, k) => { const here = mine.filter(t => t.id.startsWith(set + '-')); return `<section class="surface">${groupHead(`Set ${k + 1}`, 'Ordered roughly from easiest to hardest, like a real problem set. Treat it as a mock: read all of them first, then pick.', here, e)}
+      <ol class="rows">${here.map((t, j) => taskRow(t, String.fromCharCode(65 + j), e, e(t.level || ''))).join('')}</ol></section>`; }).join('')}`;
 }
 
 /* The whole task (statement, editor, run, judge) inside any host element. Used by the task page and by code steps of a chain. */
@@ -77,13 +90,13 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   let files = (await api(`/code/${encodeURIComponent(id)}?language=${language}`)).files;
   if (!alive()) return;
   let busy = false, saveTimer = null;
-  const box = (title, text) => `<div><h4>${e(title)}</h4><pre>${e(text)}</pre></div>`;
+  const box = (title, text) => `<div class="io-box"><h4>${e(title)}</h4><pre>${e(text)}</pre></div>`;
   host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow">${task.track === 'predictions' ? '<a href="#/predictions">Predictions</a>' : task.track === 'ladder' ? `<a href="#/think">Think it up</a> · rung ${e(task.rung)}` : '<a href="#/code">Code</a>'} · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}${behindFold(task.behind, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
     <div class="split" data-split><div class="split-pane split-text">${before}<section class="surface reading task-statement">${markdown(task.statement)}
       <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${hints ? '<section class="surface task-hints" data-hints aria-live="polite"></section>' : ''}${after}</div>
     <div class="split-pane split-code"><section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta">${sideButton()}<label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>
       <div class="editor-host" data-editor></div>
-      <label class="field">Your own input<textarea data-input rows="4" spellcheck="false">${e(task.samples[0][0])}</textarea></label>
+      <label class="field">Your own input<textarea data-input rows="3" spellcheck="false">${e(task.samples[0][0])}</textarea></label>
       <div class="run-bar"><button class="btn btn-secondary btn-sm" type="button" data-run title="Run (${MOD}Enter)">Run on this input</button><span class="spacer"></span><button class="btn btn-primary" type="button" data-judge title="Judge (${MOD}Shift+Enter)">Judge</button></div></section>
     <section class="surface results" aria-live="polite" data-results><h3>Results</h3><p class="results-empty">Run it on your own input, or judge it against the hidden tests.</p></section></div></div>`;
   wireSplit(host.querySelector('[data-split]'));
@@ -158,6 +171,6 @@ export async function renderTask(ctx, id) {
   nav.className = 'task-nav';
   nav.setAttribute('aria-label', 'Other tasks');
   nav.innerHTML = `<span class="muted small">${e(track?.title || '')} · ${mine.findIndex(t => t.id === id) + 1} of ${mine.length}</span>${link(prev, '← Previous', 'btn-ghost')}${link(next, 'Next →', 'btn-secondary')}`;
-  root.querySelector('.page-head')?.after(nav);
+  root.querySelector('.page-head')?.append(nav);
   window.dispatchEvent(new Event('resize'));                 // the split below is re-fitted now that this row is above it
 }

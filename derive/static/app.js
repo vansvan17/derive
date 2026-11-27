@@ -30,6 +30,16 @@ const ICONS = {
   play: '<path d="M8 5l11 7-11 7z"/>',
   external: '<path d="M14 5h5v5M19 5l-8 8"/><path d="M11 6H6a1 1 0 00-1 1v11a1 1 0 001 1h11a1 1 0 001-1v-5"/>',
   star: '<path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>',
+  box: '<path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/>',
+  layers: '<path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/>',
+  code: '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 6l-3 12"/>',
+  question: '<circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.6a2.3 2.3 0 114 1.6c-.9.8-1.8 1.2-1.8 2.4"/><circle cx="12" cy="16.6" r=".6" fill="currentColor"/>',
+  bulb: '<path d="M9.5 17.5h5M10.5 20.5h3"/><path d="M8.5 14.5a6 6 0 117 0c-.6.5-1 1.2-1 2h-5c0-.8-.4-1.5-1-2z"/>',
+  bolt: '<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>',
+  eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  compass: '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  sliders: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
   lock: '<rect x="6" y="11" width="12" height="9" rx="2"/><path d="M9 11V8a3 3 0 016 0v3"/>',
 };
 export const icon = name => ICONS[name] ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>` : '';
@@ -121,14 +131,30 @@ export function dialog({title, body = '', html = '', confirm = 'Continue', cance
 
 /* ---------- Shell ---------- */
 export const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
-const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['tools', 'settings', 'Toolbox'], ['cses', 'chain', 'CSES DP'], ['code', 'play', 'Code'], ['break', 'target', 'Break it'], ['recognise', 'target', 'Recognise'], ['contest', 'target', 'Contest'], ['think', 'star', 'Think it up'], ['predictions', 'target', 'Predictions'], ['revise', 'star', 'Revise'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
-const section = () => { const name = location.hash.replace(/^#\/?/, '').split('/')[0] || ''; return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name === 'task' ? 'code' : name === 'tool' || name === 'notebook' ? 'tools' : name; };
+/* The sidebar, in groups. Each entry: route, icon, label. */
+const NAV = [
+  ['', [['', 'map', 'The map']]],
+  ['Learn', [['derive', 'chain', 'Derive'], ['tools', 'box', 'Toolbox'], ['cses', 'layers', 'CSES DP']]],
+  ['Practise', [['solve', 'target', 'Solve'], ['code', 'code', 'Code'], ['puzzles', 'question', 'Puzzles'], ['think', 'bulb', 'Think it up'], ['break', 'bolt', 'Break it'], ['recognise', 'eye', 'Recognise']]],
+  ['Contest', [['contest', 'clock', 'Contest'], ['predictions', 'compass', 'Predictions']]],
+  ['You', [['revise', 'star', 'Revise'], ['mastery', 'chart', 'What you can do'], ['settings', 'sliders', 'Settings']]],
+];
+/* Which sidebar entry the address belongs to. A task page belongs to the page that lists it. */
+const section = () => {
+  const [name = '', id = ''] = location.hash.replace(/^#\/?/, '').split('/');
+  if (name === 'task') return /^t\d+-/.test(id) ? 'think' : /^p\d+-/.test(id) ? 'predictions' : 'code';
+  return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name === 'tool' || name === 'notebook' ? 'tools' : name;
+};
 function paintNav() {
   const host = document.querySelector('[data-nav-host]');
   if (!host) return;
   const here = section(), c = state.boot?.counts;
-  host.innerHTML = NAV.map(([name, glyph, label]) => `<a class="nav-link" href="#/${name}" ${name === here ? 'aria-current="page"' : ''}>${icon(glyph)}<span>${label}${name === 'revise' && state.boot?.stars && Object.keys(state.boot.stars).length ? ` · ${Object.keys(state.boot.stars).length}` : ''}</span></a>`).join('')
-    + (c ? `<p class="sidebar-count">${c.derived} of ${c.chains} chains derived<br>${c.cold} cold solves · working at ${state.boot.band.band}</p>` : '');
+  const stars = state.boot?.stars ? Object.keys(state.boot.stars).length : 0;
+  const keep = host.scrollTop;
+  host.innerHTML = NAV.map(([title, items]) => `<div class="nav-group">${title ? `<p class="nav-label">${title}</p>` : ''}${items.map(([name, glyph, label]) => `<a class="nav-link" href="#/${name}" ${name === here ? 'aria-current="page"' : ''}>${icon(glyph)}<span>${label}</span>${name === 'revise' && stars ? `<span class="nav-count">${stars}</span>` : ''}</a>`).join('')}</div>`).join('');
+  host.scrollTop = keep;
+  const count = document.querySelector('[data-side-count]');
+  if (count) count.innerHTML = c ? `${c.derived} of ${c.chains} chains derived<br>${c.cold} cold solves · working at ${state.boot.band.band}` : '';
 }
 export function applyTheme(theme) {
   const actual = theme === 'system' || !theme ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
@@ -151,7 +177,7 @@ function buildShell() {
       <button class="side-toggle" type="button" data-side-toggle></button>
       <a class="brand" href="#/">${EMBLEM}<span><span class="brand-name">derive</span><span class="brand-sub">nothing is told, only asked</span></span></a>
       <nav data-nav-host aria-label="Sections"></nav>
-      <div class="sidebar-foot"><button class="theme-toggle" type="button" data-theme-toggle></button><p>Runs only on this computer.</p></div>
+      <div class="sidebar-foot"><p class="sidebar-count" data-side-count></p><button class="theme-toggle" type="button" data-theme-toggle></button></div>
     </aside>
     <div class="scrim" data-scrim></div>
     <main class="main" id="main-content" tabindex="-1"><div class="main-inner" data-root></div></main>

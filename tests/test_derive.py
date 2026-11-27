@@ -447,6 +447,20 @@ class App(unittest.TestCase):
         self.assertEqual(basis('s-grid-sums'), [])                                                      # derived: nothing is said
         self.assertEqual(basis(tool['task']), [])
 
+    def test_a_toolbox_page_lists_its_real_problems_once_it_is_written(self):
+        pid, tool = next(iter(self.service.content.problems)), 'lis'
+        self.service.content.problems[pid]['tools'] = ['lis']                                             # the test set carries no tool tags
+        page = self.get('/tool/' + tool)
+        self.assertGreaterEqual(page['problems_total'], 1); self.assertEqual(page['problems'], [])       # not before her own version is accepted
+        self.assertEqual(self.post('/problem/open', {'id': pid, 'tool': tool})[0], 404)
+        with self.service.store() as store:
+            store.run('INSERT INTO tasks_done(task, at, tries) VALUES(?, ?, 1)', (self.service.content.tools[tool]['task'], '2026-01-01T00:00:00+00:00'))
+        page = self.get('/tool/' + tool)
+        self.assertIn(pid, [p['id'] for p in page['problems']])
+        self.assertEqual(self.post('/problem/open', {'id': pid, 'tool': 'manacher'})[0], 404)   # only under its own page
+        self.assertEqual(self.post('/problem/open', {'id': pid, 'tool': tool})[0], 200)
+        self.assertTrue(self.get('/problem/' + pid)['topic_known'])                                       # applied, never recognised
+
     def test_standard_moves_count_first_submission_accepts_on_their_own(self):
         listed = [t for t in self.get('/tasks')['tasks'] if t['track'] == 'standard']
         self.assertEqual(len(listed), 12)

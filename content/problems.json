@@ -49,6 +49,34 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2065E",
+  "site": "Codeforces",
+  "contest": 2065,
+  "index": "E",
+  "title": "Skibidus and Rizz",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2065/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/139178",
+  "ideas": [
+   "necessary-sufficient",
+   "balance"
+  ],
+  "observations": [
+   "The whole string is a substring, so k cannot be smaller than |n - m|. No substring can beat the larger of the two counts, so k cannot be larger than max(n, m).",
+   "Otherwise say there are at least as many 0s. Write k zeros first, then alternate 1 and 0, then put what is left of the ones at the end.",
+   "The first k characters give exactly k, and from then on the difference never grows beyond it."
+  ],
+  "nudges": [
+   "Which single substring already forces a lower limit on k?",
+   "What is the largest value any substring could have?",
+   "If you had to reach exactly k as early as possible and then never exceed it, how would the string start, and how would it continue?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "balance-walk"
+  ]
+ },
+ {
   "id": "cf-2070D",
   "site": "Codeforces",
   "contest": 2070,
@@ -96,7 +124,10 @@
    "Which segment covers cell x, if everything up to x is covered exactly once? What does choosing it force about the others?",
    "Your state assumed some segment was absent and now you want it present. How do you swap one factor of a product for another, modulo a prime?"
   ],
-  "checked": "2026-11-27"
+  "checked": "2026-11-27",
+  "tools": [
+   "expected-dp"
+  ]
  },
  {
   "id": "cf-2128D",
@@ -147,6 +178,33 @@
    "After fixing it, which element is in the same position of knowing everything about itself?"
   ],
   "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2132D",
+  "site": "Codeforces",
+  "contest": 2132,
+  "index": "D",
+  "title": "From 1 to Infinity",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2132/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/145692",
+  "ideas": [
+   "digit-dp"
+  ],
+  "observations": [
+   "First find the number n that the k-th digit falls in: take away the blocks of 1-digit, 2-digit, 3-digit numbers (9, 2 * 90, 3 * 900, ...) until k fits, then divide by the length.",
+   "The answer is the sum of the digits of all numbers from 0 to n - 1, plus the first few digits of n itself.",
+   "For the sum over 0..n-1, pad every number with leading zeros to the length of n and go through the digits of n from the top: every number with a smaller digit at this position has all later digits free, and the digit sum over all fillings of free positions has a closed form."
+  ],
+  "nudges": [
+   "Which number does the k-th digit belong to? How many digits do all the 1-digit numbers take, all the 2-digit numbers, and so on?",
+   "Once you know that number n, what is left is a question about all numbers below n. Which question?",
+   "A number below n agrees with n up to some position and is smaller there. What can its remaining digits be?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "digit-dp"
+  ]
  },
  {
   "id": "cf-2167F",
@@ -318,6 +376,60 @@
    "Once you know which letters go to the odd positions, how many strings are there? Does it depend on which letters they are?",
    "Counting the ways to pick letters whose counts add up to a target: which standard table is that?"
   ],
+  "checked": "2026-11-27",
+  "tools": [
+   "knapsack-once"
+  ]
+ },
+ {
+  "id": "cf-2096C",
+  "site": "Codeforces",
+  "contest": 2096,
+  "index": "C",
+  "title": "Wonderful City",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2096/problem/C",
+  "editorial": "https://codeforces.com/blog/entry/142070",
+  "ideas": [
+   "dp-state"
+  ],
+  "observations": [
+   "Raising a whole row changes both cells of a horizontal pair equally, so their difference stays. Only column operations can fix equal horizontal neighbours, and only row operations can fix equal vertical ones.",
+   "So the rows and the columns are two separate problems; add the two costs.",
+   "For the rows: dp(i, x) = cheapest way to make the first i rows fine, where x says whether row i was raised. Rows i - 1 and i with choices (y, x) are allowed if no column has h[i-1][j] + y equal to h[i][j] + x."
+  ],
+  "nudges": [
+   "Two equal cells sit side by side in one row. Which operations can make them different?",
+   "Does the choice of column operations interact with the vertical pairs at all?",
+   "Going down the rows, what about the rows above do you need to remember to check the next pair of rows?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "flag-dp"
+  ]
+ },
+ {
+  "id": "cf-2104E",
+  "site": "Codeforces",
+  "contest": 2104,
+  "index": "E",
+  "title": "Unpleasant Strings",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2104/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/142472",
+  "ideas": [
+   "dp-state"
+  ],
+  "observations": [
+   "To test whether t is a subsequence of s, match each letter of t with its earliest possible occurrence. A table nxt[i][c] = next position of letter c from position i makes this one jump per letter.",
+   "Appending letters continues the same jumping from where t ended. To fall off the end as soon as possible, always append the letter whose next occurrence is furthest away.",
+   "So the answer depends only on the position p where t ended: d[i] = 1 + d[the largest nxt[i + 1][c]]. Fill d from the right once; each query is a walk through t and one lookup."
+  ],
+  "nudges": [
+   "How do you check greedily that t is a subsequence of s?",
+   "After t is matched, you choose the next letter. Which letter hurts the most?",
+   "What does the number of letters still needed depend on?"
+  ],
   "checked": "2026-11-27"
  },
  {
@@ -343,7 +455,10 @@
    "Under a cap, would you ever prefer to arrive somewhere with fewer batteries?",
    "In what order can the checkpoints be processed so that each is final before it is used?"
   ],
-  "checked": "2026-11-27"
+  "checked": "2026-11-27",
+  "tools": [
+   "dag-dp"
+  ]
  },
  {
   "id": "cf-2112D",
@@ -694,6 +809,55 @@
   "checked": "2026-11-27"
  },
  {
+  "id": "cf-2071D1",
+  "site": "Codeforces",
+  "contest": 2071,
+  "index": "D1",
+  "title": "Infinite Sequence (Easy Version)",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2071/problem/D1",
+  "editorial": "https://codeforces.com/blog/entry/140115",
+  "ideas": [
+   "xor-cancels",
+   "prefix-xor"
+  ],
+  "observations": [
+   "Beyond the given part, a term is the XOR of the first half of the sequence, so a(2m) = a(2m+1): later terms come in equal pairs.",
+   "Make n odd (extend by one term if needed) and let p be the XOR of the first n terms. In the XOR of a(1..m) the equal pairs after position n cancel, leaving p if m is odd and p XOR a(m) if m is even.",
+   "So a(2m) = a(2m+1) is p or p XOR a(m): keep halving the index until it falls inside the first 2n terms, which are computed directly."
+  ],
+  "nudges": [
+   "What do the definitions of a(2m) and a(2m+1) have in common when both indices are beyond n?",
+   "If the terms come in equal pairs, what happens to them inside a long XOR?",
+   "After the cancelling, at most one unknown term is left. What is its index compared with the one you started from?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2078D",
+  "site": "Codeforces",
+  "contest": 2078,
+  "index": "D",
+  "title": "Scammy Game Ad",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2078/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/140505",
+  "ideas": [
+   "dp-state"
+  ],
+  "observations": [
+   "People never have to be split: everyone gained at one moment should go to the same lane.",
+   "Work from the end. Let L[i] and R[i] be how many people one person becomes by the end of the level if they stand in the left or right lane just before gate pair i.",
+   "A plus gate leaves the value alone: L[i] = L[i+1]. A times-a gate keeps the person and creates a - 1 new ones who go to the better lane: L[i] = L[i+1] + (a - 1) * max(L[i+1], R[i+1]). Every person a plus gate creates is worth max(L, R) at the next pair."
+  ],
+  "nudges": [
+   "Is there ever a reason to send part of a new group left and part right?",
+   "What is one person standing in the left lane before gate i worth at the end?",
+   "Which direction should that table be filled in, and what does a multiplying gate add to it?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2091F",
   "site": "Codeforces",
   "contest": 2091,
@@ -770,6 +934,58 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-2121F",
+  "site": "Codeforces",
+  "contest": 2121,
+  "index": "F",
+  "title": "Yamakasi",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2121/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/143822",
+  "ideas": [
+   "prefix-pairs"
+  ],
+  "observations": [
+   "Without the maximum condition: go through the right ends r and look up how many earlier prefix sums equal pref(r) - s.",
+   "An element larger than x can be in no good block: clear the table there and start again after it.",
+   "A block has maximum exactly x only if it contains an x. Hold back the left ends since the last x; when an x arrives at r, release all of them into the table. Then every left end in the table has an x between it and r."
+  ],
+  "nudges": [
+   "How do you count blocks with sum s when there is no condition on the maximum?",
+   "What does an element bigger than x do to the blocks that contain it?",
+   "Among the remaining left ends, which ones give a block that really contains an x? When does a left end become usable?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "prefix-pairs"
+  ]
+ },
+ {
+  "id": "cf-2144D",
+  "site": "Codeforces",
+  "contest": 2144,
+  "index": "D",
+  "title": "Price Tags",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2144/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/146474",
+  "ideas": [
+   "harmonic-multiples",
+   "prefix-sums"
+  ],
+  "observations": [
+   "No x above the largest price A needs to be tried: every price is already 1.",
+   "For a fixed x the new prices are at most ceil(A / x). The items that end up with price p are those with old price in ((p - 1) x, p x], a range count that prefix sums over the price counts give in one step.",
+   "With need items wanting tag p and cnt[p] such tags existing, price p brings in p * need - y * max(0, need - cnt[p]). That is A / x steps for one x, so about A log A over all x."
+  ],
+  "nudges": [
+   "How large an x is worth trying?",
+   "For one x, which old prices turn into the new price p? How many items is that?",
+   "If one value of x costs about A / x steps, what do all values of x cost together?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2145D",
   "site": "Codeforces",
   "contest": 2145,
@@ -793,6 +1009,30 @@
    "Given the run lengths, how do you place the numbers so that no segment crossing two runs is increasing?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2153D",
+  "site": "Codeforces",
+  "contest": 2153,
+  "index": "D",
+  "title": "Not Alone",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/2153/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/147264",
+  "ideas": [
+   "dp-state"
+  ],
+  "observations": [
+   "A nice array is made of blocks of equal values, each of length at least 2, and every such block can be cut into pieces of length 2 and 3.",
+   "On a line: dp[i] = cheapest way to fix the first i elements, where the last piece is the last 2 or the last 3 elements. Making 2 numbers equal costs their difference; making 3 equal costs the largest minus the smallest.",
+   "On a circle some piece may wrap around. Pieces have length at most 3, so one of the three cuts after position 1, 2 or 3 falls between two pieces: run the line version for each of the three rotations."
+  ],
+  "nudges": [
+   "What do the groups of equal neighbours look like in a nice array? What are the smallest building blocks?",
+   "If the array were a line, what would you need to know about the first i elements?",
+   "The circle has no start. How many starting points do you have to try before one of them is sure to sit between two blocks?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2176D",
@@ -947,6 +1187,31 @@
   "checked": "2026-11-27"
  },
  {
+  "id": "cf-2064D",
+  "site": "Codeforces",
+  "contest": 2064,
+  "index": "D",
+  "title": "Eating",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2064/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/138912",
+  "ideas": [
+   "prefix-xor",
+   "monovariant"
+  ],
+  "observations": [
+   "A slime whose highest set bit is below that of x can always be eaten, and eating it leaves x's highest bit where it was. The only slime that can stop x has a highest bit at least as large.",
+   "So jump: eat everything down to the nearest slime on the left whose highest bit is at least x's. The new x is one XOR of a range, from prefix XORs. Then either that slime cannot be eaten, or eating it lowers x's highest bit.",
+   "The highest bit drops at every jump, so a query takes about 30 jumps. For each position and each bit, store the nearest position to the left whose highest bit is at least that bit."
+  ],
+  "nudges": [
+   "Which slimes can x certainly eat, just from looking at the top bits?",
+   "After eating a run of those, what kind of slime is next, and what are the two things that can happen?",
+   "What quantity gets smaller each time x passes such a slime? How many times can that happen?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2094H",
   "site": "Codeforces",
   "contest": 2094,
@@ -1042,6 +1307,62 @@
    "What are the only ways mob i can be dealt with, given what happens to mob i-1?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2137F",
+  "site": "Codeforces",
+  "contest": 2137,
+  "index": "F",
+  "title": "Prefix Maximum Invariance",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2137/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/146121",
+  "ideas": [
+   "contribution",
+   "nearest-greater"
+  ],
+  "observations": [
+   "Position i can be made to match if the two values are equal already; or if a_i > b_i and some earlier element of the block is larger than a_i (so a_i is not a prefix maximum); or if a_i < b_i and some earlier element of the block is at least b_i.",
+   "So for each i there is a nearest index to the left, prev, that makes it possible: every block that contains both prev and i counts position i.",
+   "Add up, for each i, (number of left ends up to prev) times (number of right ends from i). If the values are equal, every block through i counts."
+  ],
+  "nudges": [
+   "Fix one position i in one block. When can z_i be set to b_i without changing any prefix maximum?",
+   "The condition asks for some earlier element in the block with a certain size. Which earlier element is the best witness?",
+   "Instead of going through blocks, how many blocks does position i contribute to?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "mono-stack"
+  ]
+ },
+ {
+  "id": "cf-2165B",
+  "site": "Codeforces",
+  "contest": 2165,
+  "index": "B",
+  "title": "Marble Council",
+  "rating": 1900,
+  "url": "https://codeforces.com/contest/2165/problem/B",
+  "editorial": "https://codeforces.com/blog/entry/148452",
+  "ideas": [
+   "necessary-sufficient",
+   "knapsack"
+  ],
+  "observations": [
+   "Which colours appear in s is what matters first. A colour x that is not chosen has to be hidden: in every part its copies may not outnumber the mode.",
+   "A chosen colour c can cover at most cnt(c) copies of x in total, however its own copies are spread. So cnt(x) must be at most the sum of cnt(c) over the chosen colours, and when that holds for every x a partition exists.",
+   "That is the same as: the chosen colours' counts add up to at least the largest count. Count the ways with a knapsack over the colours, where a colour with count c can be put into s in c different amounts."
+  ],
+  "nudges": [
+   "Take a colour that does not appear in s at all. What has to happen to each of its copies?",
+   "How many copies of other colours can one chosen colour hide, in total?",
+   "Once the condition is 'the chosen counts add up to at least some number', what table counts the choices?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "knapsack-once"
+  ]
  },
  {
   "id": "cf-2174B",
@@ -1197,6 +1518,30 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2061E",
+  "site": "Codeforces",
+  "contest": 2061,
+  "index": "E",
+  "title": "Kevin and And",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2061/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/138620",
+  "ideas": [
+   "masks"
+  ],
+  "observations": [
+   "For one number, the best result of using exactly j of the m magics can be found by trying all 2^m subsets: m is at most 10.",
+   "The gain of the j-th operation on a number, g(j-1) - g(j), never increases with j: the best-with-j values are convex.",
+   "So each number offers a list of gains in decreasing order, and the best k operations overall are simply the k largest gains among all numbers."
+  ],
+  "nudges": [
+   "m is tiny. For a single number, what can you afford to compute?",
+   "Is the second operation on a number ever worth more than the first was?",
+   "If every number's gains come in decreasing order, how do you pick k operations across all the numbers?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2096D",
   "site": "Codeforces",
   "contest": 2096,
@@ -1219,6 +1564,32 @@
    "One family of lines gives one coordinate. Is there another family of lines that each operation also hits an even number of times?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2135C",
+  "site": "Codeforces",
+  "contest": 2135,
+  "index": "C",
+  "title": "By the Assignment",
+  "rating": 2000,
+  "url": "https://codeforces.com/contest/2135/problem/C",
+  "editorial": "https://codeforces.com/blog/entry/145796",
+  "ideas": [
+   "bridges",
+   "odd-cycle",
+   "xor-cancels"
+  ],
+  "observations": [
+   "On a cycle, two vertices are joined by two paths with the same value. Comparing them for different pairs forces all vertices of the cycle to carry the same weight, and if the cycle has odd length that weight must be 0.",
+   "Two vertices lie on a common cycle exactly when no bridge separates them. So cut the graph at its bridges: the pieces do not affect each other, and the answers multiply.",
+   "Inside a piece all weights are equal. If the given weights disagree the answer is 0. If the piece contains an odd cycle (it cannot be two-coloured) the common weight must be 0; otherwise it is free unless already given: a factor of 0, 1 or V."
+  ],
+  "nudges": [
+   "Take a single cycle and two of its vertices. What do the two paths between them tell you about the weights?",
+   "Which pairs of vertices lie on a common cycle? Which edges lie on no cycle?",
+   "Inside one such piece, what decides whether the common weight is free, forced to 0, or impossible?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2138C2",
@@ -1446,7 +1817,10 @@
    "What smaller pieces of the same kind does one triangle leave behind?",
    "Do you really have to try all three corners freely? Where must a triangle's outer corners be, in the smallest block that contains it?"
   ],
-  "checked": "2026-11-27"
+  "checked": "2026-11-27",
+  "tools": [
+   "interval-dp"
+  ]
  },
  {
   "id": "cf-2092E",

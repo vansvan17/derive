@@ -243,13 +243,20 @@ class Service:
                         for p in sorted(self.content.problems_for(idea), key=lambda p: p['rating'])]}
 
     def open_from_chain(self, store, data):
-        """Open a Solve-set problem from the end of a chain. The topic is known, so it can count as applied but never as recognised."""
+        """Open a Solve-set problem from the end of a chain or from a Toolbox page. The topic is known, so it can count as applied but never as recognised."""
         problem = self.content.problems.get(data.get('id')) if isinstance(data.get('id'), str) else None
-        idea = data.get('idea')
-        if not problem or idea not in problem['ideas'] or idea not in self.derived(store):
-            raise ApiError('That problem is not listed under a chain you have finished.', 404)
+        idea, tool = data.get('idea'), data.get('tool')
+        if tool is not None:
+            page = self.content.tools.get(tool) if isinstance(tool, str) else None
+            if not problem or not page or tool not in problem.get('tools', []) or not store.one('SELECT 1 FROM tasks_done WHERE task=?', (page['task'],)):
+                raise ApiError('That problem is not listed under a Toolbox page you have written.', 404)
+            known = 'tool:' + tool
+        else:
+            if not problem or idea not in problem['ideas'] or idea not in self.derived(store):
+                raise ApiError('That problem is not listed under a chain you have finished.', 404)
+            known = idea
         if not store.one('SELECT 1 FROM attempts WHERE problem=?', (problem['id'],)):
-            store.run('INSERT INTO attempts(problem,opened_at,topic_known) VALUES(?,?,?)', (problem['id'], now(), idea))
+            store.run('INSERT INTO attempts(problem,opened_at,topic_known) VALUES(?,?,?)', (problem['id'], now(), known))
         return {'id': problem['id']}
 
     def settle_code_steps(self, store, idea, chain):
@@ -683,6 +690,14 @@ class Service:
         out['marks'] = tool.get('marks', [])
         # The reference version is for comparing with your own, so it appears only once yours is accepted.
         out['reference'] = tool['reference'] if written else None
+        # Real problems that use the technique: listed only once her own version is accepted, like the reference.
+        mine = sorted(self.content.problems_for_tool(tool_id), key=lambda p: p['rating'])
+        rows = evidence.attempts(store)
+        def state(p):
+            row = rows.get(p['id'])
+            return 'new' if not row else 'solved' if row['solved_at'] else 'gave up' if row['gave_up_at'] else 'open'
+        out['problems_total'] = len(mine)
+        out['problems'] = [{'id': p['id'], 'title': p['title'], 'site': p['site'], 'rating': p['rating'], 'state': state(p)} for p in mine] if written else []
         return out
 
     def notebook(self, store):

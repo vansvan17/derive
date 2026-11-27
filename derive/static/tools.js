@@ -27,6 +27,16 @@ export async function renderTool(ctx, id) {
   let tool = await api('/tool/' + encodeURIComponent(id));
   if (!alive()) return;
   const reference = () => tool.reference ? `<section class="surface"><h2>A reference version</h2><p class="muted small">Yours is accepted, so here is one clean way to write it. Compare the loop structure and the edge cases with your own.</p><pre class="tool-code">${e(tool.reference)}</pre></section>` : '<p class="muted small">A reference version appears here once your own program is accepted.</p>';
+  const state = t => t.state === 'solved' ? '<span class="badge badge-success">accepted</span>' : t.state === 'gave up' ? '<span class="badge">given up</span>' : t.state === 'open' ? '<span class="badge badge-primary">open</span>' : '';
+  const real = () => !tool.problems_total ? '' : !tool.written ? `<p class="muted small">${tool.problems_total} Codeforces problem${tool.problems_total === 1 ? '' : 's'} that use${tool.problems_total === 1 ? 's' : ''} this will be listed here once your own program is accepted.</p>`
+    : `<section class="surface"><h2>Codeforces problems that use it</h2><details class="after-set"><summary>${tool.problems.length} problem${tool.problems.length === 1 ? '' : 's'} in the Solve set (opening this list tells you their topic)</summary>
+      <p class="muted small">Solve hands these out without a topic, which is how a solve counts as recognised. One you open from here counts as applied instead. Leave the list closed if you would rather meet them cold.</p>
+      <ul class="plain-list">${tool.problems.map(t => `<li>${t.state === 'new' ? `<button class="link-btn" type="button" data-open-problem="${e(t.id)}">${e(t.title)}</button>` : `<a href="#/problem/${e(t.id)}">${e(t.title)}</a>`} <span class="muted small">· ${e(t.site)} · rated ${e(t.rating)}</span> ${state(t)}</li>`).join('')}</ul></details></section>`;
+  const after = () => reference() + real();
+  root.addEventListener('click', async event => {
+    const b = event.target.closest('[data-open-problem]'); if (!b || !alive()) return;
+    try { const opened = await ctx.post('/problem/open', {id: b.dataset.openProblem, tool: tool.id}); ctx.navigate('#/problem/' + opened.id); } catch (error) { ctx.toast(error.message, 'error'); }
+  });
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow"><a href="#/tools">Toolbox</a></p><h1>${e(tool.title)} ${ctx.star('tool', tool.id)}</h1><p>${marks(tool.marks, e)}</p></div></header>
     <div data-intro></div><div data-task></div>`;
   // The reading comes first, at full width, above the editor: you read the page, then scroll down to write it.
@@ -35,5 +45,5 @@ export async function renderTool(ctx, id) {
       <h2>Traps</h2><ul>${tool.traps.map(w => `<li>${inline(w)}</li>`).join('')}</ul></section>
     <h2 class="tool-write">Now write it</h2>`;
   root.querySelector('[data-intro]').innerHTML = intro;
-  await mountTask(ctx, root.querySelector('[data-task]'), tool.task, {heading: false, hints: false, after: `<div data-reference>${reference()}</div>`, onAccepted: async () => { tool = await api('/tool/' + encodeURIComponent(id)); if (alive()) root.querySelector('[data-reference]').innerHTML = reference(); }});
+  await mountTask(ctx, root.querySelector('[data-task]'), tool.task, {heading: false, hints: false, after: `<div data-reference>${after()}</div>`, onAccepted: async () => { tool = await api('/tool/' + encodeURIComponent(id)); if (alive()) root.querySelector('[data-reference]').innerHTML = after(); }});
 }

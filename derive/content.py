@@ -79,6 +79,9 @@ class Content:
         ideas = [i for i in dict.fromkeys([*in_chain, *named]) if i in self.chains]
         return ideas, tool
 
+    def problems_for_tool(self, tool_id):
+        return [p for p in self.problems.values() if tool_id in p.get('tools', [])]
+
     def problems_for(self, idea):
         return [p for p in self.problems.values() if idea in p['ideas']]
 

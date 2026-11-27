@@ -532,3 +532,4 @@ summary .star-btn{float:right;margin-top:-.25rem}
 .basis-note p { margin: 0; }
 .basis-note p + p { margin-top: 4px; }
 .basis-inline a { color: inherit; text-decoration: underline; }
+.tool-intro pre.tool-code { background: var(--editor-bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; }

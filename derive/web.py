@@ -686,6 +686,7 @@ class Service:
             raise ApiError('No such page.', 404)
         written = bool(store.one('SELECT 1 FROM tasks_done WHERE task=?', (tool['task'],)))
         out = {k: tool[k] for k in ('id', 'title', 'when', 'idea', 'traps', 'task')}
+        out['example'] = tool.get('example')                      # the core lines in C++, shown with the idea
         out['written'] = written
         out['marks'] = tool.get('marks', [])
         # The reference version is for comparing with your own, so it appears only once yours is accepted.

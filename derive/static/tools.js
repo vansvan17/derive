@@ -42,6 +42,7 @@ export async function renderTool(ctx, id) {
   // The reading comes first, at full width, above the editor: you read the page, then scroll down to write it.
   const intro = `<section class="surface tool-intro"><h2>Reach for it when you see</h2><ul>${tool.when.map(w => `<li>${inline(w)}</li>`).join('')}</ul>
       <h2>The idea</h2>${markdown(tool.idea)}
+      ${tool.example ? `<h2>In code</h2><p class="muted small">The core lines in C++. Reading input and printing the answer are left out.</p><pre class="tool-code">${e(tool.example)}</pre>` : ''}
       <h2>Traps</h2><ul>${tool.traps.map(w => `<li>${inline(w)}</li>`).join('')}</ul></section>
     <h2 class="tool-write">Now write it</h2>`;
   root.querySelector('[data-intro]').innerHTML = intro;

@@ -451,6 +451,7 @@ class App(unittest.TestCase):
         pid, tool = next(iter(self.service.content.problems)), 'lis'
         self.service.content.problems[pid]['tools'] = ['lis']                                             # the test set carries no tool tags
         page = self.get('/tool/' + tool)
+        self.assertIn('lower_bound', page['example'])                                                    # the core lines are shown with the idea
         self.assertGreaterEqual(page['problems_total'], 1); self.assertEqual(page['problems'], [])       # not before her own version is accepted
         self.assertEqual(self.post('/problem/open', {'id': pid, 'tool': tool})[0], 404)
         with self.service.store() as store:

@@ -28,12 +28,30 @@ export async function renderTasks(ctx) {
   const root = ctx.root;
   const page = await api('/tasks');
   if (ctx.root !== root) return;
-  page.tasks = page.tasks.filter(t => t.track !== 'predictions');          // those have their own page
-  page.tracks = page.tracks.filter(t => t.id !== 'predictions');
+  page.tasks = page.tasks.filter(t => !OWN_PAGE.includes(t.track));          // those have their own pages
+  page.tracks = page.tracks.filter(t => !OWN_PAGE.includes(t.id));
   const done = page.tasks.filter(t => t.solved).length;
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow">Write it</p><h1>Code</h1><p class="muted">Short tasks where you write the program yourself. No topic is given; the tests include inputs large enough that the first loop you think of is too slow. ${done} of ${page.tasks.length} accepted.</p></div></header>
     ${page.tracks.map(track => { const mine = page.tasks.filter(t => t.track === track.id); return mine.length ? `<section class="surface"><h2>${e(track.title)}</h2><p class="muted small">${e(track.about)}</p>
       <ol class="task-list">${mine.map(t => `<li><a href="#/task/${e(t.id)}">${e(t.title)}</a> ${t.solved ? '<span class="badge badge-success">accepted</span>' : t.tries ? `<span class="badge">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : ''}${t.basis.length ? ` <span class="muted small basis-inline">rests on ${basisLinks(t.basis, e)}</span>` : ''}</li>`).join('')}</ol></section>` : ''; }).join('')}`;
+}
+
+const OWN_PAGE = ['predictions', 'ladder'];
+const RUNGS = ['', 'One observation', 'Look twice', 'Find the pattern, then explain it', 'Two steps', 'Genuinely hard'];
+
+/* Think it up: problems that no named technique solves, in rungs from easy to hard. Nothing is locked. */
+export async function renderLadder(ctx) {
+  const {api, escape: e} = ctx;
+  const root = ctx.root;
+  const page = await api('/tasks');
+  if (ctx.root !== root) return;
+  const mine = page.tasks.filter(t => t.track === 'ladder');
+  const rungs = [...new Set(mine.map(t => t.rung))].sort((a, b) => a - b);
+  const done = mine.filter(t => t.solved).length;
+  root.innerHTML = `<header class="page-head"><div><p class="eyebrow">Come up with it yourself</p><h1>Think it up</h1><p class="muted">No named technique solves these. Each one gives way to an observation you find yourself, and the program is short once you have it. The rungs go from easy to genuinely hard; nothing is locked, but starting at the bottom is the point. ${done} of ${mine.length} accepted.</p></div></header>
+    <section class="surface"><h2>How to attack one</h2><ul><li>Work out the answer for the smallest cases by hand and write the answers in a row.</li><li>Look for a pattern, or for something a move can never change, or for a choice that is forced.</li><li>Guess a rule, test it on one more small case, then ask why it is true.</li><li>Stay with it for a while before opening a hint. The first hint is always a nudge towards small cases, not the idea.</li></ul></section>
+    ${rungs.map(r => { const here = mine.filter(t => t.rung === r); return `<section class="surface"><h2>Rung ${e(r)} · ${e(RUNGS[r] || '')}</h2><p class="muted small">${here.filter(t => t.solved).length} of ${here.length} accepted.</p>
+      <ol class="task-list">${here.map(t => `<li><a href="#/task/${e(t.id)}">${e(t.title)}</a> ${t.solved ? '<span class="badge badge-success">accepted</span>' : t.tries ? `<span class="badge">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : ''}</li>`).join('')}</ol></section>`; }).join('')}`;
 }
 
 /* Predictions: original problems written for this course in the style of a regional, kept apart from the real ones. */
@@ -60,7 +78,7 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   if (!alive()) return;
   let busy = false, saveTimer = null;
   const box = (title, text) => `<div><h4>${e(title)}</h4><pre>${e(text)}</pre></div>`;
-  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow">${task.track === 'predictions' ? '<a href="#/predictions">Predictions</a>' : '<a href="#/code">Code</a>'} · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}${behindFold(task.behind, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
+  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow">${task.track === 'predictions' ? '<a href="#/predictions">Predictions</a>' : task.track === 'ladder' ? `<a href="#/think">Think it up</a> · rung ${e(task.rung)}` : '<a href="#/code">Code</a>'} · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}${behindFold(task.behind, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
     <div class="split" data-split><div class="split-pane split-text">${before}<section class="surface reading task-statement">${markdown(task.statement)}
       <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${hints ? '<section class="surface task-hints" data-hints aria-live="polite"></section>' : ''}${after}</div>
     <div class="split-pane split-code"><section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta">${sideButton()}<label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>

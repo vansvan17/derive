@@ -50,7 +50,9 @@ class Content:
                             {'id': 'strings', 'title': 'Strings', 'about': 'Matching without comparing letter by letter.'},
                             {'id': 'toolbox', 'title': 'From the toolbox', 'about': 'The tasks that go with the Toolbox pages.'},
                             # Written for this course as a guess at what a regional could ask; shown on its own page, not under Code.
-                            {'id': 'predictions', 'title': 'Predictions', 'about': 'Original problems in the style of an ICPC regional.'}]
+                            {'id': 'predictions', 'title': 'Predictions', 'about': 'Original problems in the style of an ICPC regional.'},
+                            # No named technique helps here: each needs an observation found by trying small cases. Own page, easiest rung first.
+                            {'id': 'ladder', 'title': 'Think it up', 'about': 'Problems that need an idea of your own, from easy to genuinely hard.'}]
         # Toolbox pages: techniques that are recognised and written rather than derived.
         path = self.root / 'content/tools.json'
         self.tools = {t['id']: t for t in json.loads(path.read_text())} if path.exists() else {}

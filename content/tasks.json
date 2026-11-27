@@ -2966,5 +2966,493 @@
     "6"
    ]
   ]
+ },
+ {
+  "track": "ladder",
+  "id": "t1-chocolate",
+  "title": "Breaking the chocolate",
+  "rung": 1,
+  "seconds": 1.0,
+  "statement": "A chocolate bar is a rectangle of $n \\times m$ small squares. One break takes a single piece and snaps it in two along a straight line between squares. You want $n \\cdot m$ separate squares. What is the smallest number of breaks?\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $n$ and $m$ ($1 \\le n, m \\le 10^9$).\n\n**Output.** For each bar, the smallest number of breaks.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 1000, 'large': 100000}[size]\n    return f\"{t}\\n\" + ''.join(one(rng, size) + \"\\n\" for _ in range(t))\nimport functools\ndef one(rng, size): top = 5 if size == 'small' else 10 ** 9; return f\"{rng.randint(1, top)} {rng.randint(1, top)}\"\ndef solve(text):\n    v = ints(text); return '\\n'.join(str(v[1 + 2 * i] * v[2 + 2 * i] - 1) for i in range(v[0]))\ndef brute(text):\n    v = ints(text)\n    @functools.lru_cache(maxsize=None)\n    def f(a, b):\n        if a * b == 1: return 0\n        return 1 + min([f(i, b) + f(a - i, b) for i in range(1, a)] + [f(a, j) + f(a, b - j) for j in range(1, b)])\n    return '\\n'.join(str(f(v[1 + 2 * i], v[2 + 2 * i])) for i in range(v[0]))\n",
+  "hints": [
+   "Try a $2 \\times 2$ bar in two different ways: first across, or first down. How many breaks did each way need?",
+   "Do not look at the shape of the pieces. Look at **how many pieces** there are. What does one break do to that number, whatever you break?",
+   "Every break turns one piece into two, so the number of pieces grows by exactly 1. You start with 1 piece and need $n \\cdot m$, so every way of breaking takes exactly $n \\cdot m - 1$ breaks."
+  ],
+  "samples": [
+   [
+    "3\n1 1\n2 2\n2 3\n",
+    "0\n3\n5"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t1-squares",
+  "title": "Squares on the board",
+  "rung": 1,
+  "seconds": 1.0,
+  "statement": "A board is ruled into $n$ rows and $m$ columns of unit cells. Count all squares of every size whose sides lie on the ruled lines (a $2 \\times 2$ board has four small squares and one big one: 5 in all).\n\n**Input.** One line with $n$ and $m$ ($1 \\le n, m \\le 10^6$).\n\n**Output.** The number of squares.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    top = {'small': 7, 'medium': 3000, 'large': 10 ** 6}[size]\n    return f\"{rng.randint(1, top)} {rng.randint(top // 2 + 1, top)}\\n\"\ndef solve(text):\n    n, m = ints(text); return str(sum((n - k + 1) * (m - k + 1) for k in range(1, min(n, m) + 1)))\ndef brute(text):\n    n, m = ints(text)\n    return str(sum(1 for i in range(n) for j in range(m) for k in range(1, min(n, m) + 1) if i + k <= n and j + k <= m))\n",
+  "hints": [
+   "Count by hand on a $2 \\times 3$ board, but keep the sizes apart: how many $1 \\times 1$ squares, how many $2 \\times 2$?",
+   "Fix the side length $k$. A $k \\times k$ square is decided by where its top-left corner is. In how many rows can that corner be? In how many columns?",
+   "In $n - k + 1$ rows and $m - k + 1$ columns, so there are $(n - k + 1)(m - k + 1)$ squares of side $k$. Add this for $k$ from 1 to $\\min(n, m)$, in 64 bits."
+  ],
+  "samples": [
+   [
+    "2 2\n",
+    "5"
+   ],
+   [
+    "2 3\n",
+    "8"
+   ],
+   [
+    "1 5\n",
+    "5"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t1-split",
+  "title": "Two fair bags",
+  "rung": 1,
+  "seconds": 1.0,
+  "statement": "There are $n$ weights of 1, 2, ..., $n$ grams, one of each. Can all of them be put into two bags so that both bags weigh the same?\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $n$ ($1 \\le n \\le 10^9$).\n\n**Output.** For each $n$ print `YES` or `NO`.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 1000, 'large': 100000}[size]\n    return f\"{t}\\n\" + ''.join(one(rng, size) + \"\\n\" for _ in range(t))\ndef one(rng, size): return str(rng.randint(1, 14 if size == 'small' else 10 ** 9))\ndef solve(text):\n    v = ints(text); return '\\n'.join('YES' if x % 4 in (0, 3) else 'NO' for x in v[1:1 + v[0]])\ndef brute(text):\n    v = ints(text); out = []\n    for n in v[1:1 + v[0]]:\n        total = n * (n + 1) // 2; sums = {0}\n        for w in range(1, n + 1): sums |= {s + w for s in sums}\n        out.append('YES' if total % 2 == 0 and total // 2 in sums else 'NO')\n    return '\\n'.join(out)\n",
+  "hints": [
+   "Try $n$ = 1, 2, 3, 4, 5, 6, 7, 8 by hand and write YES or NO under each. Is there an obvious reason for some of the NOs?",
+   "If the total weight $1 + 2 + \\dots + n$ is odd, two equal bags are impossible. For which $n$ is the total even? And when it is even, can you always do it?",
+   "The total $n(n+1)/2$ is even exactly when $n$ leaves remainder 0 or 3 when divided by 4. Then it always works: four consecutive weights $a, a+1, a+2, a+3$ split as $\\{a, a+3\\}$ and $\\{a+1, a+2\\}$, and 1, 2, 3 split as $\\{1, 2\\}$ and $\\{3\\}$."
+  ],
+  "samples": [
+   [
+    "4\n1\n3\n4\n6\n",
+    "NO\nYES\nYES\nNO"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t1-raise",
+  "title": "A raise for everyone else",
+  "rung": 1,
+  "seconds": 1.0,
+  "statement": "$n$ workers have salaries $a_1, \\dots, a_n$. In one step the manager picks one worker and raises the salary of **every other** worker by 1. What is the smallest number of steps after which all salaries are equal?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^9$).\n\n**Output.** The smallest number of steps.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 3), 'medium': 3000, 'large': 200000}[size]; top = 4 if size == 'small' else 10 ** 9\n    return f\"{n}\\n{' '.join(str(rng.randint(1, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:1 + v[0]]; return str(sum(a) - min(a) * len(a))\ndef brute(text):\n    v = ints(text); a = tuple(v[1:1 + v[0]]); seen = {a: 0}; todo = [a]\n    for s in todo:\n        if len(set(s)) == 1: return str(seen[s])\n        for i in range(len(s)):\n            t = tuple(x + (j != i) for j, x in enumerate(s))\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n",
+  "hints": [
+   "Take salaries 1, 2, 3 and play it out. Only the **differences** between salaries matter for being equal. What does one step do to the differences?",
+   "Raising everyone except one worker changes the differences exactly as if that one worker had been lowered by 1 and nobody else touched. So restate the problem: one step lowers one salary by 1.",
+   "Now everyone must come down to a common value, and going below the smallest salary is wasteful. So the answer is the sum of $a_i - \\min$ over all workers, in 64 bits."
+  ],
+  "samples": [
+   [
+    "3\n1 2 3\n",
+    "3"
+   ],
+   [
+    "2\n5 5\n",
+    "0"
+   ],
+   [
+    "4\n1 1 1 2\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t2-robot",
+  "title": "The robot comes home",
+  "rung": 2,
+  "seconds": 1.0,
+  "statement": "A robot on an endless grid received a program of $n$ commands, each `L`, `R`, `U` or `D` (one step left, right, up or down). You may delete any commands you like; the rest are executed in order. What is the largest number of commands you can keep so that the robot ends exactly where it started?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains the $n$ commands.\n\n**Output.** The largest number of commands that can be kept.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 11), 'medium': 3000, 'large': 200000}[size]; alpha = rng.choice(['LRUD', 'LLLRUD', 'LRUUUD', 'LR', 'LU'])\n    return f\"{n}\\n{''.join(rng.choice(alpha) for _ in range(n))}\\n\"\ndef solve(text):\n    s = text.split()[1]; return str(2 * min(s.count('L'), s.count('R')) + 2 * min(s.count('U'), s.count('D')))\ndef brute(text):\n    s = text.split()[1]; n = len(s); best = 0; d = {'L': (-1, 0), 'R': (1, 0), 'U': (0, 1), 'D': (0, -1)}\n    for m in range(1 << n):\n        x = y = 0\n        for i in range(n):\n            if m >> i & 1: x += d[s[i]][0]; y += d[s[i]][1]\n        if x == 0 and y == 0: best = max(best, bin(m).count('1'))\n    return str(best)\n",
+  "hints": [
+   "Does the order of the kept commands matter for where the robot ends? Try `LRU` and `ULR`.",
+   "Only the counts matter: the robot ends at (number of R minus number of L, number of U minus number of D). So what must be true of the kept commands?",
+   "Kept L and R must be equal in number, and kept U and D too. Keep $\\min(L, R)$ of each horizontal kind and $\\min(U, D)$ of each vertical kind: $2\\min(L, R) + 2\\min(U, D)$."
+  ],
+  "samples": [
+   [
+    "6\nLLRUDD\n",
+    "4"
+   ],
+   [
+    "3\nLLL\n",
+    "0"
+   ],
+   [
+    "4\nLRUD\n",
+    "4"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t2-steps",
+  "title": "Stairs that only go up",
+  "rung": 2,
+  "seconds": 1.0,
+  "statement": "A staircase has $n$ steps; step $i$ has height $a_i$. A mason can add bricks: one brick raises one step by 1. Steps can never be lowered. He wants every step to be **strictly** higher than the step before it. What is the smallest number of bricks?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^9$).\n\n**Output.** The smallest number of bricks.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport itertools\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 4), 'medium': 3000, 'large': 200000}[size]; top = 4 if size == 'small' else rng.choice([5, 10 ** 9])\n    return f\"{n}\\n{' '.join(str(rng.randint(1, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); prev = -1; ans = 0\n    for x in v[1:1 + v[0]]:\n        y = max(x, prev + 1); ans += y - x; prev = y\n    return str(ans)\ndef brute(text):\n    v = ints(text); a = v[1:1 + v[0]]\n    return str(min(sum(f) - sum(a) for f in itertools.product(*[range(x, 9) for x in a]) if all(f[i] < f[i + 1] for i in range(len(f) - 1))))\n",
+  "hints": [
+   "Work out 1 1 1 1 by hand. Did you ever have a reason to raise the first step?",
+   "Raising a step only makes life harder for every step after it. So each step should end as low as it is allowed to. How low is that, once the step before it is settled?",
+   "Go left to right: the new height is the larger of the old height and (previous new height + 1). Add up the differences. The total can reach about $2 \\cdot 10^{10}$ and more, so use 64 bits."
+  ],
+  "samples": [
+   [
+    "4\n1 1 1 1\n",
+    "6"
+   ],
+   [
+    "3\n1 5 2\n",
+    "4"
+   ],
+   [
+    "3\n1 2 3\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t2-squares",
+  "title": "Two square plots",
+  "rung": 2,
+  "seconds": 1.0,
+  "statement": "A farmer owns a square field with side $p$ and gives away a square corner of it with side $q$, where $p > q \\ge 0$ are whole numbers. The area he keeps is $p^2 - q^2$. How many of the numbers $1, 2, \\dots, n$ can be the area he keeps, for some choice of $p$ and $q$?\n\n**Input.** One line with $n$ ($1 \\le n \\le 10^{18}$).\n\n**Output.** How many of $1, \\dots, n$ can be written as $p^2 - q^2$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    return f\"{rng.randint(1, 300) if size == 'small' else rng.choice([10 ** 18, rng.randint(1, 10 ** 18), rng.randint(1, 10 ** 6)])}\\n\"\ndef solve(text):\n    n = int(text); return str(n - (n + 2) // 4)\ndef brute(text):\n    n = int(text); ok = set()\n    for p in range(1, n + 2):\n        for q in range(p):\n            if p * p - q * q <= n: ok.add(p * p - q * q)\n    return str(len(ok))\n",
+  "hints": [
+   "Make a list: which of the numbers 1 to 12 can you write as $p^2 - q^2$? Write the misses in a row and look at them.",
+   "The misses are 2, 6, 10: the numbers that leave remainder 2 when divided by 4. To see why, write $p^2 - q^2 = (p - q)(p + q)$. What can you say about whether those two factors are odd or even?",
+   "$p - q$ and $p + q$ are both odd or both even. Both odd gives every odd number ($p = q + 1$). Both even gives every multiple of 4 ($p = q + 2$). A number that is even but not a multiple of 4 is impossible. So the answer is $n$ minus the count of numbers up to $n$ with remainder 2 modulo 4, which is $\\lfloor (n + 2) / 4 \\rfloor$."
+  ],
+  "samples": [
+   [
+    "1\n",
+    "1"
+   ],
+   [
+    "6\n",
+    "4"
+   ],
+   [
+    "10\n",
+    "7"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t2-brackets",
+  "title": "Send it to the back",
+  "rung": 2,
+  "seconds": 1.0,
+  "statement": "A string of $n$ brackets contains equally many `(` and `)`. In one move you take any one bracket out and put it at the **end** of the string. A string is balanced if it can be read as correctly nested brackets, like `(())()`. What is the smallest number of moves that makes the string balanced?\n\n**Input.** The first line contains an even number $n$ ($2 \\le n \\le 2 \\cdot 10^5$). The second line contains the string.\n\n**Output.** The smallest number of moves.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.choice([2, 4, 6, 8, 10]), 'medium': 3000, 'large': 200000}[size]; s = list('(' * (n // 2) + ')' * (n // 2)); rng.shuffle(s)\n    if rng.random() < 0.2: s.sort(reverse=True)\n    return f\"{n}\\n{''.join(s)}\\n\"\ndef solve(text):\n    s = text.split()[1]; b = mn = 0\n    for ch in s:\n        b += 1 if ch == '(' else -1; mn = min(mn, b)\n    return str(-mn)\ndef ok(s):\n    b = 0\n    for ch in s:\n        b += 1 if ch == '(' else -1\n        if b < 0: return False\n    return b == 0\ndef brute(text):\n    s = text.split()[1]; seen = {s: 0}; todo = [s]\n    for x in todo:\n        if ok(x): return str(seen[x])\n        for i in range(len(x) - 1):\n            y = x[:i] + x[i + 1:] + x[i]\n            if y not in seen: seen[y] = seen[x] + 1; todo.append(y)\n",
+  "hints": [
+   "Read the string left to right keeping a counter: +1 for `(`, −1 for `)`. The string is balanced when the counter never goes below 0. Do this for `())(` and for `)))(((`.",
+   "Call the lowest value the counter reaches $-d$. Moving one `)` to the end raises the counter by 1 at every position after where it stood. By how much can a single move improve the lowest value?",
+   "By at most 1, so at least $d$ moves are needed. And $d$ moves are enough: each time, move the first `)` at which the counter becomes negative. So the answer is $d$: minus the lowest value of the counter."
+  ],
+  "samples": [
+   [
+    "2\n)(\n",
+    "1"
+   ],
+   [
+    "4\n())(\n",
+    "1"
+   ],
+   [
+    "6\n)))(((\n",
+    "3"
+   ],
+   [
+    "4\n(())\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t3-laddus",
+  "title": "Two plates of laddus",
+  "rung": 3,
+  "seconds": 1.0,
+  "statement": "Two plates hold $a$ and $b$ laddus. Two friends take turns. On a turn a friend eats either one laddu from one plate, or one laddu from each plate (only if both plates are non-empty). The friend who cannot eat anything loses. Both play as well as possible. Who wins?\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $a$ and $b$ ($0 \\le a, b \\le 10^9$).\n\n**Output.** For each line print `First` if the friend who moves first wins, and `Second` otherwise.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 1000, 'large': 100000}[size]\n    return f\"{t}\\n\" + ''.join(one(rng, size) + \"\\n\" for _ in range(t))\nimport functools\ndef one(rng, size): top = 7 if size == 'small' else 10 ** 9; return f\"{rng.randint(0, top)} {rng.randint(0, top)}\"\ndef solve(text):\n    v = ints(text); return '\\n'.join('Second' if v[1 + 2 * i] % 2 == 0 and v[2 + 2 * i] % 2 == 0 else 'First' for i in range(v[0]))\ndef brute(text):\n    v = ints(text)\n    @functools.lru_cache(maxsize=None)\n    def win(a, b): return (a > 0 and not win(a - 1, b)) or (b > 0 and not win(a, b - 1)) or (a > 0 and b > 0 and not win(a - 1, b - 1))\n    return '\\n'.join('First' if win(v[1 + 2 * i], v[2 + 2 * i]) else 'Second' for i in range(v[0]))\n",
+  "hints": [
+   "Draw a small table: rows $a = 0..4$, columns $b = 0..4$. Mark (0, 0) as losing for the friend to move, then fill in the rest: a position is winning if some move leads to a losing one. What picture appears?",
+   "The losing positions are exactly those where $a$ and $b$ are both even. Now explain it: from a both-even position, where can a move lead? From any other position, is there a move that lands on both-even?",
+   "From both-even every move makes at least one plate odd. From anything else, eat from the odd plate (or from both, if both are odd) to make both even. So the first friend wins unless both numbers are even."
+  ],
+  "samples": [
+   [
+    "4\n0 0\n1 1\n2 2\n2 3\n",
+    "Second\nFirst\nSecond\nFirst"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t3-divisor",
+  "title": "Take away a divisor",
+  "rung": 3,
+  "seconds": 1.0,
+  "statement": "A number $n$ is written on a board. Two players take turns. On a turn the player chooses a divisor $d$ of the current number with $1 \\le d$ and $d$ smaller than the number itself, and replaces the number by itself minus $d$. A player who faces the number 1 cannot move and loses. Both play as well as possible. Who wins?\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $n$ ($1 \\le n \\le 10^9$).\n\n**Output.** For each $n$ print `First` or `Second`.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 1000, 'large': 100000}[size]\n    return f\"{t}\\n\" + ''.join(one(rng, size) + \"\\n\" for _ in range(t))\nimport functools, sys\ndef one(rng, size): return str(rng.randint(1, 150 if size == 'small' else 10 ** 9))\ndef solve(text):\n    v = ints(text); return '\\n'.join('First' if x % 2 == 0 else 'Second' for x in v[1:1 + v[0]])\ndef brute(text):\n    v = ints(text); sys.setrecursionlimit(5000)\n    @functools.lru_cache(maxsize=None)\n    def win(n): return any(n % d == 0 and not win(n - d) for d in range(1, n))\n    return '\\n'.join('First' if win(x) else 'Second' for x in v[1:1 + v[0]])\n",
+  "hints": [
+   "Work out who wins for $n = 1, 2, 3, \\dots, 10$ by hand (1 is a loss for the player to move). Write W or L under each number.",
+   "It alternates: odd numbers lose, even numbers win. To prove it you need two facts. What can you say about every divisor of an odd number, and so about where an odd number can move?",
+   "All divisors of an odd number are odd, so an odd number always moves to an even number. An even number can subtract 1 and hand over an odd number. So the player facing an even number can always keep giving the opponent odd numbers, down to 1."
+  ],
+  "samples": [
+   [
+    "4\n1\n2\n3\n12\n",
+    "Second\nFirst\nSecond\nFirst"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t3-switches",
+  "title": "The wrong switches",
+  "rung": 3,
+  "seconds": 1.0,
+  "statement": "A hall has $n$ lamps, all off, and $n$ switches. The electrician wired them badly: switch $i$ flips every lamp **except** lamp $i$. What is the smallest number of switch presses after which all lamps are on? If it cannot be done, print $-1$.\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $n$ ($1 \\le n \\le 10^9$).\n\n**Output.** For each $n$, the smallest number of presses or $-1$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 1000, 'large': 100000}[size]\n    return f\"{t}\\n\" + ''.join(one(rng, size) + \"\\n\" for _ in range(t))\ndef one(rng, size): return str(rng.randint(1, 9 if size == 'small' else 10 ** 9))\ndef solve(text):\n    v = ints(text); return '\\n'.join(str(x if x % 2 == 0 else -1) for x in v[1:1 + v[0]])\n_m = {}\ndef least(n):\n    if n not in _m:\n        full = (1 << n) - 1; seen = {0: 0}; todo = [0]; ans = -1\n        for s in todo:\n            if s == full: ans = seen[s]; break\n            for i in range(n):\n                t = s ^ full ^ (1 << i)\n                if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n        _m[n] = ans\n    return _m[n]\ndef brute(text):\n    v = ints(text); return '\\n'.join(str(least(x)) for x in v[1:1 + v[0]])\n",
+  "hints": [
+   "Try $n = 2$, $n = 3$ and $n = 4$ with pencil and paper. Pressing the same switch twice undoes itself, so each switch is pressed once or not at all.",
+   "Say $S$ switches are pressed in total. Lamp $i$ is flipped by every pressed switch except its own. So how many times is lamp $i$ flipped if switch $i$ was pressed, and if it was not? Each lamp must be flipped an odd number of times.",
+   "A lamp whose switch was pressed is flipped $S - 1$ times, the others $S$ times. These two numbers have different parity, so either all switches are pressed or none. None leaves the lamps off. All gives $S = n$, and $n - 1$ must be odd: so the answer is $n$ when $n$ is even and $-1$ when $n$ is odd."
+  ],
+  "samples": [
+   [
+    "4\n1\n2\n3\n4\n",
+    "-1\n2\n-1\n4"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t3-runs",
+  "title": "Runs of house numbers",
+  "rung": 3,
+  "seconds": 1.0,
+  "statement": "A postman calls a number friendly if it is the sum of two or more **consecutive** positive whole numbers. For example $9 = 4 + 5 = 2 + 3 + 4$ is friendly, and 4 is not. How many of the numbers $1, 2, \\dots, n$ are friendly?\n\n**Input.** One line with $n$ ($1 \\le n \\le 10^{18}$).\n\n**Output.** The number of friendly numbers from 1 to $n$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    return f\"{rng.randint(1, 300) if size == 'small' else rng.choice([10 ** 18, 2 ** 59, 2 ** 59 - 1, rng.randint(1, 10 ** 18), rng.randint(1, 10 ** 6)])}\\n\"\ndef solve(text):\n    n = int(text); return str(n - n.bit_length())\ndef brute(text):\n    n = int(text); ok = set()\n    for a in range(1, n + 1):\n        s = a\n        for b in range(a + 1, n + 1):\n            s += b\n            if s > n: break\n            ok.add(s)\n    return str(len(ok))\n",
+  "hints": [
+   "List the numbers from 1 to 20 and try to write each as a sum of consecutive numbers. Which ones resist?",
+   "The ones that resist are 1, 2, 4, 8, 16: the powers of two. Every odd number at least 3 is easy: $2k + 1 = k + (k + 1)$. What about a number with an odd divisor $d \\ge 3$? Think of $d$ numbers centred on $x / d$.",
+   "A run of $m$ numbers starting at $a$ sums to $m(2a + m - 1)/2$, and one of $m$ and $2a + m - 1$ is odd and at least 3, so a power of two can never be such a sum. Any number with an odd divisor at least 3 can (centre a run on it, and cancel the negative part if the run dips below 1). So count the powers of two up to $n$ and subtract them from $n$."
+  ],
+  "samples": [
+   [
+    "4\n",
+    "1"
+   ],
+   [
+    "10\n",
+    "6"
+   ],
+   [
+    "1\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t4-frog",
+  "title": "The growing hop",
+  "rung": 4,
+  "seconds": 1.0,
+  "statement": "A frog sits at point 0 of a number line. Its first hop has length 1, its second hop length 2, its third length 3, and so on. Each hop may go left or right. What is the smallest number of hops after which the frog can be exactly at point $x$?\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 1000$). Each of the next $t$ lines contains $x$ ($-10^9 \\le x \\le 10^9$).\n\n**Output.** For each $x$, the smallest number of hops.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport math\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 300, 'large': 1000}[size]; top = 30 if size == 'small' else 10 ** 9\n    return f\"{t}\\n\" + ''.join(f\"{rng.randint(-top, top)}\\n\" for _ in range(t))\ndef solve(text):\n    v = ints(text); out = []\n    for x in v[1:1 + v[0]]:\n        x = abs(x); k = max(0, (math.isqrt(8 * x + 1) - 1) // 2 - 2)\n        while k * (k + 1) // 2 < x or (k * (k + 1) // 2 - x) % 2: k += 1\n        out.append(k)\n    return '\\n'.join(map(str, out))\ndef brute(text):\n    v = ints(text); out = []\n    for x in v[1:1 + v[0]]:\n        pos = {0}; k = 0\n        while x not in pos: k += 1; pos = {p + k for p in pos} | {p - k for p in pos}\n        out.append(k)\n    return '\\n'.join(map(str, out))\n",
+  "hints": [
+   "Make a table: after 1, 2, 3, 4 hops, which points can the frog be on? Look at the farthest point and at which points in between are missing.",
+   "After $k$ hops the farthest point is $S = 1 + 2 + \\dots + k$. Turning one hop of length $j$ from right to left moves the end point by $2j$. So what do all reachable points have in common with $S$, and can every such point between $-S$ and $S$ be reached?",
+   "Every reachable point has the same parity as $S$, and all of those between $-S$ and $S$ can be reached. So the answer is the smallest $k$ with $S \\ge |x|$ and $S - |x|$ even. Start near $\\sqrt{2|x|}$ and step $k$ up; at most a few steps are needed."
+  ],
+  "samples": [
+   [
+    "4\n0\n2\n6\n-4\n",
+    "0\n3\n3\n3"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t4-coins",
+  "title": "A row of coins",
+  "rung": 4,
+  "seconds": 1.0,
+  "statement": "$n$ coins lie in a row, each showing heads (`H`) or tails (`T`). In one move you turn over exactly $k$ coins that lie next to each other. What is the smallest number of moves after which every coin shows heads? If it cannot be done, print $-1$.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains a string of $n$ letters `H` and `T`.\n\n**Output.** The smallest number of moves, or $-1$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 10), 'medium': 3000, 'large': 200000}[size]; k = rng.randint(1, n) if size == 'small' else rng.choice([1, 2, 3, n // 2, n // 3 + 1, n])\n    s = ['H'] * n\n    if rng.random() < 0.75:\n        for _ in range(rng.randint(0, 6) if size == 'small' else n // rng.choice([2, 5, 50])):\n            i = rng.randint(0, n - k)\n            if size == 'small':\n                for j in range(i, i + k): s[j] = 'T' if s[j] == 'H' else 'H'\n            else: s[i] = 'T' if s[i] == 'H' else 'H'; s[min(n - 1, i + k - 1)] = 'T' if s[min(n - 1, i + k - 1)] == 'H' else 'H'\n        if size != 'small':\n            d = [0] * (n + 1); t = ['H'] * n\n            for _ in range(n // 3): i = rng.randint(0, n - k); d[i] ^= 1; d[i + k] ^= 1\n            c = 0\n            for i in range(n): c ^= d[i]; t[i] = 'T' if c else 'H'\n            s = t\n    else: s = [rng.choice('HT') for _ in range(n)]\n    return f\"{n} {k}\\n{''.join(s)}\\n\"\ndef solve(text):\n    p = text.split(); n, k, s = int(p[0]), int(p[1]), p[2]; d = [0] * (n + 1); cur = 0; ans = 0\n    for i in range(n):\n        cur ^= d[i]\n        if (s[i] == 'T') ^ cur:\n            if i + k > n: return '-1'\n            ans += 1; cur ^= 1; d[i + k] ^= 1\n    return str(ans)\ndef brute(text):\n    p = text.split(); n, k, s = int(p[0]), int(p[1]), p[2]; start = sum(1 << i for i in range(n) if s[i] == 'T'); block = (1 << k) - 1\n    seen = {start: 0}; todo = [start]\n    for x in todo:\n        if x == 0: return str(seen[x])\n        for i in range(n - k + 1):\n            y = x ^ (block << i)\n            if y not in seen: seen[y] = seen[x] + 1; todo.append(y)\n    return '-1'\n",
+  "hints": [
+   "Look at the leftmost coin. How many different moves touch it? What does that tell you about whether that move is made?",
+   "Only the move covering coins $1..k$ touches coin 1, and doing a move twice is pointless. So coin 1 **decides** that move: it is made exactly when coin 1 shows tails. After that, what decides the move covering coins $2..k+1$?",
+   "Coin 2, as it looks after the earlier decision, and so on: every move is forced, left to right. If a coin near the right end needs a move that would stick out past the end, the answer is $-1$. To make it fast, do not turn $k$ coins each time: keep a running \"flipped or not\" flag and a note of where each flip stops."
+  ],
+  "samples": [
+   [
+    "5 3\nTTTHH\n",
+    "1"
+   ],
+   [
+    "5 3\nHTHTH\n",
+    "-1"
+   ],
+   [
+    "4 2\nTHHT\n",
+    "3"
+   ],
+   [
+    "3 1\nTHT\n",
+    "2"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t4-board",
+  "title": "Erase two, write the difference",
+  "rung": 4,
+  "seconds": 1.0,
+  "statement": "The numbers $1, 2, \\dots, n$ are written on a board. In one step you erase any two numbers $a$ and $b$ and write $|a - b|$ instead. After $n - 1$ steps a single number is left. Find the smallest and the largest value that this last number can have.\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $n$ ($1 \\le n \\le 10^9$).\n\n**Output.** For each $n$ print two numbers: the smallest and the largest possible last number.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 1000, 'large': 100000}[size]\n    return f\"{t}\\n\" + ''.join(one(rng, size) + \"\\n\" for _ in range(t))\ndef one(rng, size): return str(rng.randint(1, 8 if size == 'small' else 10 ** 9))\ndef solve(text):\n    v = ints(text); out = []\n    for n in v[1:1 + v[0]]:\n        par = 1 if n % 4 in (1, 2) else 0\n        out.append(f\"{par} {1 if n == 1 else (n if n % 2 == par else n - 1)}\")\n    return '\\n'.join(out)\n_m = {}\ndef ends(n):\n    if n not in _m:\n        start = tuple(range(1, n + 1)); seen = {start}; todo = [start]; last = set()\n        for s in todo:\n            if len(s) == 1: last.add(s[0]); continue\n            for i in range(len(s)):\n                for j in range(i + 1, len(s)):\n                    t = tuple(sorted(s[:i] + s[i + 1:j] + s[j + 1:] + (abs(s[i] - s[j]),)))\n                    if t not in seen: seen.add(t); todo.append(t)\n        _m[n] = f\"{min(last)} {max(last)}\"\n    return _m[n]\ndef brute(text):\n    v = ints(text); return '\\n'.join(ends(n) for n in v[1:1 + v[0]])\n",
+  "hints": [
+   "Play it for $n = 3$ and $n = 4$ and collect every last number you can reach. Then look for something about the board that a step cannot change. Compare $a + b$ with $|a - b|$.",
+   "$a + b$ and $|a - b|$ are both odd or both even, so the sum of the board keeps its parity. The last number therefore has the parity of $1 + 2 + \\dots + n$. That limits both answers: what are the smallest and the largest numbers of that parity that could possibly be left, given that nothing on the board ever exceeds $n$?",
+   "Smallest: 0 or 1, by parity (pair up neighbours to make 1s, then cancel the 1s in pairs). Largest: $n$ if $n$ has the right parity, otherwise $n - 1$; reach it by reducing all the other numbers to 0 or 1 first and combining with $n$ last. The sum is odd exactly when $n$ leaves remainder 1 or 2 modulo 4. Treat $n = 1$ on its own."
+  ],
+  "samples": [
+   [
+    "4\n1\n2\n3\n4\n",
+    "1 1\n1 1\n0 2\n0 4"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t4-ledger",
+  "title": "Repairing the ledger",
+  "rung": 4,
+  "seconds": 1.0,
+  "statement": "A ledger should list $n$ whole numbers in **strictly increasing** order, but some entries were smudged and now it reads $a_1, \\dots, a_n$. You may rewrite any entry as any whole number you like (negative numbers and zero are allowed). What is the smallest number of entries that must be rewritten so that the list is strictly increasing?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^9$).\n\n**Output.** The smallest number of entries to rewrite.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport bisect\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': 3000, 'large': 200000}[size]; top = 8 if size == 'small' else rng.choice([n, 10 ** 9])\n    a = [rng.randint(1, top) for _ in range(n)]\n    if rng.random() < 0.5:\n        a = sorted(a)\n        for _ in range(n // 4 + 1): a[rng.randrange(n)] = rng.randint(1, top)\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); tail = []\n    for i, x in enumerate(v[1:1 + v[0]]):\n        x -= i; p = bisect.bisect_right(tail, x)\n        if p == len(tail): tail.append(x)\n        else: tail[p] = x\n    return str(v[0] - len(tail))\ndef brute(text):\n    v = ints(text); a = v[1:1 + v[0]]; n = len(a); best = 0\n    for m in range(1 << n):\n        keep = [i for i in range(n) if m >> i & 1]\n        if all(a[keep[j + 1]] - a[keep[j]] >= keep[j + 1] - keep[j] for j in range(len(keep) - 1)): best = max(best, len(keep))\n    return str(n - best)\n",
+  "hints": [
+   "Think about which entries you **keep** rather than which you rewrite. For 1 2 2 you can keep only two of the three. Why can you not keep the 1 and the last 2 and rewrite only the middle one?",
+   "For 1 2 2, keeping the 1 and the last 2 would need a whole number strictly between them, and there is none. In general two kept entries at positions $i < j$ leave room for the $j - i - 1$ entries between them exactly when $a_j - a_i \\ge j - i$. Rewrite that as a condition on $a_i - i$ and $a_j - j$.",
+   "It says $a_i - i \\le a_j - j$. So the kept entries are a non-decreasing subsequence of the values $a_i - i$, and any such subsequence works. Find the longest non-decreasing subsequence of $a_i - i$ in $n \\log n$ (a sorted list of best tails and a binary search) and subtract its length from $n$."
+  ],
+  "samples": [
+   [
+    "3\n1 2 2\n",
+    "1"
+   ],
+   [
+    "4\n1 5 2 3\n",
+    "2"
+   ],
+   [
+    "3\n10 11 12\n",
+    "0"
+   ],
+   [
+    "4\n5 5 5 5\n",
+    "3"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t5-dominoes",
+  "title": "Dominoes on the staircase",
+  "rung": 5,
+  "seconds": 1.0,
+  "statement": "A figure is made of $n$ columns of unit squares standing side by side on a common floor. Column $i$ has height $a_i$, and the heights never increase from left to right: $a_1 \\ge a_2 \\ge \\dots \\ge a_n$. A domino covers two squares that share a side. What is the largest number of dominoes that can be placed inside the figure without overlapping?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1 \\ge a_2 \\ge \\dots \\ge a_n$ ($1 \\le a_i \\le 10^9$).\n\n**Output.** The largest number of dominoes.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport functools\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 5), 'medium': 3000, 'large': 200000}[size]; top = 4 if size == 'small' else rng.choice([3, 10 ** 9])\n    a = sorted((rng.randint(1, top) for _ in range(n)), reverse=True)\n    while size == 'small' and sum(a) > 14: a.pop()\n    return f\"{len(a)}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); b = w = 0\n    for i, a in enumerate(v[1:1 + v[0]]):\n        if i % 2: b += a // 2; w += a - a // 2\n        else: w += a // 2; b += a - a // 2\n    return str(min(b, w))\ndef brute(text):\n    v = ints(text); a = v[1:1 + v[0]]; cells = [(i, j) for i in range(len(a)) for j in range(a[i])]; idx = {c: k for k, c in enumerate(cells)}\n    @functools.lru_cache(maxsize=None)\n    def best(used):\n        k = 0\n        while k < len(cells) and used >> k & 1: k += 1\n        if k == len(cells): return 0\n        i, j = cells[k]; r = best(used | 1 << k)\n        for c in ((i + 1, j), (i, j + 1)):\n            if c in idx and not used >> idx[c] & 1: r = max(r, 1 + best(used | 1 << k | 1 << idx[c]))\n        return r\n    return str(best(0))\n",
+  "hints": [
+   "Colour the squares like a chessboard. Whatever way a domino is placed, what colours does it cover? What upper limit does that give?",
+   "Each domino covers one black and one white square, so the answer is at most $\\min(\\text{black}, \\text{white})$. Check small figures by hand (for example heights 3 1 1, or 3 2 2 2 1): is that limit actually reached? Why might the staircase shape matter?",
+   "For a figure whose heights never increase, the limit is always reached; that is the hard part to believe, and small cases are the way to convince yourself. So count the black and white squares column by column (a column of height $a$ has $\\lceil a/2 \\rceil$ of one colour and $\\lfloor a/2 \\rfloor$ of the other, swapping with the column parity) and print the smaller count."
+  ],
+  "samples": [
+   [
+    "5\n3 2 2 2 1\n",
+    "4"
+   ],
+   [
+    "1\n4\n",
+    "2"
+   ],
+   [
+    "3\n3 1 1\n",
+    "2"
+   ],
+   [
+    "2\n1 1\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t5-ring",
+  "title": "The ring of lanterns",
+  "rung": 5,
+  "seconds": 1.0,
+  "statement": "$n$ lanterns hang in a ring, numbered 1 to $n$ in order; lantern $n$ is next to lantern 1. Each is lit or dark. In one move you choose a lantern and flip it together with its two neighbours (lit becomes dark, dark becomes lit). What is the smallest number of moves after which all lanterns are dark? If it cannot be done, print $-1$.\n\n**Input.** The first line contains $n$ ($3 \\le n \\le 2 \\cdot 10^5$). The second line contains a string of $n$ characters; the $i$-th is `1` if lantern $i$ is lit and `0` if it is dark.\n\n**Output.** The smallest number of moves, or $-1$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(3, 10), 'medium': rng.randint(2998, 3001), 'large': rng.choice([200000, 199999, 199998])}[size]\n    if rng.random() < 0.7:\n        x = [rng.random() < rng.choice([0.1, 0.5, 0.9]) for _ in range(n)]; s = ['1' if x[i - 1] ^ x[i] ^ x[(i + 1) % n] else '0' for i in range(n)]\n    else: s = [rng.choice('01') for _ in range(n)]\n    return f\"{n}\\n{''.join(s)}\\n\"\ndef solve(text):\n    p = text.split(); n = int(p[0]); s = [int(c) for c in p[1]]; best = -1\n    for a in (0, 1):\n        for b in (0, 1):\n            x = [0] * n; x[0] = a; x[1] = b\n            for i in range(1, n - 1): x[i + 1] = s[i] ^ x[i - 1] ^ x[i]\n            if x[n - 2] ^ x[n - 1] ^ x[0] != s[n - 1] or x[n - 1] ^ x[0] ^ x[1] != s[0]: continue\n            c = sum(x) % 2 if n == 3 else sum(x)\n            if best < 0 or c < best: best = c\n    return str(best)\ndef brute(text):\n    p = text.split(); n = int(p[0]); start = int(p[1], 2); moves = {(1 << i) | (1 << ((i + 1) % n)) | (1 << ((i - 1) % n)) for i in range(n)}\n    seen = {start: 0}; todo = [start]\n    for x in todo:\n        if x == 0: return str(seen[x])\n        for m in moves:\n            if x ^ m not in seen: seen[x ^ m] = seen[x] + 1; todo.append(x ^ m)\n    return '-1'\n",
+  "hints": [
+   "The order of moves does not matter and choosing the same lantern twice cancels out, so a solution is just a set of chosen lanterns. Lantern $i$ ends dark when the number of chosen ones among $i - 1$, $i$, $i + 1$ has the right parity. If you already knew whether lanterns 1 and 2 are chosen, what does the condition for lantern 2 tell you?",
+   "It tells you whether lantern 3 is chosen. Then the condition for lantern 3 gives lantern 4, and so on all the way round. So everything follows from two yes/no guesses. Which conditions have not been used when you get back to the start?",
+   "The conditions for lantern $n$ and for lantern 1. Try all four guesses for lanterns 1 and 2, propagate round the ring, keep the guesses for which those two conditions hold, and print the smallest number of chosen lanterns (or $-1$ if none of the four works). One special case: with $n = 3$ all three moves are the same move, so only the parity of the count matters."
+  ],
+  "samples": [
+   [
+    "5\n11100\n",
+    "1"
+   ],
+   [
+    "4\n1000\n",
+    "3"
+   ],
+   [
+    "6\n100000\n",
+    "-1"
+   ],
+   [
+    "3\n111\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "track": "ladder",
+  "id": "t5-hall",
+  "title": "The hall of crossed wires",
+  "rung": 5,
+  "seconds": 1.0,
+  "statement": "A hall has lamps in a grid of $n$ rows and $m$ columns, all off. Every lamp has its own button, but pressing the button of a lamp flips **every lamp in its row and every lamp in its column** (the lamp itself is flipped once). What is the smallest number of button presses after which all lamps are on?\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $n$ and $m$ ($1 \\le n, m \\le 10^9$).\n\n**Output.** For each hall, the smallest number of presses. (It can be shown that it is always possible.)",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 1000, 'large': 100000}[size]\n    return f\"{t}\\n\" + ''.join(one(rng, size) + \"\\n\" for _ in range(t))\nimport itertools\ndef one(rng, size): top = 4 if size == 'small' else 10 ** 9; return f\"{rng.randint(1, top)} {rng.randint(1, top)}\"\ndef solve(text):\n    v = ints(text); out = []\n    for i in range(v[0]):\n        n, m = v[1 + 2 * i], v[2 + 2 * i]\n        out.append(n * m if n % 2 == 0 and m % 2 == 0 else min(n, m) if n % 2 and m % 2 else (n if n % 2 else m))\n    return '\\n'.join(map(str, out))\n_m = {}\ndef least(n, m):\n    if (n, m) not in _m:\n        masks = []\n        for i in range(n):\n            for j in range(m):\n                masks.append(sum(1 << (a * m + b) for a in range(n) for b in range(m) if a == i or b == j))\n        full = (1 << (n * m)) - 1; ans = None\n        for k in range(n * m + 1):\n            for comb in itertools.combinations(masks, k):\n                x = 0\n                for c in comb: x ^= c\n                if x == full: ans = k; break\n            if ans is not None: break\n        _m[(n, m)] = ans\n    return _m[(n, m)]\ndef brute(text):\n    v = ints(text); return '\\n'.join(str(least(v[1 + 2 * i], v[2 + 2 * i])) for i in range(v[0]))\n",
+  "hints": [
+   "This one is meant to be found by experiment. Write a brute force that tries every set of buttons for halls up to $4 \\times 4$, print the answers in a table with $n$ down and $m$ across, and stare at it. Which entries look alike?",
+   "The table splits by whether $n$ and $m$ are odd or even. For the cheap cases, look for a simple set of buttons: what happens if you press every button in one row? Count how often a lamp in that row is flipped, and a lamp outside it.",
+   "Pressing a whole row flips its own lamps $m$ times and every other lamp once, so it works when $m$ is odd and costs $m$ presses; a whole column works when $n$ is odd and costs $n$. So: both odd gives $\\min(n, m)$, exactly one odd gives the cost of the line that works, and when both are even nothing cheaper than pressing all $n \\cdot m$ buttons works."
+  ],
+  "samples": [
+   [
+    "4\n1 1\n1 2\n2 2\n3 3\n",
+    "1\n1\n4\n3"
+   ]
+  ]
  }
 ]

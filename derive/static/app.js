@@ -7,7 +7,7 @@ import {renderSolve, renderProblem} from './problem.js';
 import {renderMastery, renderSettings} from './record.js';
 import {renderContest} from './contest.js';
 import {renderPuzzles} from './puzzles.js';
-import {renderTasks, renderTask, renderPredictions} from './tasks.js';
+import {renderTasks, renderTask, renderPredictions, renderLadder} from './tasks.js';
 import {renderTools, renderTool} from './tools.js';
 import {renderCses} from './cses.js';
 import {renderBreaks, renderBreak} from './breaks.js';
@@ -121,7 +121,7 @@ export function dialog({title, body = '', html = '', confirm = 'Continue', cance
 
 /* ---------- Shell ---------- */
 export const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
-const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['tools', 'settings', 'Toolbox'], ['cses', 'chain', 'CSES DP'], ['code', 'play', 'Code'], ['break', 'target', 'Break it'], ['recognise', 'target', 'Recognise'], ['contest', 'target', 'Contest'], ['predictions', 'target', 'Predictions'], ['revise', 'star', 'Revise'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
+const NAV = [['', 'map', 'The map'], ['derive', 'chain', 'Derive'], ['solve', 'target', 'Solve'], ['puzzles', 'chain', 'Puzzles'], ['tools', 'settings', 'Toolbox'], ['cses', 'chain', 'CSES DP'], ['code', 'play', 'Code'], ['break', 'target', 'Break it'], ['recognise', 'target', 'Recognise'], ['contest', 'target', 'Contest'], ['think', 'star', 'Think it up'], ['predictions', 'target', 'Predictions'], ['revise', 'star', 'Revise'], ['mastery', 'chart', 'What you can do'], ['settings', 'settings', 'Settings']];
 const section = () => { const name = location.hash.replace(/^#\/?/, '').split('/')[0] || ''; return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name === 'task' ? 'code' : name === 'tool' || name === 'notebook' ? 'tools' : name; };
 function paintNav() {
   const host = document.querySelector('[data-nav-host]');
@@ -246,6 +246,7 @@ async function route() {
     else if (name === 'tool' && rest[0]) await renderTool(ctx, rest[0]);
     else if (name === 'code') await renderTasks(ctx);
     else if (name === 'predictions') await renderPredictions(ctx);
+    else if (name === 'think') await renderLadder(ctx);
     else if (name === 'task' && rest[0]) await renderTask(ctx, rest[0]);
     else if (name === 'break') await (rest[0] ? renderBreak(ctx, rest[0]) : renderBreaks(ctx));
     else if (name === 'contest') await renderContest(ctx);

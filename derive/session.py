@@ -428,6 +428,7 @@ def status(service, store, at=None):
             'goal': state.get('goal', ''), 'chat': state.get('chat', [])[-40:], 'thinking': bool(state.get('pending')),
             'plan': [describe(service, store, i) for i in state.get('plan', [])],
             'stage_number': len(state['done']) + 1, 'tone': tone, 'say': text, 'route': state.get('route', ''),
+            'steer': state.get('steer'),
             'done': [{'label': d['label'], 'title': d['title'], 'outcome': d['outcome']} for d in state['done']]}
 
 
@@ -476,9 +477,16 @@ How to talk:
 - Short by default (under 120 words), plain words, one question at a time. If she asks you to teach or explain something, teach it properly: the idea in plain words, a tiny worked example, then a question to check she is with you.
 - The rules given further down about not giving the answer and not naming the result still hold while the thing she is on is unfinished. Teaching background on a DIFFERENT example is always allowed.
 - Use what the app has watched. If she is guessing, slow her down. If she has been stuck a long time, shrink the problem. If she is flying, say so and raise the bar.
-- If she is tired or going in circles, tell her to press "Take a break". If she wants to change the plan, tell her to press "Move on", or to end the sitting and start a new one with a new goal.
-- Never claim to have changed anything in the app; you can only talk.
-- Reply with your next message to her only. Markdown and $...$ maths are fine.'''
+- Reply with your next message to her only. Markdown and $...$ maths are fine.
+
+You also run the sitting. You may take ONE action with a message, by ending your reply with a last line of exactly this form:
+ACTION: {"do": "..."}
+The actions:
+- {"do": "break", "minutes": 5}   start her break now (the clock stops; she presses "I am back"). Use it when she is tired, going in circles, or has gone 45 minutes without one. Do not merely suggest a break when she needs one: start it.
+- {"do": "next"}   leave what she is on and open the next thing in the plan. Use it when she has been stuck long after real help, or asks to move.
+- {"do": "goto", "kind": "chain|tool|task", "id": "<id from the catalogue>"}   open that now. What she was on goes back to the front of the plan, so she returns to it after. Use it to send her to something easier or to the thing her mistake shows she is missing, or when she asks for a particular thing.
+- {"do": "plan", "items": [{"kind": "...", "id": "..."}]}   replace everything still planned (not the thing she is on). Use it when she changes what she wants from today, or when the plan is clearly too easy or too hard for how she is doing.
+Rules for actions: take one only when it helps her, and always say in your message what you are doing and why, in one plain sentence, before the ACTION line. Never act while she is in the middle of answering something she is close to. Ids must come from the catalogue at the end. No action is the normal case.'''
 
 
 def catalogue(service, store):
@@ -556,10 +564,75 @@ def voice_prompt(service, store, context, unasked='', at=None):
               + f'. On now: {now_on}. Still planned: ' + (', '.join(describe(service, store, i)['title'] for i in state.get('plan', [])) or 'nothing more') + '.']
     parts += ['', 'WHERE SHE IS RIGHT NOW (the rules in this part apply to it)', context or '(between things)']
     said = state.get('chat', [])[-24:]
-    parts += ['', 'THE CONVERSATION SO FAR'] + ([('You: ' if m['who'] == 'tutor' else 'She: ') + m['text'] for m in said] or ['(nothing yet)'])
+    who = {'tutor': 'You: ', 'me': 'She: ', 'note': '(The app did this on your instruction: '}
+    parts += ['', 'THE CONVERSATION SO FAR'] + ([who[m['who']] + m['text'] + (')' if m['who'] == 'note' else '') for m in said] or ['(nothing yet)'])
     if unasked:
         parts += ['', 'SHE HAS NOT ASKED ANYTHING. You are speaking up on your own because: ' + unasked, 'Two or three sentences at most, ending with one question or one concrete thing to do.']
+    parts += ['', 'THE CATALOGUE (for actions only; "name hidden" names must never appear in your message)', catalogue(service, store)[0]]
     return '\n'.join(parts)
+
+
+def split_action(reply):
+    """Take the ACTION line off the end of a reply. Returns (the message, the action or None)."""
+    import json, re
+    found = re.search(r'\n?\s*ACTION:\s*(\{.*\})\s*$', reply, re.S)
+    if not found:
+        return reply.strip(), None
+    try:
+        action = json.loads(found.group(1))
+    except ValueError:
+        action = None
+    return reply[:found.start()].strip(), action if isinstance(action, dict) else None
+
+
+def act(service, store, action, at=None):
+    """Carry out what the talking tutor decided. Everything here can be undone by her with one button, and nothing
+    is ever locked. Returns a line for the conversation saying what was done, or None if nothing was."""
+    at = moment(at)
+    state = store.get(KEY)
+    if not state or not isinstance(action, dict) or _on_break(state):
+        return None
+    do, note = action.get('do'), None
+    steer = lambda: state.update(steer={'n': state.get('steer', {}).get('n', 0) + 1, 'href': describe(service, store, state['stage'])['href']}) if state.get('stage') else None
+    if do == 'break':
+        state['breaks'].append([at.isoformat(), None])
+        state['offered'] = None
+        note = 'The tutor started a break. The clock is stopped; press "I am back" when you are.'
+    elif do == 'next' and state.get('stage'):
+        _close_stage(service, store, state, 'moved on', at)
+        _next_stage(service, store, state, at)
+        steer()
+        note = 'The tutor moved you on' + (' to: ' + describe(service, store, state['stage'])['title'] if state.get('stage') else '') + '. What you left stays where it is.'
+    elif do == 'goto':
+        item = valid_item(service, action)
+        current = state.get('stage')
+        if item and not _complete(service, store, item) and not (current and current['id'] == item['id']):
+            if item['kind'] == 'chain' and not (service.chain_open(item['id'], service.derived(store)) or service.done_steps(store, item['id'])):
+                return None                                   # it cannot be opened yet
+            state['plan'] = [i for i in state.get('plan', []) if i['id'] != item['id']]
+            if current:
+                if not _complete(service, store, current):
+                    state['plan'].insert(0, {'kind': current['kind'], 'id': current['id']})   # she comes back to it afterwards
+                _close_stage(service, store, state, 'set aside', at)
+            state['stage'] = {**item, 'since': at.isoformat()}
+            steer()
+            note = 'The tutor opened: ' + describe(service, store, item)['title'] + '. What you were on comes back right after it.'
+    elif do == 'plan' and isinstance(action.get('items'), list):
+        current = state['stage']['id'] if state.get('stage') else None
+        items, seen_ids = [], {current}
+        for raw in action['items']:
+            item = valid_item(service, raw if isinstance(raw, dict) else {})
+            if item and item['id'] not in seen_ids and not _complete(service, store, item):
+                seen_ids.add(item['id'])
+                items.append(item)
+        if items:
+            state['plan'] = items[:PLAN_MAX]
+            note = 'The tutor changed the plan. Still to come: ' + ', '.join(describe(service, store, i)['title'] for i in state['plan'][:6]) + ('…' if len(state['plan']) > 6 else '') + '.'
+    if not note:
+        return None
+    state.setdefault('chat', []).append({'who': 'note', 'text': note, 'at': at.isoformat()})
+    store.set(KEY, state)
+    return note
 
 
 def wants_voice(service, store, at=None):

@@ -692,3 +692,4 @@ body.has-dock .toasts{right:calc(var(--dock-width) + 1.5rem)}
 .sit-plan .tutor-msg{max-width:none;margin-bottom:.75rem}
 .sit-plan .rows{margin:0 0 .75rem}
 @media print{.tutor-dock{display:none!important}}
+.tutor-note{align-self:center;max-width:94%;margin:0;padding:.25rem .625rem;border-radius:999px;font-size:.8125rem;line-height:1.45;color:var(--muted);background:color-mix(in srgb,var(--warning) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--warning) 30%,var(--line));text-align:center}

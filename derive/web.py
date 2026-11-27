@@ -870,12 +870,15 @@ class Service:
                 return {'status': 'ok', 'say': say, 'plan': session.shown_plan(self, store, plan)}
         if outcome['status'] != 'ok':
             reply = 'I could not answer just now (' + outcome['reason'] + ') Carry on; the strip at the top still watches, and you can ask me again.'
-        elif any(name.casefold() in outcome['reply'].casefold() for name in payload.get('secret', [])):
+        elif any(name.casefold() in session.split_action(outcome['reply'])[0].casefold() for name in payload.get('secret', [])):
             reply = 'I started to name the thing you are about to discover, so I have held that reply back. Ask me again, or open the smaller question under the one you are on.'
         else:
             reply = outcome['reply']
+        reply, action = session.split_action(reply)             # the tutor may end a message by doing something
         with self.lock, self.store() as store:
-            session.add_chat(store, 'tutor', reply)
+            session.add_chat(store, 'tutor', reply or 'Done.')
+            if action and outcome['status'] == 'ok':
+                session.act(self, store, action)
         return {'status': 'ok'}
 
     # ---------- the tutor ----------

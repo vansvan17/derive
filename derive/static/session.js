@@ -4,7 +4,7 @@
    Nothing is locked while a sitting runs; the strip only points. */
 const BEAT = 15000, FAST = 3000;      // how often the page reports in; faster while the tutor is writing                       // how often the page reports in, in milliseconds
 let hooks = null, status = null, timer = null, beat = null, active = true, tickAt = 0, lastStage = '';
-let dockOpen = false, shownChat = -1, unread = 0;
+let dockOpen = false, shownChat = -1, unread = 0, steered = null;
 try { dockOpen = localStorage.getItem('derive-tutor-dock') === 'open'; } catch { /* the dock just starts closed */ }
 
 const clock = seconds => { const s = Math.max(0, Math.round(seconds)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -48,8 +48,12 @@ function take(next, {announce = true} = {}) {
   const key = next?.stage ? next.stage.href : '';
   if (announce && next?.running && was?.running && key && key !== lastStage) hooks.toast(`Next: ${next.stage.title}. Press "Go to it" when you are ready.`, 'success');
   lastStage = key;
+  // The tutor can take her somewhere. Follow it once, when it happens, not again on a reload.
+  const turn = next?.running && next.steer ? next.steer.n : 0;
+  if (steered !== null && turn > steered && !next.on_break && location.hash !== next.steer.href) hooks.navigate(next.steer.href);
+  steered = next?.running ? turn : null;
   const chat = next?.running ? next.chat || [] : [];
-  if (shownChat >= 0 && chat.length > shownChat && chat[chat.length - 1].who === 'tutor' && !dockOpen) { unread += chat.length - shownChat; hooks.toast('The tutor said something. Press "Talk to the tutor".', 'info'); }
+  if (shownChat >= 0 && chat.length > shownChat && chat[chat.length - 1].who !== 'me' && !dockOpen) { unread += chat.length - shownChat; hooks.toast('The tutor said something. Press "Talk to the tutor".', 'info'); }
   paint(); paintDock();
   clearInterval(timer); clearInterval(beat);
   if (next?.running) { timer = setInterval(tick, 1000); beat = setInterval(report, next.thinking ? FAST : BEAT); }
@@ -132,7 +136,7 @@ function paintDock(force = false) {
   dock.querySelector('[data-dock-note]').textContent = voice ? 'sees what you are on and what the app has watched' : 'switched off';
   if (force || chat.length !== shownChat || dock.dataset.thinking !== String(!!status.thinking)) {
     const log = dock.querySelector('[data-dock-log]');
-    log.innerHTML = (chat.length ? chat.map(m => `<div class="tutor-msg ${m.who === 'tutor' ? 'is-tutor' : 'is-me'}">${m.who === 'tutor' ? md(m.text) : `<p>${e(m.text)}</p>`}</div>`).join('')
+    log.innerHTML = (chat.length ? chat.map(m => m.who === 'note' ? `<p class="tutor-note">${e(m.text)}</p>` : `<div class="tutor-msg ${m.who === 'tutor' ? 'is-tutor' : 'is-me'}">${m.who === 'tutor' ? md(m.text) : `<p>${e(m.text)}</p>`}</div>`).join('')
         : `<p class="muted small">${voice ? 'Nothing said yet. Tell the tutor what you are thinking, ask it to teach you something, or ask where to look. It is told what you are on, your wrong answers and how long you have been at it.' : 'The talking tutor is switched off, so only the strip at the top speaks. Turn it on under Settings → In-app tutor (it uses the Codex command on this Mac).'}</p>`)
       + (status.thinking ? '<div class="tutor-msg is-tutor is-thinking"><span class="spinner"></span> thinking… this can take up to a minute</div>' : '');
     log.scrollTop = log.scrollHeight;

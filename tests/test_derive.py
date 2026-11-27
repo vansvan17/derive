@@ -648,6 +648,29 @@ class App(unittest.TestCase):
             time.sleep(.05)
         self.assertNotIn(name, json.dumps(now))
         self.assertIn('held that reply back', now['chat'][-1]['text'])
+        # the tutor can run the sitting: a message may end with one action, which is carried out and said in the conversation
+        def tell(reply, text='ok'):
+            self.service.teach = lambda prompt: (calls.append(prompt), {'status': 'ok', 'reply': reply})[1]
+            self.post('/session/say', {'text': text})
+            for _ in range(100):
+                got = self.post('/session/seen', {'route': '', 'active': True})[1]
+                if not got['thinking']:
+                    return got
+                time.sleep(.05)
+        was = now['stage']['href']
+        sent = tell('You are missing something smaller. I am opening an easier one first.\nACTION: {"do": "goto", "kind": "task", "id": "t1-chocolate"}')
+        self.assertEqual((sent['stage']['href'], sent['steer']['href'], sent['plan'][0]['href']), ('#/task/t1-chocolate', '#/task/t1-chocolate', was))
+        self.assertEqual([m['who'] for m in sent['chat']][-2:], ['tutor', 'note'])
+        self.assertNotIn('ACTION', json.dumps(sent['chat']))
+        self.assertIn('ACTION: {"do": "..."}', calls[-1])                                # it is told what it may do, and from what
+        self.assertIn('t1-chocolate | ladder', calls[-1])
+        planned = tell('New plan.\nACTION: {"do": "plan", "items": [{"kind": "tool", "id": "scc"}, {"kind": "task", "id": "nope"}]}')
+        self.assertEqual([p['href'] for p in planned['plan']], ['#/tool/scc'])
+        self.assertTrue(tell('Stop for five minutes.\nACTION: {"do": "break", "minutes": 5}')['on_break'])
+        self.assertEqual(tell('And again.\nACTION: {"do": "next"}')['stage']['href'], '#/task/t1-chocolate')   # nothing is done to her during a break
+        self.post('/session/back', {})
+        self.assertEqual(tell('On you go.\nACTION: {"do": "next"}')['stage']['href'], '#/tool/scc')
+        self.assertEqual(tell('Hm.\nACTION: {"do": "format the disk"}')['stage']['href'], '#/tool/scc')        # anything else is ignored
         self.assertEqual(self.post('/session/end', {})[1]['running'], False)
         self.service.teach = lambda prompt: {'status': 'ok', 'reply': json.dumps({'say': 'You asked for ' + name + ', so that is today.', 'plan': [{'kind': 'chain', 'id': 'residues', 'why': 'it is what you asked for'}]})}
         asked = self.wait_job(self.post('/session/plan', {'minutes': 30, 'goal': 'i want to learn ' + name.lower()})[1]['job'])

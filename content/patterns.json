@@ -1,0 +1,11 @@
+{
+ "patterns": [
+  {
+   "id": "pat-label",
+   "move": "label",
+   "name": "Sort into kinds, then count what pins each one down",
+   "statement": "To count objects that are too many to list: sort them into kinds; inside one kind, find the one thing (or the two things) that pins each object down; count the values it can take; add over the kinds.",
+   "area": "cnt"
+  }
+ ]
+}

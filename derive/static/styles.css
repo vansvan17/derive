@@ -614,3 +614,22 @@ summary .star-btn{float:right;margin-top:-.25rem}
 .table tbody tr:not(.table-group):hover td{background:color-mix(in srgb,var(--primary) 4%,var(--surface))}
 .zero{color:var(--subtle);font-weight:400}
 .theme-toggle{padding:.375rem .75rem}
+
+/* How the idea could have been found: folded until asked for */
+.found{padding:0}
+.found>summary{cursor:pointer;padding:1rem 1.5rem;display:flex;flex-direction:column;gap:.125rem;list-style:none}
+.found>summary::-webkit-details-marker{display:none}
+.found-title{font-weight:650;font-size:1rem}
+.found-title::before{content:"▸";display:inline-block;width:1.1rem;color:var(--primary)}
+.found[open] .found-title::before{content:"▾"}
+.found-steps{margin:0;padding:0 1.5rem 0 2.75rem}
+.found-steps li{margin:.375rem 0;padding-left:.25rem;line-height:1.6}
+.found-steps li::marker{font-weight:650;color:var(--primary)}
+.found-move{margin:1rem 1.5rem 1.5rem;padding:1rem 1.25rem;border-radius:10px;background:var(--primary-soft);border:1px solid color-mix(in srgb,var(--primary) 25%,var(--line))}
+.found-move p{margin:0 0 .5rem}
+.found-move p:last-child{margin-bottom:0}
+.found-name{font-family:var(--serif);font-size:1.1875rem;font-weight:600;line-height:1.4}
+.split-text>.surface.found,.split-text>[data-found]>.found{margin:0 0 1rem}
+.split-text>[data-found]:empty{display:none}
+.use-head{margin:.75rem 0 .25rem 2.5rem}
+.use-rows{margin-left:1.75rem}

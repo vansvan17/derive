@@ -228,7 +228,7 @@ class Service:
                 # Practice tasks would give the topic away, so they are listed only once the chain is finished.
                 'practice': [{**t, 'done': t['url'] in ticked} for t in self.content.practice.get(idea, [])] if complete else [],
                 'problems': self.chain_problems(store, idea, ticked) if complete else None,
-                'marks': info.get('marks', []), 'cses': info.get('cses'), 'notes': store.get('chain_notes', {}).get(idea, ''),
+                'marks': info.get('marks', []), 'cses': info.get('cses'), 'pattern': info.get('track') == 'pattern', 'notes': store.get('chain_notes', {}).get(idea, ''),
                 'area': next(a['title'] for a in self.content.areas if a['id'] == info['area'])}
 
     def chain_problems(self, store, idea, ticked):
@@ -609,8 +609,25 @@ class Service:
             raise ApiError('No such task.', 404)
         opened = self.nudges_open(store, 'task', task_id, '-')
         # Only the hints already opened are sent; the rest stay on the server.
-        return {**tasks.public(task, store), 'statement': task['statement'], 'samples': task['samples'], 'seconds': task.get('seconds', 1.0),
-                'hints': task['hints'][:opened], 'hints_total': len(task['hints']), 'basis': self.task_basis(store, task_id), 'behind': self.task_behind(store, task)}
+        shown = tasks.public(task, store)
+        return {**shown, 'statement': task['statement'], 'samples': task['samples'], 'seconds': task.get('seconds', 1.0),
+                'hints': task['hints'][:opened], 'hints_total': len(task['hints']), 'basis': self.task_basis(store, task_id), 'behind': self.task_behind(store, task),
+                'found': self.task_found(task, shown['solved'], opened)}
+
+    def task_found(self, task, solved, opened):
+        """How the idea could have been found, and the name of the move. It gives the whole problem away, so it is sent
+        only once the task is accepted or every hint is already open."""
+        found = task.get('found')
+        if not found or not (solved or opened >= len(task['hints'])):
+            return None
+        return {**found, 'move_label': evidence.MOVES[found['move']]}
+
+    def thinking_patterns(self, store):
+        """The thinking patterns for the Think it up page. A pattern has no name there until its chain is derived."""
+        derived = self.derived(store)
+        started = {r['idea'] for r in store.all('SELECT DISTINCT idea FROM steps_done')}
+        return [{'id': p['id'], 'name': p['name'] if p['id'] in derived else None, 'statement': p['statement'] if p['id'] in derived else None,
+                 'derived': p['id'] in derived, 'started': p['id'] in started, 'steps': len(self.content.chains[p['id']]['steps'])} for p in self.content.patterns]
 
     def task_behind(self, store, task):
         """For a prediction: the chains and Toolbox pages that teach what it needs. Sent to the page, which keeps it folded
@@ -631,7 +648,7 @@ class Service:
         if level > len(task['hints']):
             raise ApiError('There are no more hints for this task.', 409)
         store.run('INSERT OR IGNORE INTO nudges VALUES(?,?,?,?,?)', ('task', task['id'], '-', level, now()))
-        return {'hints': task['hints'][:level], 'hints_total': len(task['hints'])}
+        return {'hints': task['hints'][:level], 'hints_total': len(task['hints']), 'found': self.task_found(task, False, level)}
 
     def task_judge(self, store, data):
         task = self.content.tasks.get(data.get('id')) if isinstance(data.get('id'), str) else None
@@ -1014,7 +1031,7 @@ class Service:
                 return self.tool(store, path[6:])
             if path == '/tasks':
                 derived = self.derived(store)
-                return {'tasks': [{**tasks.public(t, store), 'basis': self.task_basis(store, t['id'], derived)} for t in self.content.tasks.values()], 'tracks': self.content.task_tracks}
+                return {'tasks': [{**tasks.public(t, store), 'basis': self.task_basis(store, t['id'], derived)} for t in self.content.tasks.values()], 'tracks': self.content.task_tracks, 'patterns': self.thinking_patterns(store)}
             if path.startswith('/task/'):
                 return self.task(store, path[6:])
             if path == '/puzzles':

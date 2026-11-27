@@ -33,6 +33,9 @@ MOVES = {
     'simplify': 'Solve an easier version first (sorted, all equal, a path, n = 2)',
     'reverse': 'Go backwards or flip the viewpoint (per element, fix the answer)',
     'extremes': 'Look at the extreme: the largest, the leftmost, the first move',
+    'label': 'Sort the objects into kinds and count what pins each one down',
+    'restate': 'Say the move or the question in a simpler way that means the same',
+    'forced': 'Find the choice that is forced and let it decide the next one',
     'technique': 'None of these: it was recognising a known technique',
 }
 

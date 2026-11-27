@@ -2985,7 +2985,18 @@
     "3\n1 1\n2 2\n2 3\n",
     "0\n3\n5"
    ]
-  ]
+  ],
+  "found": {
+   "move": "invariant",
+   "steps": [
+    "Break a $2 \\times 2$ bar two different ways. Both take 3 breaks.",
+    "So the shape of the pieces may not matter. Look for a number that every break changes in the same way.",
+    "The number of pieces: 1 at the start, and every break adds exactly 1.",
+    "You need $n \\cdot m$ pieces, so every way of breaking takes $n \\cdot m - 1$ breaks."
+   ],
+   "rule": "When every way of playing seems to give the same answer, find a simple count that each move changes by a fixed amount.",
+   "elsewhere": "Matches in a knockout tournament (each match removes one player), cuts needed to split a log, merges needed to join groups."
+  }
  },
  {
   "track": "ladder",
@@ -3013,7 +3024,19 @@
     "1 5\n",
     "5"
    ]
-  ]
+  ],
+  "found": {
+   "move": "label",
+   "steps": [
+    "Do not count all squares at once. Sort them into kinds: side 1, side 2, side 3, ...",
+    "Take one kind on a small board: $2 \\times 2$ squares on a $3 \\times 4$ board.",
+    "A square is pinned down by its top-left corner. That corner can be in 2 rows and in 3 columns, so there are $2 \\cdot 3 = 6$.",
+    "In general the corner of a side-$k$ square has $n - k + 1$ rows and $m - k + 1$ columns to choose from.",
+    "Add $(n - k + 1)(m - k + 1)$ over every $k$."
+   ],
+   "rule": "When there are too many objects to count at once, sort them into kinds, and inside one kind find the one thing that pins each object down. Count that thing.",
+   "elsewhere": "Rectangles on a board, stretches of an array, substrings, triples of evenly spaced points."
+  }
  },
  {
   "track": "ladder",
@@ -3033,7 +3056,18 @@
     "4\n1\n3\n4\n6\n",
     "NO\nYES\nYES\nNO"
    ]
-  ]
+  ],
+  "found": {
+   "move": "small-cases",
+   "steps": [
+    "Write YES or NO for $n = 1$ to 8: NO NO YES YES NO NO YES YES.",
+    "Ask why the NOs are NO. For $n = 2$ the total weight is 3, and an odd total cannot be halved.",
+    "Check the guess: the total is odd exactly for the NOs.",
+    "Then make sure every even total really works: four weights in a row split as outer two against inner two, and 1, 2, 3 split as 1 + 2 against 3."
+   ],
+   "rule": "For a yes or no question in one number, write the answers for the first eight or ten values in a row. Explain the NOs first; they usually have one blunt reason.",
+   "elsewhere": "Any \"is it possible for this $n$\" problem; the reason is very often odd against even, or a remainder."
+  }
  },
  {
   "track": "ladder",
@@ -3061,7 +3095,18 @@
     "4\n1 1 1 2\n",
     "1"
    ]
-  ]
+  ],
+  "found": {
+   "move": "restate",
+   "steps": [
+    "Play 1, 2, 3. Being equal is about the differences between salaries, not the salaries.",
+    "Raising everyone except one worker changes the differences exactly as lowering that one worker by 1 would.",
+    "Now the problem reads: one step lowers one salary by 1. That one is easy.",
+    "Everybody comes down to the smallest salary: add up $a_i - \\min$."
+   ],
+   "rule": "When a move touches almost everything, describe it by the one thing it leaves alone. The same move, said differently, is often a much easier problem.",
+   "elsewhere": "Operations on \"all but one\", adding to a whole prefix (look at differences of neighbours), flipping everything except one item."
+  }
  },
  {
   "track": "ladder",
@@ -3089,7 +3134,18 @@
     "4\nLRUD\n",
     "4"
    ]
-  ]
+  ],
+  "found": {
+   "move": "restate",
+   "steps": [
+    "Compare `LRU` and `ULR`: the robot ends in the same place.",
+    "So the order is noise. Only four numbers matter: how many L, R, U and D are kept.",
+    "Ending at the start means kept L equals kept R, and kept U equals kept D.",
+    "Keep $\\min(L, R)$ of each horizontal kind and $\\min(U, D)$ of each vertical kind."
+   ],
+   "rule": "Ask which parts of the input the answer cannot depend on, and throw them away. What is left is a smaller problem.",
+   "elsewhere": "Problems where order does not matter (sort, or keep counts), where only remainders matter, where only the largest and smallest matter."
+  }
  },
  {
   "track": "ladder",
@@ -3117,7 +3173,18 @@
     "3\n1 2 3\n",
     "0"
    ]
-  ]
+  ],
+  "found": {
+   "move": "forced",
+   "steps": [
+    "Work 1 1 1 1 by hand. There is never a reason to raise the first step.",
+    "Raising any step only makes things harder for the steps after it. So every step should end as low as it is allowed to.",
+    "Once the step before is settled, \"as low as allowed\" is one number: the larger of the old height and the previous new height plus 1.",
+    "Go left to right and add up what was added."
+   ],
+   "rule": "Look at one end. If the first item has an obviously best choice, make it; the second item then has one too, and so on.",
+   "elsewhere": "Making an array increasing, placing things as early as possible, giving each customer the smallest thing that fits."
+  }
  },
  {
   "track": "ladder",
@@ -3145,7 +3212,18 @@
     "10\n",
     "7"
    ]
-  ]
+  ],
+  "found": {
+   "move": "small-cases",
+   "steps": [
+    "List which of 1 to 12 can be written as $p^2 - q^2$. The misses are 2, 6, 10.",
+    "Name the misses: remainder 2 when divided by 4.",
+    "Look for the reason in the formula: $p^2 - q^2 = (p - q)(p + q)$, and those two factors are both odd or both even.",
+    "Both odd gives odd numbers, both even gives multiples of 4. So the misses are exactly the remainder-2 numbers."
+   ],
+   "rule": "When asked which numbers have some property, list the first dozen and stare at the misses. Then find the reason inside the formula.",
+   "elsewhere": "Sums of consecutive numbers, numbers that are a difference or sum of special numbers, reachable values in a game."
+  }
  },
  {
   "track": "ladder",
@@ -3177,7 +3255,19 @@
     "4\n(())\n",
     "0"
    ]
-  ]
+  ],
+  "found": {
+   "move": "bound",
+   "steps": [
+    "Walk the string with a counter: +1 for `(`, −1 for `)`. Balanced means the counter never goes below 0.",
+    "Say the lowest value is $-d$. One move takes one bracket away from the front part, so it lifts the counter by at most 1.",
+    "So at least $d$ moves are needed. That is a floor under the answer.",
+    "Now show $d$ moves are enough: each time, move the first `)` at which the counter goes negative.",
+    "Floor and method meet, so the answer is $d$."
+   ],
+   "rule": "Find a number that measures how broken the input is, show one move improves it by at most 1, then find moves that really do improve it by 1 each time.",
+   "elsewhere": "Fewest swaps, fewest deletions, fewest moves to sort: the answer is very often \"how far from fine\" divided by \"how much one move can fix\"."
+  }
  },
  {
   "track": "ladder",
@@ -3197,7 +3287,18 @@
     "4\n0 0\n1 1\n2 2\n2 3\n",
     "Second\nFirst\nSecond\nFirst"
    ]
-  ]
+  ],
+  "found": {
+   "move": "small-cases",
+   "steps": [
+    "Draw a table for $a, b$ from 0 to 4. Mark (0, 0) as lost for the player to move.",
+    "Fill in the rest: a position is won if some move leads to a lost one.",
+    "The lost cells make a picture: exactly those with $a$ and $b$ both even.",
+    "Explain it in two lines: from both-even every move breaks it; from anything else some move restores it."
+   ],
+   "rule": "For a game, never guess. Fill in a small table of won and lost positions and read the pattern off it, then prove it with \"every move breaks it, some move restores it\".",
+   "elsewhere": "Every two-player game with small numbers to start from."
+  }
  },
  {
   "track": "ladder",
@@ -3217,7 +3318,18 @@
     "4\n1\n2\n3\n12\n",
     "Second\nFirst\nSecond\nFirst"
    ]
-  ]
+  ],
+  "found": {
+   "move": "small-cases",
+   "steps": [
+    "Write W or L for $n = 1$ to 10: L W L W L W L W L W.",
+    "Odd loses, even wins. Now ask why.",
+    "Every divisor of an odd number is odd, so an odd number can only move to an even one.",
+    "An even number can subtract 1 and hand back an odd number. So the even player keeps the other one on odd numbers, down to 1."
+   ],
+   "rule": "Write the first ten answers in a row before thinking about strategy. A pattern as simple as \"every second one\" is common, and then you only have to explain it.",
+   "elsewhere": "Games on one number, yes or no questions on $n$."
+  }
  },
  {
   "track": "ladder",
@@ -3237,7 +3349,18 @@
     "4\n1\n2\n3\n4\n",
     "-1\n2\n-1\n4"
    ]
-  ]
+  ],
+  "found": {
+   "move": "invariant",
+   "steps": [
+    "Try $n = 2, 3, 4$ on paper. Pressing a switch twice undoes itself, so each switch is pressed once or not at all.",
+    "Say $S$ switches are pressed. Count how often one lamp is flipped: $S - 1$ times if its own switch was pressed, $S$ times if not.",
+    "Every lamp needs an odd number of flips. $S$ and $S - 1$ cannot both be odd, so either all switches are pressed or none.",
+    "All of them: each lamp is flipped $n - 1$ times, which is odd only when $n$ is even."
+   ],
+   "rule": "With switches and flips, only odd or even matters. Fix the total number of presses, then count how often one single item is touched.",
+   "elsewhere": "Lamp and coin flipping problems, anything where doing a thing twice cancels."
+  }
  },
  {
   "track": "ladder",
@@ -3265,7 +3388,19 @@
     "1\n",
     "0"
    ]
-  ]
+  ],
+  "found": {
+   "move": "small-cases",
+   "steps": [
+    "Try to write each of 1 to 20 as a sum of consecutive numbers. The ones that resist: 1, 2, 4, 8, 16.",
+    "Name them: powers of two.",
+    "What do all the others have? An odd divisor of at least 3. Use it: 15 has the divisor 5, so take 5 numbers centred on 3: 1 + 2 + 3 + 4 + 5.",
+    "A power of two has no such divisor, and the formula for a run shows it can never be one.",
+    "So the answer is $n$ minus the number of powers of two up to $n$."
+   ],
+   "rule": "List which numbers work and which do not, then put a name on the ones that do not. The name tells you what to prove.",
+   "elsewhere": "Representing numbers as sums or differences, counting \"good\" numbers up to a huge $n$."
+  }
  },
  {
   "track": "ladder",
@@ -3285,7 +3420,18 @@
     "4\n0\n2\n6\n-4\n",
     "0\n3\n3\n3"
    ]
-  ]
+  ],
+  "found": {
+   "move": "invariant",
+   "steps": [
+    "Table of reachable points: after 1 hop ±1; after 2 hops ±1, ±3; after 3 hops 0, ±2, ±4, ±6.",
+    "The farthest point is $S = 1 + 2 + \\dots + k$, and every reachable point has the same odd-or-even as $S$.",
+    "Why: turning one hop of length $j$ around moves the end point by $2j$, an even amount.",
+    "And nothing else is missing between $-S$ and $S$. So take the smallest $k$ with $S \\ge |x|$ and $S - |x|$ even."
+   ],
+   "rule": "Start from the extreme outcome (everything one way) and ask what a single change does to it. If every change moves the result by an even amount, parity is fixed.",
+   "elsewhere": "Choosing a sign for every term, flipping the direction of moves, reachable sums."
+  }
  },
  {
   "track": "ladder",
@@ -3317,7 +3463,19 @@
     "3 1\nTHT\n",
     "2"
    ]
-  ]
+  ],
+  "found": {
+   "move": "forced",
+   "steps": [
+    "Look at the leftmost coin. Only one move touches it: the one covering coins 1 to $k$.",
+    "Doing a move twice is pointless, so that move is made exactly when coin 1 shows tails. No choice.",
+    "After that, coin 2 has only one undecided move touching it. Again no choice. And so on to the right.",
+    "So there is nothing to optimise; just carry out the forced moves, and say −1 if a coin near the right end still needs one.",
+    "Second idea, for speed: keep a running \"flipped or not\" flag instead of turning $k$ coins each time."
+   ],
+   "rule": "Find the item that only one move can fix. That move is decided. Then find the next such item. If this reaches the end, there was never a choice to make.",
+   "elsewhere": "Flipping windows on a row, lights on a line or grid (fix the first row and the rest follows), filling a board from one corner."
+  }
  },
  {
   "track": "ladder",
@@ -3337,7 +3495,18 @@
     "4\n1\n2\n3\n4\n",
     "1 1\n1 1\n0 2\n0 4"
    ]
-  ]
+  ],
+  "found": {
+   "move": "invariant",
+   "steps": [
+    "Play $n = 3$ and $n = 4$ and collect every final number you can reach.",
+    "Look for something a step cannot change: $a + b$ and $|a - b|$ are both odd or both even, so the board total keeps its parity.",
+    "That already rules out half of all final numbers.",
+    "Then the obvious limits: at least 0, at most $n$. Take the smallest and largest numbers of the right parity and show each can be reached."
+   ],
+   "rule": "When numbers are combined step by step, compare the board before and after one step. Something small (odd or even, a remainder, the gcd) nearly always survives.",
+   "elsewhere": "Erase two and write one, pour between jugs, swap neighbours: all \"what can be left at the end\" questions."
+  }
  },
  {
   "track": "ladder",
@@ -3369,7 +3538,18 @@
     "4\n5 5 5 5\n",
     "3"
    ]
-  ]
+  ],
+  "found": {
+   "move": "reverse",
+   "steps": [
+    "Turn the question round: instead of the fewest entries to rewrite, find the most entries you can keep.",
+    "Test what \"can keep both\" means on 1 2 2: the 1 and the last 2 cannot both stay, because no whole number fits strictly between them.",
+    "In general entries $i < j$ can both stay when $a_j - a_i \\ge j - i$, which says $a_i - i \\le a_j - j$.",
+    "So subtract the position from every entry. The entries you keep are now a non-decreasing subsequence, and the longest one is a standard tool."
+   ],
+   "rule": "When asked for the fewest things to change, ask for the most things to keep. Then write down exactly when two kept things can live together.",
+   "elsewhere": "Fewest deletions to make something sorted or valid, fewest changes to make a string good."
+  }
  },
  {
   "track": "ladder",
@@ -3401,7 +3581,18 @@
     "2\n1 1\n",
     "1"
    ]
-  ]
+  ],
+  "found": {
+   "move": "bound",
+   "steps": [
+    "Colour the squares like a chessboard. Every domino covers one black and one white square.",
+    "So the answer is at most the smaller of the two colour counts. That is a ceiling.",
+    "Check small figures by hand to see whether the ceiling is reached: 3 1 1, then 3 2 2 2 1. It is, every time.",
+    "For a figure whose heights never increase it is always reached, so the answer is just that count."
+   ],
+   "rule": "Find a quick ceiling (a colouring is the classic one), then test on small cases whether the ceiling is reached. If it always is, the ceiling is the answer.",
+   "elsewhere": "Tilings, matchings, pairing things up: \"the most pairs\" is often simply the smaller side."
+  }
  },
  {
   "track": "ladder",
@@ -3433,7 +3624,18 @@
     "3\n111\n",
     "1"
    ]
-  ]
+  ],
+  "found": {
+   "move": "forced",
+   "steps": [
+    "The order of moves does not matter and a move done twice cancels. So an answer is just a set of lanterns.",
+    "On a straight row the left end would decide everything. A ring has no end.",
+    "So make one: guess whether lanterns 1 and 2 are chosen. Lantern 2 then decides lantern 3, lantern 3 decides lantern 4, all the way round.",
+    "Only four guesses exist. Try all four, keep those where the ring closes up correctly, and take the cheapest."
+   ],
+   "rule": "When everything would be forced if only you knew one small thing, guess that small thing in every possible way.",
+   "elsewhere": "Rings and cycles (cut them by guessing one item), grids of lights (guess the first row), any chain reaction that needs a start."
+  }
  },
  {
   "track": "ladder",
@@ -3452,6 +3654,133 @@
    [
     "4\n1 1\n1 2\n2 2\n3 3\n",
     "1\n1\n4\n3"
+   ]
+  ],
+  "found": {
+   "move": "brute-pattern",
+   "steps": [
+    "Thinking alone does not get far here, so let the computer look: try every set of buttons for halls up to $4 \\times 4$.",
+    "Print the answers as a table with $n$ down and $m$ across.",
+    "The table splits by whether $n$ and $m$ are odd or even. That tells you what to look for.",
+    "Now find why: pressing a whole row flips its own lamps $m$ times and every other lamp once. That works exactly when $m$ is odd."
+   ],
+   "rule": "When small cases are too big for paper, write the slow program first, print a table and read the pattern off it. This is normal in contests, not cheating.",
+   "elsewhere": "Any problem whose answer depends on one or two numbers only."
+  }
+ },
+ {
+  "track": "transfer",
+  "pattern": "pat-label",
+  "id": "tr-blocks",
+  "title": "Blocks on the board",
+  "seconds": 1.0,
+  "statement": "A board has $n$ rows and $m$ columns of cells. A block is a rectangle made of whole cells; a single cell is a block and so is the whole board. Count the blocks.\n\n**Input.** One line with $n$ and $m$ ($1 \\le n, m \\le 30000$).\n\n**Output.** The number of blocks.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    top = {'small': 6, 'medium': 500, 'large': 30000}[size]\n    return f\"{rng.randint(1, top)} {rng.randint(top // 2 + 1, top)}\\n\"\ndef solve(text):\n    n, m = ints(text); return str((n * (n + 1) // 2) * (m * (m + 1) // 2))\ndef brute(text):\n    n, m = ints(text); return str(sum(1 for a in range(n) for b in range(a, n) for c in range(m) for d in range(c, m)))\n",
+  "hints": [
+   "Count the blocks of a $2 \\times 3$ board by hand, sorted by their height and width. What decides a block?",
+   "A block is decided by which rows it covers and which columns it covers, and the two choices do not affect each other. How many ways are there to choose a stretch of rows?",
+   "$n$ rows have $n(n+1)/2$ stretches and $m$ columns have $m(m+1)/2$. Multiply the two, in 64 bits."
+  ],
+  "samples": [
+   [
+    "1 1\n",
+    "1"
+   ],
+   [
+    "2 2\n",
+    "9"
+   ],
+   [
+    "2 3\n",
+    "18"
+   ]
+  ]
+ },
+ {
+  "track": "transfer",
+  "pattern": "pat-label",
+  "id": "tr-ends",
+  "title": "The same at both ends",
+  "seconds": 1.0,
+  "statement": "You are given a string of $n$ lowercase letters. A stretch is one or more letters next to each other; two stretches are different if they start or end at different positions. Count the stretches whose first letter and last letter are the same. A stretch of one letter counts.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains the string.\n\n**Output.** The number of such stretches.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': 3000, 'large': 200000}[size]\n    return f\"{n}\\n\" + ''.join(rng.choice('abc' if size == 'small' else 'abcdefghijklmnopqrstuvwxyz'[:rng.choice([1, 3, 26])]) for _ in range(n)) + \"\\n\"\ndef solve(text):\n    s = text.split()[1]; return str(sum(s.count(ch) * (s.count(ch) + 1) // 2 for ch in set(s)))\ndef brute(text):\n    s = text.split()[1]; return str(sum(1 for i in range(len(s)) for j in range(i, len(s)) if s[i] == s[j]))\n",
+  "hints": [
+   "Work `aba` and `aaaa` by hand. For each stretch you counted, write down only its first position and its last position.",
+   "A stretch is decided by its two end positions. Sort the stretches into kinds by the letter at the ends. Inside the kind for the letter `a`, what are you choosing?",
+   "Two positions holding the same letter (or one position twice). A letter that occurs $c$ times gives $c(c+1)/2$ stretches. Add this over the 26 letters, in 64 bits."
+  ],
+  "samples": [
+   [
+    "3\naba\n",
+    "4"
+   ],
+   [
+    "4\naaaa\n",
+    "10"
+   ],
+   [
+    "5\nabcab\n",
+    "7"
+   ]
+  ]
+ },
+ {
+  "track": "transfer",
+  "pattern": "pat-label",
+  "id": "tr-one",
+  "title": "Exactly one lit window",
+  "seconds": 1.0,
+  "statement": "A street has $n$ windows in a row; each is lit (`1`) or dark (`0`). A stretch is one or more windows next to each other; two stretches are different if they start or end at different windows. Count the stretches that contain exactly one lit window.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains a string of $n$ characters `0` and `1`.\n\n**Output.** The number of stretches with exactly one lit window.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 10), 'medium': 3000, 'large': 200000}[size]\n    p = rng.choice([0.1, 0.5, 0.9])\n    return f\"{n}\\n\" + ''.join('1' if rng.random() < p else '0' for _ in range(n)) + \"\\n\"\ndef solve(text):\n    s = text.split()[1]; p = [-1] + [i for i, ch in enumerate(s) if ch == '1'] + [len(s)]\n    return str(sum((p[i] - p[i - 1]) * (p[i + 1] - p[i]) for i in range(1, len(p) - 1)))\ndef brute(text):\n    s = text.split()[1]; return str(sum(1 for i in range(len(s)) for j in range(i, len(s)) if s[i:j + 1].count('1') == 1))\n",
+  "hints": [
+   "Work `10010` by hand. Next to every stretch you count, write which lit window it contains.",
+   "Sort the stretches into kinds by **which** lit window they contain. Inside one kind, a stretch is decided by how far it reaches to the left and how far to the right. How far can it reach each way?",
+   "To the left it may take any number of the dark windows before the previous lit one, and the same to the right. If the lit windows are at positions $p_1 < p_2 < \\dots$, window $p_i$ gives $(p_i - p_{i-1}) \\cdot (p_{i+1} - p_i)$ stretches, with position 0 and position $n + 1$ standing in at the two ends. Add them up in 64 bits."
+  ],
+  "samples": [
+   [
+    "3\n010\n",
+    "4"
+   ],
+   [
+    "5\n10010\n",
+    "9"
+   ],
+   [
+    "4\n0000\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "track": "transfer",
+  "pattern": "pat-label",
+  "id": "tr-dots",
+  "title": "Squares on the dots",
+  "seconds": 1.0,
+  "statement": "Dots are arranged in $n$ rows and $m$ columns, with neighbouring dots 1 apart. Count the squares whose four corners are all dots. The squares may be tilted: in a $3 \\times 3$ arrangement, the four middle dots of the sides form a square too. Two squares are different if they do not have the same four corners.\n\n**Input.** One line with $n$ and $m$ ($1 \\le n, m \\le 10000$).\n\n**Output.** The number of squares.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    top = {'small': 6, 'medium': 300, 'large': 10000}[size]\n    return f\"{rng.randint(1, top)} {rng.randint(top // 2 + 1, top)}\\n\"\ndef solve(text):\n    n, m = ints(text); return str(sum(k * (n - k) * (m - k) for k in range(1, min(n, m))))\ndef brute(text):\n    n, m = ints(text); pts = {(x, y) for x in range(n) for y in range(m)}; seen = set(); r = max(n, m)\n    for (x, y) in pts:\n        for dx in range(-r, r + 1):\n            for dy in range(-r, r + 1):\n                if (dx, dy) == (0, 0): continue\n                q = [(x, y), (x + dx, y + dy), (x + dx - dy, y + dy + dx), (x - dy, y + dx)]\n                if all(p in pts for p in q): seen.add(frozenset(q))\n    return str(len(seen))\n",
+  "hints": [
+   "Draw $3 \\times 3$ dots and find all 6 squares. Then draw the smallest upright square around each tilted one.",
+   "Every square, tilted or not, fits snugly inside exactly one upright square. Sort the squares into kinds by the side $k$ of that upright square. How many squares fit snugly inside one upright square of side $k$?",
+   "Exactly $k$ (the corner on the bottom side can be $0, 1, \\dots, k - 1$ steps from the left). There are $(n - k)(m - k)$ upright squares of side $k$. So add $k (n - k)(m - k)$ for $k$ from 1 to $\\min(n, m) - 1$, in 64 bits."
+  ],
+  "samples": [
+   [
+    "2 2\n",
+    "1"
+   ],
+   [
+    "3 3\n",
+    "6"
+   ],
+   [
+    "3 4\n",
+    "10"
+   ],
+   [
+    "1 7\n",
+    "0"
    ]
   ]
  }

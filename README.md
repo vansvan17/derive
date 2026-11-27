@@ -4,7 +4,7 @@ A local trainer for competitive programming where results are derived, not told.
 
 - **Chains.** A chain is a run of small questions, each checked by the app. You are not told where it leads; the name of the result appears only when the last step is right ("you have just derived Fermat's little theorem"). A wrong answer never opens the next question, and a nudge is always a smaller question, never the answer.
 - **Hard parts.** Every chain ends with questions where nothing points at the idea: count the reachable states, classify every n, solve a contest-level instance. A "Skip the warm-up" link jumps straight to them.
-- **The map.** 72 ideas and the connections between them. An idea has no name on the map until you have derived it; a connection is explained only when both ends are derived.
+- **The map.** 89 ideas and the connections between them. An idea has no name on the map until you have derived it; a connection is explained only when both ends are derived.
 - **Puzzles.** Short single-question puzzles on invariants, games and bits, each with one checked answer and the reason shown afterwards.
 - **Real problems.** Recent Codeforces problems rated 1600 to 2500, handed out with no topic. Writing down your approach first is optional; a solve counts only when the judge accepted it, read from your public submission list.
 - **Contest mode.** A past Codeforces round against the clock for one to three handles, scored the ICPC way, with help locked while it runs, labels for every wrong submission afterwards, and an upsolve list.
@@ -14,6 +14,15 @@ A local trainer for competitive programming where results are derived, not told.
 ## Run
 
 Needs Python 3.11+ and a C++ compiler. Nothing to install.
+
+- **macOS:** works as is (this is where it is tested).
+- **Linux:** also install `bubblewrap`; the judge uses it to sandbox your code and refuses to run without it. Not tested as much as macOS.
+- **Windows:** the judge does not run natively; use WSL and follow the Linux line.
+
+```sh
+git clone https://github.com/vansvan17/derive
+cd derive
+```
 
 ```sh
 ./launch.sh
@@ -33,10 +42,15 @@ Nothing leaves your computer except the calls listed below, and there is no acco
 
 | Part | State |
 |---|---|
-| Map | 72 ideas in 12 areas |
-| Chains | 44 (565 steps), each with a hard part; most end with CSES practice tasks |
-| Puzzles | 127, in four sets: hard, invariants, games, bits |
-| Real problems | 29, rated 1600 to 2500, each read with its editorial before being added |
+| Map | 89 ideas in 13 areas, every one with a chain |
+| Chains | 113 (1282 steps): 89 on the map, 23 for CSES dynamic programming, 1 way of thinking; each has a hard part |
+| Puzzles | 203, in seven sets |
+| Real problems | 113 from Codeforces, rated 1600 to 2500, each read with its editorial before being added |
+| Toolbox | 35 standard techniques, each with a task you write against the local judge |
+| Code | 58 short implementation tasks, judged on this computer |
+| Think it up | 19 problems that need an idea of your own, in five rungs; each shows how it could have been found once you are through it |
+| Predictions | 30 original problems in the style of an ICPC regional (guesses, not real problems) |
+| Break it | 14 wrong programs to find a failing input for |
 | Proof grading | optional, through the Claude Code command on this machine; off until switched on in Settings |
 
 ## Checking the content

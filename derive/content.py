@@ -23,6 +23,12 @@ class Content:
         for p in self.cses['problems']:
             self.ideas[p['id']] = {'id': p['id'], 'area': 'dp', 'name': p['name'], 'statement': p['statement'], 'needs': [], 'marks': ['standard'],
                                    'track': 'cses', 'cses': {'title': p['title'], 'url': p['url'], 'topic': p['topic']}}
+        # Thinking patterns: ways of attacking a problem that no technique names. Each has a chain on a fresh example
+        # (off the map, like the CSES ones) and a few tasks to use it on.
+        path = self.root / 'content/patterns.json'
+        self.patterns = json.loads(path.read_text())['patterns'] if path.exists() else []
+        for p in self.patterns:
+            self.ideas[p['id']] = {'id': p['id'], 'area': p['area'], 'name': p['name'], 'statement': p['statement'], 'needs': [], 'marks': [], 'track': 'pattern'}
         self.chains = {}
         for path in sorted((self.root / 'content/chains').glob('*.json')):
             chain = json.loads(path.read_text())
@@ -198,7 +204,22 @@ def problems(content):
         # A judged puzzle is a multiple-choice call about method; it has no computable answer and says so on the page.
         if not puzzle.get('verify') and not (puzzle.get('judged') and puzzle.get('kind') == 'choice'):
             faults.append(f'{tag}: needs brute-force "verify" code')
+    from . import evidence
+    pattern_ids = {p['id'] for p in content.patterns}
+    for p in content.patterns:
+        if p['id'] not in content.chains:
+            faults.append(f'pattern {p["id"]}: needs its chain')
+        if p.get('move') not in evidence.MOVES:
+            faults.append(f'pattern {p["id"]}: unknown move')
+        if not any(t.get('pattern') == p['id'] for t in content.tasks.values()):
+            faults.append(f'pattern {p["id"]}: needs tasks to use it on')
     for task in content.tasks.values():
+        if task.get('track') == 'transfer' and task.get('pattern') not in pattern_ids:
+            faults.append(f'task {task["id"]}: a transfer task belongs to a pattern')
+        if task.get('track') == 'ladder':
+            found = task.get('found') or {}
+            if found.get('move') not in evidence.MOVES or len(found.get('steps', [])) < 3 or not found.get('rule') or not found.get('elsewhere'):
+                faults.append(f'task {task["id"]}: a ladder task says how it could have been found (move, steps, rule, elsewhere)')
         if task.get('track') == 'predictions':
             if not task.get('behind') and not task.get('behind_pages'):
                 faults.append(f'task {task["id"]}: a prediction must name the chain or Toolbox page behind it')

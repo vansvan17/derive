@@ -524,6 +524,23 @@ class App(unittest.TestCase):
         self.assertTrue(next(s for s in after['steps'] if s['id'] == current['id'])['done'])                                  # accepted, so the chain moves on
         self.assertNotEqual(next(s for s in after['steps'] if not s['done'])['id'], current['id'])
 
+    def test_how_it_could_have_been_found_is_sent_only_after_every_hint_or_an_accept(self):
+        self.assertIsNone(self.get('/task/t1-squares')['found'])
+        listing = json.dumps(self.get('/tasks'))
+        self.assertNotIn('pins each object down', listing)                               # the walk-through is not in the list of tasks
+        self.assertNotIn('Sort into kinds', listing)                                     # and a pattern has no name before its chain is derived
+        self.assertIsNone(self.post('/task/hint', {'id': 't1-squares'})[1]['found'])
+        self.assertIsNone(self.post('/task/hint', {'id': 't1-squares'})[1]['found'])
+        last = self.post('/task/hint', {'id': 't1-squares'})[1]['found']
+        self.assertEqual(last['move'], 'label')
+        self.assertTrue(last['move_label'] and len(last['steps']) >= 3)
+        self.assertEqual(self.get('/task/t1-squares')['found'], last)
+        self.assertIsNone(self.get('/task/t1-chocolate')['found'])                       # untouched tasks still say nothing
+        self.assertEqual(self.judged({'id': 't1-chocolate', 'language': 'python', 'main': 'import sys\nv = sys.stdin.read().split()\nprint("\\n".join(str(int(v[1 + 2 * i]) * int(v[2 + 2 * i]) - 1) for i in range(int(v[0]))))\n'})['verdict'], 'AC')
+        self.assertEqual(self.get('/task/t1-chocolate')['found']['move'], 'invariant')   # an accept opens it without any hint
+        pattern = self.get('/tasks')['patterns'][0]
+        self.assertEqual((pattern['id'], pattern['name'], pattern['derived']), ('pat-label', None, False))
+
     def test_the_cses_section_lists_every_task_with_a_chain_and_stays_off_the_map(self):
         page = self.get('/cses')
         self.assertEqual(len(page['problems']), 23)

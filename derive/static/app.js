@@ -142,8 +142,8 @@ const NAV = [
 /* Which sidebar entry the address belongs to. A task page belongs to the page that lists it. */
 const section = () => {
   const [name = '', id = ''] = location.hash.replace(/^#\/?/, '').split('/');
-  if (name === 'task') return /^t\d+-/.test(id) ? 'think' : /^p\d+-/.test(id) ? 'predictions' : 'code';
-  return name === 'chain' ? 'derive' : name === 'problem' ? 'solve' : name === 'tool' || name === 'notebook' ? 'tools' : name;
+  if (name === 'task') return /^(t\d+|tr)-/.test(id) ? 'think' : /^p\d+-/.test(id) ? 'predictions' : 'code';
+  return name === 'chain' ? (id.startsWith('pat-') ? 'think' : 'derive') : name === 'problem' ? 'solve' : name === 'tool' || name === 'notebook' ? 'tools' : name;
 };
 function paintNav() {
   const host = document.querySelector('[data-nav-host]');

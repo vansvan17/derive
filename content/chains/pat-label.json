@@ -1,0 +1,150 @@
+{
+ "idea": "pat-label",
+ "opening": "A row of cells, and the question \"how many?\" asked about things that are far too many to list.",
+ "steps": [
+  {
+   "id": "two",
+   "kind": "number",
+   "prompt": "A row has 5 cells, numbered 1 to 5. A **stretch** is one or more cells next to each other, such as cells 2 to 4. Two stretches are different if they start at different cells or end at different cells.\n\nHow many stretches have exactly 2 cells?",
+   "verify": "result = sum(1 for i in range(1, 6) for j in range(i, 6) if j - i + 1 == 2)",
+   "nudges": [
+    "Write them out: cells 1 to 2, cells 2 to 3, ... Where can a stretch of 2 cells start?"
+   ],
+   "showed": "They start at cell 1, 2, 3 or 4. Once the length is fixed, a stretch is pinned down by where it starts.",
+   "answer": 4
+  },
+  {
+   "id": "each",
+   "kind": "list",
+   "ordered": true,
+   "prompt": "Same row of 5 cells. Sort the stretches into kinds by length. How many stretches are there of length 1, 2, 3, 4 and 5? Give the five counts in that order.",
+   "verify": "result = [sum(1 for i in range(1, 6) for j in range(i, 6) if j - i + 1 == k) for k in range(1, 6)]",
+   "nudges": [
+    "For length 3: at which cells can the stretch start so that it still fits in the row?"
+   ],
+   "showed": "5, 4, 3, 2, 1. Each kind was easy, because inside one kind you only had to count starting cells.",
+   "answer": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ]
+  },
+  {
+   "id": "kind",
+   "kind": "formula",
+   "answer": "n-k+1",
+   "vars": {
+    "n": [
+     6,
+     14
+    ],
+    "k": [
+     1,
+     6
+    ]
+   },
+   "prompt": "Now a row of $n$ cells. How many stretches have exactly $k$ cells? (Here $1 \\le k \\le n$.) Answer with a formula in $n$ and $k$.",
+   "verify": "result = sum(1 for i in range(1, n + 1) for j in range(i, n + 1) if j - i + 1 == k)",
+   "nudges": [
+    "What is the last cell at which a stretch of $k$ cells can start?",
+    "It can start at cells 1, 2, ..., up to that last one. How many cells is that?"
+   ],
+   "showed": "The start can be any cell from 1 up to $n - k + 1$."
+  },
+  {
+   "id": "all",
+   "kind": "number",
+   "prompt": "How many stretches (of every length) does a row of 100 cells have?",
+   "verify": "result = sum(1 for i in range(1, 101) for j in range(i, 101))",
+   "nudges": [
+    "Length 1 has 100 stretches and length 2 has 99. What does the list of counts look like all the way down?",
+    "What is $100 + 99 + \\dots + 1$?"
+   ],
+   "showed": "$100 + 99 + \\dots + 1 = 5050$. Nobody counts 5050 stretches one by one, but 100 kinds with one easy count each is no work.",
+   "answer": 5050
+  },
+  {
+   "id": "holds",
+   "kind": "number",
+   "prompt": "A row of 10 cells. How many stretches contain cell 4? (Cell 4 alone is a stretch too.)",
+   "verify": "result = sum(1 for i in range(1, 11) for j in range(i, 11) if i <= 4 <= j)",
+   "nudges": [
+    "A stretch is pinned down by two things: its first cell and its last cell. What must be true of each if cell 4 is inside?",
+    "In how many ways can the first cell be chosen? And the last?"
+   ],
+   "showed": "The first cell is one of 1 to 4 and the last cell is one of 4 to 10: $4 \\cdot 7 = 28$. What pins a stretch down here is the pair (first cell, last cell). The two choices do not affect each other, so you multiply.",
+   "answer": 28
+  },
+  {
+   "id": "h-rect",
+   "kind": "number",
+   "prompt": "A board has 6 rows and 8 columns of cells. A **block** is a rectangle made of whole cells: all the cells that lie in some stretch of rows and also in some stretch of columns. A single cell is a block, and so is the whole board. Two blocks are different if they do not cover exactly the same cells.\n\nHow many blocks are there?",
+   "verify": "result = sum(1 for r1 in range(6) for r2 in range(r1, 6) for c1 in range(8) for c2 in range(c1, 8))",
+   "nudges": [
+    "Think of its rows and its columns separately: what pins a block down?",
+    "How many stretches of rows are there among 6 rows? How many stretches of columns among 8 columns?"
+   ],
+   "showed": "A block is pinned down by a stretch of rows and a stretch of columns. 6 rows have $6 \\cdot 7 / 2 = 21$ stretches, 8 columns have $8 \\cdot 9 / 2 = 36$, and $21 \\cdot 36 = 756$.",
+   "tier": "hard",
+   "answer": 756
+  },
+  {
+   "id": "h-posts",
+   "kind": "number",
+   "prompt": "Ten posts stand in a straight line, numbered 1 to 10, with equal gaps between neighbours. Choose three different posts so that the middle one is exactly halfway between the other two, for example posts 2, 5 and 8. The order in which you name the three does not matter.\n\nHow many such choices of three posts are there?",
+   "verify": "import itertools\nresult = sum(1 for a, b, c in itertools.combinations(range(1, 11), 3) if b - a == c - b)",
+   "nudges": [
+    "Sort the choices into kinds. What is the same for 1, 2, 3 and for 6, 7, 8, but different for 2, 5, 8?",
+    "Fix the gap between neighbouring chosen posts. What then pins the choice down, and how many values can it take?"
+   ],
+   "showed": "Kinds: the gap $d$ between neighbouring chosen posts. Inside one kind the first post pins the choice down, and it can be 1 up to $10 - 2d$. That gives $8 + 6 + 4 + 2 = 20$.",
+   "tier": "hard",
+   "answer": 20
+  },
+  {
+   "id": "h-dots",
+   "kind": "number",
+   "prompt": "Sixteen dots are arranged in 4 rows and 4 columns, with neighbouring dots 1 apart (like the corners of the cells of a $3 \\times 3$ board). Count the squares whose four corners are all dots. The squares may be **tilted**: the four dots (0,1), (1,0), (2,1), (1,2) are the corners of a square too. Two squares are different if they do not have the same four corners.\n\nHow many squares are there?",
+   "verify": "import itertools\ndef squares(n, whole=False):\n    pts = set(itertools.product(range(n), repeat=2)); seen = set()\n    for (x, y) in pts:\n        for dx in range(-n, n + 1):\n            for dy in range(-n, n + 1):\n                if (dx, dy) == (0, 0): continue\n                q = [(x, y), (x + dx, y + dy), (x + dx - dy, y + dy + dx), (x - dy, y + dx)]\n                if all(p in pts for p in q): seen.add(frozenset(q))\n    if whole: seen = {q for q in seen if {min(p[0] for p in q), max(p[0] for p in q), min(p[1] for p in q), max(p[1] for p in q)} == {0, n - 1}}\n    return len(seen)\nresult = squares(4)",
+   "nudges": [
+    "First the upright ones, sorted by side: how many of side 1, of side 2, of side 3?",
+    "Every tilted square fits snugly inside one upright square, touching all four of its sides. How many tilted squares fit snugly inside an upright square of side 2, and how many inside one of side 3?"
+   ],
+   "showed": "Upright: $9 + 4 + 1 = 14$. Tilted: one inside each of the 4 upright squares of side 2, and two inside the upright square of side 3. $14 + 4 + 2 = 20$.",
+   "tier": "hard",
+   "answer": 20
+  },
+  {
+   "id": "h-inside",
+   "kind": "number",
+   "prompt": "Take the same kind of dots, but 6 rows and 6 columns, and look only at the big upright square of side 5 whose corners are the four corner dots. Count the squares (upright or tilted) with all four corners on dots that touch **all four sides** of this big square. The big square itself counts.\n\nHow many are there?",
+   "verify": "import itertools\ndef squares(n, whole=False):\n    pts = set(itertools.product(range(n), repeat=2)); seen = set()\n    for (x, y) in pts:\n        for dx in range(-n, n + 1):\n            for dy in range(-n, n + 1):\n                if (dx, dy) == (0, 0): continue\n                q = [(x, y), (x + dx, y + dy), (x + dx - dy, y + dy + dx), (x - dy, y + dx)]\n                if all(p in pts for p in q): seen.add(frozenset(q))\n    if whole: seen = {q for q in seen if {min(p[0] for p in q), max(p[0] for p in q), min(p[1] for p in q), max(p[1] for p in q)} == {0, n - 1}}\n    return len(seen)\nresult = squares(6, whole=True)",
+   "nudges": [
+    "Such a square has one corner on each side of the big square. Say the corner on the bottom side is $x$ steps from the left end. Which values of $x$ are possible, and does $x$ decide the whole square?"
+   ],
+   "showed": "The corner on the bottom side can be 0, 1, 2, 3 or 4 steps from the left end, and that one number pins the square down: 5 squares. In general an upright square of side $k$ holds exactly $k$ of them.",
+   "tier": "hard",
+   "answer": 5
+  },
+  {
+   "id": "h-dots10",
+   "kind": "number",
+   "prompt": "Now 100 dots in 10 rows and 10 columns, neighbours 1 apart. How many squares, tilted ones included, have all four corners on dots?",
+   "verify": "import itertools\ndef squares(n, whole=False):\n    pts = set(itertools.product(range(n), repeat=2)); seen = set()\n    for (x, y) in pts:\n        for dx in range(-n, n + 1):\n            for dy in range(-n, n + 1):\n                if (dx, dy) == (0, 0): continue\n                q = [(x, y), (x + dx, y + dy), (x + dx - dy, y + dy + dx), (x - dy, y + dx)]\n                if all(p in pts for p in q): seen.add(frozenset(q))\n    if whole: seen = {q for q in seen if {min(p[0] for p in q), max(p[0] for p in q), min(p[1] for p in q), max(p[1] for p in q)} == {0, n - 1}}\n    return len(seen)\nassert squares(5) == sum(k * (5 - k) ** 2 for k in range(1, 5))\nresult = squares(10)",
+   "nudges": [
+    "Sort all the squares by the upright square they fit snugly inside. How many squares belong to one upright square of side $k$?",
+    "The top-left corner pins an upright square down. How many upright squares of side $k$ are there among $10 \\times 10$ dots?"
+   ],
+   "showed": "Kinds: the side $k$ of the snug upright square. There are $(10 - k)^2$ upright squares of side $k$, and each holds $k$ squares. The sum of $k (10 - k)^2$ for $k$ from 1 to 9 is 825.",
+   "tier": "hard",
+   "answer": 825
+  }
+ ],
+ "reveal": {
+  "name": "Sort into kinds, then count what pins each one down",
+  "statement": "To count objects that are too many to list: sort them into kinds; inside one kind, find the one thing (or the two things) that pins each object down; count the values it can take; add over the kinds.",
+  "remark": "The kinds were lengths, gaps and sides. What pinned an object down was a starting cell, a first post, a top-left corner, or a pair of independent choices that you multiply."
+ }
+}

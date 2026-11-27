@@ -49,7 +49,7 @@ export async function renderTasks(ctx) {
       <ol class="rows">${mine.map((t, k) => taskRow(t, k + 1, e, t.basis.length ? `rests on ${basisLinks(t.basis, e)}` : '')).join('')}</ol></section>` : ''; }).join('')}`;
 }
 
-const OWN_PAGE = ['predictions', 'ladder'];
+const OWN_PAGE = ['predictions', 'ladder', 'transfer'];
 const RUNGS = ['', 'One observation', 'Look twice', 'Find the pattern, then explain it', 'Two steps', 'Genuinely hard'];
 
 /* Think it up: problems that no named technique solves, in rungs from easy to hard. Nothing is locked. */
@@ -63,6 +63,9 @@ export async function renderLadder(ctx) {
   const done = mine.filter(t => t.solved).length;
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow">Come up with it yourself</p><h1>Think it up</h1><p class="muted">No named technique solves these. Each one gives way to an observation you find yourself, and the program is short once you have it. The rungs go from easy to genuinely hard; nothing is locked, but starting at the bottom is the point. ${done} of ${mine.length} accepted.</p></div></header>
     <section class="surface attack"><h2>How to attack one</h2><ol><li>Work out the answer for the smallest cases by hand and write the answers in a row.</li><li>Look for a pattern, or for something a move can never change, or for a choice that is forced.</li><li>Guess a rule, test it on one more small case, then ask why it is true.</li><li>Stay with it for a while before opening a hint. The first hint is always a nudge towards small cases, not the idea.</li></ol></section>
+    ${(page.patterns || []).length ? `<section class="surface">${groupHead('Ways of thinking', 'One at a time: a short chain of questions walks you into a way of attacking problems, on a fresh example, and names it at the end. Then a few problems to use it on. More of these are on the way.', [], e).replace(/<div class="group-count"[\s\S]*?<\/div><\/div>/, '')}
+      ${page.patterns.map((p, k) => { const use = page.tasks.filter(t => t.pattern === p.id); return `<ol class="rows"><li class="row"><span class="row-mark${p.derived ? ' is-done' : p.started ? ' is-tried' : ''}">${p.derived ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : k + 1}</span><a class="row-title" href="#/chain/${e(p.id)}">${p.derived ? e(p.name) : `A way of thinking, not named yet`}</a><span class="row-note">${p.derived ? 'worked through' : `${p.steps} questions${p.started ? ', started' : ''}`}</span></li></ol>
+        ${use.length ? `<p class="muted small use-head">Then use it on these (same way of thinking, different surface):</p><ol class="rows use-rows">${use.map((t, j) => taskRow(t, j + 1, e)).join('')}</ol>` : ''}`; }).join('')}</section>` : ''}
     ${rungs.map(r => { const here = mine.filter(t => t.rung === r); return `<section class="surface">${groupHead(`Rung ${r} · ${RUNGS[r] || ''}`, '', here, e)}
       <ol class="rows">${here.map((t, k) => taskRow(t, k + 1, e)).join('')}</ol></section>`; }).join('')}`;
 }
@@ -91,9 +94,9 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   if (!alive()) return;
   let busy = false, saveTimer = null;
   const box = (title, text) => `<div class="io-box"><h4>${e(title)}</h4><pre>${e(text)}</pre></div>`;
-  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow">${task.track === 'predictions' ? '<a href="#/predictions">Predictions</a>' : task.track === 'ladder' ? `<a href="#/think">Think it up</a> · rung ${e(task.rung)}` : '<a href="#/code">Code</a>'} · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}${behindFold(task.behind, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
+  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow">${task.track === 'predictions' ? '<a href="#/predictions">Predictions</a>' : task.track === 'ladder' ? `<a href="#/think">Think it up</a> · rung ${e(task.rung)}` : task.track === 'transfer' ? '<a href="#/think">Think it up</a> · using a pattern' : '<a href="#/code">Code</a>'} · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}${behindFold(task.behind, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
     <div class="split" data-split><div class="split-pane split-text">${before}<section class="surface reading task-statement">${markdown(task.statement)}
-      <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${hints ? '<section class="surface task-hints" data-hints aria-live="polite"></section>' : ''}${after}</div>
+      <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${hints ? '<section class="surface task-hints" data-hints aria-live="polite"></section>' : ''}<div data-found aria-live="polite"></div>${after}</div>
     <div class="split-pane split-code"><section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta">${sideButton()}<label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>
       <div class="editor-host" data-editor></div>
       <label class="field">Your own input<textarea data-input rows="3" spellcheck="false">${e(task.samples[0][0])}</textarea></label>
@@ -114,10 +117,22 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
     box.querySelector('[data-hint]')?.addEventListener('click', async event => {
       event.target.disabled = true;
       try { Object.assign(task, await post('/task/hint', {id})); } catch (error) { toast(error.message, 'error'); }
-      if (alive()) paintHints();
+      if (alive()) { paintHints(); paintFound(); }
     });
   }
   paintHints();
+  // How the idea could have been found, with the name of the move. The server sends it only once the task is accepted
+  // or every hint is open, and it stays folded until she opens it.
+  function paintFound() {
+    const box = $('[data-found]'), f = task.found;
+    if (!box) return;
+    if (!f) { box.innerHTML = ''; return; }
+    const was = box.querySelector('details')?.open;
+    box.innerHTML = `<details class="surface found" ${was ? 'open' : ''}><summary><span class="found-title">How you could have found it</span><span class="muted small">${task.solved ? 'the route from nothing to the idea, and the move to remember' : 'every hint is open; this is the whole route'}</span></summary>
+      <ol class="found-steps">${f.steps.map(s => `<li>${inline(s)}</li>`).join('')}</ol>
+      <div class="found-move"><p class="eyebrow">The move to remember</p><p class="found-name">${e(f.move_label)}</p><p>${inline(f.rule)}</p><p class="muted small"><strong>Where else it works:</strong> ${inline(f.elsewhere)}</p></div></details>`;
+  }
+  paintFound();
   const save = async () => { try { await post('/code', {id, language, file: 'main', code: files.main}); if (host.isConnected) $('[data-save]').textContent = 'Saved'; } catch { if (host.isConnected) $('[data-save]').textContent = 'Not saved'; } };
   const changed = value => { files.main = value; $('[data-save]').textContent = 'Editing…'; clearTimeout(saveTimer); saveTimer = setTimeout(save, 800); };
   const editor = await makeEditor($('[data-editor]'), {value: files.main, language, fontSize: ctx.boot.settings.font_size, tabSize: 4, onChange: changed, onRun: () => go('run'), onSubmit: () => go('judge'), onSave: () => { clearTimeout(saveTimer); save(); }});
@@ -145,7 +160,7 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
       const good = r.verdict === 'AC' || r.verdict === 'OK';
       results.innerHTML = `<h3>${kind === 'judge' ? 'Verdict' : 'Run'}</h3><div class="result-head"><span class="verdict ${good ? 'verdict-ok' : 'verdict-bad'}">${e(r.verdict)}</span>${kind === 'judge' ? `<strong>${r.passed} of ${r.of} tests passed</strong>` : `<span class="muted">${r.seconds != null ? Number(r.seconds).toFixed(2) + ' s' : ''}</span>`}</div>
         ${r.detail ? `<p class="result-detail">${e(r.detail)}</p>` : ''}<div class="io-grid">${r.input != null ? box('The test', r.input) : ''}${r.expected != null ? box('Expected', r.expected) : ''}${r.output != null && (kind === 'run' || r.verdict !== 'AC') ? box('Your output', r.output) : ''}</div>`;
-      if (kind === 'judge') { task = await api('/task/' + encodeURIComponent(id)); status(); paintHints(); ctx.sync(); accepted = r.verdict === 'AC'; }
+      if (kind === 'judge') { task = await api('/task/' + encodeURIComponent(id)); status(); paintHints(); paintFound(); ctx.sync(); accepted = r.verdict === 'AC'; }
     } catch (error) { toast(error.message, 'error'); results.innerHTML = '<h3>Results</h3><p class="results-empty">Nothing was run.</p>'; }
     finally { busy = false; if (alive()) host.querySelectorAll('[data-run],[data-judge]').forEach(b => { b.disabled = false; }); }
     if (accepted && onAccepted) onAccepted();

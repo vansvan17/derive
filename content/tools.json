@@ -735,6 +735,241 @@
   "needs": [
    "perm-cycles"
   ],
-  "example": "vector<bool> seen(n + 1, false);\nfor (int s = 1; s <= n; s++) {\n    if (seen[s]) continue;                      // already on an earlier loop\n    vector<int> loop;                           // the seats of this loop, in walking order\n    for (int x = s; !seen[x]; x = p[x]) { seen[x] = true; loop.push_back(x); }\n    int len = loop.size();\n    int shift = k % len;                        // k rounds = k mod len steps along the loop\n    for (int j = 0; j < len; j++) where[loop[j]] = loop[(j + shift) % len];\n}"
+  "example": "vector<bool> seen(n + 1, false);\nfor (int s = 1; s <= n; s++) {\n    if (seen[s]) continue;                      // already on an earlier loop\n    vector<int> loop;                           // the seats of this loop, in walking order\n    for (int x = s; !seen[x]; x = p[x]) { seen[x] = true; loop.push_back(x); }\n    int len = loop.size();\n    int shift = k % len;                        // k rounds = k mod len steps along the loop\n    for (int j = 0; j < len; j++) where[loop[j]] = loop[(j + shift) % len];\n}",
+  "practice": [
+   {
+    "site": "CSES",
+    "title": "Permutation Rounds",
+    "url": "https://cses.fi/problemset/task/3398",
+    "checked": "2026-11-27"
+   },
+   {
+    "site": "CSES",
+    "title": "Sorting Methods",
+    "url": "https://cses.fi/problemset/task/1162",
+    "checked": "2026-11-27"
+   },
+   {
+    "site": "CSES",
+    "title": "Swap Round Sorting",
+    "url": "https://cses.fi/problemset/task/1698",
+    "checked": "2026-11-27"
+   }
+  ]
+ },
+ {
+  "id": "lazy-segtree",
+  "title": "Change a whole range at once",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "Updates hit a whole range (\"add v to everything from l to r\", \"set l..r to v\") and queries ask about a range too",
+   "A plain segment tree would have to touch every leaf of the range",
+   "Painting intervals, booking seats, flipping a stretch of bits"
+  ],
+  "idea": "**The question (an example):** an array, and two kinds of request, mixed. \"Add v to every element from l to r.\" \"What is the sum from l to r?\"\n\n**The simple way:** a segment tree changes one position in log n steps. A range of 100000 positions would be 100000 separate changes: too slow.\n\n**The trick:** be lazy. When a block of the tree lies completely inside the update range, do not go down into it.\n\n- Fix the block's own sum: it grows by v times the block's length.\n- Leave a note on the block: \"everything below me still owes +v\".\n- Stop there.\n\n**Paying the debt:** before you ever walk into the children of a block, **push** its note down: add it to both children's sums and notes, then clear it.\n\n**A tiny example:** array 1 2 3 4, add 10 to positions 1..4.\n\n- The root covers 1..4 exactly. Its sum becomes 10 + 40 = 50, its note becomes +10. Nothing else is touched.\n- Now ask for the sum of 3..4. To go below the root, push first: the left child's sum becomes 3 + 20 = 23, the right child's 7 + 20 = 27, both get note +10.\n- The right child covers 3..4 exactly: answer 27.\n\n**Why it is fast:** an update or a query still only stops at about 2 log n blocks, exactly like the plain tree.",
+  "traps": [
+   "Push the note down before going into the children, in updates and in queries alike.",
+   "The sum of a block changes by v times its length, not by v.",
+   "After updating the children, recompute the parent from them.",
+   "Sums need 64 bits.",
+   "For \"set to v\" instead of \"add v\", the note needs a flag for \"no note\", since 0 is a real value."
+  ],
+  "task": "range-add-sum",
+  "needs": [
+   "segment-tree"
+  ],
+  "example": "void apply(int node, int len, long long v) { sum[node] += v * len; note[node] += v; }\nvoid push(int node, int lo, int hi) {            // hand the debt to the two children\n    int mid = (lo + hi) / 2;\n    apply(2 * node, mid - lo + 1, note[node]);\n    apply(2 * node + 1, hi - mid, note[node]);\n    note[node] = 0;\n}\nvoid update(int node, int lo, int hi, int l, int r, long long v) {\n    if (r < lo || hi < l) return;\n    if (l <= lo && hi <= r) { apply(node, hi - lo + 1, v); return; }   // whole block: stop here\n    push(node, lo, hi);\n    int mid = (lo + hi) / 2;\n    update(2 * node, lo, mid, l, r, v);\n    update(2 * node + 1, mid + 1, hi, l, r, v);\n    sum[node] = sum[2 * node] + sum[2 * node + 1];\n}",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint n, q;\nvector<long long> sum, note;\n\nvoid apply(int node, int len, long long v) { sum[node] += v * len; note[node] += v; }\nvoid push(int node, int lo, int hi) {            // hand the debt to the two children\n    int mid = (lo + hi) / 2;\n    apply(2 * node, mid - lo + 1, note[node]);\n    apply(2 * node + 1, hi - mid, note[node]);\n    note[node] = 0;\n}\nvoid update(int node, int lo, int hi, int l, int r, long long v) {\n    if (r < lo || hi < l) return;\n    if (l <= lo && hi <= r) { apply(node, hi - lo + 1, v); return; }   // whole block: stop here\n    push(node, lo, hi);\n    int mid = (lo + hi) / 2;\n    update(2 * node, lo, mid, l, r, v);\n    update(2 * node + 1, mid + 1, hi, l, r, v);\n    sum[node] = sum[2 * node] + sum[2 * node + 1];\n}\nlong long query(int node, int lo, int hi, int l, int r) {\n    if (r < lo || hi < l) return 0;\n    if (l <= lo && hi <= r) return sum[node];\n    push(node, lo, hi);\n    int mid = (lo + hi) / 2;\n    return query(2 * node, lo, mid, l, r) + query(2 * node + 1, mid + 1, hi, l, r);\n}\n\nint main() {\n    scanf(\"%d %d\", &n, &q);\n    sum.assign(4 * n, 0); note.assign(4 * n, 0);\n    for (int i = 1; i <= n; i++) { long long a; scanf(\"%lld\", &a); update(1, 1, n, i, i, a); }\n    while (q--) {\n        int type, l, r;\n        scanf(\"%d %d %d\", &type, &l, &r);\n        if (type == 1) { long long v; scanf(\"%lld\", &v); update(1, 1, n, l, r, v); }\n        else printf(\"%lld\\n\", query(1, 1, n, l, r));\n    }\n}\n",
+  "practice": [
+   {
+    "site": "CSES",
+    "title": "Range Updates and Sums",
+    "url": "https://cses.fi/problemset/task/1735",
+    "checked": "2026-11-27"
+   }
+  ]
+ },
+ {
+  "id": "scc",
+  "title": "Groups that can all reach each other",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "One-way roads, and the question is about who can reach whom and get back",
+   "You want to treat a tangle of cycles in a directed graph as a single vertex, and then work on what is left (which has no cycles)",
+   "Conditions of the form \"x or y must hold\" on yes/no variables (2-SAT) are solved on top of this"
+  ],
+  "idea": "**The question (an example):** cities and one-way roads. Two cities are in the same **group** if you can drive from each to the other. Find the groups.\n\n**A tiny example:** roads 1 → 2, 2 → 3, 3 → 1, 3 → 4.\n\n- 1, 2, 3 lie on a cycle: one group.\n- From 4 you cannot get back: 4 is a group alone.\n\n**The method (two walks):**\n\n- Walk the graph depth-first. Each time a vertex is **finished** (all its roads explored), append it to a list.\n- Turn every road around.\n- Take the vertices from the **end** of the list to the start. If a vertex has no group yet, walk from it in the turned-around graph. Everything you reach that has no group yet is one group.\n\n**Why it works:** the vertex finished last lies in a group that no other group has a road into, once the roads are turned around. So the walk from it cannot leak out of its group. Remove that group, and the same is true for the next unfinished one.\n\n**What you get for free:** shrink every group to one vertex. The result has no directed cycle, and the groups come out already in a topological order. Now tables over the order work.",
+  "traps": [
+   "The second walk uses the reversed roads; the order comes from the first walk on the original roads.",
+   "Take the list from its end (last finished first).",
+   "Recursion 200000 deep can overflow the stack; write the first walk with your own stack.",
+   "A vertex with no roads is a group of size 1."
+  ],
+  "task": "mutual-groups",
+  "needs": [
+   "graph-walk",
+   "topo-order"
+  ],
+  "example": "vector<int> order, it(n + 1, 0), st;            // first walk, with our own stack\nvector<bool> seen(n + 1, false);\nfor (int s = 1; s <= n; s++) {\n    if (seen[s]) continue;\n    seen[s] = true; st.push_back(s);\n    while (!st.empty()) {\n        int v = st.back();\n        if (it[v] < (int)adj[v].size()) {\n            int u = adj[v][it[v]++];\n            if (!seen[u]) { seen[u] = true; st.push_back(u); }\n        } else { order.push_back(v); st.pop_back(); }      // v is finished\n    }\n}\nvector<int> group(n + 1, 0);\nint groups = 0;\nfor (int i = n - 1; i >= 0; i--) {              // last finished first\n    if (group[order[i]]) continue;\n    group[order[i]] = ++groups; st = {order[i]};\n    while (!st.empty()) {\n        int v = st.back(); st.pop_back();\n        for (int u : radj[v]) if (!group[u]) { group[u] = groups; st.push_back(u); }   // reversed roads\n    }\n}",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m;\n    scanf(\"%d %d\", &n, &m);\n    vector<vector<int>> adj(n + 1), radj(n + 1);\n    for (int i = 0; i < m; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        adj[a].push_back(b);\n        radj[b].push_back(a);\n    }\n    vector<int> order, it(n + 1, 0), st;            // first walk, with our own stack\n    vector<bool> seen(n + 1, false);\n    for (int s = 1; s <= n; s++) {\n        if (seen[s]) continue;\n        seen[s] = true; st.push_back(s);\n        while (!st.empty()) {\n            int v = st.back();\n            if (it[v] < (int)adj[v].size()) {\n                int u = adj[v][it[v]++];\n                if (!seen[u]) { seen[u] = true; st.push_back(u); }\n            } else { order.push_back(v); st.pop_back(); }      // v is finished\n        }\n    }\n    vector<int> group(n + 1, 0);\n    int groups = 0, largest = 0;\n    for (int i = n - 1; i >= 0; i--) {              // last finished first\n        if (group[order[i]]) continue;\n        group[order[i]] = ++groups; st = {order[i]};\n        int size = 0;\n        while (!st.empty()) {\n            int v = st.back(); st.pop_back(); size++;\n            for (int u : radj[v]) if (!group[u]) { group[u] = groups; st.push_back(u); }   // reversed roads\n        }\n        largest = max(largest, size);\n    }\n    printf(\"%d %d\\n\", groups, largest);\n}\n",
+  "practice": [
+   {
+    "site": "CSES",
+    "title": "Flight Routes Check",
+    "url": "https://cses.fi/problemset/task/1682",
+    "checked": "2026-11-27"
+   },
+   {
+    "site": "CSES",
+    "title": "Planets and Kingdoms",
+    "url": "https://cses.fi/problemset/task/1683",
+    "checked": "2026-11-27"
+   },
+   {
+    "site": "CSES",
+    "title": "Coin Collector",
+    "url": "https://cses.fi/problemset/task/1686",
+    "checked": "2026-11-27"
+   },
+   {
+    "site": "CSES",
+    "title": "Giant Pizza",
+    "url": "https://cses.fi/problemset/task/1684",
+    "checked": "2026-11-27"
+   }
+  ]
+ },
+ {
+  "id": "matching",
+  "title": "Pairing two sides",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "Two kinds of things (workers and jobs, rows and columns, pupils and seats) and a list of allowed pairs",
+   "Each thing may be used at most once and you want as many pairs as possible",
+   "A grid coloured like a chessboard where dominoes or neighbours pair a black cell with a white one"
+  ],
+  "idea": "**The question (an example):** workers on the left, jobs on the right, and a list of which worker can do which job. Give each worker at most one job and each job at most one worker. How many pairs can you make?\n\n**Why greedy fails:** worker A can do jobs 1 and 2, worker B only job 1. If A grabs job 1 first, B gets nothing. The best is A–2, B–1.\n\n**The fix: ask the holder to move.** Try to place the workers one at a time. To place worker w, look at each job j that w can do:\n\n- If j is free, take it.\n- If j is held by worker x, ask x to find **another** job (the same procedure, for x). If x succeeds, j is free: take it.\n- Mark jobs you have already asked about in this attempt, so you never ask twice.\n\n**The tiny example again:** place A: job 1 is free, A–1. Place B: job 1 is held by A. Ask A: job 2 is free, A moves to 2. Now B takes 1. Two pairs.\n\n**Why it is right:** if no chain of such \"please move\" requests exists for any unplaced worker, the pairing cannot be made larger. Each attempt walks every allowed pair at most once.\n\n**The cost:** (number of workers) × (number of allowed pairs). Fine for a few hundred or thousand on each side.",
+  "traps": [
+   "Clear the \"already asked\" marks before each new worker, not inside the recursion.",
+   "Mark the job before asking its holder to move, or two requests can chase each other for ever.",
+   "A failed attempt changes nothing; a successful one changes the owner of every job along the chain.",
+   "For 100000 vertices this is too slow; that needs Hopcroft–Karp."
+  ],
+  "task": "most-pairs",
+  "needs": [
+   "graph-walk"
+  ],
+  "example": "vector<int> owner(m + 1, 0);                    // owner[j] = worker holding job j, 0 if free\nvector<bool> asked;\nfunction<bool(int)> place = [&](int w) {\n    for (int j : can[w]) {\n        if (asked[j]) continue;\n        asked[j] = true;                            // mark before asking\n        if (owner[j] == 0 || place(owner[j])) {     // free, or its holder can move\n            owner[j] = w;\n            return true;\n        }\n    }\n    return false;\n};\nint pairs = 0;\nfor (int w = 1; w <= n; w++) {\n    asked.assign(m + 1, false);                     // fresh marks for each worker\n    if (place(w)) pairs++;\n}",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m, e;\n    scanf(\"%d %d %d\", &n, &m, &e);\n    vector<vector<int>> can(n + 1);\n    for (int i = 0; i < e; i++) {\n        int w, j;\n        scanf(\"%d %d\", &w, &j);\n        can[w].push_back(j);\n    }\n    vector<int> owner(m + 1, 0);                    // owner[j] = worker holding job j, 0 if free\n    vector<bool> asked;\n    function<bool(int)> place = [&](int w) {\n        for (int j : can[w]) {\n            if (asked[j]) continue;\n            asked[j] = true;                            // mark before asking\n            if (owner[j] == 0 || place(owner[j])) {     // free, or its holder can move\n                owner[j] = w;\n                return true;\n            }\n        }\n        return false;\n    };\n    int pairs = 0;\n    for (int w = 1; w <= n; w++) {\n        asked.assign(m + 1, false);                     // fresh marks for each worker\n        if (place(w)) pairs++;\n    }\n    printf(\"%d\\n\", pairs);\n}\n",
+  "practice": [
+   {
+    "site": "CSES",
+    "title": "School Dance",
+    "url": "https://cses.fi/problemset/task/1696",
+    "checked": "2026-11-27"
+   }
+  ]
+ },
+ {
+  "id": "cross-hull",
+  "title": "Left turn or right turn",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "Points with coordinates, and you need areas, \"is this point left of that line\", or whether segments cross",
+   "The smallest fence around a set of points (convex hull)",
+   "You are tempted to use angles, slopes or square roots: one integer formula usually replaces them"
+  ],
+  "idea": "**One formula does almost all of it.** For three points A, B, C:\n\n`cross = (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x)`\n\n- Positive: going A → B → C you turn **left**.\n- Negative: you turn **right**.\n- Zero: the three points lie on one line.\n- Its size is twice the area of the triangle ABC.\n\nEverything stays in whole numbers. No division, no angles.\n\n**A tiny example:** A = (0,0), B = (2,0), C = (1,3). cross = 2·3 − 0·1 = 6. Positive, so a left turn, and the triangle has area 3.\n\n**Area of a polygon:** add up `x_i * y_(i+1) - x_(i+1) * y_i` around the corners. That is twice the area (negative if you went clockwise).\n\n**The fence around points (convex hull):**\n\n- Sort the points by x, then by y.\n- Go left to right, keeping a stack. Before adding a point, while the last two points of the stack and the new point do **not** make a left turn, pop the stack. Then push the point. This gives the lower side.\n- Do the same from right to left for the upper side.\n- Join the two sides (the first and last points appear twice; drop the repeats).\n\n**Why popping is right:** a point where the path turns right (or goes straight) lies inside or on the fence, so it is not a corner.",
+  "traps": [
+   "Products of coordinates overflow int: use long long, and check that coordinate differences squared still fit.",
+   "Decide what to do with points on a line: popping on cross <= 0 drops them, cross < 0 keeps them.",
+   "One point, two points, or all points on a line give a fence with no area; handle them without crashing.",
+   "Remove duplicate points first, or sort and let cross = 0 pop them.",
+   "Never compare slopes with division; compare cross products."
+  ],
+  "task": "fence-area",
+  "needs": [],
+  "example": "typedef pair<long long, long long> P;\nlong long cross(P a, P b, P c) {                 // > 0: left turn at b going a -> b -> c\n    return (b.first - a.first) * (c.second - a.second) - (b.second - a.second) * (c.first - a.first);\n}\nvector<P> hull(vector<P> p) {\n    sort(p.begin(), p.end());\n    p.erase(unique(p.begin(), p.end()), p.end());\n    int n = p.size(), k = 0;\n    if (n < 3) return p;\n    vector<P> h(2 * n);\n    for (int i = 0; i < n; i++) {                // lower side, left to right\n        while (k >= 2 && cross(h[k - 2], h[k - 1], p[i]) <= 0) k--;\n        h[k++] = p[i];\n    }\n    for (int i = n - 2, t = k + 1; i >= 0; i--) {    // upper side, right to left\n        while (k >= t && cross(h[k - 2], h[k - 1], p[i]) <= 0) k--;\n        h[k++] = p[i];\n    }\n    h.resize(k - 1);                             // the first point was added twice\n    return h;\n}",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\ntypedef pair<long long, long long> P;\nlong long cross(P a, P b, P c) {                 // > 0: left turn at b going a -> b -> c\n    return (b.first - a.first) * (c.second - a.second) - (b.second - a.second) * (c.first - a.first);\n}\nvector<P> hull(vector<P> p) {\n    sort(p.begin(), p.end());\n    p.erase(unique(p.begin(), p.end()), p.end());\n    int n = p.size(), k = 0;\n    if (n < 3) return p;\n    vector<P> h(2 * n);\n    for (int i = 0; i < n; i++) {                // lower side, left to right\n        while (k >= 2 && cross(h[k - 2], h[k - 1], p[i]) <= 0) k--;\n        h[k++] = p[i];\n    }\n    for (int i = n - 2, t = k + 1; i >= 0; i--) {    // upper side, right to left\n        while (k >= t && cross(h[k - 2], h[k - 1], p[i]) <= 0) k--;\n        h[k++] = p[i];\n    }\n    h.resize(k - 1);                             // the first point was added twice\n    return h;\n}\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<P> p(n);\n    for (auto &q : p) scanf(\"%lld %lld\", &q.first, &q.second);\n    vector<P> h = hull(p);\n    long long twice = 0;\n    for (size_t i = 0; i < h.size(); i++) {\n        P a = h[i], b = h[(i + 1) % h.size()];\n        twice += a.first * b.second - b.first * a.second;\n    }\n    printf(\"%lld\\n\", llabs(twice));\n}\n",
+  "practice": [
+   {
+    "site": "CSES",
+    "title": "Point Location Test",
+    "url": "https://cses.fi/problemset/task/2189",
+    "checked": "2026-11-27"
+   },
+   {
+    "site": "CSES",
+    "title": "Polygon Area",
+    "url": "https://cses.fi/problemset/task/2191",
+    "checked": "2026-11-27"
+   },
+   {
+    "site": "CSES",
+    "title": "Convex Hull",
+    "url": "https://cses.fi/problemset/task/2195",
+    "checked": "2026-11-27"
+   }
+  ]
+ },
+ {
+  "id": "grundy",
+  "title": "A number for every game position",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "Two players, take turns, whoever cannot move loses, and the game is several independent piles or boards",
+   "The moves are not \"take any number\" (so plain Nim does not apply), e.g. \"take 1, 3 or 4\" or \"split a pile\"",
+   "Winning and losing positions of one pile are easy, but several piles together are not"
+  ],
+  "idea": "**The problem with several piles:** for one pile you can mark each size as winning or losing. But two piles together are not decided by those marks: \"winning + winning\" can be either.\n\n**The fix:** give every position a **number** instead of a mark.\n\n- A position with no moves gets 0.\n- Otherwise look at the numbers of all positions you can move to. Take the **smallest number from 0, 1, 2, … that is missing** among them.\n\n**What the number tells you:**\n\n- One game alone: the player to move loses exactly when the number is 0.\n- Several independent games side by side (a move is made in one of them): XOR their numbers. The player to move loses exactly when the XOR is 0.\n\nSo every pile behaves like a Nim pile of that size.\n\n**A tiny example:** you may take 1 or 2 stones.\n\n- size 0: no moves → 0.\n- size 1: can reach {0} → numbers {0} → missing 1.\n- size 2: can reach sizes 1, 0 → numbers {1, 0} → missing 2.\n- size 3: can reach sizes 2, 1 → numbers {2, 1} → missing 0.\n- It repeats: 0 1 2 0 1 2 …\n\nPiles 4 and 5 have numbers 1 and 2. XOR is 3, not 0: the first player wins.\n\n**A move that splits a pile in two:** the result is two games side by side, so its number is the XOR of the two parts' numbers.",
+  "traps": [
+   "The number is the smallest missing value, not the largest plus one: numbers {0, 2} give 1.",
+   "Combine independent games with XOR, never with sum.",
+   "A pile with number 0 can still have moves; it is just a losing pile on its own.",
+   "Compute the numbers once for all sizes up to the largest pile, not per pile.",
+   "If the last player to move loses instead of wins, this rule does not apply as it stands."
+  ],
+  "task": "take-from-set",
+  "needs": [
+   "nim-xor",
+   "win-lose-states"
+  ],
+  "example": "vector<int> g(top + 1, 0);                      // g[x] = number of a pile of x stones\nfor (int x = 1; x <= top; x++) {\n    vector<bool> seen(k + 2, false);            // a pile has at most k moves, so the number is at most k\n    for (int s : take)\n        if (s <= x && g[x - s] <= k) seen[g[x - s]] = true;\n    while (seen[g[x]]) g[x]++;                  // smallest missing number\n}\nint total = 0;\nfor (int a : piles) total ^= g[a];              // independent piles: XOR\nputs(total ? \"First\" : \"Second\");",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int k, n;\n    scanf(\"%d %d\", &k, &n);\n    vector<int> take(k), piles(n);\n    for (int &s : take) scanf(\"%d\", &s);\n    for (int &a : piles) scanf(\"%d\", &a);\n    int top = *max_element(piles.begin(), piles.end());\n    vector<int> g(top + 1, 0);                      // g[x] = number of a pile of x stones\n    for (int x = 1; x <= top; x++) {\n        vector<bool> seen(k + 2, false);            // a pile has at most k moves, so the number is at most k\n        for (int s : take)\n            if (s <= x && g[x - s] <= k) seen[g[x - s]] = true;\n        while (seen[g[x]]) g[x]++;                  // smallest missing number\n    }\n    int total = 0;\n    for (int a : piles) total ^= g[a];              // independent piles: XOR\n    puts(total ? \"First\" : \"Second\");\n}\n",
+  "practice": [
+   {
+    "site": "CSES",
+    "title": "Stick Game",
+    "url": "https://cses.fi/problemset/task/1729",
+    "checked": "2026-11-27"
+   },
+   {
+    "site": "CSES",
+    "title": "Nim Game II",
+    "url": "https://cses.fi/problemset/task/1098",
+    "checked": "2026-11-27"
+   },
+   {
+    "site": "CSES",
+    "title": "Grundy's Game",
+    "url": "https://cses.fi/problemset/task/2207",
+    "checked": "2026-11-27"
+   }
+  ]
  }
 ]

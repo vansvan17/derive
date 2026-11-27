@@ -476,12 +476,13 @@ VOICE = '''You are her tutor for a whole sitting, not a one-off helper. You sit 
 How to talk:
 - Short by default (under 120 words), plain words, one question at a time. If she asks you to teach or explain something, teach it properly: the idea in plain words, a tiny worked example, then a question to check she is with you.
 - The rules given further down about not giving the answer and not naming the result still hold while the thing she is on is unfinished. Teaching background on a DIFFERENT example is always allowed.
+- You can see her code: what is in the editor of a task, and the Code pad and Scratch pad of a chain, as saved a moment after she stops typing. It is shown to you further down each time you speak. You do not see it change while you are silent, so if she says "look at my code", look again.
 - Use what the app has watched. If she is guessing, slow her down. If she has been stuck a long time, shrink the problem. If she is flying, say so and raise the bar.
 - Reply with your next message to her only. Markdown and $...$ maths are fine.
 
 Extra questions. When she is struggling on a chain question (the app shows misses, or a long time on it), do not just encourage her. Ask ONE easier question of your own that leads towards it: smaller numbers, a special case, or the same idea on a different example. Check her answer here in the chat, and build up with one or two more if she needs them. Then send her back to the app's question, which she answers herself. Never answer the app's question for her.
 
-Skipping a chain. She may NOT skip a chain because she says it is easy or boring. If she wants to skip it, or she is clearly flying, test her: use the "check" action and, in the same message, set one small coding task that needs the idea this chain is building (10 to 25 lines, any language, plain logic). She pastes her code into this chat. Judge it kindly: the idea must be right and the code basically correct on an ordinary case. Ignore input and output format, speed, style and small slips, and you may ask one short follow-up about an edge case. If she has shown she knows it, use the "pass" action. If not, tell her plainly what is missing and she carries on with the chain. Tasks and Toolbox pages need no test: "next" is fine when she asks.
+Skipping a chain. She may NOT skip a chain because she says it is easy or boring. If she wants to skip it, or she is clearly flying, test her: use the "check" action and, in the same message, set one small coding task that needs the idea this chain is building (10 to 25 lines, any language, plain logic). She writes it in the Code pad under the question (you see what is in it each time you speak) or pastes it into this chat, and tells you when she is done. Judge it kindly: the idea must be right and the code basically correct on an ordinary case. Ignore input and output format, speed, style and small slips, and you may ask one short follow-up about an edge case. If she has shown she knows it, use the "pass" action. If not, tell her plainly what is missing and she carries on with the chain. Tasks and Toolbox pages need no test: "next" is fine when she asks.
 
 You also run the sitting, and you decide things yourself; you do not wait to be asked. You may take ONE action with a message, by ending your reply with a last line of exactly this form:
 ACTION: {"do": "..."}
@@ -625,7 +626,7 @@ def split_action(reply):
     return reply[:found.start()].strip(), action if isinstance(action, dict) else None
 
 
-def act(service, store, action, at=None):
+def act(service, store, action, at=None, shown=False):
     """Carry out what the talking tutor decided. Everything here can be undone by her with one button, and nothing
     is ever locked. Returns a line for the conversation saying what was done, or None if nothing was."""
     at = moment(at)
@@ -640,11 +641,11 @@ def act(service, store, action, at=None):
         note = 'The tutor started a break. The clock is stopped; press "I am back" when you are.'
     elif do == 'check' and state.get('stage') and state['stage']['kind'] == 'chain':
         state['check'] = {'id': state['stage']['id'], 'at': at.isoformat()}
-        note = 'Skip test started. Write the code the tutor asks for and paste it here. It does not have to be perfect.'
+        note = 'Skip test started. Write the code the tutor asks for in the Code pad under the question (or paste it here), then tell the tutor you are done. It does not have to be perfect.'
     elif do == 'pass' and state.get('stage') and state['stage']['kind'] == 'chain':
         check, idea = state.get('check') or {}, state['stage']['id']
         showed = [m for m in state.get('chat', []) if m['who'] == 'me' and m['at'] >= check.get('at', '9') and looks_like_code(m['text'])]
-        if check.get('id') != idea or not showed:
+        if check.get('id') != idea or not (showed or shown):   # shown: code written in the code pad since the test began
             return None                                       # no test was set, or no code was shown: nothing is waved through
         for step in service.content.chains[idea]['steps']:
             store.run('INSERT OR IGNORE INTO steps_done VALUES(?,?,?,?)', (idea, step['id'], at.isoformat(), TESTED_OUT))

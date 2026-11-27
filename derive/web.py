@@ -762,6 +762,15 @@ class Service:
     def voice_on(self, store):
         return self.settings(store)['tutor'] == 'codex' and tutor.available()
 
+    def latest_code(self, store, owner, since=''):
+        """What she last wrote in the editor for a task, or in the code pad of a chain: (language, code, when). The untouched
+        starting template does not count as her code."""
+        for row in store.all("SELECT language, code, updated FROM code WHERE owner=? AND file='main' AND updated>=? ORDER BY updated DESC", (owner, since)):
+            template = (self.root / 'templates' / ('main.py' if row['language'] == 'python' else 'main.cpp')).read_text()
+            if row['code'].strip() and row['code'].strip() != template.strip():
+                return row['language'], row['code'][:20000], row['updated']
+        return None
+
     def sitting_context(self, store):
         """Where she is, written for the talking tutor, with the names that must not come back in a reply."""
         state = store.get(session.KEY)
@@ -780,7 +789,11 @@ class Service:
                     prompt += ('\n\nFOR YOUR EYES ONLY: where this chain ends. She has not been told and must not be, by name or by paraphrase, unless she passes the skip test.'
                                f'\nName: {reveal["name"]}\nStatement: {reveal["statement"]}\nUse it to write your own easier questions and to set the skip test. '
                                f'She has answered {len(done)} of {len(self.content.chains[stage["id"]]["steps"])} questions of this chain.'
-                               + ('\nA SKIP TEST IS RUNNING: judge the code she pastes (kindly), then pass her or tell her what is missing.' if (state.get('check') or {}).get('id') == stage['id'] else ''))
+                               + ('\nA SKIP TEST IS RUNNING: judge the code she pastes or has in the code pad (kindly), then pass her or tell her what is missing.' if (state.get('check') or {}).get('id') == stage['id'] else ''))
+                    pad, notes = self.latest_code(store, stage['id']), store.get('chain_notes', {}).get(stage['id'], '').strip()
+                    prompt += ('\n\nHER CODE PAD on this page right now (' + pad[0] + '), saved a moment after she stops typing:\n' + pad[1]) if pad else '\n\nHER CODE PAD on this page is empty. She can open "Code pad" under the question to write and run code; you see what is in it each time you speak.'
+                    if notes:
+                        prompt += '\n\nHER SCRATCH PAD on this page right now:\n' + notes[:6000]
                 return prompt, secret
             task_id = session._task_of(self, stage)
             prompt, _, _, _, _, secret = self.tutor_context(store, {'scope': 'task', 'id': task_id})
@@ -920,7 +933,10 @@ class Service:
                 return {'status': 'stale'}
             session.add_chat(store, 'tutor', reply or 'Done.')
             if action and outcome['status'] == 'ok':
-                session.act(self, store, action)
+                state = store.get(session.KEY) or {}
+                check = state.get('check') or {}
+                pad = self.latest_code(store, check['id'], check.get('at', '')) if check.get('id') else None
+                session.act(self, store, action, shown=bool(pad and session.looks_like_code(pad[1])))
         return {'status': 'ok'}
 
     # ---------- the tutor ----------
@@ -941,9 +957,8 @@ class Service:
             task = self.content.tasks.get(data.get('id')) if isinstance(data.get('id'), str) else None
             if not task:
                 raise ApiError('No such task.', 404)
-            language = self.settings(store)['language']
-            saved = store.one('SELECT code FROM code WHERE owner=? AND language=? AND file=?', (task['id'], language, 'main'))
-            code = saved['code'][:20000] if saved else ''
+            mine = self.latest_code(store, task['id'])          # whichever language she typed in last
+            code = mine[1] if mine else ''
             if store.one('SELECT 1 FROM tasks_done WHERE task=?', (task['id'],)):
                 return tutor.task_full(task, code), False, 'task', task['id'], '-', []
             verdicts = [r['verdict'] for r in store.all('SELECT verdict FROM task_tries WHERE task=? ORDER BY id', (task['id'],))][-10:]

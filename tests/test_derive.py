@@ -702,6 +702,12 @@ class App(unittest.TestCase):
         self.assertIn('FOR YOUR EYES ONLY', calls[-1])
         self.assertIn('A SKIP TEST IS RUNNING', calls[-1])
         self.assertEqual(tell('Passed!\nACTION: {"do": "pass"}', 'trust me i know it')['stage']['href'], '#/chain/residues')  # words are not code
+        # what she writes in the code pad and the scratch pad of the chain is in front of the tutor each time it speaks
+        self.post('/code', {'id': 'residues', 'language': 'python', 'file': 'main', 'code': 'def wrap(a, m):\n    r = a % m\n    return r if r >= 0 else r + m\nprint(wrap(-3, 7), wrap(10, 7))\n'})
+        self.post('/chain/notes', {'idea': 'residues', 'notes': '5 + 100 = 105, 105 = 15 * 7 + 0'})
+        tell('Looking.', 'look at my code')
+        for needed in ('HER CODE PAD on this page right now (python)', 'def wrap(a, m):', 'HER SCRATCH PAD', '105 = 15 * 7 + 0'):
+            self.assertIn(needed, calls[-1])
         passed = tell('That is it.\nACTION: {"do": "pass"}', 'int mod(int a, int m) {\n    int r = a % m;\n    if (r < 0) r += m;\n    return r;\n}')
         self.assertEqual((passed['stage']['href'], passed['done'][-1]['outcome'], passed['done'][-1]['title']), ('#/task/t1-squares', 'tested out', name))
         self.assertTrue(self.get('/chain/residues')['complete'])

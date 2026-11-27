@@ -79,7 +79,7 @@ export function sittingStart(given) {
     if (what === 'end' && !(await hooks.dialog({title: 'End the sitting?', body: status?.over ? 'You get a short account of how it went.' : 'There is time left on the clock. You get a short account of how it went, and nothing you did is lost.', confirm: 'End it', cancel: 'Not yet'}))) return;
     if (what === 'next' && status?.stage?.kind === 'chain' && hooks.state.boot?.voice) {
       // A chain is not skipped by asking. The tutor sets a small piece of code; passing it marks the chain as known.
-      const choice = await hooks.dialog({title: 'Skip this chain?', body: 'To skip a chain, show that you know it: the tutor sets one small piece of code (10 to 25 lines, nothing strict about input or speed) and you paste it into the conversation. Pass, and the chain is marked as known.', confirm: 'Test me', cancel: 'Stay', extra: 'Leave it unfinished for now instead'});
+      const choice = await hooks.dialog({title: 'Skip this chain?', body: 'To skip a chain, show that you know it: the tutor sets one small piece of code (10 to 25 lines, nothing strict about input or speed). Write it in the Code pad under the question, or paste it into the conversation, and tell the tutor when you are done. Pass, and the chain is marked as known.', confirm: 'Test me', cancel: 'Stay', extra: 'Leave it unfinished for now instead'});
       if (choice === false) return;
       if (choice !== 'extra') {
         try { take(await hooks.api('/session/check', {method: 'POST', body: {}})); setDock(true); } catch (error) { hooks.toast(error.message, 'error'); }
@@ -150,7 +150,7 @@ function paintDock(force = false) {
     const atEnd = (() => { const l = dock.querySelector('[data-dock-log]'); return l.scrollHeight - l.scrollTop - l.clientHeight < 60; })();
     const log = dock.querySelector('[data-dock-log]');
     log.innerHTML = (chat.length ? chat.map(m => m.who === 'note' ? `<p class="tutor-note">${e(m.text)}</p>` : `<div class="tutor-msg ${m.who === 'tutor' ? 'is-tutor' : 'is-me'}">${m.who === 'tutor' ? md(m.text) : `<p>${e(m.text)}</p>`}</div>`).join('')
-        : `<p class="muted small">${voice ? 'Nothing said yet. Tell the tutor what you are thinking, ask it to teach you something, or ask where to look. It is told what you are on, your wrong answers and how long you have been at it.' : 'The talking tutor is switched off, so only the strip at the top speaks. Turn it on under Settings → In-app tutor (it uses the Codex command on this Mac).'}</p>`)
+        : `<p class="muted small">${voice ? 'Nothing said yet. Tell the tutor what you are thinking, ask it to teach you something, or ask where to look. It is told what you are on, your wrong answers, how long you have been at it, and it sees your code (the editor, or the Code pad and Scratch pad on a chain) each time it speaks.' : 'The talking tutor is switched off, so only the strip at the top speaks. Turn it on under Settings → In-app tutor (it uses the Codex command on this Mac).'}</p>`)
       + (writing ? `<div class="tutor-msg is-tutor is-writing">${md(writing)}</div>` : status.thinking ? '<div class="tutor-msg is-tutor is-thinking"><span class="spinner"></span> thinking…</div>' : '');
     if (atEnd || force || chat.length !== shownChat) log.scrollTop = log.scrollHeight;
     dock.dataset.writing = writing;

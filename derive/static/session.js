@@ -27,7 +27,7 @@ function paint() {
           : `${stage && !here ? `<a class="btn btn-primary btn-sm" href="${e(stage.href)}">Go to it →</a>` : ''}
              <button class="btn ${s.tone === 'stuck' || unread ? 'btn-secondary' : 'btn-ghost'} btn-sm" type="button" data-sit="talk" title="Open the conversation with the tutor">Talk to the tutor${unread ? ` <span class="sitting-unread">${unread}</span>` : ''}</button>
              ${offer ? '' : '<button class="btn btn-ghost btn-sm" type="button" data-sit="break">Take a break</button>'}
-             ${stage ? '<button class="btn btn-ghost btn-sm" type="button" data-sit="next" title="Leave this one for now. It stays where it is.">Move on</button>' : ''}`}
+             ${stage ? `<button class="btn btn-ghost btn-sm" type="button" data-sit="next" title="${stage.kind === 'chain' && hooks.state.boot?.voice ? 'Skip this chain by showing the tutor you know it' : 'Leave this one for now. It stays where it is.'}">${stage.kind === 'chain' && hooks.state.boot?.voice ? 'Skip (test me)' : 'Move on'}</button>` : ''}`}
         <button class="btn ${s.over ? 'btn-primary' : 'btn-ghost'} btn-sm" type="button" data-sit="end">End</button>
       </span></div>
     <div class="sitting-say" role="status"><span class="sitting-who">Tutor</span><span>${e(offer || s.say)}</span>${offer ? '<span class="sitting-offer"><button class="btn btn-primary btn-sm" type="button" data-sit="break">Take the break</button><button class="btn btn-ghost btn-sm" type="button" data-sit="keep">Keep going</button></span>' : ''}</div>`;
@@ -77,7 +77,15 @@ export function sittingStart(given) {
     if (what === 'talk') { setDock(button.matches('[data-sitting-tab]') ? true : !dockOpen); return; }
     if (what === 'dock-close') { setDock(false); return; }
     if (what === 'end' && !(await hooks.dialog({title: 'End the sitting?', body: status?.over ? 'You get a short account of how it went.' : 'There is time left on the clock. You get a short account of how it went, and nothing you did is lost.', confirm: 'End it', cancel: 'Not yet'}))) return;
-    if (what === 'next' && !(await hooks.dialog({title: 'Move on from this one?', body: 'It stays exactly where you left it and you can come back to it any time. The tutor will hand you something else.', confirm: 'Move on', cancel: 'Stay'}))) return;
+    if (what === 'next' && status?.stage?.kind === 'chain' && hooks.state.boot?.voice) {
+      // A chain is not skipped by asking. The tutor sets a small piece of code; passing it marks the chain as known.
+      const choice = await hooks.dialog({title: 'Skip this chain?', body: 'To skip a chain, show that you know it: the tutor sets one small piece of code (10 to 25 lines, nothing strict about input or speed) and you paste it into the conversation. Pass, and the chain is marked as known.', confirm: 'Test me', cancel: 'Stay', extra: 'Leave it unfinished for now instead'});
+      if (choice === false) return;
+      if (choice !== 'extra') {
+        try { take(await hooks.api('/session/check', {method: 'POST', body: {}})); setDock(true); } catch (error) { hooks.toast(error.message, 'error'); }
+        return;
+      }
+    } else if (what === 'next' && !(await hooks.dialog({title: 'Move on from this one?', body: 'It stays exactly where you left it and you can come back to it any time. The tutor will hand you something else.', confirm: 'Move on', cancel: 'Stay'}))) return;
     button.disabled = true;
     try {
       take(await hooks.api('/session/' + what, {method: 'POST', body: {}}), {announce: what !== 'next'});
@@ -118,7 +126,7 @@ function paintDock(force = false) {
     dock.className = 'tutor-dock'; dock.dataset.sittingDock = ''; dock.setAttribute('aria-label', 'Conversation with the tutor');
     dock.innerHTML = `<header><strong>Tutor</strong><span class="muted small" data-dock-note></span><button class="btn btn-ghost btn-sm" type="button" data-sit="dock-close" aria-label="Close the conversation">Close</button></header>
       <div class="tutor-dock-log" data-dock-log></div>
-      <form data-dock-form><textarea data-dock-input rows="2" placeholder="Ask, answer, or say what you are thinking…" aria-label="Your message"></textarea><button class="btn btn-primary btn-sm" type="submit">Send</button></form>`;
+      <form data-dock-form><textarea data-dock-input rows="2" placeholder="Ask, answer, paste code, or say what you are thinking… (Shift+Enter for a new line)" aria-label="Your message"></textarea><button class="btn btn-primary btn-sm" type="submit">Send</button></form>`;
     document.body.append(dock);
     const input = dock.querySelector('[data-dock-input]');
     input.addEventListener('keydown', event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); dock.querySelector('form').requestSubmit(); } });

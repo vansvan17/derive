@@ -672,19 +672,36 @@ class App(unittest.TestCase):
         self.assertEqual(tell('On you go.\nACTION: {"do": "next"}')['stage']['href'], '#/tool/scc')
         self.assertEqual(tell('Hm.\nACTION: {"do": "format the disk"}')['stage']['href'], '#/tool/scc')        # anything else is ignored
         self.assertEqual(self.post('/session/end', {})[1]['running'], False)
+        # a chain is not skipped by asking: the tutor tests her with a little code, and only shown code gets a pass
+        self.post('/session/start', {'minutes': 60, 'goal': '', 'plan': [{'kind': 'chain', 'id': 'residues'}, {'kind': 'task', 'id': 't1-squares'}], 'say': ''})
+        self.assertEqual(tell('Fine, moving on.\nACTION: {"do": "next"}', 'this is too easy, skip it')['stage']['href'], '#/chain/residues')
+        self.assertEqual(tell('Passed!\nACTION: {"do": "pass"}')['stage']['href'], '#/chain/residues')                 # no test was set
+        self.service.teach = lambda prompt: (calls.append(prompt), {'status': 'ok', 'reply': 'Write a function that returns a mod m for a possibly negative a.'})[1]
+        self.assertTrue(self.post('/session/check', {})[1]['checking'])
+        for _ in range(100):
+            if not self.post('/session/seen', {'route': '', 'active': True})[1]['thinking']:
+                break
+            time.sleep(.05)
+        self.assertIn('FOR YOUR EYES ONLY', calls[-1])
+        self.assertIn('A SKIP TEST IS RUNNING', calls[-1])
+        self.assertEqual(tell('Passed!\nACTION: {"do": "pass"}', 'trust me i know it')['stage']['href'], '#/chain/residues')  # words are not code
+        passed = tell('That is it.\nACTION: {"do": "pass"}', 'int mod(int a, int m) {\n    int r = a % m;\n    if (r < 0) r += m;\n    return r;\n}')
+        self.assertEqual((passed['stage']['href'], passed['done'][-1]['outcome'], passed['done'][-1]['title']), ('#/task/t1-squares', 'tested out', name))
+        self.assertTrue(self.get('/chain/residues')['complete'])
+        self.assertEqual(self.post('/session/end', {})[1]['running'], False)
         self.service.teach = lambda prompt: {'status': 'ok', 'reply': json.dumps({'say': 'You asked for ' + name + ', so that is today.', 'plan': [{'kind': 'chain', 'id': 'residues', 'why': 'it is what you asked for'}]})}
         asked = self.wait_job(self.post('/session/plan', {'minutes': 30, 'goal': 'i want to learn ' + name.lower()})[1]['job'])
         self.assertIn(name, asked['say'])                                                             # her own words are not hidden from her
         self.service.voice_on = lambda store: False
         # naming an area of the map plans every chain of it she has not derived, in order, even with the tutor off
         ideas = json.loads((self.root / 'content/ideas.json').read_text())['ideas']
-        numbers = [i['id'] for i in ideas if i['area'] == 'nt']
+        numbers = [i['id'] for i in ideas if i['area'] == 'nt'][1:]                        # the first one was tested out above
         whole = self.post('/session/plan', {'minutes': 120, 'goal': 'i want to finish derive for Numbers and  remainders today'})[1]
         self.assertEqual([p['id'] for p in whole['plan']], numbers)
         self.assertTrue(all(p['title'] == 'A chain in Numbers and remainders' for p in whole['plan']))
         going = self.post('/session/start', {'minutes': 120, 'goal': 'numbers and remainders', 'plan': whole['plan'], 'say': ''})[1]
-        self.assertEqual((going['stage']['href'], len(going['plan'])), ('#/chain/residues', len(numbers) - 1))
-        self.derive('residues')
+        self.assertEqual((going['stage']['href'], len(going['plan'])), ('#/chain/' + numbers[0], len(numbers) - 1))
+        self.derive(numbers[0])
         after = self.post('/session/seen', {'route': '', 'active': True})[1]            # one chain derived: the next one of the area is handed over
         self.assertEqual((after['done'][0]['outcome'], after['stage']['href'], len(after['plan'])), ('done', '#/chain/' + numbers[1], len(numbers) - 2))
         self.post('/session/end', {})

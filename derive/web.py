@@ -773,6 +773,11 @@ class Service:
                     done = self.done_steps(store, stage['id'])
                     current = next(s for s in self.content.chains[stage['id']]['steps'] if s['id'] not in done)
                     prompt, _, _, _, _, secret = self.tutor_context(store, {'scope': 'chain', 'idea': stage['id'], 'step': current['id']})
+                    reveal = self.content.chains[stage['id']]['reveal']
+                    prompt += ('\n\nFOR YOUR EYES ONLY: where this chain ends. She has not been told and must not be, by name or by paraphrase, unless she passes the skip test.'
+                               f'\nName: {reveal["name"]}\nStatement: {reveal["statement"]}\nUse it to write your own easier questions and to set the skip test. '
+                               f'She has answered {len(done)} of {len(self.content.chains[stage["id"]]["steps"])} questions of this chain.'
+                               + ('\nA SKIP TEST IS RUNNING: judge the code she pastes (kindly), then pass her or tell her what is missing.' if (state.get('check') or {}).get('id') == stage['id'] else ''))
                 return prompt, secret
             task_id = session._task_of(self, stage)
             prompt, _, _, _, _, secret = self.tutor_context(store, {'scope': 'task', 'id': task_id})
@@ -833,6 +838,14 @@ class Service:
                 raise ApiError('The tutor is still answering your last message.', 409)
             self.no_contest(store)
             session.add_chat(store, 'me', said)
+            self.sitting_speak(store)
+            return session.status(self, store)
+        if action == 'check':
+            if not self.voice_on(store):
+                raise ApiError('The skip test needs the talking tutor, which is switched off.', 409)
+            self.no_contest(store)
+            if not session.ask_check(self, store):
+                raise ApiError('The tutor is busy, or there is no chain to test you on right now.', 409)
             self.sitting_speak(store)
             return session.status(self, store)
         if action == 'seen':
@@ -1196,7 +1209,7 @@ class Service:
                   '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer, '/task/judge': self.task_judge, '/task/hint': self.task_hint,
                   '/problem/open': self.open_from_chain, '/break/try': self.break_try, '/break/nudge': self.break_nudge}
         with self.lock, self.store() as store:
-            if path.startswith('/session/') and path[9:] in ('plan', 'start', 'say', 'seen', 'break', 'back', 'keep', 'next', 'end'):
+            if path.startswith('/session/') and path[9:] in ('plan', 'start', 'say', 'check', 'seen', 'break', 'back', 'keep', 'next', 'end'):
                 return self.sitting(store, data, path[9:])
             if path == '/problem/next':
                 return self.open_next(store)

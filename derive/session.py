@@ -428,7 +428,7 @@ def status(service, store, at=None):
             'goal': state.get('goal', ''), 'chat': state.get('chat', [])[-40:], 'thinking': bool(state.get('pending')),
             'plan': [describe(service, store, i) for i in state.get('plan', [])],
             'stage_number': len(state['done']) + 1, 'tone': tone, 'say': text, 'route': state.get('route', ''),
-            'steer': state.get('steer'),
+            'steer': state.get('steer'), 'checking': bool(stage and (state.get('check') or {}).get('id') == stage['id']),
             'done': [{'label': d['label'], 'title': d['title'], 'outcome': d['outcome']} for d in state['done']]}
 
 
@@ -479,13 +479,19 @@ How to talk:
 - Use what the app has watched. If she is guessing, slow her down. If she has been stuck a long time, shrink the problem. If she is flying, say so and raise the bar.
 - Reply with your next message to her only. Markdown and $...$ maths are fine.
 
-You also run the sitting. You may take ONE action with a message, by ending your reply with a last line of exactly this form:
+Extra questions. When she is struggling on a chain question (the app shows misses, or a long time on it), do not just encourage her. Ask ONE easier question of your own that leads towards it: smaller numbers, a special case, or the same idea on a different example. Check her answer here in the chat, and build up with one or two more if she needs them. Then send her back to the app's question, which she answers herself. Never answer the app's question for her.
+
+Skipping a chain. She may NOT skip a chain because she says it is easy or boring. If she wants to skip it, or she is clearly flying, test her: use the "check" action and, in the same message, set one small coding task that needs the idea this chain is building (10 to 25 lines, any language, plain logic). She pastes her code into this chat. Judge it kindly: the idea must be right and the code basically correct on an ordinary case. Ignore input and output format, speed, style and small slips, and you may ask one short follow-up about an edge case. If she has shown she knows it, use the "pass" action. If not, tell her plainly what is missing and she carries on with the chain. Tasks and Toolbox pages need no test: "next" is fine when she asks.
+
+You also run the sitting, and you decide things yourself; you do not wait to be asked. You may take ONE action with a message, by ending your reply with a last line of exactly this form:
 ACTION: {"do": "..."}
 The actions:
 - {"do": "break", "minutes": 5}   start her break now (the clock stops; she presses "I am back"). Use it when she is tired, going in circles, or has gone 45 minutes without one. Do not merely suggest a break when she needs one: start it.
-- {"do": "next"}   leave what she is on and open the next thing in the plan. Use it when she has been stuck long after real help, or asks to move.
+- {"do": "next"}   leave what she is on and open the next thing in the plan. Use it when she has been stuck long after real help, or (for a task or Toolbox page) when she asks to move. On a chain the app refuses it unless she is really stuck: skipping a chain goes through the test.
 - {"do": "goto", "kind": "chain|tool|task", "id": "<id from the catalogue>"}   open that now. What she was on goes back to the front of the plan, so she returns to it after. Use it to send her to something easier or to the thing her mistake shows she is missing, or when she asks for a particular thing.
 - {"do": "plan", "items": [{"kind": "...", "id": "..."}]}   replace everything still planned (not the thing she is on). Use it when she changes what she wants from today, or when the plan is clearly too easy or too hard for how she is doing.
+- {"do": "check"}   start the skip test for the chain she is on (set the coding task in the same message).
+- {"do": "pass"}   she passed the skip test: the chain is marked as known and the next thing opens. Only after she has pasted code that shows it.
 Rules for actions: take one only when it helps her, and always say in your message what you are doing and why, in one plain sentence, before the ACTION line. Never act while she is in the middle of answering something she is close to. Ids must come from the catalogue at the end. No action is the normal case.'''
 
 
@@ -567,9 +573,29 @@ def voice_prompt(service, store, context, unasked='', at=None):
     who = {'tutor': 'You: ', 'me': 'She: ', 'note': '(The app did this on your instruction: '}
     parts += ['', 'THE CONVERSATION SO FAR'] + ([who[m['who']] + m['text'] + (')' if m['who'] == 'note' else '') for m in said] or ['(nothing yet)'])
     if unasked:
-        parts += ['', 'SHE HAS NOT ASKED ANYTHING. You are speaking up on your own because: ' + unasked, 'Two or three sentences at most, ending with one question or one concrete thing to do.']
+        parts += ['', 'SHE HAS NOT ASKED ANYTHING. You are speaking up on your own because: ' + unasked, 'Decide what she needs and do it; take an action if one is called for. Keep the message to two or three sentences (a question of your own for her may be a little longer), ending with one question or one concrete thing to do.']
     parts += ['', 'THE CATALOGUE (for actions only; "name hidden" names must never appear in your message)', catalogue(service, store)[0]]
     return '\n'.join(parts)
+
+
+TESTED_OUT = '(tested out)'
+
+
+def looks_like_code(text):
+    """Loose on purpose: a few lines with the punctuation of a program."""
+    return text.count('\n') >= 2 and sum(text.count(c) for c in '(){}[]=;:') >= 6
+
+
+def ask_check(service, store, at=None):
+    """She asks to skip the chain she is on. Returns True if a test can be set (a chain is open and nothing is pending)."""
+    at = moment(at)
+    state = store.get(KEY)
+    if not state or not state.get('stage') or state['stage']['kind'] != 'chain' or _on_break(state) or state.get('pending'):
+        return False
+    state['check'] = {'id': state['stage']['id'], 'at': at.isoformat()}
+    state.setdefault('chat', []).append({'who': 'me', 'text': 'I think I already know this chain and want to skip it. Test me.', 'at': at.isoformat()})
+    store.set(KEY, state)
+    return True
 
 
 def split_action(reply):
@@ -598,7 +624,27 @@ def act(service, store, action, at=None):
         state['breaks'].append([at.isoformat(), None])
         state['offered'] = None
         note = 'The tutor started a break. The clock is stopped; press "I am back" when you are.'
+    elif do == 'check' and state.get('stage') and state['stage']['kind'] == 'chain':
+        state['check'] = {'id': state['stage']['id'], 'at': at.isoformat()}
+        note = 'Skip test started. Write the code the tutor asks for and paste it here. It does not have to be perfect.'
+    elif do == 'pass' and state.get('stage') and state['stage']['kind'] == 'chain':
+        check, idea = state.get('check') or {}, state['stage']['id']
+        showed = [m for m in state.get('chat', []) if m['who'] == 'me' and m['at'] >= check.get('at', '9') and looks_like_code(m['text'])]
+        if check.get('id') != idea or not showed:
+            return None                                       # no test was set, or no code was shown: nothing is waved through
+        for step in service.content.chains[idea]['steps']:
+            store.run('INSERT OR IGNORE INTO steps_done VALUES(?,?,?,?)', (idea, step['id'], at.isoformat(), TESTED_OUT))
+        store.run('INSERT OR IGNORE INTO discoveries VALUES(?,?)', (idea, at.isoformat()))
+        state['check'] = None
+        _close_stage(service, store, state, 'tested out', at)
+        _next_stage(service, store, state, at)
+        steer()
+        note = 'You passed the skip test: ' + service.content.ideas[idea]['name'] + ' is marked as known.' + (' Next: ' + describe(service, store, state['stage'])['title'] + '.' if state.get('stage') else '')
     elif do == 'next' and state.get('stage'):
+        if state['stage']['kind'] == 'chain':
+            sig = _signals(service, store, state, at)
+            if sig['wrong'] < 3 and sig['on_step'] < 12 * 60:
+                return None                                   # not stuck: a chain is left through the skip test, not by asking
         _close_stage(service, store, state, 'moved on', at)
         _next_stage(service, store, state, at)
         steer()
@@ -648,8 +694,18 @@ def wants_voice(service, store, at=None):
     key, why = None, None
     if state.get('voiced') is None or not str(state['voiced']).startswith(stage['id'] + '|'):
         key, why = stage['id'] + '|start', 'she has just started this. Tell her in a sentence what it is for in today\'s plan and how to begin.'
+    elif state.get('offered'):
+        key, why = 'break|' + state['last_break'], 'she is due a break and has just finished something (' + state['offered'] + '). Unless she is in full flow and doing well, start the break now with the action.'
+    elif _worked(state, at) >= state['minutes'] * 60:
+        key, why = 'over', 'the time she set is up. Tell her in two sentences what she got done today and that she can end the sitting or carry on; do not push either way.'
     elif coach and coach[0] == 'stuck':
-        key, why = f'{stage["id"]}|stuck|{sig.get("step") or len(sig.get("verdicts", []))}', 'the app sees she is stuck: ' + coach[1]
+        key, why = f'{stage["id"]}|stuck|{sig.get("step") or len(sig.get("verdicts", []))}', 'the app sees she is stuck: ' + coach[1] + ' Give her an easier question of your own to get her moving.'
+    elif stage['kind'] == 'chain' and sig['wrong'] == 2:
+        key, why = f'{stage["id"]}|miss|{sig["step"]}', 'she has missed the question she is on twice. Give her one easier question of your own that leads towards it.'
+    elif stage['kind'] == 'chain' and sig['clean'] >= 5:
+        key, why = f'{stage["id"]}|flying', f'she has answered {sig["clean"]} questions in a row on the first try. Decide whether this chain is below her: if so, offer the skip test (the check action with a small coding task).'
+    elif sig['on_stage'] >= LONG[stage['kind']]:
+        key, why = f'{stage["id"]}|long', f'she has been on this for {_mins(sig["on_stage"])} minutes. Decide: shrink it with a question of your own, send her to something easier first (goto), or move her on.'
     if not key or key == state.get('voiced'):
         return None
     state['voiced'], state['voiced_at'] = key, at.isoformat()
@@ -661,7 +717,7 @@ def recap(service, store, state, at):
     """What happened in the sitting, counted from the record."""
     start, stop = state['started'], state['ended'] or at.isoformat()
     span = (start, stop)
-    right = store.one('SELECT COUNT(*) FROM steps_done WHERE at>=? AND at<=? AND answer!=?', (*span, '(skipped)'))[0]
+    right = store.one('SELECT COUNT(*) FROM steps_done WHERE at>=? AND at<=? AND answer NOT IN (?,?)', (*span, '(skipped)', TESTED_OUT))[0]
     wrong = store.one('SELECT COUNT(*) FROM step_attempts WHERE correct=0 AND at>=? AND at<=?', span)[0]
     accepted = store.one('SELECT COUNT(*) FROM tasks_done WHERE at>=? AND at<=?', span)[0]
     rejected = store.one("SELECT COUNT(*) FROM task_tries WHERE verdict NOT IN ('AC','CE') AND at>=? AND at<=?", span)[0]

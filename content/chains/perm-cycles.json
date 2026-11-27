@@ -172,13 +172,13 @@
     "Give each position a sign: the position where its top card must end up. Are those signs of the kind you know?",
     "How many loops do those signs form?"
    ],
-   "showed": "Position 1 must send its card to position 2, position 2 to 1, position 3 stays, and 4 → 6 → 5 → 4. Loops of lengths 2, 1 and 3, so $6 - 3 = 3$ swaps. Any \"turn this row into that row\" question becomes a sorting question once you rename."
+   "showed": "Give each position a sign: the position where its card must end up. Position 1 points to 2 and 2 back to 1, position 3 points to itself, and 4 → 6 → 5 → 4. Following the signs gives three closed loops, of lengths 2, 1 and 3. A loop of length $L$ needs $L - 1$ swaps, so $1 + 0 + 2 = 3$. Any \"turn this row into that row\" question becomes a sorting question once you rename."
   },
   {
    "id": "h-double",
    "kind": "list",
    "tier": "hard",
-   "prompt": "A **double round** is two rounds played at once. It moves people exactly as some new set of signs would. Take signs forming one single loop of length $L$. For which $L$ from 2 to 9 do the new signs (those of the double round) still form one single loop?",
+   "prompt": "Seats are numbered from 1. A sign on every seat names a seat, and every seat is named by exactly one sign. In one **round** everybody moves at the same moment: whoever sits on seat $i$ goes to the seat named on the sign of seat $i$. Following the signs from a seat brings you back to it; the seats passed on the way form a **loop**.\n\nA **double round** is two rounds played at once. It moves people exactly as some new set of signs would. Take signs forming one single loop of length $L$. For which $L$ from 2 to 9 do the new signs (those of the double round) still form one single loop?",
    "answer": [
     3,
     5,
@@ -196,7 +196,7 @@
    "id": "h-root",
    "kind": "list",
    "tier": "hard",
-   "prompt": "Six seats. Below are six patterns of loop lengths. Which of them can be the loop lengths of a double round (of some signs on six seats)? Give the labels. (1) 6   (2) 3 + 3   (3) 4 + 2   (4) 2 + 2 + 1 + 1   (5) 5 + 1   (6) 2 + 1 + 1 + 1 + 1",
+   "prompt": "Six seats, with signs, rounds, loops and double rounds as in the question before. Below are six patterns of loop lengths. Which of them can be the loop lengths of the new signs of a double round (of some signs on six seats)? Give the labels. (1) 6   (2) 3 + 3   (3) 4 + 2   (4) 2 + 2 + 1 + 1   (5) 5 + 1   (6) 2 + 1 + 1 + 1 + 1",
    "answer": [
     2,
     4,
@@ -213,7 +213,7 @@
    "id": "h-longest",
    "kind": "number",
    "tier": "hard",
-   "prompt": "Ten seats. You choose the signs. After some number of rounds everybody is back on their starting seat for the first time. What is the largest that this number can be?",
+   "prompt": "Ten seats, with signs and rounds as before (in one round, whoever sits on seat $i$ goes to the seat named on its sign). You choose the signs. After some number of rounds everybody is back on their starting seat for the first time. What is the largest that this number can be?",
    "answer": 30,
    "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\ndef parts(n, m):\n    if n == 0: yield []; return\n    for k in range(min(n, m), 0, -1):\n        for rest in parts(n - k, k): yield [k] + rest\nresult = max(math.lcm(*t) for t in parts(10, 10))",
    "nudges": [

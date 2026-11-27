@@ -519,8 +519,7 @@
   "url": "https://codeforces.com/contest/2123/problem/F",
   "editorial": "https://codeforces.com/blog/entry/144363",
   "ideas": [
-   "necessary-sufficient",
-   "perm-cycles"
+   "necessary-sufficient"
   ],
   "observations": [
    "Some positions cannot move: 1, and every prime p with 2p > n, because no other number up to n shares a factor with it.",
@@ -2593,7 +2592,7 @@
   "editorial": "https://codeforces.com/blog/entry/157752",
   "ideas": [
    "perm-cycles",
-   "mirror-strategy",
+   "win-lose-states",
    "dp-state"
   ],
   "observations": [

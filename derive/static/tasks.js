@@ -9,6 +9,14 @@ const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
 function basisLinks(basis, e) {
   return basis.map(b => b.kind === 'chain' ? `<a href="#/chain/${e(b.id)}">a chain in ${e(b.area)}</a>` : `<a href="#/tool/${e(b.id)}">${e(b.title)}</a> in the Toolbox`).join(', ');
 }
+/* For a prediction: where its topic is taught, folded away so that the topic is not given until she asks for it. */
+function behindFold(behind, e) {
+  if (!(behind || []).length) return '';
+  return `<details class="after-set behind-fold"><summary>Cannot solve it? See what it rests on (this gives away the topic)</summary><p class="muted small">Work through these, then come back to the problem.</p><ul class="plain-list">${behind.map(b => b.kind === 'tool'
+    ? `<li><a href="#/tool/${e(b.id)}">${e(b.title)}</a> <span class="muted small">· Toolbox page</span></li>`
+    : `<li><a href="#/chain/${e(b.id)}">${b.name ? e(b.name) : `A chain in ${e(b.area)}`}</a> <span class="muted small">· ${b.name ? 'derived, revise it' : 'a chain of questions, not derived yet'}</span></li>`).join('')}</ul></details>`;
+}
+
 function basisNote(basis, e) {
   if (!basis || !basis.length) return '';
   const chains = basis.filter(b => b.kind === 'chain'), tools = basis.filter(b => b.kind === 'tool');
@@ -20,10 +28,26 @@ export async function renderTasks(ctx) {
   const root = ctx.root;
   const page = await api('/tasks');
   if (ctx.root !== root) return;
+  page.tasks = page.tasks.filter(t => t.track !== 'predictions');          // those have their own page
+  page.tracks = page.tracks.filter(t => t.id !== 'predictions');
   const done = page.tasks.filter(t => t.solved).length;
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow">Write it</p><h1>Code</h1><p class="muted">Short tasks where you write the program yourself. No topic is given; the tests include inputs large enough that the first loop you think of is too slow. ${done} of ${page.tasks.length} accepted.</p></div></header>
     ${page.tracks.map(track => { const mine = page.tasks.filter(t => t.track === track.id); return mine.length ? `<section class="surface"><h2>${e(track.title)}</h2><p class="muted small">${e(track.about)}</p>
       <ol class="task-list">${mine.map(t => `<li><a href="#/task/${e(t.id)}">${e(t.title)}</a> ${t.solved ? '<span class="badge badge-success">accepted</span>' : t.tries ? `<span class="badge">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : ''}${t.basis.length ? ` <span class="muted small basis-inline">rests on ${basisLinks(t.basis, e)}</span>` : ''}</li>`).join('')}</ol></section>` : ''; }).join('')}`;
+}
+
+/* Predictions: original problems written for this course in the style of a regional, kept apart from the real ones. */
+export async function renderPredictions(ctx) {
+  const {api, escape: e} = ctx;
+  const root = ctx.root;
+  const page = await api('/tasks');
+  if (ctx.root !== root) return;
+  const mine = page.tasks.filter(t => t.track === 'predictions');
+  const sets = [...new Set(mine.map(t => t.id.split('-')[0]))];
+  const done = mine.filter(t => t.solved).length;
+  root.innerHTML = `<header class="page-head"><div><p class="eyebrow">This they can ask</p><h1>Predictions</h1><p class="muted">Original problems written the way a setter for an Indian ICPC regional might write them. They are guesses at the style and the topics, not real or leaked problems, and nobody knows what will actually be asked. No topic is shown; the judge runs on this computer. ${done} of ${mine.length} accepted.</p></div></header>
+    ${sets.map((set, k) => `<section class="surface"><h2>Set ${k + 1}</h2><p class="muted small">Ordered roughly from easiest to hardest, like a real problem set. Treat it as a mock: read all of them first, then pick.</p>
+      <ol class="task-list task-list-plain">${mine.filter(t => t.id.startsWith(set + '-')).map(t => `<li><a href="#/task/${e(t.id)}">${e(t.title)}</a> <span class="muted small">· ${e(t.level || '')}</span> ${t.solved ? '<span class="badge badge-success">accepted</span>' : t.tries ? `<span class="badge">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : ''}</li>`).join('')}</ol></section>`).join('')}`;
 }
 
 /* The whole task (statement, editor, run, judge) inside any host element. Used by the task page and by code steps of a chain. */
@@ -36,7 +60,7 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   if (!alive()) return;
   let busy = false, saveTimer = null;
   const box = (title, text) => `<div><h4>${e(title)}</h4><pre>${e(text)}</pre></div>`;
-  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow"><a href="#/code">Code</a> · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
+  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow">${task.track === 'predictions' ? '<a href="#/predictions">Predictions</a>' : '<a href="#/code">Code</a>'} · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}${behindFold(task.behind, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
     <div class="split" data-split><div class="split-pane split-text">${before}<section class="surface reading task-statement">${markdown(task.statement)}
       <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${hints ? '<section class="surface task-hints" data-hints aria-live="polite"></section>' : ''}${after}</div>
     <div class="split-pane split-code"><section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta">${sideButton()}<label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>

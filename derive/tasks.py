@@ -75,7 +75,7 @@ def public(task, store):
     done = store.one('SELECT * FROM tasks_done WHERE task=?', (task['id'],))
     tries = store.one('SELECT COUNT(*) FROM task_tries WHERE task=?', (task['id'],))[0]
     last = store.one('SELECT verdict FROM task_tries WHERE task=? ORDER BY id DESC LIMIT 1', (task['id'],))
-    return {'id': task['id'], 'title': task['title'], 'track': task.get('track', 'core'), 'solved': bool(done), 'tries': tries, 'last': last['verdict'] if last else None}
+    return {'id': task['id'], 'title': task['title'], 'track': task.get('track', 'core'), 'level': task.get('level'), 'solved': bool(done), 'tries': tries, 'last': last['verdict'] if last else None}
 
 
 def judge(task, language, source):

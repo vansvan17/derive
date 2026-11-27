@@ -2043,5 +2043,928 @@
    "Give every pile size a number: 0 if there is no move, otherwise the smallest of 0, 1, 2, ... that does not appear among the numbers of the sizes you can move to. A pile with number $g$ then behaves like a Nim pile of $g$ stones. What decides the game with many piles?",
    "Compute the numbers for all sizes up to the largest pile (each needs at most $k$ look-ups), XOR the numbers of the given piles, and print First exactly when the XOR is not 0."
   ]
+ },
+ {
+  "id": "p1-lamps",
+  "title": "A. Lamps round the fountain",
+  "level": "warm-up",
+  "seconds": 1.0,
+  "statement": "There are $n$ lamps standing in a circle round a fountain, numbered 1 to $n$ in order; lamp $n$ stands next to lamp 1. Each lamp is on or off. In one move you choose two lamps that stand next to each other and flip both (on becomes off, off becomes on). Find the smallest number of moves after which every lamp is off, or report that it cannot be done.\n\n**Input.** The first line contains $n$ ($3 \\le n \\le 2 \\cdot 10^5$). The second line contains a string of $n$ characters; the $i$-th is `1` if lamp $i$ is on and `0` if it is off.\n\n**Output.** The smallest number of moves, or $-1$ if it is impossible.",
+  "samples": [
+   [
+    "5\n11000\n",
+    "1"
+   ],
+   [
+    "4\n1011\n",
+    "-1"
+   ],
+   [
+    "6\n100100\n",
+    "3"
+   ],
+   [
+    "3\n000\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(3, 9), 'medium': rng.randint(900, 1000), 'large': rng.choice([200000, 199999])}[size]\n    kind = rng.choice(['random', 'two', 'dense', 'odd'])\n    s = [rng.choice('01') for _ in range(n)]\n    if kind == 'two' : s = ['0'] * n; s[rng.randrange(n)] = '1'; s[rng.randrange(n)] = '1'\n    if kind == 'dense': s = [('1' if rng.random() < 0.9 else '0') for _ in range(n)]\n    if kind != 'odd' and s.count('1') % 2: i = rng.randrange(n); s[i] = '1' if s[i] == '0' else '0'\n    return f\"{n}\\n{''.join(s)}\\n\"\ndef solve(text):\n    n, s = text.split(); n = int(n)\n    if s.count('1') % 2: return '-1'\n    x = c = 0\n    for i in range(n - 1):\n        x ^= s[i] == '1'; c += x\n    return str(min(c, n - c))\ndef brute(text):\n    n, s = text.split(); n = int(n); start = int(s, 2)\n    moves = [(1 << i) | (1 << ((i + 1) % n)) for i in range(n)]\n    seen = {start: 0}; todo = [start]\n    for st in todo:\n        if st == 0: return str(seen[st])\n        for m in moves:\n            if st ^ m not in seen: seen[st ^ m] = seen[st] + 1; todo.append(st ^ m)\n    return '-1'\n",
+  "hints": [
+   "One move changes the number of lamps that are on by $-2$, $0$ or $+2$. What does that say about when the task is impossible?",
+   "The order of moves does not matter and using the same pair twice is pointless, so a solution is just a set of neighbouring pairs. If you decide whether the pair (lamp $n$, lamp 1) is used, is the rest still free?",
+   "Once the pair ($n$, 1) is decided, lamp 1 forces the pair (1, 2), which forces (2, 3), and so on round the circle. So there are exactly two candidate sets, and each pair is in exactly one of them. Count one of them in a single pass and take the smaller of that count and $n$ minus it."
+  ],
+  "track": "predictions",
+  "behind": [
+   "parity-invariant"
+  ]
+ },
+ {
+  "id": "p1-toll",
+  "title": "B. Matching tolls",
+  "level": "middle",
+  "seconds": 1.0,
+  "statement": "The road network of a state is a tree: $n$ towns joined by $n - 1$ roads, with exactly one route between any two towns. Every road has a toll code, a whole number. The code of a trip between two towns is the XOR of the toll codes of all roads on the route. Count the pairs of different towns whose trip has code exactly $k$. The pair ($u$, $v$) and the pair ($v$, $u$) are the same pair.\n\n**Input.** The first line contains $n$ and $k$ ($2 \\le n \\le 2 \\cdot 10^5$, $0 \\le k < 2^{30}$). Each of the next $n - 1$ lines contains $u$, $v$ and $w$: a road between towns $u$ and $v$ with toll code $w$ ($0 \\le w < 2^{30}$).\n\n**Output.** One number: the number of pairs.",
+  "samples": [
+   [
+    "4 3\n1 2 1\n2 3 2\n2 4 1\n",
+    "2"
+   ],
+   [
+    "3 0\n1 2 5\n2 3 5\n",
+    "1"
+   ],
+   [
+    "2 7\n1 2 6\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 8), 'medium': 3000, 'large': 200000}[size]; bits = rng.choice([1, 2, 3]) if size == 'small' else rng.choice([2, 5, 30])\n    kind = rng.choice(['path', 'random', 'star']); lab = list(range(1, n + 1)); rng.shuffle(lab); edges = []\n    for i in range(1, n):\n        p = i - 1 if kind == 'path' else 0 if kind == 'star' else rng.randrange(i)\n        e = (lab[p], lab[i]); edges.append((e if rng.random() < 0.5 else e[::-1]) + (rng.randrange(1 << bits),))\n    rng.shuffle(edges); k = rng.choice([0, rng.randrange(1 << bits)])\n    return f\"{n} {k}\\n\" + ''.join(f\"{a} {b} {w}\\n\" for a, b, w in edges)\ndef read(text):\n    v = ints(text); n, k = v[0], v[1]; g = [[] for _ in range(n + 1)]\n    for i in range(n - 1):\n        a, b, w = v[2 + 3 * i:5 + 3 * i]; g[a].append((b, w)); g[b].append((a, w))\n    return n, k, g\ndef solve(text):\n    n, k, g = read(text); x = [0] * (n + 1); par = [0] * (n + 1); par[1] = -1; st = [1]\n    while st:\n        a = st.pop()\n        for b, w in g[a]:\n            if b != par[a]: par[b] = a; x[b] = x[a] ^ w; st.append(b)\n    c = {}; ans = 0\n    for a in range(1, n + 1):\n        ans += c.get(x[a] ^ k, 0); c[x[a]] = c.get(x[a], 0) + 1\n    return str(ans)\ndef brute(text):\n    n, k, g = read(text); ans = 0\n    for s in range(1, n + 1):\n        st = [(s, 0, 0)]\n        while st:\n            a, p, val = st.pop()\n            if a > s and val == k: ans += 1\n            for b, w in g[a]:\n                if b != p: st.append((b, a, val ^ w))\n    return str(ans)\n",
+  "hints": [
+   "Pick town 1 as a root and let $x_v$ be the XOR of the codes on the route from the root to $v$. The route from $u$ to $v$ and the two routes from the root share some roads. What happens to a shared road in $x_u \\oplus x_v$?",
+   "It is counted twice and cancels, so the code of the trip between $u$ and $v$ is simply $x_u \\oplus x_v$. The tree is gone: you have $n$ numbers and want the pairs whose XOR is $k$.",
+   "Go through the numbers one by one with a hash map of how often each value has appeared so far; for $x_v$ add the count of $x_v \\oplus k$, then record $x_v$. Compute the $x_v$ with your own stack, since the tree can be a path of 200000 towns, and use 64 bits for the answer."
+  ],
+  "track": "predictions",
+  "behind": [
+   "prefix-xor",
+   "graph-walk"
+  ]
+ },
+ {
+  "id": "p1-swing",
+  "title": "C. Temperature swings",
+  "level": "middle",
+  "seconds": 1.0,
+  "statement": "A weather station recorded the temperature on $n$ consecutive days. The swing of a period of consecutive days is the highest temperature in the period minus the lowest one (a period of a single day has swing 0). Find the sum of the swings of all $n(n+1)/2$ periods.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains the $n$ temperatures, whole numbers between 1 and $10^6$.\n\n**Output.** One number: the sum of the swings of all periods.",
+  "samples": [
+   [
+    "3\n1 3 2\n",
+    "5"
+   ],
+   [
+    "4\n5 5 5 5\n",
+    "0"
+   ],
+   [
+    "4\n1 2 3 4\n",
+    "10"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]; top = rng.choice([2, 4]) if size == 'small' else rng.choice([3, 1000, 10 ** 6])\n    kind = rng.choice(['random', 'up', 'down', 'saw'])\n    a = [rng.randint(1, top) for _ in range(n)]\n    if kind == 'up': a.sort()\n    if kind == 'down': a.sort(reverse=True)\n    if kind == 'saw': a = [(top if i % 2 else 1) for i in range(n)]\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef total_max(a):\n    n = len(a); L = [0] * n; R = [0] * n; st = []\n    for i in range(n):\n        while st and a[st[-1]] <= a[i]: st.pop()\n        L[i] = st[-1] if st else -1; st.append(i)\n    st = []\n    for i in range(n - 1, -1, -1):\n        while st and a[st[-1]] < a[i]: st.pop()\n        R[i] = st[-1] if st else n; st.append(i)\n    return sum(a[i] * (i - L[i]) * (R[i] - i) for i in range(n))\ndef solve(text):\n    v = ints(text); a = v[1:1 + v[0]]\n    return str(total_max(a) + total_max([-x for x in a]))\ndef brute(text):\n    v = ints(text); a = v[1:1 + v[0]]; t = 0\n    for i in range(len(a)):\n        hi = lo = a[i]\n        for j in range(i, len(a)):\n            hi = max(hi, a[j]); lo = min(lo, a[j]); t += hi - lo\n    return str(t)\n",
+  "hints": [
+   "The sum of (highest minus lowest) is the sum of the highest values of all periods minus the sum of the lowest values. Take the first sum: instead of asking each period for its highest day, ask each day in how many periods it is the highest.",
+   "Day $i$ is the highest of a period exactly when the period stays between the nearest hotter day on its left and the nearest hotter day on its right. If those are at positions $L$ and $R$, how many periods is that?",
+   "$(i - L) \\cdot (R - i)$ periods. Find $L$ and $R$ for every day with a stack in one pass each. With equal temperatures, count \"hotter or equal\" on one side and \"strictly hotter\" on the other so that no period is counted twice. Do the same for the lowest values and subtract; use 64 bits."
+  ],
+  "track": "predictions",
+  "behind": [
+   "contribution",
+   "nearest-greater"
+  ]
+ },
+ {
+  "id": "p1-bells",
+  "title": "D. Two bells",
+  "level": "middle",
+  "seconds": 1.0,
+  "statement": "A temple has two bells. The first rings every $a$ minutes and the second every $b$ minutes, with $1 \\le a < b \\le n$; both ring at minute 0. The priest wants the two bells to ring together again no later than minute $n$. Count the pairs ($a$, $b$) for which this happens, that is, the pairs with $1 \\le a < b \\le n$ whose least common multiple is at most $n$.\n\n**Input.** One line with $n$ ($1 \\le n \\le 10^6$).\n\n**Output.** One number: the number of pairs.",
+  "samples": [
+   [
+    "4\n",
+    "4"
+   ],
+   [
+    "6\n",
+    "9"
+   ],
+   [
+    "1\n",
+    "0"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport math\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 40), 'medium': rng.randint(2000, 5000), 'large': rng.choice([10 ** 6, 999983, rng.randint(6 * 10 ** 5, 10 ** 6)])}[size]\n    return f\"{n}\\n\"\ndef solve(text):\n    n = int(text); f = [1] * (n + 1); comp = bytearray(n + 1)\n    for p in range(2, n + 1):\n        if comp[p]: continue\n        comp[2 * p::p] = b'\\x01' * len(range(2 * p, n + 1, p))\n        q = p; e = 1\n        while q <= n:\n            num = 2 * e + 1; den = 2 * e - 1\n            for m in range(q, n + 1, q): f[m] = f[m] // den * num\n            q *= p; e += 1\n    return str(sum((x - 1) // 2 for x in f[1:]))\ndef brute(text):\n    n = int(text)\n    return str(sum(1 for a in range(1, n + 1) for b in range(a + 1, n + 1) if a * b // math.gcd(a, b) <= n))\n",
+  "hints": [
+   "Group the pairs by the value of their least common multiple $L$. For a fixed $L$, look at one prime $p$ whose exponent in $L$ is $e$. Which exponents may $a$ and $b$ have for that prime?",
+   "One of them must have exactly $e$ and the other anything from 0 to $e$: that is $2e + 1$ choices for the ordered pair. Primes are independent, so the number of ordered pairs with least common multiple $L$ is the product of $(2e + 1)$ over the primes of $L$. How many of these have $a < b$?",
+   "All but the pair $(L, L)$, halved. So the answer is the sum over $L$ from 1 to $n$ of (product of $(2e+1)$, minus 1) / 2. Compute the product for every $L$ with a sieve: for each prime power $p^e$, update its multiples."
+  ],
+  "track": "predictions",
+  "behind": [
+   "divisor-count",
+   "sieve"
+  ]
+ },
+ {
+  "id": "p1-monsoon",
+  "title": "E. Monsoon streaks",
+  "level": "middle to hard",
+  "seconds": 1.0,
+  "statement": "A season has $n$ days. On day $i$ it rains with probability $p_i$ percent, independently of all other days. A streak is a maximal run of consecutive rainy days (a rainy day whose neighbours, if any, are dry is a streak of length 1). Let $X$ be the number of streaks in the season. Find the expected value of $X^2$.\n\nThe answer is a fraction $P/Q$. Print $P \\cdot Q^{-1}$ modulo $998244353$.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $p_1, \\dots, p_n$, whole numbers between 0 and 100.\n\n**Output.** One number: the expected value of $X^2$ modulo $998244353$.",
+  "samples": [
+   [
+    "1\n50\n",
+    "499122177"
+   ],
+   [
+    "2\n100 100\n",
+    "1"
+   ],
+   [
+    "3\n100 0 100\n",
+    "4"
+   ],
+   [
+    "3\n50 50 50\n",
+    "748683266"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nfrom fractions import Fraction\nMOD = 998244353\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': 3000, 'large': 200000}[size]; kind = rng.choice(['random', 'ends', 'half'])\n    p = [rng.randint(0, 100) if kind == 'random' else rng.choice([0, 100, 50]) if kind == 'ends' else 50 for _ in range(n)]\n    return f\"{n}\\n{' '.join(map(str, p))}\\n\"\ndef solve(text):\n    v = ints(text); n = v[0]; inv = pow(100, MOD - 2, MOD); prev = 0; S = far = last = pairs = 0\n    for i in range(n):\n        p = v[1 + i] * inv % MOD; e = p * (1 - prev) % MOD\n        pairs = (pairs + e * far) % MOD; far = (far + last) % MOD; last = e; S = (S + e) % MOD; prev = p\n    return str((S + 2 * pairs) % MOD)\ndef brute(text):\n    v = ints(text); n = v[0]; p = [Fraction(x, 100) for x in v[1:1 + n]]; total = Fraction(0)\n    for mask in range(1 << n):\n        pr = Fraction(1); streaks = 0\n        for i in range(n):\n            wet = mask >> i & 1; pr *= p[i] if wet else 1 - p[i]\n            if wet and not (i and mask >> (i - 1) & 1): streaks += 1\n        total += pr * streaks * streaks\n    return str(total.numerator * pow(total.denominator, MOD - 2, MOD) % MOD)\n",
+  "hints": [
+   "Write $X$ as a sum of simple yes/no values: $I_i = 1$ when a streak **starts** on day $i$ (day $i$ is rainy and day $i - 1$ is dry or does not exist). What is the probability that $I_i = 1$?",
+   "It is $e_i = p_i (1 - p_{i-1})$, with $p_0 = 0$. Now $X^2 = \\sum_i I_i^2 + 2 \\sum_{i < j} I_i I_j$, and $I_i^2 = I_i$. Can streaks start on two days in a row? And for $j \\ge i + 2$, do $I_i$ and $I_j$ look at any common day?",
+   "No and no: $I_i I_{i+1}$ is always 0, and for $j \\ge i + 2$ the two are independent, so the expected product is $e_i e_j$. The answer is $\\sum e_i + 2 \\sum_{j \\ge i + 2} e_i e_j$, done in one pass with a running sum of the $e$ values up to two days back. Work modulo the prime, with $p_i / 100$ as $p_i \\cdot 100^{-1}$."
+  ],
+  "track": "predictions",
+  "behind": [
+   "linearity"
+  ]
+ },
+ {
+  "id": "p1-queue",
+  "title": "F. Who sees the stage",
+  "level": "hard",
+  "seconds": 1.0,
+  "statement": "$n$ people stand in a queue facing a stage; person 1 is nearest to the stage and person $i$ has height $h_i$. For a query ($l$, $r$) imagine that only the people $l, l+1, \\dots, r$ are present. A person among them sees the stage if they are **strictly taller** than every present person standing in front of them (person $l$ always sees the stage). For each query, print how many of the present people see the stage.\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 10^5$). The second line contains $h_1, \\dots, h_n$ ($1 \\le h_i \\le 10^9$). Each of the next $q$ lines contains $l$ and $r$ ($1 \\le l \\le r \\le n$).\n\n**Output.** One line per query.",
+  "samples": [
+   [
+    "5 3\n2 1 3 3 5\n1 5\n2 4\n4 4\n",
+    "3\n2\n1"
+   ],
+   [
+    "4 2\n1 2 3 4\n1 4\n2 3\n",
+    "4\n2"
+   ]
+  ],
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 2000, 'large': 100000}[size]; q = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 100000}[size]\n    kind = rng.choice(['random', 'up', 'steps', 'few']); top = 4 if size == 'small' else 10 ** 9\n    h = [rng.randint(1, top) for _ in range(n)]\n    if kind == 'up': h = sorted(set(h)); h += [h[-1]] * (n - len(h))\n    if kind == 'steps': h = [i // 3 + 1 + (i % 3 == 1) for i in range(n)]\n    if kind == 'few': h = [rng.randint(1, 3) for _ in range(n)]\n    lines = [f\"{n} {q}\", ' '.join(map(str, h))]\n    for _ in range(q):\n        l = rng.randint(1, n); r = rng.randint(l, n)\n        if size != 'small' and rng.random() < 0.7: l = rng.randint(1, max(1, n // 20)); r = rng.randint(n - n // 20, n)\n        lines.append(f\"{l} {r}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); n, q = v[0], v[1]; a = [0] + v[2:2 + n] + [0]; K = max(1, n.bit_length())\n    nxt = [n + 1] * (n + 2); st = []\n    for i in range(n, 0, -1):\n        while st and a[st[-1]] <= a[i]: st.pop()\n        nxt[i] = st[-1] if st else n + 1; st.append(i)\n    up = [nxt]\n    for k in range(1, K + 1): prev = up[-1]; up.append([prev[x] for x in prev])\n    out = []; pos = 2 + n\n    for _ in range(q):\n        l, r = v[pos], v[pos + 1]; pos += 2; c = 1; cur = l\n        for k in range(K, -1, -1):\n            t = up[k][cur]\n            if t <= r: cur = t; c += 1 << k\n        out.append(c)\n    return '\\n'.join(map(str, out))\ndef brute(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]; out = []; pos = 2 + n\n    for _ in range(q):\n        l, r = v[pos], v[pos + 1]; pos += 2; best = 0; c = 0\n        for i in range(l - 1, r):\n            if a[i] > best: best = a[i]; c += 1\n        out.append(c)\n    return '\\n'.join(map(str, out))\n",
+  "hints": [
+   "Person $l$ sees the stage. Who is the next person behind them that sees it? Describe that person using only the heights, not the query.",
+   "It is the nearest person behind $l$ who is strictly taller than $l$. After that person, the next one is again their nearest strictly taller person behind, and so on: the answer is the number of such jumps you can make without passing $r$, plus one. The jump target of each person does not depend on the query. What is slow about following the jumps one at a time?",
+   "A queue with increasing heights makes every query take $n$ jumps. Precompute the nearest strictly taller person behind each one with a stack, then build a table of jumps of length $2^k$. For a query, try the jump lengths from the largest down and take a jump whenever it lands at or before $r$, adding $2^k$ to the count."
+  ],
+  "track": "predictions",
+  "behind": [
+   "nearest-greater",
+   "lca-lifting"
+  ]
+ },
+ {
+  "id": "p2-token",
+  "title": "A. The token in the corner",
+  "level": "warm-up",
+  "seconds": 1.0,
+  "behind": [
+   "fixed-length-game"
+  ],
+  "statement": "A board has $n$ rows and $m$ columns. A token starts in the top-left cell. Two players take turns; a move pushes the token one cell to the right or one cell down, and it must stay on the board. The player who cannot move loses. Both play as well as possible. Who wins?\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$), the number of boards. Each of the next $t$ lines contains $n$ and $m$ ($1 \\le n, m \\le 10^9$).\n\n**Output.** For each board print `First` if the player who moves first wins, and `Second` otherwise.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport functools\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 1000, 'large': 100000}[size]; top = 5 if size == 'small' else 10 ** 9\n    return f\"{t}\\n\" + ''.join(f\"{rng.randint(1, top)} {rng.randint(1, top)}\\n\" for _ in range(t))\ndef solve(text):\n    v = ints(text)\n    return '\\n'.join('First' if (v[1 + 2 * i] + v[2 + 2 * i]) % 2 else 'Second' for i in range(v[0]))\ndef brute(text):\n    v = ints(text)\n    @functools.lru_cache(maxsize=None)\n    def win(r, c): return (r > 1 and not win(r - 1, c)) or (c > 1 and not win(r, c - 1))\n    return '\\n'.join('First' if win(v[1 + 2 * i], v[2 + 2 * i]) else 'Second' for i in range(v[0]))\n",
+  "hints": [
+   "Play a few games on a small board and count the moves made before the game ends. Does the count depend on how the players play?",
+   "Every move brings the token one step closer to the bottom-right cell, and the game only ends there. So every game lasts exactly $(n - 1) + (m - 1)$ moves, whatever anyone does.",
+   "The first player makes the moves numbered 1, 3, 5, ... and wins exactly when the total number of moves is odd, that is, when $n + m$ is odd."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "3\n1 1\n2 3\n3 3\n",
+    "Second\nFirst\nSecond"
+   ]
+  ]
+ },
+ {
+  "id": "p2-level",
+  "title": "B. Levelling the stacks",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "sieve",
+   "gcd-subtraction"
+  ],
+  "statement": "There are $n$ stacks of crates; stack $i$ holds $a_i$ crates. In one operation you choose a stack and a prime number $p$ that divides its current size, and shrink the stack to its size divided by $p$. Find the smallest number of operations after which all stacks have the same size.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^6$).\n\n**Output.** One number: the smallest number of operations.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport math\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 3), 'medium': 2000, 'large': 200000}[size]; top = 24 if size == 'small' else 10 ** 6\n    base = rng.choice([1, 1, 2, 6, 30]) if size != 'small' else rng.choice([1, 1, 2, 3])\n    a = [base * rng.randint(1, top // base) for _ in range(n)]\n    if size != 'small' and rng.random() < 0.3: a = [rng.choice([2 ** 19, 3 ** 12, 510510, 999983]) for _ in range(n)]\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:1 + v[0]]; g = 0\n    for x in a: g = math.gcd(g, x)\n    mx = max(a); spf = list(range(mx + 1)); i = 2\n    while i * i <= mx:\n        if spf[i] == i:\n            for j in range(i * i, mx + 1, i):\n                if spf[j] == j: spf[j] = i\n        i += 1\n    ans = 0; memo = {}\n    for x in a:\n        x //= g\n        if x not in memo:\n            c = 0; y = x\n            while y > 1: y //= spf[y]; c += 1\n            memo[x] = c\n        ans += memo[x]\n    return str(ans)\ndef brute(text):\n    v = ints(text); start = tuple(v[1:1 + v[0]]); seen = {start: 0}; todo = [start]\n    for s in todo:\n        if len(set(s)) == 1: return str(seen[s])\n        for i, x in enumerate(s):\n            for p in range(2, x + 1):\n                if x % p == 0 and all(p % d for d in range(2, p)):\n                    t = s[:i] + (x // p,) + s[i + 1:]\n                    if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n",
+  "hints": [
+   "Stacks only ever shrink, and a stack always shrinks to a divisor of its size. So the final common size divides every $a_i$. What is the largest number with that property?",
+   "The greatest common divisor $g$ of all the sizes. Any other possible final size is a divisor of $g$, and reaching it costs every stack extra operations. So aim for $g$. How many operations take a stack from $a_i$ down to $g$?",
+   "Exactly the number of prime factors of $a_i / g$, counted with repeats, since each operation removes one prime. Build a table of smallest prime factors up to $10^6$ with a sieve, then peel primes off each $a_i / g$ and add up the counts."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "3\n12 18 6\n",
+    "2"
+   ],
+   [
+    "2\n7 7\n",
+    "0"
+   ],
+   [
+    "2\n8 9\n",
+    "5"
+   ]
+  ]
+ },
+ {
+  "id": "p2-guards",
+  "title": "C. Guards on the wall",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "stars-bars",
+   "ncr-mod"
+  ],
+  "statement": "A round fort has $n$ watch posts on its wall, numbered 1 to $n$ in order; post $n$ is next to post 1. Exactly $k$ of the posts must be manned, and no two manned posts may be next to each other. In how many ways can the $k$ posts be chosen? Two ways are different if some post is manned in one and not in the other.\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $n$ and $k$ ($3 \\le n \\le 10^6$, $0 \\le k \\le n$).\n\n**Output.** For each line, the number of ways modulo $10^9 + 7$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nMOD = 10 ** 9 + 7\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 2000, 'large': 100000}[size]; top = 11 if size == 'small' else 10 ** 6; out = []\n    for _ in range(t):\n        n = rng.randint(3, top); k = rng.randint(0, n) if size == 'small' or rng.random() < 0.2 else rng.randint(0, n // 2)\n        out.append(f\"{n} {k}\")\n    return f\"{t}\\n\" + '\\n'.join(out) + '\\n'\ndef solve(text):\n    v = ints(text); t = v[0]; top = max(v[1::2][:t]) + 1\n    f = [1] * (top + 1)\n    for i in range(1, top + 1): f[i] = f[i - 1] * i % MOD\n    inv = [1] * (top + 1); inv[top] = pow(f[top], MOD - 2, MOD)\n    for i in range(top, 0, -1): inv[i - 1] = inv[i] * i % MOD\n    def C(n, k): return f[n] * inv[k] % MOD * inv[n - k] % MOD if 0 <= k <= n else 0\n    out = []\n    for i in range(t):\n        n, k = v[1 + 2 * i], v[2 + 2 * i]\n        out.append(1 if k == 0 else (C(n - k, k) + C(n - k - 1, k - 1)) % MOD)\n    return '\\n'.join(map(str, out))\ndef brute(text):\n    v = ints(text); out = []\n    for i in range(v[0]):\n        n, k = v[1 + 2 * i], v[2 + 2 * i]\n        out.append(sum(1 for m in range(1 << n) if bin(m).count('1') == k and not m & (m << 1 | m >> (n - 1)) & ((1 << n) - 1)))\n    return '\\n'.join(map(str, out))\n",
+  "hints": [
+   "First forget the circle: on a straight wall with $n$ posts, in how many ways can $k$ posts be chosen with no two next to each other? Think of placing the $n - k$ unmanned posts first and dropping guards into the gaps.",
+   "There are $n - k + 1$ gaps and each takes at most one guard: $\\binom{n-k+1}{k}$. Now the circle. Split into two cases by whether post 1 is manned. What is left of the wall in each case?",
+   "If post 1 is unmanned, posts $2..n$ form a straight wall of $n - 1$ posts: $\\binom{n-k}{k}$. If post 1 is manned, posts 2 and $n$ are unmanned and posts $3..n-1$ form a straight wall of $n - 3$ posts with $k - 1$ guards: $\\binom{n-k-1}{k-1}$. Add the two, with factorials and inverse factorials precomputed up to $10^6$."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "4\n5 2\n6 3\n4 0\n3 2\n",
+    "5\n2\n1\n0"
+   ]
+  ]
+ },
+ {
+  "id": "p2-courier",
+  "title": "D. Courier bills",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "edge-contribution",
+   "graph-walk"
+  ],
+  "statement": "A courier company serves $n$ towns joined by $n - 1$ roads, so that there is exactly one route between any two towns. Road $i$ has length $w_i$. For every pair of different towns the company sends one parcel between them, and a parcel costs the length of its route. Find the total cost of all $n(n-1)/2$ parcels.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). Each of the next $n - 1$ lines contains $a$, $b$ and $w$: a road between towns $a$ and $b$ of length $w$ ($1 \\le w \\le 1000$).\n\n**Output.** One number: the total cost.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]; kind = rng.choice(['path', 'random', 'star']); lab = list(range(1, n + 1)); rng.shuffle(lab); edges = []\n    for i in range(1, n):\n        p = i - 1 if kind == 'path' else 0 if kind == 'star' else rng.randrange(i)\n        e = (lab[p], lab[i]); edges.append((e if rng.random() < 0.5 else e[::-1]) + (rng.randint(1, 5 if size == 'small' else 1000),))\n    rng.shuffle(edges)\n    return f\"{n}\\n\" + ''.join(f\"{a} {b} {w}\\n\" for a, b, w in edges)\ndef read(text):\n    v = ints(text); n = v[0]; g = [[] for _ in range(n + 1)]\n    for i in range(n - 1):\n        a, b, w = v[1 + 3 * i:4 + 3 * i]; g[a].append((b, w)); g[b].append((a, w))\n    return n, g\ndef solve(text):\n    n, g = read(text); par = [0] * (n + 1); pw = [0] * (n + 1); par[1] = -1; order = [1]\n    for a in order:\n        for b, w in g[a]:\n            if b != par[a]: par[b] = a; pw[b] = w; order.append(b)\n    sz = [1] * (n + 1); ans = 0\n    for a in reversed(order[1:]):\n        ans += sz[a] * (n - sz[a]) * pw[a]; sz[par[a]] += sz[a]\n    return str(ans)\ndef brute(text):\n    n, g = read(text); total = 0\n    for s in range(1, n + 1):\n        st = [(s, 0, 0)]\n        while st:\n            a, p, d = st.pop()\n            if a > s: total += d\n            for b, w in g[a]:\n                if b != p: st.append((b, a, d + w))\n    return str(total)\n",
+  "hints": [
+   "Adding up the routes pair by pair is $n^2$ work. Turn the sum around: instead of asking each pair which roads it uses, ask each road how many pairs use it.",
+   "Remove one road and the towns fall into two groups, of sizes $s$ and $n - s$. A parcel uses that road exactly when its two towns are in different groups. How many pairs is that?",
+   "$s \\cdot (n - s)$ pairs, so the road adds $w \\cdot s \\cdot (n - s)$. Root the tree at town 1, compute subtree sizes from the leaves upwards without recursion, and add this up over all roads in 64 bits."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "4\n1 2 3\n2 3 1\n2 4 2\n",
+    "18"
+   ],
+   [
+    "1\n",
+    "0"
+   ],
+   [
+    "3\n1 2 5\n2 3 5\n",
+    "20"
+   ]
+  ]
+ },
+ {
+  "id": "p2-tanks",
+  "title": "E. Topping up the tanks",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "search-answer"
+  ],
+  "statement": "A village has $n$ water tanks. Tank $i$ can hold at most $c_i$ litres and currently holds $a_i$ litres. A tanker brings $W$ litres, which may be shared out among the tanks in whole litres in any way, as long as no tank goes over its capacity (water may also be left over). Afterwards the village is judged by its emptiest tank. What is the largest possible amount in the emptiest tank?\n\n**Input.** The first line contains $n$ and $W$ ($1 \\le n \\le 2 \\cdot 10^5$, $0 \\le W \\le 10^{18}$). The second line contains $a_1, \\dots, a_n$ and the third line contains $c_1, \\dots, c_n$ ($0 \\le a_i \\le c_i \\le 10^9$).\n\n**Output.** One number: the largest possible amount of water in the emptiest tank.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 5), 'medium': 3000, 'large': 200000}[size]; top = 8 if size == 'small' else 10 ** 9\n    c = [rng.randint(0, top) for _ in range(n)]\n    if size != 'small' and rng.random() < 0.6: c = [rng.randint(top // 2, top) for _ in range(n)]\n    a = [rng.randint(0, x) for x in c]\n    W = rng.randint(0, 20) if size == 'small' else rng.choice([0, rng.randint(0, 10 ** 18), rng.randint(0, n * top // 3), 10 ** 18])\n    return f\"{n} {W}\\n{' '.join(map(str, a))}\\n{' '.join(map(str, c))}\\n\"\ndef solve(text):\n    v = ints(text); n, W = v[0], v[1]; a = sorted(v[2:2 + n]); cap = min(v[2 + n:2 + 2 * n])\n    level = a[0]; k = 1                      # the k smallest tanks are all at \"level\"\n    while level < cap:\n        nxt = a[k] if k < n else cap\n        nxt = min(nxt, cap)\n        if nxt == level and k < n: k += 1; continue\n        need = (nxt - level) * k\n        if need <= W: W -= need; level = nxt; k += 1 if k < n and a[k] == level else 0\n        else: level += W // k; break\n    return str(level)\ndef brute(text):\n    v = ints(text); n, W = v[0], v[1]; a = v[2:2 + n]; c = v[2 + n:2 + 2 * n]; best = min(a); x = best\n    while True:\n        x += 1\n        if x > min(c) or sum(max(0, x - y) for y in a) > W: return str(best)\n        best = x\n",
+  "hints": [
+   "Suppose you want the emptiest tank to hold at least $x$ litres. Which tanks need water, and how much in total? Is there a limit on $x$ that has nothing to do with $W$?",
+   "Every tank below $x$ needs $x - a_i$ litres, and $x$ can never exceed the smallest capacity. If level $x$ can be reached, can every lower level be reached too?",
+   "Yes, so binary search on $x$ between the smallest $a_i$ and the smallest $c_i$: for a candidate $x$ add up $\\max(0, x - a_i)$ and compare with $W$. The sum can pass $10^{18}$, so stop adding as soon as it exceeds $W$ or use a wider type."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "3 5\n1 2 6\n10 10 10\n",
+    "4"
+   ],
+   [
+    "2 100\n0 3\n4 9\n",
+    "4"
+   ],
+   [
+    "3 0\n5 2 7\n5 2 7\n",
+    "2"
+   ]
+  ]
+ },
+ {
+  "id": "p2-pairs",
+  "title": "F. Lab partners",
+  "level": "hard",
+  "seconds": 1.0,
+  "behind": [
+   "bitmask-dp"
+  ],
+  "statement": "A class of $n$ students ($n$ is even) must be split into $n / 2$ pairs of lab partners. For every two students $i$ and $j$ a number $c_{ij}$ says how well they work together. Find the largest possible sum of $c_{ij}$ over the chosen pairs.\n\n**Input.** The first line contains an even number $n$ ($2 \\le n \\le 16$). Each of the next $n$ lines contains $n$ numbers: the $j$-th number of line $i$ is $c_{ij}$ ($0 \\le c_{ij} \\le 10^6$). It is guaranteed that $c_{ij} = c_{ji}$ and $c_{ii} = 0$.\n\n**Output.** One number: the largest possible total.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport itertools\ndef gen(rng, size):\n    n = {'small': rng.choice([2, 4, 6]), 'medium': 12, 'large': 16}[size]; top = 9 if size == 'small' else 10 ** 6\n    c = [[0] * n for _ in range(n)]\n    for i in range(n):\n        for j in range(i + 1, n): c[i][j] = c[j][i] = rng.randint(0, top) if rng.random() < 0.8 else top\n    return f\"{n}\\n\" + ''.join(' '.join(map(str, r)) + '\\n' for r in c)\ndef solve(text):\n    v = ints(text); n = v[0]; c = [v[1 + i * n:1 + (i + 1) * n] for i in range(n)]; full = (1 << n) - 1; dp = [-1] * (1 << n); dp[0] = 0\n    for m in range(full):\n        if dp[m] < 0: continue\n        i = 0\n        while m >> i & 1: i += 1\n        row = c[i]; base = dp[m]; mi = m | 1 << i\n        for j in range(i + 1, n):\n            if not m >> j & 1:\n                t = mi | 1 << j\n                if dp[t] < base + row[j]: dp[t] = base + row[j]\n    return str(dp[full])\ndef brute(text):\n    v = ints(text); n = v[0]; c = [v[1 + i * n:1 + (i + 1) * n] for i in range(n)]\n    return str(max(sum(c[p[i]][p[i + 1]] for i in range(0, n, 2)) for p in itertools.permutations(range(n))))\n",
+  "hints": [
+   "Taking the best pair first and repeating is wrong: in the first example the pair worth 9 leaves a pair worth 1, while 5 + 5 is better. With $n \\le 16$, what could a table be indexed by so that it remembers exactly which students are already paired?",
+   "A set of students, stored as the bits of a number below $2^{16}$: best[set] is the largest total when exactly these students are paired up. To extend a set, who should get a partner next so that every pairing is built in only one order?",
+   "The lowest-numbered student not in the set. Try every unpaired $j$ as the partner and update best[set with both added]. That is $2^n \\cdot n$ steps. The answer is best[all students]."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "4\n0 5 1 1\n5 0 1 9\n1 1 0 5\n1 9 5 0\n",
+    "10"
+   ],
+   [
+    "2\n0 7\n7 0\n",
+    "7"
+   ]
+  ]
+ },
+ {
+  "id": "p3-ration",
+  "title": "A. Passing rations forward",
+  "level": "warm-up",
+  "seconds": 1.0,
+  "behind": [
+   "sum-invariant",
+   "prefix-sums"
+  ],
+  "statement": "$n$ soldiers stand in a line, numbered 1 to $n$ from front to back. Soldier $i$ holds $a_i$ ration packs. In one move a soldier hands one pack to a soldier standing **in front of** them (to any soldier with a smaller number, not only the next one); the giver must have at least one pack. The captain wants soldier $i$ to hold exactly $b_i$ packs. Find the smallest number of moves, or report that it is impossible.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ and the third line contains $b_1, \\dots, b_n$ ($0 \\le a_i, b_i \\le 10^9$).\n\n**Output.** The smallest number of moves, or $-1$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 3), 'medium': 3000, 'large': 200000}[size]; top = 3 if size == 'small' else 10 ** 9\n    a = [rng.randint(0, top) for _ in range(n)]\n    if size == 'small' and rng.random() < 0.4: b = [rng.randint(0, top) for _ in range(n)]\n    else:\n        b = a[:]\n        for _ in range(n if size != 'small' else 3):\n            j = rng.randrange(n); i = rng.randrange(j + 1)\n            if i < j and b[j] > 0 and b[i] < top: k = rng.randint(1, min(b[j], top - b[i])); b[j] -= k; b[i] += k\n        if rng.random() < 0.15: a, b = b, a\n    return f\"{n}\\n{' '.join(map(str, a))}\\n{' '.join(map(str, b))}\\n\"\ndef solve(text):\n    v = ints(text); n = v[0]; a = v[1:1 + n]; b = v[1 + n:1 + 2 * n]; d = 0; ans = 0\n    for x, y in zip(a, b):\n        d += y - x\n        if d < 0: return '-1'\n        if y > x: ans += y - x\n    return str(ans) if d == 0 else '-1'\ndef brute(text):\n    v = ints(text); n = v[0]; a = tuple(v[1:1 + n]); b = tuple(v[1 + n:1 + 2 * n]); seen = {a: 0}; todo = [a]\n    for s in todo:\n        if s == b: return str(seen[s])\n        for j in range(n):\n            if s[j] == 0: continue\n            for i in range(j):\n                t = list(s); t[j] -= 1; t[i] += 1; t = tuple(t)\n                if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\n    return '-1'\n",
+  "hints": [
+   "A move never changes the total number of packs. Look also at the packs held by the first $k$ soldiers together: what can a move do to that number?",
+   "It stays the same or grows by one, never shrinks. So for every $k$ the first $k$ soldiers must end with at least as many packs as they start with, and the totals must be equal. If those conditions hold, how few moves can do it?",
+   "Each move adds one pack to one soldier, so at least the sum of $b_i - a_i$ over the soldiers who must gain is needed, and handing each needed pack straight from someone behind who has spare achieves it. Check the prefix condition in one pass and print that sum, in 64 bits."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "3\n0 1 3\n2 1 1\n",
+    "2"
+   ],
+   [
+    "2\n3 0\n1 2\n",
+    "-1"
+   ],
+   [
+    "3\n1 1 1\n1 1 1\n",
+    "0"
+   ],
+   [
+    "2\n1 1\n2 1\n",
+    "-1"
+   ]
+  ]
+ },
+ {
+  "id": "p3-stripes",
+  "title": "B. Striped flag",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "binary-inversions"
+  ],
+  "statement": "A flag is a row of $n$ stripes, each saffron (`1`) or green (`0`). In one move you may swap two stripes that are next to each other. The flag is proper when no two neighbouring stripes have the same colour. Find the smallest number of moves that makes the flag proper, or report that it is impossible.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains a string of $n$ characters `0` and `1`.\n\n**Output.** The smallest number of moves, or $-1$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': 3000, 'large': rng.choice([200000, 199999])}[size]\n    ones = rng.choice([n // 2, (n + 1) // 2]) if rng.random() < 0.85 else rng.randint(0, n)\n    s = ['1'] * ones + ['0'] * (n - ones)\n    if rng.random() < 0.7: rng.shuffle(s)\n    return f\"{n}\\n{''.join(s)}\\n\"\ndef solve(text):\n    n, s = text.split(); n = int(n); p = [i for i, ch in enumerate(s) if ch == '1']; best = -1\n    for st in (0, 1):\n        if (n - st + 1) // 2 != len(p): continue\n        t = sum(abs(x - (st + 2 * k)) for k, x in enumerate(p))\n        if best < 0 or t < best: best = t\n    return str(best)\ndef brute(text):\n    n, s = text.split(); n = int(n); seen = {s: 0}; todo = [s]\n    for x in todo:\n        if all(x[i] != x[i + 1] for i in range(n - 1)): return str(seen[x])\n        for i in range(n - 1):\n            if x[i] != x[i + 1]:\n                y = x[:i] + x[i + 1] + x[i] + x[i + 2:]\n                if y not in seen: seen[y] = seen[x] + 1; todo.append(y)\n    return '-1'\n",
+  "hints": [
+   "There are only two proper flags of length $n$: the one starting with saffron and the one starting with green. How do you tell quickly which of them can be reached at all?",
+   "Swaps keep the number of saffron stripes, so a target is reachable exactly when it has the same number of them. For one reachable target, should two saffron stripes ever cross each other on the way?",
+   "Never: crossing two equal stripes wastes moves. So the $k$-th saffron stripe goes to the $k$-th saffron place of the target, and the cost is the sum of the distances $|p_k - t_k|$. Compute it for each reachable target and take the smaller."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "4\n1100\n",
+    "1"
+   ],
+   [
+    "5\n11100\n",
+    "3"
+   ],
+   [
+    "3\n111\n",
+    "-1"
+   ],
+   [
+    "6\n010101\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "p3-gears",
+  "title": "C. Gears that never lock",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "inclusion-exclusion"
+  ],
+  "statement": "A machine has a main gear with $m$ teeth. A second gear with $x$ teeth runs smoothly against it only when $x$ and $m$ have no common divisor greater than 1. Count the sizes $x$ with $1 \\le x \\le n$ that run smoothly.\n\n**Input.** One line with $n$ and $m$ ($1 \\le n \\le 10^{18}$, $1 \\le m \\le 10^{12}$).\n\n**Output.** One number: how many $x$ from 1 to $n$ have greatest common divisor 1 with $m$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport math\ndef gen(rng, size):\n    if size == 'small': return f\"{rng.randint(1, 200)} {rng.randint(1, 60)}\\n\"\n    m = rng.choice([200560490130, 999999999989, 2 ** 39, 999983 * 999979, 30030 * 999983, rng.randint(1, 10 ** 12), 6469693230 * 31])\n    n = rng.choice([10 ** 18, rng.randint(1, 10 ** 18), rng.randint(1, 10 ** 6)])\n    return f\"{n} {m}\\n\"\ndef solve(text):\n    n, m = ints(text); ps = []; p = 2\n    while p * p <= m:\n        if m % p == 0:\n            ps.append(p)\n            while m % p == 0: m //= p\n        p += 1 if p == 2 else 2\n    if m > 1: ps.append(m)\n    ans = 0\n    for mask in range(1 << len(ps)):\n        d = 1; bits = 0\n        for i, q in enumerate(ps):\n            if mask >> i & 1: d *= q; bits += 1\n        ans += (-1) ** bits * (n // d)\n    return str(ans)\ndef brute(text):\n    n, m = ints(text)\n    return str(sum(1 for x in range(1, n + 1) if math.gcd(x, m) == 1))\n",
+  "hints": [
+   "$x$ fails exactly when it is divisible by at least one prime factor of $m$. How many different prime factors can a number up to $10^{12}$ have?",
+   "At most 11, since the product of the first 12 primes is larger than $10^{12}$. Counting the numbers up to $n$ divisible by one given prime is easy; the trouble is numbers divisible by several of them. How do you correct for counting those more than once?",
+   "Add and subtract over all subsets of the prime factors: for a subset with product $d$, add $\\lfloor n / d \\rfloor$ if the subset has an even number of primes and subtract it otherwise. Find the primes by trial division up to $10^6$; whatever is left above 1 is one more prime."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "10 6\n",
+    "3"
+   ],
+   [
+    "7 1\n",
+    "7"
+   ],
+   [
+    "100 30\n",
+    "26"
+   ]
+  ]
+ },
+ {
+  "id": "p3-market",
+  "title": "D. The farthest house",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "multi-source"
+  ],
+  "statement": "A town is a grid of $h$ rows and $w$ columns. Each cell is a wall (`#`), a shop (`*`) or a house (`.`). People walk between cells that share a side and never through walls. For every house, its walking distance is the smallest number of steps to reach some shop. Print the largest walking distance among the houses that can reach a shop at all; if no house can reach a shop, print 0.\n\n**Input.** The first line contains $h$ and $w$ ($1 \\le h, w \\le 500$). Each of the next $h$ lines contains $w$ characters. There is at least one shop.\n\n**Output.** One number.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nfrom collections import deque\ndef gen(rng, size):\n    h = {'small': rng.randint(1, 4), 'medium': 60, 'large': 500}[size]; w = {'small': rng.randint(1, 4), 'medium': 60, 'large': 500}[size]\n    wall = rng.choice([0.0, 0.2, 0.35]); shop = rng.choice([0.25, 0.1]) if size == 'small' else rng.choice([0.0, 0.0005, 0.02])\n    g = [[('#' if rng.random() < wall else '*' if rng.random() < shop else '.') for _ in range(w)] for _ in range(h)]\n    if size != 'small' and rng.random() < 0.4:\n        for i in range(1, h, 2):\n            for j in range(w): g[i][j] = '#'\n            g[i][0 if (i // 2) % 2 else w - 1] = '.'\n    if not any('*' in r for r in g): g[rng.randrange(h)][rng.randrange(w)] = '*'\n    return f\"{h} {w}\\n\" + ''.join(''.join(r) + '\\n' for r in g)\ndef solve(text):\n    parts = text.split(); h, w = int(parts[0]), int(parts[1]); g = parts[2:2 + h]; d = [-1] * (h * w); q = deque()\n    for i in range(h):\n        for j in range(w):\n            if g[i][j] == '*': d[i * w + j] = 0; q.append(i * w + j)\n    best = 0\n    while q:\n        c = q.popleft(); i, j = divmod(c, w); dc = d[c] + 1\n        if dc - 1 > best: best = dc - 1\n        if i and g[i - 1][j] != '#' and d[c - w] < 0: d[c - w] = dc; q.append(c - w)\n        if i + 1 < h and g[i + 1][j] != '#' and d[c + w] < 0: d[c + w] = dc; q.append(c + w)\n        if j and g[i][j - 1] != '#' and d[c - 1] < 0: d[c - 1] = dc; q.append(c - 1)\n        if j + 1 < w and g[i][j + 1] != '#' and d[c + 1] < 0: d[c + 1] = dc; q.append(c + 1)\n    return str(best)\ndef brute(text):\n    parts = text.split(); h, w = int(parts[0]), int(parts[1]); g = parts[2:2 + h]; best = 0\n    for si in range(h):\n        for sj in range(w):\n            if g[si][sj] != '.': continue\n            seen = {(si, sj): 0}; todo = [(si, sj)]; found = -1\n            for i, j in todo:\n                if g[i][j] == '*': found = seen[(i, j)]; break\n                for a, b in ((i + 1, j), (i - 1, j), (i, j + 1), (i, j - 1)):\n                    if 0 <= a < h and 0 <= b < w and g[a][b] != '#' and (a, b) not in seen: seen[(a, b)] = seen[(i, j)] + 1; todo.append((a, b))\n            best = max(best, found)\n    return str(best)\n",
+  "hints": [
+   "A separate search from every house is up to 250000 searches on a grid of 250000 cells. Turn the question round: instead of each house looking for a shop, what if the shops look for the houses?",
+   "Start one breadth-first search from **all shops at once**: put every shop into the queue with distance 0. When a house is first reached, why is the distance written on it the distance to its nearest shop?",
+   "Because the queue hands out cells in order of distance from the nearest starting cell. Run that single search, never stepping into walls, and print the largest distance written on any cell reached (0 if only shops were reached)."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "3 4\n*...\n.#..\n...*\n",
+    "2"
+   ],
+   [
+    "2 3\n*#.\n###\n",
+    "0"
+   ],
+   [
+    "1 5\n..*..\n",
+    "2"
+   ]
+  ]
+ },
+ {
+  "id": "p3-mangoes",
+  "title": "E. The first ripe mango",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "linearity",
+   "mod-inverse"
+  ],
+  "statement": "A basket holds $r$ ripe mangoes and $b$ unripe ones, and they cannot be told apart by touch. You take mangoes out one at a time, each time picking uniformly at random among those still in the basket, and you stop as soon as you take a ripe one. Find the expected number of mangoes you take out (the ripe one included).\n\nThe answer is a fraction $P/Q$. Print $P \\cdot Q^{-1}$ modulo $998244353$.\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $r$ and $b$ ($1 \\le r \\le 10^8$, $0 \\le b \\le 10^8$).\n\n**Output.** For each line, the expected number modulo $998244353$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nfrom fractions import Fraction\nimport functools\nMOD = 998244353\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 4), 'medium': 2000, 'large': 100000}[size]; top = 6 if size == 'small' else 10 ** 8\n    return f\"{t}\\n\" + ''.join(f\"{rng.randint(1, top)} {rng.randint(0, top)}\\n\" for _ in range(t))\ndef solve(text):\n    v = ints(text)\n    return '\\n'.join(str((v[1 + 2 * i] + v[2 + 2 * i] + 1) * pow(v[1 + 2 * i] + 1, MOD - 2, MOD) % MOD) for i in range(v[0]))\ndef brute(text):\n    v = ints(text)\n    @functools.lru_cache(maxsize=None)\n    def E(r, b): return Fraction(1) if b == 0 else 1 + Fraction(b, r + b) * E(r, b - 1)\n    out = []\n    for i in range(v[0]):\n        x = E(v[1 + 2 * i], v[2 + 2 * i]); out.append(x.numerator * pow(x.denominator, MOD - 2, MOD) % MOD)\n    return '\\n'.join(map(str, out))\n",
+  "hints": [
+   "Imagine all the mangoes are taken out in a random order, and you simply stop looking after the first ripe one. The number you take is 1 plus the number of unripe mangoes that come before every ripe one. Can you find the expected value of that count one unripe mango at a time?",
+   "Fix one unripe mango and look only at it and the $r$ ripe ones. In a random order, each of these $r + 1$ mangoes is equally likely to come first among them. So what is the chance that this unripe mango comes before all the ripe ones?",
+   "It is $1 / (r + 1)$. Expected values add up, so the answer is $1 + b / (r + 1) = (r + b + 1) / (r + 1)$. Print it using the modular inverse of $r + 1$."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "3\n1 0\n1 1\n2 1\n",
+    "1\n499122178\n332748119"
+   ]
+  ]
+ },
+ {
+  "id": "p3-spices",
+  "title": "F. Spices on the shelf",
+  "level": "hard",
+  "seconds": 1.0,
+  "behind": [
+   "fenwick",
+   "seen-table"
+  ],
+  "statement": "A long shelf holds $n$ jars in a row; jar $i$ contains spice number $a_i$. A cook asks $q$ questions of the form ($l$, $r$): how many **different** spices are there among the jars $l, l+1, \\dots, r$?\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 5 \\cdot 10^4$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^9$). Each of the next $q$ lines contains $l$ and $r$ ($1 \\le l \\le r \\le n$).\n\n**Output.** One line per question.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 50000}[size]; q = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 50000}[size]\n    top = 3 if size == 'small' else rng.choice([5, 300, 10 ** 9]); lines = [f\"{n} {q}\", ' '.join(str(rng.randint(1, top)) for _ in range(n))]\n    for _ in range(q):\n        l = rng.randint(1, n); r = rng.randint(l, n)\n        if size != 'small' and rng.random() < 0.7: l = rng.randint(1, max(1, n // 10)); r = rng.randint(n - n // 10, n)\n        lines.append(f\"{l} {r}\")\n    return '\\n'.join(lines) + '\\n'\ndef solve(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]; at = [[] for _ in range(n + 1)]; pos = 2 + n\n    for i in range(q): at[v[pos + 2 * i + 1]].append((v[pos + 2 * i], i))\n    bit = [0] * (n + 1); ans = [0] * q; last = {}\n    for r in range(1, n + 1):\n        x = a[r - 1]; p = last.get(x)\n        if p:\n            while p <= n: bit[p] -= 1; p += p & -p\n        p = r\n        while p <= n: bit[p] += 1; p += p & -p\n        last[x] = r\n        if at[r]:\n            s = 0; p = r\n            while p > 0: s += bit[p]; p -= p & -p\n            for l, i in at[r]:\n                t = 0; p = l - 1\n                while p > 0: t += bit[p]; p -= p & -p\n                ans[i] = s - t\n    return '\\n'.join(map(str, ans))\ndef brute(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]; pos = 2 + n\n    return '\\n'.join(str(len(set(a[v[pos + 2 * i] - 1:v[pos + 2 * i + 1]]))) for i in range(q))\n",
+  "hints": [
+   "Fix the right end $r$ and think about all questions that end there. Each spice present in $l..r$ should be counted once. If a spice occurs several times up to $r$, which one of its jars is the best one to count?",
+   "Its **last** occurrence up to $r$: that jar is inside $l..r$ exactly when the spice is. So keep a mark on the last jar of every spice seen so far; the answer to ($l$, $r$) is the number of marks at positions $l..r$. What changes when $r$ moves one step to the right?",
+   "The new jar gets a mark, and the previous jar of the same spice (if any) loses its mark. Sort the questions by $r$, sweep $r$ from left to right, keep the marks in a Fenwick tree (point update, prefix sum), and answer each question when the sweep reaches its right end."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "5 3\n1 2 1 3 2\n1 5\n2 4\n3 3\n",
+    "3\n3\n1"
+   ],
+   [
+    "4 2\n7 7 7 7\n1 4\n2 3\n",
+    "1\n1"
+   ]
+  ]
+ },
+ {
+  "id": "p4-crates",
+  "title": "A. Full crates",
+  "level": "warm-up",
+  "seconds": 1.0,
+  "behind": [
+   "prefix-sums"
+  ],
+  "behind_pages": [
+   "prefix-pairs"
+  ],
+  "statement": "A ledger lists $n$ entries in order; entry $i$ is a whole number $a_i$ (it may be negative: goods returned). A crate holds exactly $k$ items. A block of consecutive entries is called tidy if the sum of its entries is divisible by $k$ (a sum of 0 counts). Count the tidy blocks.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le n \\le 2 \\cdot 10^5$, $1 \\le k \\le 10^9$). The second line contains $a_1, \\dots, a_n$ ($-10^9 \\le a_i \\le 10^9$).\n\n**Output.** One number: the number of tidy blocks.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]; k = rng.randint(1, 5) if size == 'small' else rng.choice([1, 2, 7, 1000, 10 ** 9, 999999937])\n    top = 6 if size == 'small' else 10 ** 9\n    return f\"{n} {k}\\n{' '.join(str(rng.randint(-top, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); n, k = v[0], v[1]; c = {0: 1}; s = 0; ans = 0\n    for x in v[2:2 + n]:\n        s = (s + x) % k; t = c.get(s, 0); ans += t; c[s] = t + 1\n    return str(ans)\ndef brute(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:2 + n]\n    return str(sum(1 for i in range(n) for j in range(i, n) if sum(a[i:j + 1]) % k == 0))\n",
+  "hints": [
+   "The sum of a block is the difference of two running totals: the total up to its end minus the total just before its start. When is a difference of two numbers divisible by $k$?",
+   "Exactly when the two numbers leave the same remainder modulo $k$. So a tidy block is a pair of positions (including the empty start, total 0) whose running totals have the same remainder.",
+   "Sweep once, keeping a hash map from remainder to how many running totals so far had it; at each position add the current count for its remainder, then increase it. Make remainders of negative totals non-negative, and use 64 bits for the answer."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "5 3\n1 2 3 -3 4\n",
+    "7"
+   ],
+   [
+    "3 5\n1 1 1\n",
+    "0"
+   ],
+   [
+    "4 1\n7 -2 0 9\n",
+    "10"
+   ]
+  ]
+ },
+ {
+  "id": "p4-repairs",
+  "title": "B. The repair queue",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "exchange"
+  ],
+  "statement": "A workshop has $n$ machines waiting for repair and one mechanic, who repairs them one after another without breaks. Machine $i$ takes $t_i$ hours to repair, and every hour it stands idle until its repair is **finished** costs the factory $w_i$ rupees. Choose the order of repairs so that the total cost is as small as possible, and print that cost.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). Each of the next $n$ lines contains $t_i$ and $w_i$ ($1 \\le t_i, w_i \\le 1000$).\n\n**Output.** One number: the smallest total cost.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport itertools\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 3000, 'large': 200000}[size]; top = 5 if size == 'small' else 1000\n    return f\"{n}\\n\" + ''.join(f\"{rng.randint(1, top)} {rng.randint(1, top)}\\n\" for _ in range(n))\ndef cost(order):\n    t = c = 0\n    for a, w in order: t += a; c += t * w\n    return c\ndef solve(text):\n    v = ints(text); jobs = sorted(((v[1 + 2 * i], v[2 + 2 * i]) for i in range(v[0])), key=lambda j: j[0] / j[1])\n    return str(cost(jobs))\ndef brute(text):\n    v = ints(text); jobs = [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(v[0])]\n    return str(min(cost(p) for p in itertools.permutations(jobs)))\n",
+  "hints": [
+   "Take any order and look at two machines repaired one right after the other. If you swap just those two, whose finishing times change?",
+   "Only theirs. If A (time $t_A$, cost $w_A$) is directly before B, swapping them makes B finish $t_A$ hours earlier and A finish $t_B$ hours later: the cost changes by $t_B w_A - t_A w_B$. When is A-before-B at least as good?",
+   "When $t_A w_B \\le t_B w_A$, that is, when $t_A / w_A \\le t_B / w_B$. So sort by $t / w$ ascending (compare by cross-multiplying to stay in whole numbers), then add up finishing time times $w$ in 64 bits."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "2\n3 1\n1 2\n",
+    "6"
+   ],
+   [
+    "3\n2 2\n2 2\n1 1\n",
+    "17"
+   ],
+   [
+    "1\n5 4\n",
+    "20"
+   ]
+  ]
+ },
+ {
+  "id": "p4-bunting",
+  "title": "C. Festival bunting",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "dp-state"
+  ],
+  "statement": "A string of $n$ flags is hung across a street. Each flag is saffron (1), white (2) or green (3). Some flags are already chosen; the others are still to be chosen. The committee insists that no **three** flags in a row have the same colour. In how many ways can the remaining flags be chosen?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $n$ numbers: 0 for a flag still to be chosen, otherwise its colour 1, 2 or 3.\n\n**Output.** The number of ways modulo $10^9 + 7$ (0 if the chosen flags already break the rule).",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport itertools\nMOD = 10 ** 9 + 7\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]; p = rng.choice([0.0, 0.3, 0.7])\n    c = [rng.randint(1, 3) if rng.random() < p else 0 for _ in range(n)]\n    if size != 'small' and p > 0.5:\n        for i in range(2, n):\n            if c[i] and c[i] == c[i - 1] == c[i - 2]: c[i] = 0\n    return f\"{n}\\n{' '.join(map(str, c))}\\n\"\ndef solve(text):\n    v = ints(text); n = v[0]; c = v[1:1 + n]\n    one = [0, 0, 0, 0]; two = [0, 0, 0, 0]\n    for d in (1, 2, 3):\n        if c[0] in (0, d): one[d] = 1\n    for i in range(1, n):\n        tot = (sum(one) + sum(two)) % MOD; n1 = [0] * 4; n2 = [0] * 4\n        for d in (1, 2, 3):\n            if c[i] in (0, d): n1[d] = (tot - one[d] - two[d]) % MOD; n2[d] = one[d]\n        one, two = n1, n2\n    return str((sum(one) + sum(two)) % MOD)\ndef brute(text):\n    v = ints(text); n = v[0]; c = v[1:1 + n]\n    return str(sum(1 for f in itertools.product((1, 2, 3), repeat=n) if all(c[i] in (0, f[i]) for i in range(n)) and all(not (f[i] == f[i + 1] == f[i + 2]) for i in range(n - 2))))\n",
+  "hints": [
+   "Choose the flags from left to right. To know whether the next flag may take a certain colour, what do you have to remember about the flags already placed?",
+   "Only the colour of the last flag and whether the one before it had the same colour. So count the ways for each (last colour, length of the run at the end: 1 or 2).",
+   "A flag of the same colour as the last one turns a run of 1 into a run of 2 and is forbidden after a run of 2; a flag of a different colour starts a run of 1. Skip colours that disagree with a flag already chosen. That is 6 numbers updated per flag, modulo $10^9 + 7$."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "3\n0 0 0\n",
+    "24"
+   ],
+   [
+    "4\n1 1 0 0\n",
+    "6"
+   ],
+   [
+    "3\n2 2 2\n",
+    "0"
+   ],
+   [
+    "1\n0\n",
+    "3"
+   ]
+  ]
+ },
+ {
+  "id": "p4-pass",
+  "title": "D. One free road",
+  "level": "middle to hard",
+  "seconds": 1.0,
+  "behind": [
+   "shortest-paths",
+   "state-graph"
+  ],
+  "statement": "A state has $n$ cities and $m$ two-way roads; travelling along road $i$ costs $w_i$ rupees in tolls. A driver goes from city 1 to city $n$ and holds one pass that makes the toll of a single road of their choice free (once). Find the smallest total toll, or report that city $n$ cannot be reached.\n\n**Input.** The first line contains $n$ and $m$ ($2 \\le n \\le 5 \\cdot 10^4$, $0 \\le m \\le 10^5$). Each of the next $m$ lines contains $a$, $b$ and $w$: a road between different cities $a$ and $b$ with toll $w$ ($1 \\le w \\le 10^9$). Several roads may join the same two cities.\n\n**Output.** The smallest total toll, or $-1$ if there is no route.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport heapq\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 6), 'medium': 2000, 'large': 50000}[size]; m = {'small': rng.randint(0, 8), 'medium': 4000, 'large': 100000}[size]\n    top = 9 if size == 'small' else 10 ** 9; edges = []\n    if size != 'small' and rng.random() < 0.8:\n        for i in range(1, n): edges.append((i, i + 1, rng.randint(top // 2, top)))\n    while len(edges) < m:\n        a = rng.randint(1, n); b = rng.randint(1, n)\n        if size != 'small' and rng.random() < 0.7: b = min(n, a + rng.randint(1, 30))\n        if a != b: edges.append((a, b, rng.randint(1, top)))\n    edges = edges[:m]; rng.shuffle(edges)\n    return f\"{n} {len(edges)}\\n\" + ''.join(f\"{a} {b} {w}\\n\" for a, b, w in edges)\ndef read(text):\n    v = ints(text); n, m = v[0], v[1]; return n, [(v[2 + 3 * i], v[3 + 3 * i], v[4 + 3 * i]) for i in range(m)]\ndef dijkstra(n, g, s):\n    d = [None] * (n + 1); d[s] = 0; pq = [(0, s)]\n    while pq:\n        dist, a = heapq.heappop(pq)\n        if dist > d[a]: continue\n        for b, w in g[a]:\n            if d[b] is None or dist + w < d[b]: d[b] = dist + w; heapq.heappush(pq, (dist + w, b))\n    return d\ndef solve(text):\n    n, edges = read(text); g = [[] for _ in range(n + 1)]\n    for a, b, w in edges: g[a].append((b, w)); g[b].append((a, w))\n    d1 = dijkstra(n, g, 1); dn = dijkstra(n, g, n)\n    if d1[n] is None: return '-1'\n    best = d1[n]\n    for a, b, w in edges:\n        if d1[a] is not None and dn[b] is not None: best = min(best, d1[a] + dn[b])\n        if d1[b] is not None and dn[a] is not None: best = min(best, d1[b] + dn[a])\n    return str(best)\ndef brute(text):\n    n, edges = read(text); INF = float('inf'); best = INF\n    for skip in range(-1, len(edges)):\n        d = [INF] * (n + 1); d[1] = 0\n        for _ in range(n):\n            for i, (a, b, w) in enumerate(edges):\n                w = 0 if i == skip else w\n                if d[a] + w < d[b]: d[b] = d[a] + w\n                if d[b] + w < d[a]: d[a] = d[b] + w\n        best = min(best, d[n])\n    return '-1' if best == INF else str(best)\n",
+  "hints": [
+   "Trying the pass on every road and running a shortest-path search each time is far too slow. What extra fact about the driver, besides the city they are in, decides what they can still do?",
+   "Whether the pass has been used. Think of two copies of the map: one for \"pass still in hand\" and one for \"pass used\". Which moves lead from the first copy to the second?",
+   "From city $a$ in the first copy, a road to $b$ costs $w$ and stays in the first copy, or costs 0 and lands on $b$ in the second copy; in the second copy every road costs $w$. Run Dijkstra over these $2n$ states. (Equivalently: distances from city 1 and from city $n$, then try each road as the free one.) Totals need 64 bits."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "3 3\n1 2 5\n2 3 7\n1 3 20\n",
+    "0"
+   ],
+   [
+    "4 3\n1 2 4\n2 3 9\n3 4 2\n",
+    "6"
+   ],
+   [
+    "3 1\n1 2 5\n",
+    "-1"
+   ]
+  ]
+ },
+ {
+  "id": "p4-triples",
+  "title": "E. Three signal towers",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "bits-independent"
+  ],
+  "statement": "There are $n$ signal towers; tower $i$ broadcasts the code $a_i$. Any three different towers together produce the combined code $a_i \\oplus a_j \\oplus a_k$ (bitwise XOR). Find the sum of the combined codes over all ways of choosing three towers.\n\n**Input.** The first line contains $n$ ($3 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($0 \\le a_i < 2^{30}$).\n\n**Output.** The sum modulo $10^9 + 7$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nMOD = 10 ** 9 + 7\ndef gen(rng, size):\n    n = {'small': rng.randint(3, 8), 'medium': 3000, 'large': 200000}[size]; bits = rng.choice([1, 2, 3]) if size == 'small' else rng.choice([1, 30, 30])\n    return f\"{n}\\n{' '.join(str(rng.randrange(1 << bits)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); n = v[0]; a = v[1:1 + n]; ans = 0\n    for b in range(30):\n        c1 = sum(x >> b & 1 for x in a); c0 = n - c1\n        ans += (c1 * (c0 * (c0 - 1) // 2) + c1 * (c1 - 1) * (c1 - 2) // 6) << b\n    return str(ans % MOD)\ndef brute(text):\n    v = ints(text); n = v[0]; a = v[1:1 + n]\n    return str(sum(a[i] ^ a[j] ^ a[k] for i in range(n) for j in range(i + 1, n) for k in range(j + 1, n)) % MOD)\n",
+  "hints": [
+   "XOR works on each bit position separately, and the value of a number is the sum of its bits times powers of two. So answer the question for a single bit first: the codes are just 0s and 1s.",
+   "For one bit, a triple contributes 1 exactly when an odd number of its three towers has that bit set: one of them, or all three. If $c_1$ towers have the bit and $c_0$ do not, how many such triples are there?",
+   "$c_1 \\cdot \\binom{c_0}{2} + \\binom{c_1}{3}$. Multiply by $2^b$ and add over the 30 bit positions, taking everything modulo $10^9 + 7$ (the counts themselves do not fit in 64 bits once multiplied, so reduce as you go)."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "3\n1 2 4\n",
+    "7"
+   ],
+   [
+    "4\n1 1 1 1\n",
+    "4"
+   ],
+   [
+    "4\n5 3 6 0\n",
+    "14"
+   ]
+  ]
+ },
+ {
+  "id": "p4-bridges",
+  "title": "F. Bridges in the flood",
+  "level": "hard",
+  "seconds": 1.0,
+  "behind": [
+   "reverse-time",
+   "dsu"
+  ],
+  "statement": "A river delta has $n$ islands and $m$ bridges. The flood destroys the bridges one by one, in the order they are listed. After each bridge is destroyed, the district officer wants to know the size of the largest group of islands that are still connected to each other by the remaining bridges (an island alone is a group of size 1).\n\n**Input.** The first line contains $n$ and $m$ ($1 \\le n \\le 10^5$, $1 \\le m \\le 10^5$). Each of the next $m$ lines contains $a$ and $b$: a bridge between different islands $a$ and $b$. Several bridges may join the same two islands.\n\n**Output.** $m$ lines: the size of the largest connected group after the first bridge is destroyed, after the first two, and so on.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 6) + 1, 'medium': 2000, 'large': 100000}[size]; m = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 100000}[size]\n    kind = rng.choice(['random', 'path', 'local']); edges = []\n    for i in range(m):\n        if kind == 'path' and size != 'small': a = i % (n - 1) + 1; b = a + 1\n        elif kind == 'local' and size != 'small': a = rng.randint(1, n - 1); b = min(n, a + rng.randint(1, 3))\n        else:\n            a = rng.randint(1, n); b = rng.randint(1, n)\n            if a == b: b = a % n + 1\n        edges.append((a, b))\n    if kind == 'path': rng.shuffle(edges)\n    return f\"{n} {m}\\n\" + ''.join(f\"{a} {b}\\n\" for a, b in edges)\ndef solve(text):\n    v = ints(text); n, m = v[0], v[1]; p = list(range(n + 1)); sz = [1] * (n + 1); ans = [0] * m; best = 1\n    for i in range(m - 1, -1, -1):\n        ans[i] = best; a = v[2 + 2 * i]; b = v[3 + 2 * i]\n        while p[a] != a: p[a] = p[p[a]]; a = p[a]\n        while p[b] != b: p[b] = p[p[b]]; b = p[b]\n        if a != b:\n            if sz[a] < sz[b]: a, b = b, a\n            p[b] = a; sz[a] += sz[b]\n            if sz[a] > best: best = sz[a]\n    return '\\n'.join(map(str, ans))\ndef brute(text):\n    v = ints(text); n, m = v[0], v[1]; edges = [(v[2 + 2 * i], v[3 + 2 * i]) for i in range(m)]; out = []\n    for k in range(1, m + 1):\n        g = [[] for _ in range(n + 1)]\n        for a, b in edges[k:]: g[a].append(b); g[b].append(a)\n        seen = [False] * (n + 1); best = 0\n        for s in range(1, n + 1):\n            if seen[s]: continue\n            seen[s] = True; st = [s]; c = 0\n            while st:\n                a = st.pop(); c += 1\n                for b in g[a]:\n                    if not seen[b]: seen[b] = True; st.append(b)\n            best = max(best, c)\n        out.append(best)\n    return '\\n'.join(map(str, out))\n",
+  "hints": [
+   "Groups that fall apart are hard to follow: no simple structure can split a group quickly. Is there a way to look at the same events so that groups only ever merge?",
+   "Play the flood backwards. Start from the end, when every bridge is gone and each island is alone, and add the bridges back from the last one destroyed to the first. Which structure handles \"join two groups, tell me the size\"?",
+   "A union-find with sizes, keeping the largest size seen. The answer after the first $i$ bridges are destroyed is the state when bridges $i+1, \\dots, m$ have been added back, so record the largest size just **before** adding bridge $i$, and print the recorded values in forward order."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "4 4\n1 2\n3 4\n2 3\n1 3\n",
+    "4\n3\n2\n1"
+   ],
+   [
+    "3 2\n1 2\n1 2\n",
+    "2\n1"
+   ]
+  ]
+ },
+ {
+  "id": "p5-bamboo",
+  "title": "A. The bamboo frame",
+  "level": "warm-up",
+  "seconds": 1.0,
+  "behind": [
+   "exchange"
+  ],
+  "statement": "A craftsman has $n$ bamboo sticks; stick $i$ has length $a_i$. He wants to pick three of them and tie them end to end into a triangle with positive area (so the longest of the three must be strictly shorter than the other two together). Find the largest possible perimeter, or report that no triangle can be made.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^9$).\n\n**Output.** The largest perimeter, or $-1$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 3000, 'large': 200000}[size]; kind = rng.choice(['random', 'powers', 'fib'])\n    if kind == 'random' or size == 'small': a = [rng.randint(1, 12 if size == 'small' else 10 ** 9) for _ in range(n)]\n    elif kind == 'powers': a = [2 ** rng.randint(0, 29) for _ in range(n)]; a = list(set(a)) + [10 ** 9] * 0; a += [1] * 0\n    else:\n        f = [1, 2]\n        while f[-1] + f[-2] <= 10 ** 9: f.append(f[-1] + f[-2])\n        a = f + ([rng.choice(f[:20])] if rng.random() < 0.5 else [])\n    rng.shuffle(a)\n    return f\"{len(a)}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); a = sorted(v[1:1 + v[0]])\n    for i in range(len(a) - 1, 1, -1):\n        if a[i - 2] + a[i - 1] > a[i]: return str(a[i - 2] + a[i - 1] + a[i])\n    return '-1'\ndef brute(text):\n    v = ints(text); a = v[1:1 + v[0]]; n = len(a); best = -1\n    for i in range(n):\n        for j in range(i + 1, n):\n            for k in range(j + 1, n):\n                x, y, z = sorted((a[i], a[j], a[k]))\n                if x + y > z: best = max(best, x + y + z)\n    return str(best)\n",
+  "hints": [
+   "Sort the sticks. Suppose the longest stick of your triangle is fixed. Which two shorter sticks give it the best chance of forming a triangle, and the largest perimeter at the same time?",
+   "The two sticks just below it in sorted order: replacing either partner by a longer one can only help both the triangle condition and the perimeter. So only triples of neighbours in the sorted order need checking.",
+   "Go through the sorted array from the long end and print the first neighbouring triple with $a_{i-2} + a_{i-1} > a_i$; its perimeter is the largest. If none exists print $-1$. The sum needs 64 bits."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "5\n2 3 4 9 5\n",
+    "12"
+   ],
+   [
+    "3\n1 2 3\n",
+    "-1"
+   ],
+   [
+    "2\n5 5\n",
+    "-1"
+   ],
+   [
+    "4\n10 1 1 1\n",
+    "3"
+   ]
+  ]
+ },
+ {
+  "id": "p5-thali",
+  "title": "B. A varied thali",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "two-pointers"
+  ],
+  "statement": "A long buffet counter has $n$ dishes in a row; dish $i$ is of kind $a_i$. A guest walks along a stretch of consecutive dishes and takes every one of them, but their plate has room for at most $k$ different kinds. What is the largest number of dishes the guest can take?\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^9$).\n\n**Output.** One number: the length of the longest stretch with at most $k$ different kinds.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]; top = 4 if size == 'small' else rng.choice([3, 50, 10 ** 9])\n    k = rng.randint(1, min(n, 3)) if size == 'small' else rng.choice([1, 2, 40, n // 3 + 1, n])\n    return f\"{n} {min(k, n)}\\n{' '.join(str(rng.randint(1, top)) for _ in range(n))}\\n\"\ndef solve(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:2 + n]; c = {}; l = 0; best = 0\n    for r in range(n):\n        c[a[r]] = c.get(a[r], 0) + 1\n        while len(c) > k:\n            x = a[l]; c[x] -= 1\n            if c[x] == 0: del c[x]\n            l += 1\n        if r - l + 1 > best: best = r - l + 1\n    return str(best)\ndef brute(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:2 + n]\n    return str(max(j - i + 1 for i in range(n) for j in range(i, n) if len(set(a[i:j + 1])) <= k))\n",
+  "hints": [
+   "Fix the right end of the stretch and take the left end as far left as the plate allows. When the right end moves one dish to the right, can that best left end ever move to the left?",
+   "No: a stretch that was too varied stays too varied when a dish is added. So both ends only move rightwards. What do you need to keep so that you know the number of different kinds inside the stretch at any moment?",
+   "A hash map from kind to how many of it are inside. Add the new dish; while the map holds more than $k$ kinds, remove the leftmost dish (deleting its kind when the count reaches 0) and advance the left end. Record the largest length seen."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "7 2\n1 2 1 3 3 3 2\n",
+    "4"
+   ],
+   [
+    "4 1\n5 5 6 6\n",
+    "2"
+   ],
+   [
+    "3 3\n1 2 3\n",
+    "3"
+   ]
+  ]
+ },
+ {
+  "id": "p5-tiles",
+  "title": "C. Square courtyards",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "sieve",
+   "seen-table"
+  ],
+  "statement": "A mason has $n$ boxes of tiles; box $i$ contains $a_i$ tiles. Two boxes $i < j$ are a good match if $a_i \\cdot a_j$ tiles can pave a square courtyard exactly, that is, if $a_i \\cdot a_j$ is a perfect square. Count the good matches.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^6$).\n\n**Output.** One number: the number of pairs $i < j$ with $a_i \\cdot a_j$ a perfect square.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport math\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 3000, 'large': 200000}[size]\n    if size == 'small': a = [rng.randint(1, 20) for _ in range(n)]\n    else:\n        kern = [rng.choice([1, 2, 3, 6, 10, 30, 210, 997]) for _ in range(n)]\n        a = []\n        for q in kern:\n            s = rng.randint(1, int(math.isqrt(10 ** 6 // q))); a.append(q * s * s if rng.random() < 0.8 else rng.randint(1, 10 ** 6))\n    return f\"{n}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:1 + v[0]]; mx = max(a); spf = list(range(mx + 1)); i = 2\n    while i * i <= mx:\n        if spf[i] == i:\n            for j in range(i * i, mx + 1, i):\n                if spf[j] == j: spf[j] = i\n        i += 1\n    cnt = {}; memo = {}; ans = 0\n    for x in a:\n        k = memo.get(x)\n        if k is None:\n            y = x; k = 1\n            while y > 1:\n                p = spf[y]; c = 0\n                while y % p == 0: y //= p; c ^= 1\n                if c: k *= p\n            memo[x] = k\n        t = cnt.get(k, 0); ans += t; cnt[k] = t + 1\n    return str(ans)\ndef brute(text):\n    v = ints(text); a = v[1:1 + v[0]]\n    return str(sum(1 for i in range(len(a)) for j in range(i + 1, len(a)) if math.isqrt(a[i] * a[j]) ** 2 == a[i] * a[j]))\n",
+  "hints": [
+   "A number is a perfect square exactly when every prime appears in it an even number of times. In the product $a_i \\cdot a_j$ the exponents add. So which part of $a_i$ actually matters?",
+   "Only which primes appear an **odd** number of times. Strip all squares out of each number: keep the product of the primes with odd exponent. When is the product of two numbers a square, in terms of these stripped values?",
+   "Exactly when the two stripped values are equal. Compute smallest prime factors with a sieve up to $10^6$, reduce every $a_i$ to its stripped value, and count pairs of equal values with a table of counts."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "5\n2 8 3 12 1\n",
+    "2"
+   ],
+   [
+    "3\n4 9 1\n",
+    "3"
+   ],
+   [
+    "2\n6 10\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "p5-digits",
+  "title": "D. Rubbing out digits",
+  "level": "middle",
+  "seconds": 1.0,
+  "behind": [
+   "win-lose-states"
+  ],
+  "statement": "A number is written on a slate. Two children take turns. On a turn, the child picks one **non-zero digit** of the number currently on the slate and subtracts that digit from the number. The child who is faced with the number 0 cannot move and loses. Both play as well as possible.\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains a starting number $n$ ($1 \\le n \\le 2 \\cdot 10^5$).\n\n**Output.** For each starting number print `First` if the child who moves first wins, and `Second` otherwise.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport functools, sys\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 2000, 'large': 100000}[size]; top = 60 if size == 'small' else 200000\n    return f\"{t}\\n\" + ''.join(f\"{rng.randint(1, top)}\\n\" for _ in range(t))\n_win = [False]\ndef table(top):\n    while len(_win) <= top:\n        x = len(_win); _win.append(any(not _win[x - int(d)] for d in str(x) if d != '0'))\n    return _win\ndef solve(text):\n    v = ints(text); w = table(max(v[1:1 + v[0]]))\n    return '\\n'.join('First' if w[x] else 'Second' for x in v[1:1 + v[0]])\ndef brute(text):\n    v = ints(text); sys.setrecursionlimit(10000)\n    @functools.lru_cache(maxsize=None)\n    def win(x): return any(not win(x - int(d)) for d in set(str(x)) if d != '0')\n    return '\\n'.join('First' if win(x) else 'Second' for x in v[1:1 + v[0]])\n",
+  "hints": [
+   "Call a number losing if the child who must move from it loses, and winning otherwise. 0 is losing. How do you decide a number once all smaller numbers are decided?",
+   "A number is winning exactly when some move from it leads to a losing number, and losing when every move leads to a winning one. Every move makes the number smaller, so the numbers can be decided in increasing order.",
+   "Fill a table from 1 up to $2 \\cdot 10^5$: for each number try each of its non-zero digits (at most six) and look at the entry that many places back. Then answer every query by a look-up. (Printing the table will also show you a pattern.)"
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "4\n7\n10\n11\n20\n",
+    "First\nSecond\nFirst\nSecond"
+   ]
+  ]
+ },
+ {
+  "id": "p5-calm",
+  "title": "E. Calm stretches",
+  "level": "middle to hard",
+  "seconds": 1.0,
+  "behind": [
+   "window-max",
+   "two-pointers"
+  ],
+  "statement": "A tide gauge recorded the sea level at $n$ consecutive hours. A stretch of consecutive hours is calm if the highest and the lowest level within it differ by at most $k$. Count the calm stretches (a single hour is always calm).\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le n \\le 2 \\cdot 10^5$, $0 \\le k \\le 10^9$). The second line contains the $n$ levels, whole numbers between 1 and $10^9$.\n\n**Output.** One number: the number of calm stretches.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nfrom collections import deque\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 3000, 'large': 200000}[size]; top = 6 if size == 'small' else rng.choice([10, 10 ** 9]); kind = rng.choice(['random', 'up', 'walk'])\n    a = [rng.randint(1, top) for _ in range(n)]\n    if kind == 'up': a.sort()\n    if kind == 'walk':\n        x = top // 2 + 1; a = []\n        for _ in range(n): x = min(top, max(1, x + rng.randint(-2, 2))); a.append(x)\n    k = rng.randint(0, 4) if size == 'small' else rng.choice([0, 3, top // 3, top])\n    return f\"{n} {k}\\n{' '.join(map(str, a))}\\n\"\ndef solve(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:2 + n]; hi = deque(); lo = deque(); ans = 0; l = 0\n    for r in range(n):\n        x = a[r]\n        while hi and a[hi[-1]] <= x: hi.pop()\n        hi.append(r)\n        while lo and a[lo[-1]] >= x: lo.pop()\n        lo.append(r)\n        while a[hi[0]] - a[lo[0]] > k:\n            l += 1\n            if hi[0] < l: hi.popleft()\n            if lo[0] < l: lo.popleft()\n        ans += r - l + 1\n    return str(ans)\ndef brute(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:2 + n]\n    return str(sum(1 for i in range(n) for j in range(i, n) if max(a[i:j + 1]) - min(a[i:j + 1]) <= k))\n",
+  "hints": [
+   "If a stretch is calm, every stretch inside it is calm too. So for each right end $r$ there is a leftmost start $l(r)$ such that exactly the stretches starting at $l(r), \\dots, r$ are calm. How does $l(r)$ behave as $r$ grows?",
+   "It never moves left, so two pointers work and the answer is the sum of $r - l(r) + 1$. The missing piece: the highest and lowest level of the current window, while elements enter on the right and leave on the left.",
+   "Keep two queues of positions: one with levels decreasing from front to back (its front is the window maximum) and one increasing (its front is the minimum). A new element pops everything it dominates from the back; when the left end passes the front, pop the front. Advance the left end while front-max minus front-min exceeds $k$."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "4 1\n3 4 2 2\n",
+    "6"
+   ],
+   [
+    "3 0\n5 5 5\n",
+    "6"
+   ],
+   [
+    "5 10\n1 20 3 14 9\n",
+    "6"
+   ]
+  ]
+ },
+ {
+  "id": "p5-plates",
+  "title": "F. Lucky number plates",
+  "level": "hard",
+  "seconds": 1.0,
+  "behind": [
+   "digit-dp"
+  ],
+  "statement": "A transport office issues number plates with the numbers from $L$ to $R$. A plate is lucky if no two neighbouring digits of its number are equal and the sum of its digits is divisible by $k$. Numbers are written without leading zeros. Count the lucky plates.\n\n**Input.** One line with $L$, $R$ and $k$ ($1 \\le L \\le R \\le 10^{18}$, $1 \\le k \\le 100$).\n\n**Output.** One number: how many numbers from $L$ to $R$ are lucky.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    if size == 'small':\n        L = rng.randint(1, 3000); R = rng.randint(L, 3000); return f\"{L} {R} {rng.randint(1, 12)}\\n\"\n    R = rng.choice([10 ** 18, rng.randint(1, 10 ** 18), 999999999999999999, rng.randint(1, 10 ** 9)]); L = rng.choice([1, rng.randint(1, R)])\n    return f\"{L} {R} {rng.choice([1, 2, 9, 17, 100, rng.randint(1, 100)])}\\n\"\ndef count(N, k):\n    if N <= 0: return 0\n    digs = list(map(int, str(N))); memo = {}\n    def go(i, last, mod, tight, started):\n        if i == len(digs): return 1 if started and mod == 0 else 0\n        key = (i, last, mod, started)\n        if not tight and key in memo: return memo[key]\n        t = 0; hi = digs[i] if tight else 9\n        for d in range(hi + 1):\n            if started and d == last: continue\n            ns = started or d > 0\n            t += go(i + 1, d if ns else 10, (mod + d) % k if ns else 0, tight and d == hi, ns)\n        if not tight: memo[key] = t\n        return t\n    return go(0, 10, 0, True, False)\ndef solve(text):\n    L, R, k = ints(text)\n    return str(count(R, k) - count(L - 1, k))\ndef brute(text):\n    L, R, k = ints(text); c = 0\n    for x in range(L, R + 1):\n        s = str(x)\n        if sum(map(int, s)) % k == 0 and all(s[i] != s[i + 1] for i in range(len(s) - 1)): c += 1\n    return str(c)\n",
+  "hints": [
+   "Count the lucky numbers from 1 to $N$ for any $N$; the answer is then that count for $R$ minus that count for $L - 1$. Build a number digit by digit from the left. What must you remember about the digits already written?",
+   "The previous digit (to forbid repeating it), the digit sum modulo $k$, whether the number has started yet (leading zeros are not digits), and whether the digits so far are still equal to the beginning of $N$ or already smaller.",
+   "Count with a memo over (position, previous digit, sum modulo $k$, started). While the prefix still equals $N$ the next digit is limited by the digit of $N$; once it is smaller, any digit is allowed and the memo applies. That is about $19 \\cdot 11 \\cdot 100 \\cdot 2$ states with 10 choices each."
+  ],
+  "track": "predictions",
+  "samples": [
+   [
+    "1 30 3\n",
+    "10"
+   ],
+   [
+    "10 99 1\n",
+    "81"
+   ],
+   [
+    "100 130 4\n",
+    "6"
+   ]
+  ]
  }
 ]

@@ -610,7 +610,16 @@ class Service:
         opened = self.nudges_open(store, 'task', task_id, '-')
         # Only the hints already opened are sent; the rest stay on the server.
         return {**tasks.public(task, store), 'statement': task['statement'], 'samples': task['samples'], 'seconds': task.get('seconds', 1.0),
-                'hints': task['hints'][:opened], 'hints_total': len(task['hints']), 'basis': self.task_basis(store, task_id)}
+                'hints': task['hints'][:opened], 'hints_total': len(task['hints']), 'basis': self.task_basis(store, task_id), 'behind': self.task_behind(store, task)}
+
+    def task_behind(self, store, task):
+        """For a prediction: the chains and Toolbox pages that teach what it needs. Sent to the page, which keeps it folded
+        until she asks. A chain she has not derived is given by its area only, never by its name."""
+        derived = self.derived(store)
+        area = {a['id']: a['title'] for a in self.content.areas}
+        out = [{'kind': 'chain', 'id': i, 'area': area[self.content.ideas[i]['area']], 'name': self.content.ideas[i]['name'] if i in derived else None}
+               for i in task.get('behind', []) if i in self.content.ideas]
+        return out + [{'kind': 'tool', 'id': t, 'title': self.content.tools[t]['title']} for t in task.get('behind_pages', []) if t in self.content.tools]
 
     def task_hint(self, store, data):
         """Open the next hint of a task. Hints come one at a time, in order: a question, the observation, then the plan."""

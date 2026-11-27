@@ -48,7 +48,9 @@ class Content:
                             {'id': 'tables', 'title': 'Tables and orders', 'about': 'Filling a table in the right order, and sorting by the right key.'},
                             {'id': 'bits', 'title': 'Bits and games', 'about': 'XOR, masks, and positions that win or lose.'},
                             {'id': 'strings', 'title': 'Strings', 'about': 'Matching without comparing letter by letter.'},
-                            {'id': 'toolbox', 'title': 'From the toolbox', 'about': 'The tasks that go with the Toolbox pages.'}]
+                            {'id': 'toolbox', 'title': 'From the toolbox', 'about': 'The tasks that go with the Toolbox pages.'},
+                            # Written for this course as a guess at what a regional could ask; shown on its own page, not under Code.
+                            {'id': 'predictions', 'title': 'Predictions', 'about': 'Original problems in the style of an ICPC regional.'}]
         # Toolbox pages: techniques that are recognised and written rather than derived.
         path = self.root / 'content/tools.json'
         self.tools = {t['id']: t for t in json.loads(path.read_text())} if path.exists() else {}
@@ -195,6 +197,15 @@ def problems(content):
         if not puzzle.get('verify') and not (puzzle.get('judged') and puzzle.get('kind') == 'choice'):
             faults.append(f'{tag}: needs brute-force "verify" code')
     for task in content.tasks.values():
+        if task.get('track') == 'predictions':
+            if not task.get('behind') and not task.get('behind_pages'):
+                faults.append(f'task {task["id"]}: a prediction must name the chain or Toolbox page behind it')
+            for i in task.get('behind', []):
+                if i not in content.chains:
+                    faults.append(f'task {task["id"]}: no chain for {i}')
+            for t in task.get('behind_pages', []):
+                if t not in content.tools:
+                    faults.append(f'task {task["id"]}: no Toolbox page {t}')
         tag = f'task {task.get("id")}'
         for key in ('title', 'statement', 'code'):
             if not task.get(key):

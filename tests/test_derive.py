@@ -572,6 +572,7 @@ class App(unittest.TestCase):
             self.assertIn('Three misses', stuck['say'])
             self.assertIn('99', session.seen_by_tutor(self.service, store, later(12)))  # the talking tutor is told what she typed
             # no break is offered in the middle of a question, however long it has been
+            self.assertNotIn('Moving on', session.status(self.service, store, later(50))['say'])   # and a long chain is not a reason to leave it
             self.assertIsNone(session.status(self.service, store, later(50))['offer_break'])
             # ... but just after a question is answered, it is
             store.run('INSERT OR IGNORE INTO steps_done VALUES(?,?,?,?)', ('residues', 'clock', stamp(51), '0'))

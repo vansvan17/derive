@@ -417,7 +417,7 @@ def status(service, store, at=None):
             tone, text = coach
         elif (at - _t(state['seen'])).total_seconds() >= IDLE:   # said only when there is nothing more useful to say
             tone, text = 'nudge', f'Nothing typed for {_mins((at - _t(state["seen"])).total_seconds())} minutes. Thinking on paper is fine. If you stepped away, call it a break so the clock stops.'
-        elif sig['on_stage'] >= LONG[stage['kind']]:
+        elif stage['kind'] != 'chain' and sig['on_stage'] >= LONG[stage['kind']]:   # a chain is many questions: a long time on it is just work
             tone, text = 'nudge', f'You have given this {_mins(sig["on_stage"])} minutes. Moving on is not failing: it stays exactly where you left it, and coming back fresh often cracks it.'
         else:
             tone, text = ('good' if praise else 'plain'), praise + INTRO[stage['kind']]
@@ -721,7 +721,7 @@ def wants_voice(service, store, at=None):
         key, why = f'{stage["id"]}|miss|{sig["step"]}', 'she has missed the question she is on twice. Give her one easier question of your own that leads towards it.'
     elif stage['kind'] == 'chain' and sig['clean'] >= 5:
         key, why = f'{stage["id"]}|flying', f'she has answered {sig["clean"]} questions in a row on the first try. Decide whether this chain is below her: if so, offer the skip test (the check action with a small coding task).'
-    elif sig['on_stage'] >= LONG[stage['kind']]:
+    elif stage['kind'] != 'chain' and sig['on_stage'] >= LONG[stage['kind']]:
         key, why = f'{stage["id"]}|long', f'she has been on this for {_mins(sig["on_stage"])} minutes. Decide: shrink it with a question of your own, send her to something easier first (goto), or move her on.'
     if not key or key == state.get('voiced'):
         return None

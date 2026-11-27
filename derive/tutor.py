@@ -149,7 +149,7 @@ def available():
     return shutil.which('codex') is not None
 
 
-def teach(prompt, run=subprocess.run):
+def teach(prompt, run=subprocess.run, effort=None):
     """Run Codex once on the prompt. Returns {'status': 'ok', 'reply': ...} or {'status': 'unavailable', 'reason': ...}.
 
     Codex can run commands, so it is started in an empty temporary folder with a
@@ -159,7 +159,9 @@ def teach(prompt, run=subprocess.run):
         return {'status': 'unavailable', 'reason': 'The codex command is not installed on this computer.'}
     with tempfile.TemporaryDirectory(prefix='derive-tutor-') as empty:
         out = Path(empty) / 'reply.txt'
-        command = ['codex', 'exec', '--skip-git-repo-check', '--sandbox', 'read-only', '--ephemeral', '--color', 'never',
+        # A conversation wants a quick reply more than a deep one, so it asks for less thinking than the user's own setting.
+        quick = ['-c', f'model_reasoning_effort="{effort}"'] if effort else []
+        command = ['codex', 'exec', '--skip-git-repo-check', '--sandbox', 'read-only', '--ephemeral', '--color', 'never', *quick,
                    '-C', empty, '-o', str(out), '-']
         try:
             done = run(command, input=prompt, capture_output=True, text=True, timeout=TIMEOUT, cwd=empty)

@@ -868,7 +868,9 @@ class Service:
         return {'break': session.take_break, 'back': session.back, 'keep': session.keep_going, 'next': session.move_on, 'end': session.end}[action](self, store)
 
     def work_sitting(self, payload):
-        outcome = self.teach(payload['prompt'])
+        # Talk is answered with little thinking so that it comes back in a few seconds; the plan gets the usual amount.
+        quick = payload['mode'] == 'talk' and self.teach is tutor.teach
+        outcome = tutor.teach(payload['prompt'], effort='low') if quick else self.teach(payload['prompt'])
         if payload['mode'] == 'plan':
             with self.lock, self.store() as store:
                 if outcome['status'] != 'ok':

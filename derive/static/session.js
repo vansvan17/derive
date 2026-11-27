@@ -2,7 +2,7 @@
    The rules live on the server (derive/session.py) and read the record the app already keeps. This file is the
    strip that stays at the top of every page while a sitting runs, and the page where one is started and reviewed.
    Nothing is locked while a sitting runs; the strip only points. */
-const BEAT = 15000, FAST = 3000;      // how often the page reports in; faster while the tutor is writing                       // how often the page reports in, in milliseconds
+const BEAT = 15000, FAST = 1000;      // how often the page reports in; faster while the tutor is writing                       // how often the page reports in, in milliseconds
 let hooks = null, status = null, timer = null, beat = null, active = true, tickAt = 0, lastStage = '';
 let dockOpen = false, shownChat = -1, unread = 0, steered = null;
 try { dockOpen = localStorage.getItem('derive-tutor-dock') === 'open'; } catch { /* the dock just starts closed */ }

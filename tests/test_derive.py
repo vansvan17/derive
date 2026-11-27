@@ -431,6 +431,22 @@ class App(unittest.TestCase):
         after = self.get('/task/equal-pairs')
         self.assertEqual((after['solved'], after['tries']), (True, 3))
 
+    def test_a_task_points_at_what_it_rests_on_until_she_has_it(self):
+        basis = lambda tid: self.get('/task/' + tid)['basis']
+        self.assertEqual(basis('s-ranks'), [])                                                          # rests on nothing
+        sums = basis('s-grid-sums')
+        self.assertEqual([(b['kind'], b['id']) for b in sums], [('chain', 'prefix-sums')])
+        self.assertNotIn('name', sums[0]); self.assertTrue(sums[0]['area'])                             # an underived idea is never named
+        listed = {t['id']: t['basis'] for t in self.get('/tasks')['tasks']}
+        self.assertEqual(listed['s-grid-sums'], sums)
+        tool = next(t for t in self.service.content.tools.values() if t['id'] == 'lis')
+        self.assertEqual([(b['kind'], b['id']) for b in basis(tool['task'])], [('tool', 'lis')])     # a Toolbox task points at its page
+        with self.service.store() as store:
+            store.run('INSERT OR IGNORE INTO discoveries(idea, at) VALUES(?, ?)', ('prefix-sums', '2026-01-01T00:00:00+00:00'))
+            store.run('INSERT INTO tasks_done(task, at, tries) VALUES(?, ?, 1)', (tool['task'], '2026-01-01T00:00:00+00:00'))
+        self.assertEqual(basis('s-grid-sums'), [])                                                      # derived: nothing is said
+        self.assertEqual(basis(tool['task']), [])
+
     def test_standard_moves_count_first_submission_accepts_on_their_own(self):
         listed = [t for t in self.get('/tasks')['tasks'] if t['track'] == 'standard']
         self.assertEqual(len(listed), 12)

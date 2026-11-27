@@ -99,6 +99,80 @@
   "checked": "2026-11-27"
  },
  {
+  "id": "cf-2128D",
+  "site": "Codeforces",
+  "contest": 2128,
+  "index": "D",
+  "title": "Sum of LDS",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2128/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/145080",
+  "ideas": [
+   "contribution",
+   "matching-bounds"
+  ],
+  "observations": [
+   "Wherever p_i < p_(i+1), a decreasing subsequence cannot take both. The condition max(p_i, p_(i+1)) > p_(i+2) means two such rises never share an element, so a block loses at least one element per rise inside it.",
+   "That bound is reached: under the condition, dropping one element per rise leaves a decreasing sequence. So the longest decreasing subsequence of a block is its length minus the number of rises inside it.",
+   "Sum the lengths of all blocks, then subtract, for each rise at i, the number of blocks that contain both i and i + 1: (choices of l up to i) times (choices of r from i + 1)."
+  ],
+  "nudges": [
+   "What stops a decreasing subsequence from taking two neighbouring elements?",
+   "Can two of those obstacles overlap, given the condition in the statement? What does that give as a bound, and can it be reached?",
+   "Once the answer for one block is 'length minus a count of local events', how do you add it up over all blocks without visiting them?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2129B",
+  "site": "Codeforces",
+  "contest": 2129,
+  "index": "B",
+  "title": "Stay or Mirror",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2129/problem/B",
+  "editorial": "https://codeforces.com/blog/entry/145152",
+  "ideas": [
+   "extremal",
+   "contribution"
+  ],
+  "observations": [
+   "Look at the position holding 1. Left as 1 it is the smallest value, so it forms an inversion with everything before it; mirrored it is the largest, so it forms one with everything after it. Nothing else about the array matters to it.",
+   "Choose the cheaper side, remove that element, and the rest is the same problem: the next smallest value is now in the same situation among the elements that are larger than it.",
+   "So the answer is the sum over i of min(number of larger elements to the left, number of larger elements to the right). n is 5000, so counting them directly is fine."
+  ],
+  "nudges": [
+   "Start with the element whose value is 1. What are its two possible final values, compared with everyone else's?",
+   "For that element, which pairs become inversions in each case? Do they depend on the other choices?",
+   "After fixing it, which element is in the same position of knowing everything about itself?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2167F",
+  "site": "Codeforces",
+  "contest": 2167,
+  "index": "F",
+  "title": "Tree, TREE!!!",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2167/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/147869",
+  "ideas": [
+   "contribution"
+  ],
+  "observations": [
+   "For a fixed root, a vertex is the lowest common ancestor of some k vertices exactly when its subtree has at least k vertices.",
+   "Turn the double sum round: for each vertex v, count the roots for which v's subtree has at least k vertices.",
+   "Root the tree anywhere and let s be the size of v's subtree. Roots outside it leave the subtree as it is, so they all count if s >= k. A root inside it, in the direction of a child c, gives v everything except c's part: that counts if n - size(c) >= k. The root v itself always counts."
+  ],
+  "nudges": [
+   "With the root fixed, which vertices can be an LCA of k distinct vertices?",
+   "Instead of asking, for each root, which vertices qualify, what could you ask for each vertex?",
+   "As the root moves around, what are the only possible sizes of v's subtree?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2167G",
   "site": "Codeforces",
   "contest": 2167,
@@ -122,6 +196,30 @@
    "What do you need to know about a kept subsequence in order to append one more element to it?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2182D",
+  "site": "Codeforces",
+  "contest": 2182,
+  "index": "D",
+  "title": "Christmas Tree Decoration",
+  "rating": 1600,
+  "url": "https://codeforces.com/contest/2182/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/149733",
+  "ideas": [
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "Each person should empty their own box first and only then use box 0.",
+   "With s decorations in total, everyone hangs k = s // n in the full rounds. Take those away: if box 0 would go negative, or somebody still has more than one of their own left, no order works.",
+   "In the last, partial round let z people have an empty box and x = z - (what is left in box 0). If x < 0 nothing works; otherwise choose which x of the z go at the end, order them, and order the other n - x: C(z, x) * x! * (n - x)!."
+  ],
+  "nudges": [
+   "From which box should a person take while they still have a choice?",
+   "How many decorations does every person hang, whatever the order? What must be true after removing those?",
+   "In the final round only some people hang something. Who is forced to be among the ones that do not, and where must they stand in the order?"
+  ],
+  "checked": "2026-11-27"
  },
  {
   "id": "cf-2193F",
@@ -219,6 +317,31 @@
    "What does the condition say about where the copies of one letter can stand?",
    "Once you know which letters go to the odd positions, how many strings are there? Does it depend on which letters they are?",
    "Counting the ways to pick letters whose counts add up to a target: which standard table is that?"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
+  "id": "cf-2110D",
+  "site": "Codeforces",
+  "contest": 2110,
+  "index": "D",
+  "title": "Fewer Batteries",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/2110/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/143186",
+  "ideas": [
+   "search-answer",
+   "dp-state"
+  ],
+  "observations": [
+   "If the journey can be finished holding at most x batteries, it can be finished holding at most x + 1: binary search x.",
+   "For a fixed cap, let dp(v) be the largest number of batteries the robot can hold at v: add b_v, cut down to the cap, and pass along each passage whose requirement is met.",
+   "Passages only go from a smaller number to a larger one, so one sweep in index order fills the table."
+  ],
+  "nudges": [
+   "Suppose you were told 'never hold more than x'. Is the question easier? How does the answer to it change with x?",
+   "Under a cap, would you ever prefer to arrive somewhere with fewer batteries?",
+   "In what order can the checkpoints be processed so that each is final before it is used?"
   ],
   "checked": "2026-11-27"
  },

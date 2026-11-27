@@ -1705,6 +1705,9 @@
    "Everything except position $i$ is two blocks: the numbers before $i$ and the numbers after $i$. If you knew the gcd of each block, one more gcd would join them.",
    "Build two arrays: `pre[i]`, the gcd of the first $i$ numbers, and `suf[i]`, the gcd of the numbers from position $i$ to the end. Each is filled in one pass, `pre` from the left and `suf` from the right.",
    "With positions counted from 0, the answer for $i$ is `gcd(pre[i], suf[i + 1])`. Give both arrays $n + 1$ entries and let the empty block have gcd 0, because `gcd(0, x)` is $x$; then the first and last positions need no special case. The numbers reach $10^{18}$, so they need `long long`."
+  ],
+  "needs": [
+   "prefix-sums"
   ]
  },
  {
@@ -1728,6 +1731,9 @@
    "Let `p[i][j]` be the sum of the cells in the first $i$ rows and first $j$ columns. Give the table an extra row 0 and column 0 full of zeros, so that an empty corner is simply 0 and no question needs a special case.",
    "To fill it: `p[i][j] = cell(i, j) + p[i-1][j] + p[i][j-1] - p[i-1][j-1]`. The two neighbours both contain the corner above and to the left, so it is subtracted once.",
    "A question is answered by `p[r2][c2] - p[r1-1][c2] - p[r2][c1-1] + p[r1-1][c1-1]`. The index is $r_1 - 1$ and $c_1 - 1$, not $r_1$ and $c_1$, because the borders are included. A sum can reach $2.5 \\cdot 10^{14}$, so the table must be `long long`."
+  ],
+  "needs": [
+   "prefix-sums"
   ]
  },
  {
@@ -1751,6 +1757,9 @@
    "Do not touch every cell of every rectangle. Record each operation with a few marks, and turn the marks into the grid once at the end, the same way a running total turns $+v$ at $l$ and $-v$ at $r + 1$ into a row of values.",
    "In two dimensions an operation leaves four marks in a table `d`: $+v$ at $(r_1, c_1)$, $-v$ at $(r_1, c_2 + 1)$, $-v$ at $(r_2 + 1, c_1)$ and $+v$ at $(r_2 + 1, c_2 + 1)$. The marks land one past the rectangle, so `d` needs $n + 2$ rows and $m + 2$ columns.",
    "At the end, the value of cell $(i, j)$ is the sum of all marks in rows $1..i$ and columns $1..j$: `g[i][j] = d[i][j] + g[i-1][j] + g[i][j-1] - g[i-1][j-1]`. A cell can reach $2 \\cdot 10^{14}$ in size, so use `long long`."
+  ],
+  "needs": [
+   "difference-array"
   ]
  },
  {
@@ -1797,6 +1806,9 @@
    "Walk from left to right keeping a count, for every value, of how many times it has appeared so far. The answer for $a_i$ is the total of the counts of all values below $a_i$: a prefix sum over values, in an array that changes after every step.",
    "A prefix sum of a changing array is what a Fenwick tree gives (the task 'Totals of a changing array'). But the values run from $-10^9$ to $10^9$, far too wide to index a tree, so first replace every number by its rank as in task 3; ranks run from 1 to at most $n$ and keep the order.",
    "For each position: ask the tree for the total of ranks $1$ to $rank - 1$, print it, then add 1 at $rank$. Asking up to $rank$ instead would count equal numbers, and adding before asking would count the position itself; the first sample catches both."
+  ],
+  "needs": [
+   "fenwick"
   ]
  },
  {
@@ -1824,6 +1836,9 @@
    "Breadth-first search over cells: a queue of cells, and a table `dist` filled with $-1$ meaning 'not reached'. Put `S` in the queue with distance 0; repeatedly take the front cell and look at its four neighbours.",
    "Write the four moves once as two small arrays, `dr = {-1, 1, 0, 0}` and `dc = {0, 0, -1, 1}`, and loop over them. For each neighbour check, in this order, that it is inside the grid, that it is not a wall, and that its `dist` is still $-1$; only then set its distance and push it.",
    "Set the distance at the moment a cell is pushed, not when it is taken out; otherwise the same cell is pushed many times and the search slows down badly on an open grid. At the end print `dist` of `T`, which is still $-1$ if the search never reached it. Read the rows as strings, and find `S` and `T` by scanning the grid."
+  ],
+  "needs": [
+   "graph-walk"
   ]
  },
  {
@@ -1851,6 +1866,9 @@
    "With $n \\le 18$ there are at most $2^{18} = 262144$ sets, so all of them can be looked at. Number the sets from 0 to $2^n - 1$: in the number `mask`, bit $i$ is 1 exactly when item $i$ (counted from 0) is in the set. The loop is `for (int mask = 0; mask < (1 << n); mask++)`.",
    "Inside the loop, `mask >> i & 1` tells whether item $i$ is chosen: add up the weights of the chosen items, and reject the set if for some forbidden pair both of its bits are set.",
    "Checking a pair is one line if each pair is stored as its own mask `p = (1 << a) | (1 << b)`: the set contains the pair when `(mask & p) == p`. The total weight can reach $1.8 \\cdot 10^{15}$, so it and $W$ need `long long`; and item numbers in the input start at 1 while bits start at 0."
+  ],
+  "needs": [
+   "masks"
   ]
  }
 ]

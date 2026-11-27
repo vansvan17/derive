@@ -71,6 +71,14 @@ class Content:
                 return index, step
         raise KeyError('Unknown step.')
 
+    def task_basis(self, task_id):
+        """What a task rests on: the chains that end in it or that it names, and the Toolbox page it belongs to."""
+        tool = next((t for t in self.tools.values() if t['task'] == task_id), None)
+        named = [*self.tasks[task_id].get('needs', []), *(tool.get('needs', []) if tool else [])]
+        in_chain = [idea for idea, chain in self.chains.items() if any(s.get('task') == task_id for s in chain['steps'])]
+        ideas = [i for i in dict.fromkeys([*in_chain, *named]) if i in self.chains]
+        return ideas, tool
+
     def problems_for(self, idea):
         return [p for p in self.problems.values() if idea in p['ideas']]
 

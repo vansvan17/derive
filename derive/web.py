@@ -586,6 +586,16 @@ class Service:
         return {'correct': True, 'showed': puzzle['showed'], 'first_try': wrong == 0}
 
     # ---------- implement tasks ----------
+    def task_basis(self, store, task_id, derived=None):
+        """What to point at before a task: chains not derived yet (never named) and a Toolbox page not done yet. Empty once she has them."""
+        derived = self.derived(store) if derived is None else derived
+        ideas, tool = self.content.task_basis(task_id)
+        area = {a['id']: a['title'] for a in self.content.areas}
+        out = [{'kind': 'chain', 'id': i, 'area': area[self.content.ideas[i]['area']]} for i in ideas if i not in derived]
+        if tool and not store.one('SELECT 1 FROM tasks_done WHERE task=?', (task_id,)):
+            out.append({'kind': 'tool', 'id': tool['id'], 'title': tool['title']})
+        return out
+
     def task(self, store, task_id):
         task = self.content.tasks.get(task_id)
         if not task:
@@ -593,7 +603,7 @@ class Service:
         opened = self.nudges_open(store, 'task', task_id, '-')
         # Only the hints already opened are sent; the rest stay on the server.
         return {**tasks.public(task, store), 'statement': task['statement'], 'samples': task['samples'], 'seconds': task.get('seconds', 1.0),
-                'hints': task['hints'][:opened], 'hints_total': len(task['hints'])}
+                'hints': task['hints'][:opened], 'hints_total': len(task['hints']), 'basis': self.task_basis(store, task_id)}
 
     def task_hint(self, store, data):
         """Open the next hint of a task. Hints come one at a time, in order: a question, the observation, then the plan."""
@@ -977,7 +987,8 @@ class Service:
             if path.startswith('/tool/'):
                 return self.tool(store, path[6:])
             if path == '/tasks':
-                return {'tasks': [tasks.public(t, store) for t in self.content.tasks.values()], 'tracks': self.content.task_tracks}
+                derived = self.derived(store)
+                return {'tasks': [{**tasks.public(t, store), 'basis': self.task_basis(store, t['id'], derived)} for t in self.content.tasks.values()], 'tracks': self.content.task_tracks}
             if path.startswith('/task/'):
                 return self.task(store, path[6:])
             if path == '/puzzles':

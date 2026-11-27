@@ -4,6 +4,17 @@ import {makeEditor} from './problem.js';
 import {sideButton, wireSplit} from './split.js';
 const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
 
+/* A task can rest on a chain she has not derived or a Toolbox page she has not done. Say so, with links; say nothing once she has them.
+   A chain that is not derived is never named, only its area. */
+function basisLinks(basis, e) {
+  return basis.map(b => b.kind === 'chain' ? `<a href="#/chain/${e(b.id)}">a chain in ${e(b.area)}</a>` : `<a href="#/tool/${e(b.id)}">${e(b.title)}</a> in the Toolbox`).join(', ');
+}
+function basisNote(basis, e) {
+  if (!basis || !basis.length) return '';
+  const chains = basis.filter(b => b.kind === 'chain'), tools = basis.filter(b => b.kind === 'tool');
+  return `<aside class="basis-note" role="note">${chains.length ? `<p>Based on ${chains.length === 1 ? 'a concept' : 'concepts'} you have not derived yet: ${basisLinks(chains, e)}.</p>` : ''}${tools.length ? `<p>Goes with a Toolbox page you have not done yet: ${basisLinks(tools, e)}.</p>` : ''}</aside>`;
+}
+
 export async function renderTasks(ctx) {
   const {api, escape: e} = ctx;
   const root = ctx.root;
@@ -12,7 +23,7 @@ export async function renderTasks(ctx) {
   const done = page.tasks.filter(t => t.solved).length;
   root.innerHTML = `<header class="page-head"><div><p class="eyebrow">Write it</p><h1>Code</h1><p class="muted">Short tasks where you write the program yourself. No topic is given; the tests include inputs large enough that the first loop you think of is too slow. ${done} of ${page.tasks.length} accepted.</p></div></header>
     ${page.tracks.map(track => { const mine = page.tasks.filter(t => t.track === track.id); return mine.length ? `<section class="surface"><h2>${e(track.title)}</h2><p class="muted small">${e(track.about)}</p>
-      <ol class="task-list">${mine.map(t => `<li><a href="#/task/${e(t.id)}">${e(t.title)}</a> ${t.solved ? '<span class="badge badge-success">accepted</span>' : t.tries ? `<span class="badge">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : ''}</li>`).join('')}</ol></section>` : ''; }).join('')}`;
+      <ol class="task-list">${mine.map(t => `<li><a href="#/task/${e(t.id)}">${e(t.title)}</a> ${t.solved ? '<span class="badge badge-success">accepted</span>' : t.tries ? `<span class="badge">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : ''}${t.basis.length ? ` <span class="muted small basis-inline">rests on ${basisLinks(t.basis, e)}</span>` : ''}</li>`).join('')}</ol></section>` : ''; }).join('')}`;
 }
 
 /* The whole task (statement, editor, run, judge) inside any host element. Used by the task page and by code steps of a chain. */
@@ -25,7 +36,7 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   if (!alive()) return;
   let busy = false, saveTimer = null;
   const box = (title, text) => `<div><h4>${e(title)}</h4><pre>${e(text)}</pre></div>`;
-  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow"><a href="#/code">Code</a> · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
+  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow"><a href="#/code">Code</a> · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
     <div class="split" data-split><div class="split-pane split-text">${before}<section class="surface reading task-statement">${markdown(task.statement)}
       <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${hints ? '<section class="surface task-hints" data-hints aria-live="polite"></section>' : ''}${after}</div>
     <div class="split-pane split-code"><section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta">${sideButton()}<label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>

@@ -526,3 +526,9 @@ summary .star-btn{float:right;margin-top:-.25rem}
 .inline-icon svg{width:1em;height:1em;vertical-align:-.125em}
 .card-mine{background:var(--canvas);border-left:3px solid #d69a00;border-radius:.375rem;padding:.5rem .75rem;margin:0 0 .75rem;white-space:pre-wrap;overflow-wrap:anywhere}
 .card-mine .muted{display:block;margin-bottom:.125rem}
+
+/* Code: a task that rests on something not derived or not done yet */
+.basis-note { margin: 0 0 16px; padding: 10px 14px; border: 1px solid var(--line); border-left: 3px solid var(--warning); background: var(--surface); border-radius: 8px; }
+.basis-note p { margin: 0; }
+.basis-note p + p { margin-top: 4px; }
+.basis-inline a { color: inherit; text-decoration: underline; }

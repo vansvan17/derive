@@ -19,7 +19,10 @@
    "When nothing is left on the stack, the answer is \"none\": use a sentinel such as 0 or n + 1 consistently."
   ],
   "task": "taller-left",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    int n;\n    cin >> n;\n    vector<int> h(n + 1), st;          // st holds positions with decreasing heights\n    for (int i = 1; i <= n; i++) {\n        cin >> h[i];\n        while (!st.empty() && h[st.back()] <= h[i]) st.pop_back();\n        cout << (st.empty() ? 0 : st.back()) << \" \\n\"[i == n];\n        st.push_back(i);\n    }\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    int n;\n    cin >> n;\n    vector<int> h(n + 1), st;          // st holds positions with decreasing heights\n    for (int i = 1; i <= n; i++) {\n        cin >> h[i];\n        while (!st.empty() && h[st.back()] <= h[i]) st.pop_back();\n        cout << (st.empty() ? 0 : st.back()) << \" \\n\"[i == n];\n        st.push_back(i);\n    }\n}\n",
+  "needs": [
+   "nearest-greater"
+  ]
  },
  {
   "id": "string-blocks",
@@ -39,7 +42,10 @@
    "If the operation is \"flip a prefix\" or \"flip a suffix\" only one boundary changes, and the answer becomes the number of boundaries instead of half of it."
   ],
   "task": "flip-blocks",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    int blocks = 0;\n    for (size_t i = 0; i < s.size(); i++)\n        if (s[i] == '1' && (i == 0 || s[i - 1] == '0')) blocks++;   // a block of 1s starts here\n    cout << blocks << \"\\n\";\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    int blocks = 0;\n    for (size_t i = 0; i < s.size(); i++)\n        if (s[i] == '1' && (i == 0 || s[i - 1] == '0')) blocks++;   // a block of 1s starts here\n    cout << blocks << \"\\n\";\n}\n",
+  "needs": [
+   "runs-boundaries"
+  ]
  },
  {
   "id": "balance-walk",
@@ -60,7 +66,10 @@
    "For other ratios (say twice as many), choose scores so that a good substring sums to 0: +1 and -2."
   ],
   "task": "balanced-stretches",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    int n = s.size();\n    vector<long long> seen(2 * n + 1, 0);   // running totals from -n to n, shifted by n\n    int cur = n;\n    seen[cur] = 1;                          // the empty prefix\n    long long answer = 0;\n    for (char c : s) {\n        cur += (c == '1') ? 1 : -1;\n        answer += seen[cur]++;\n    }\n    cout << answer << \"\\n\";\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    int n = s.size();\n    vector<long long> seen(2 * n + 1, 0);   // running totals from -n to n, shifted by n\n    int cur = n;\n    seen[cur] = 1;                          // the empty prefix\n    long long answer = 0;\n    for (char c : s) {\n        cur += (c == '1') ? 1 : -1;\n        answer += seen[cur]++;\n    }\n    cout << answer << \"\\n\";\n}\n",
+  "needs": [
+   "balance"
+  ]
  },
  {
   "id": "pal-centres",
@@ -81,7 +90,10 @@
    "The count can exceed 32 bits for long strings of one repeated letter."
   ],
   "task": "palindrome-count",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    int n = s.size();\n    long long count = 0;\n    for (int centre = 0; centre < 2 * n - 1; centre++) {\n        int l = centre / 2, r = l + centre % 2;        // even centre: on a letter; odd centre: between two\n        while (l >= 0 && r < n && s[l] == s[r]) { count++; l--; r++; }\n    }\n    cout << count << \"\\n\";\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    int n = s.size();\n    long long count = 0;\n    for (int centre = 0; centre < 2 * n - 1; centre++) {\n        int l = centre / 2, r = l + centre % 2;        // even centre: on a letter; odd centre: between two\n        while (l >= 0 && r < n && s[l] == s[r]) { count++; l--; r++; }\n    }\n    cout << count << \"\\n\";\n}\n",
+  "needs": [
+   "pal-centres"
+  ]
  },
  {
   "id": "tree-dp",
@@ -103,7 +115,11 @@
    "For counting versions the values are multiplied instead of added, and need a modulus."
   ],
   "task": "tree-guards",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<vector<int>> adj(n + 1);\n    for (int i = 0; i < n - 1; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    vector<int> parent(n + 1, 0), order = {1};\n    parent[1] = -1;\n    for (size_t i = 0; i < order.size(); i++)           // top-down order from the root\n        for (int u : adj[order[i]])\n            if (u != parent[order[i]]) { parent[u] = order[i]; order.push_back(u); }\n    vector<int> take(n + 1, 1), skip(n + 1, 0);\n    for (int i = n - 1; i >= 1; i--) {                    // children before parents\n        int v = order[i], p = parent[v];\n        take[p] += skip[v];\n        skip[p] += max(take[v], skip[v]);\n    }\n    printf(\"%d\\n\", max(take[1], skip[1]));\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<vector<int>> adj(n + 1);\n    for (int i = 0; i < n - 1; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    vector<int> parent(n + 1, 0), order = {1};\n    parent[1] = -1;\n    for (size_t i = 0; i < order.size(); i++)           // top-down order from the root\n        for (int u : adj[order[i]])\n            if (u != parent[order[i]]) { parent[u] = order[i]; order.push_back(u); }\n    vector<int> take(n + 1, 1), skip(n + 1, 0);\n    for (int i = n - 1; i >= 1; i--) {                    // children before parents\n        int v = order[i], p = parent[v];\n        take[p] += skip[v];\n        skip[p] += max(take[v], skip[v]);\n    }\n    printf(\"%d\\n\", max(take[1], skip[1]));\n}\n",
+  "needs": [
+   "graph-walk",
+   "tree-dp"
+  ]
  },
  {
   "id": "digit-dp",
@@ -124,7 +140,10 @@
    "The answer can be near 10^18: use 64 bits."
   ],
   "task": "digit-sums",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nlong long ways[20][200];   // ways[k][s]: k free digits with digit sum s\n\nint main() {\n    ways[0][0] = 1;\n    for (int k = 1; k < 20; k++)\n        for (int s = 0; s < 200; s++)\n            for (int d = 0; d <= 9 && d <= s; d++) ways[k][s] += ways[k - 1][s - d];\n    long long N;\n    int S;\n    cin >> N >> S;\n    string digits = to_string(N);\n    int len = digits.size(), used = 0;\n    long long total = 0;\n    for (int i = 0; i < len; i++) {\n        int here = digits[i] - '0';\n        for (int d = 0; d < here; d++)               // smaller digit here, everything after is free\n            if (S - used - d >= 0) total += ways[len - i - 1][S - used - d];\n        used += here;\n    }\n    if (used == S) total++;                           // N itself\n    cout << total << \"\\n\";                            // 0 is never counted because S >= 1\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nlong long ways[20][200];   // ways[k][s]: k free digits with digit sum s\n\nint main() {\n    ways[0][0] = 1;\n    for (int k = 1; k < 20; k++)\n        for (int s = 0; s < 200; s++)\n            for (int d = 0; d <= 9 && d <= s; d++) ways[k][s] += ways[k - 1][s - d];\n    long long N;\n    int S;\n    cin >> N >> S;\n    string digits = to_string(N);\n    int len = digits.size(), used = 0;\n    long long total = 0;\n    for (int i = 0; i < len; i++) {\n        int here = digits[i] - '0';\n        for (int d = 0; d < here; d++)               // smaller digit here, everything after is free\n            if (S - used - d >= 0) total += ways[len - i - 1][S - used - d];\n        used += here;\n    }\n    if (used == S) total++;                           // N itself\n    cout << total << \"\\n\";                            // 0 is never counted because S >= 1\n}\n",
+  "needs": [
+   "digit-dp"
+  ]
  },
  {
   "id": "bitmask-dp",
@@ -146,7 +165,11 @@
    "Do not store what the mask already tells you: here the person index is the popcount."
   ],
   "task": "assign-jobs",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<vector<long long>> cost(n, vector<long long>(n));\n    for (auto &row : cost)\n        for (auto &x : row) scanf(\"%lld\", &x);\n    const long long INF = LLONG_MAX / 4;\n    vector<long long> best(1 << n, INF);\n    best[0] = 0;\n    for (int mask = 0; mask < (1 << n) - 1; mask++) {\n        if (best[mask] == INF) continue;\n        int person = __builtin_popcount(mask);          // the next person to be given a job\n        for (int job = 0; job < n; job++)\n            if (!(mask >> job & 1))\n                best[mask | 1 << job] = min(best[mask | 1 << job], best[mask] + cost[person][job]);\n    }\n    printf(\"%lld\\n\", best[(1 << n) - 1]);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<vector<long long>> cost(n, vector<long long>(n));\n    for (auto &row : cost)\n        for (auto &x : row) scanf(\"%lld\", &x);\n    const long long INF = LLONG_MAX / 4;\n    vector<long long> best(1 << n, INF);\n    best[0] = 0;\n    for (int mask = 0; mask < (1 << n) - 1; mask++) {\n        if (best[mask] == INF) continue;\n        int person = __builtin_popcount(mask);          // the next person to be given a job\n        for (int job = 0; job < n; job++)\n            if (!(mask >> job & 1))\n                best[mask | 1 << job] = min(best[mask | 1 << job], best[mask] + cost[person][job]);\n    }\n    printf(\"%lld\\n\", best[(1 << n) - 1]);\n}\n",
+  "needs": [
+   "masks",
+   "bitmask-dp"
+  ]
  },
  {
   "id": "interval-dp",
@@ -167,7 +190,10 @@
    "Values grow quickly: n times the total can exceed 32 bits."
   ],
   "task": "merge-piles",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<long long> pre(n + 1, 0);\n    for (int i = 1; i <= n; i++) {\n        long long x;\n        scanf(\"%lld\", &x);\n        pre[i] = pre[i - 1] + x;\n    }\n    vector<vector<long long>> best(n + 2, vector<long long>(n + 2, 0));\n    for (int len = 2; len <= n; len++)\n        for (int l = 1; l + len - 1 <= n; l++) {\n            int r = l + len - 1;\n            best[l][r] = LLONG_MAX;\n            for (int k = l; k < r; k++)                 // the last merge joins [l, k] and [k + 1, r]\n                best[l][r] = min(best[l][r], best[l][k] + best[k + 1][r]);\n            best[l][r] += pre[r] - pre[l - 1];\n        }\n    printf(\"%lld\\n\", best[1][n]);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<long long> pre(n + 1, 0);\n    for (int i = 1; i <= n; i++) {\n        long long x;\n        scanf(\"%lld\", &x);\n        pre[i] = pre[i - 1] + x;\n    }\n    vector<vector<long long>> best(n + 2, vector<long long>(n + 2, 0));\n    for (int len = 2; len <= n; len++)\n        for (int l = 1; l + len - 1 <= n; l++) {\n            int r = l + len - 1;\n            best[l][r] = LLONG_MAX;\n            for (int k = l; k < r; k++)                 // the last merge joins [l, k] and [k + 1, r]\n                best[l][r] = min(best[l][r], best[l][k] + best[k + 1][r]);\n            best[l][r] += pre[r] - pre[l - 1];\n        }\n    printf(\"%lld\\n\", best[1][n]);\n}\n",
+  "needs": [
+   "interval-dp"
+  ]
  },
  {
   "id": "prefix-function",
@@ -210,7 +236,11 @@
    "Totals can reach about n squared: 64 bits."
   ],
   "task": "all-distances",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<vector<int>> adj(n + 1);\n    for (int i = 0; i < n - 1; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    vector<int> parent(n + 1, 0), order = {1};\n    parent[1] = -1;\n    for (size_t i = 0; i < order.size(); i++)\n        for (int u : adj[order[i]])\n            if (u != parent[order[i]]) { parent[u] = order[i]; order.push_back(u); }\n    vector<long long> size(n + 1, 1), down(n + 1, 0), answer(n + 1, 0);\n    for (int i = n - 1; i >= 1; i--) {                    // bottom-up: sizes and distances into each subtree\n        int v = order[i], p = parent[v];\n        size[p] += size[v];\n        down[p] += down[v] + size[v];\n    }\n    answer[1] = down[1];\n    for (int i = 1; i < n; i++) {                          // top-down: move the root across each edge\n        int v = order[i];\n        answer[v] = answer[parent[v]] - size[v] + (n - size[v]);\n    }\n    for (int v = 1; v <= n; v++) printf(\"%lld%c\", answer[v], v == n ? '\\n' : ' ');\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<vector<int>> adj(n + 1);\n    for (int i = 0; i < n - 1; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    vector<int> parent(n + 1, 0), order = {1};\n    parent[1] = -1;\n    for (size_t i = 0; i < order.size(); i++)\n        for (int u : adj[order[i]])\n            if (u != parent[order[i]]) { parent[u] = order[i]; order.push_back(u); }\n    vector<long long> size(n + 1, 1), down(n + 1, 0), answer(n + 1, 0);\n    for (int i = n - 1; i >= 1; i--) {                    // bottom-up: sizes and distances into each subtree\n        int v = order[i], p = parent[v];\n        size[p] += size[v];\n        down[p] += down[v] + size[v];\n    }\n    answer[1] = down[1];\n    for (int i = 1; i < n; i++) {                          // top-down: move the root across each edge\n        int v = order[i];\n        answer[v] = answer[parent[v]] - size[v] + (n - size[v]);\n    }\n    for (int v = 1; v <= n; v++) printf(\"%lld%c\", answer[v], v == n ? '\\n' : ' ');\n}\n",
+  "needs": [
+   "graph-walk",
+   "tree-dp"
+  ]
  },
  {
   "id": "zero-one-bfs",
@@ -231,7 +261,10 @@
    "For a grid, flatten (row, column) into one index or keep two arrays; avoid a map."
   ],
   "task": "break-walls",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m;\n    scanf(\"%d %d\", &n, &m);\n    vector<string> g(n);\n    char buf[1024];\n    for (auto &row : g) { scanf(\"%s\", buf); row = buf; }\n    const int INF = INT_MAX;\n    vector<vector<int>> dist(n, vector<int>(m, INF));\n    deque<pair<int, int>> dq;\n    dist[0][0] = 0;\n    dq.push_back({0, 0});\n    int dx[] = {1, -1, 0, 0}, dy[] = {0, 0, 1, -1};\n    while (!dq.empty()) {\n        auto [x, y] = dq.front();\n        dq.pop_front();\n        for (int k = 0; k < 4; k++) {\n            int nx = x + dx[k], ny = y + dy[k];\n            if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;\n            int w = g[nx][ny] == '#';                      // entering a wall costs 1\n            if (dist[x][y] + w < dist[nx][ny]) {\n                dist[nx][ny] = dist[x][y] + w;\n                if (w) dq.push_back({nx, ny}); else dq.push_front({nx, ny});\n            }\n        }\n    }\n    printf(\"%d\\n\", dist[n - 1][m - 1]);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m;\n    scanf(\"%d %d\", &n, &m);\n    vector<string> g(n);\n    char buf[1024];\n    for (auto &row : g) { scanf(\"%s\", buf); row = buf; }\n    const int INF = INT_MAX;\n    vector<vector<int>> dist(n, vector<int>(m, INF));\n    deque<pair<int, int>> dq;\n    dist[0][0] = 0;\n    dq.push_back({0, 0});\n    int dx[] = {1, -1, 0, 0}, dy[] = {0, 0, 1, -1};\n    while (!dq.empty()) {\n        auto [x, y] = dq.front();\n        dq.pop_front();\n        for (int k = 0; k < 4; k++) {\n            int nx = x + dx[k], ny = y + dy[k];\n            if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;\n            int w = g[nx][ny] == '#';                      // entering a wall costs 1\n            if (dist[x][y] + w < dist[nx][ny]) {\n                dist[nx][ny] = dist[x][y] + w;\n                if (w) dq.push_back({nx, ny}); else dq.push_front({nx, ny});\n            }\n        }\n    }\n    printf(\"%d\\n\", dist[n - 1][m - 1]);\n}\n",
+  "needs": [
+   "graph-walk"
+  ]
  },
  {
   "id": "flag-dp",
@@ -380,7 +413,10 @@
    "If the capacity is huge but the values are small, swap roles: smallest weight for each total value."
   ],
   "task": "pack-bag",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, W;\n    scanf(\"%d %d\", &n, &W);\n    vector<long long> best(W + 1, 0);\n    for (int i = 0; i < n; i++) {\n        int wt;\n        long long val;\n        scanf(\"%d %lld\", &wt, &val);\n        for (int w = W; w >= wt; w--)                   // downward: best[w - wt] is still without this item\n            best[w] = max(best[w], best[w - wt] + val);\n    }\n    printf(\"%lld\\n\", best[W]);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, W;\n    scanf(\"%d %d\", &n, &W);\n    vector<long long> best(W + 1, 0);\n    for (int i = 0; i < n; i++) {\n        int wt;\n        long long val;\n        scanf(\"%d %lld\", &wt, &val);\n        for (int w = W; w >= wt; w--)                   // downward: best[w - wt] is still without this item\n            best[w] = max(best[w], best[w - wt] + val);\n    }\n    printf(\"%lld\\n\", best[W]);\n}\n",
+  "needs": [
+   "knapsack"
+  ]
  },
  {
   "id": "dag-dp",
@@ -402,7 +438,10 @@
    "If the graph has cycles, shortest-path style reasoning is needed and this does not apply."
   ],
   "task": "longest-chain",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m;\n    scanf(\"%d %d\", &n, &m);\n    vector<vector<int>> out(n + 1);\n    vector<int> deg(n + 1, 0), longest(n + 1, 0);\n    for (int i = 0; i < m; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        out[a].push_back(b);\n        deg[b]++;\n    }\n    vector<int> order;\n    for (int v = 1; v <= n; v++) if (deg[v] == 0) order.push_back(v);\n    for (size_t i = 0; i < order.size(); i++) {         // every edge goes from earlier to later in this order\n        int a = order[i];\n        for (int b : out[a]) {\n            longest[b] = max(longest[b], longest[a] + 1);\n            if (--deg[b] == 0) order.push_back(b);\n        }\n    }\n    printf(\"%d\\n\", *max_element(longest.begin(), longest.end()));\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, m;\n    scanf(\"%d %d\", &n, &m);\n    vector<vector<int>> out(n + 1);\n    vector<int> deg(n + 1, 0), longest(n + 1, 0);\n    for (int i = 0; i < m; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        out[a].push_back(b);\n        deg[b]++;\n    }\n    vector<int> order;\n    for (int v = 1; v <= n; v++) if (deg[v] == 0) order.push_back(v);\n    for (size_t i = 0; i < order.size(); i++) {         // every edge goes from earlier to later in this order\n        int a = order[i];\n        for (int b : out[a]) {\n            longest[b] = max(longest[b], longest[a] + 1);\n            if (--deg[b] == 0) order.push_back(b);\n        }\n    }\n    printf(\"%d\\n\", *max_element(longest.begin(), longest.end()));\n}\n",
+  "needs": [
+   "topo-order"
+  ]
  },
  {
   "id": "expected-dp",
@@ -423,7 +462,10 @@
    "If a move can leave you where you are, E[i] appears on both sides; solve that equation for E[i] by hand first."
   ],
   "task": "board-rolls",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nconst long long M = 998244353;\n\nlong long power(long long b, long long e) {\n    long long r = 1;\n    for (b %= M; e > 0; e >>= 1, b = b * b % M)\n        if (e & 1) r = r * b % M;\n    return r;\n}\n\nint main() {\n    int n, k;\n    scanf(\"%d %d\", &n, &k);\n    long long inv = power(k, M - 2);\n    vector<long long> E(n + 2, 0), S(n + 2, 0);         // S[i] = E[i] + E[i+1] + ... (zero from n on)\n    for (int i = n - 1; i >= 0; i--) {\n        long long hi = (long long)i + k + 1;\n        long long window = (S[i + 1] - (hi < n ? S[hi] : 0) + M) % M;\n        E[i] = (1 + window * inv) % M;\n        S[i] = (S[i + 1] + E[i]) % M;\n    }\n    printf(\"%lld\\n\", E[0]);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nconst long long M = 998244353;\n\nlong long power(long long b, long long e) {\n    long long r = 1;\n    for (b %= M; e > 0; e >>= 1, b = b * b % M)\n        if (e & 1) r = r * b % M;\n    return r;\n}\n\nint main() {\n    int n, k;\n    scanf(\"%d %d\", &n, &k);\n    long long inv = power(k, M - 2);\n    vector<long long> E(n + 2, 0), S(n + 2, 0);         // S[i] = E[i] + E[i+1] + ... (zero from n on)\n    for (int i = n - 1; i >= 0; i--) {\n        long long hi = (long long)i + k + 1;\n        long long window = (S[i + 1] - (hi < n ? S[hi] : 0) + M) % M;\n        E[i] = (1 + window * inv) % M;\n        S[i] = (S[i + 1] + E[i]) % M;\n    }\n    printf(\"%lld\\n\", E[0]);\n}\n",
+  "needs": [
+   "linearity"
+  ]
  },
  {
   "id": "sos-dp",
@@ -444,7 +486,10 @@
    "Sums of 2^n values overflow 32 bits quickly."
   ],
   "task": "subset-totals",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<long long> f(1 << n);\n    for (auto &x : f) scanf(\"%lld\", &x);\n    for (int b = 0; b < n; b++)                         // one bit at a time, like one dimension of a prefix sum\n        for (int mask = 0; mask < (1 << n); mask++)\n            if (mask >> b & 1) f[mask] += f[mask ^ (1 << b)];\n    for (int mask = 0; mask < (1 << n); mask++) printf(\"%lld%c\", f[mask], mask + 1 == (1 << n) ? '\\n' : ' ');\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<long long> f(1 << n);\n    for (auto &x : f) scanf(\"%lld\", &x);\n    for (int b = 0; b < n; b++)                         // one bit at a time, like one dimension of a prefix sum\n        for (int mask = 0; mask < (1 << n); mask++)\n            if (mask >> b & 1) f[mask] += f[mask ^ (1 << b)];\n    for (int mask = 0; mask < (1 << n); mask++) printf(\"%lld%c\", f[mask], mask + 1 == (1 << n) ? '\\n' : ' ');\n}\n",
+  "needs": [
+   "masks"
+  ]
  },
  {
   "id": "prefix-sum-dp",
@@ -465,7 +510,10 @@
    "Start with ways[0] = 1: there is one way to give nobody nothing."
   ],
   "task": "share-sweets",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    const long long M = 1000000007;\n    int n, k;\n    scanf(\"%d %d\", &n, &k);\n    vector<long long> ways(k + 1, 0), pre(k + 2, 0);\n    ways[0] = 1;\n    for (int i = 0; i < n; i++) {\n        int a;\n        scanf(\"%d\", &a);\n        for (int j = 0; j <= k; j++) pre[j + 1] = (pre[j] + ways[j]) % M;   // running totals of the old row\n        for (int j = 0; j <= k; j++)\n            ways[j] = (pre[j + 1] - pre[max(0, j - a)] + M) % M;            // old ways[j-a .. j]\n    }\n    printf(\"%lld\\n\", ways[k]);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    const long long M = 1000000007;\n    int n, k;\n    scanf(\"%d %d\", &n, &k);\n    vector<long long> ways(k + 1, 0), pre(k + 2, 0);\n    ways[0] = 1;\n    for (int i = 0; i < n; i++) {\n        int a;\n        scanf(\"%d\", &a);\n        for (int j = 0; j <= k; j++) pre[j + 1] = (pre[j] + ways[j]) % M;   // running totals of the old row\n        for (int j = 0; j <= k; j++)\n            ways[j] = (pre[j + 1] - pre[max(0, j - a)] + M) % M;            // old ways[j-a .. j]\n    }\n    printf(\"%lld\\n\", ways[k]);\n}\n",
+  "needs": [
+   "prefix-sums"
+  ]
  },
  {
   "id": "matrix-power",
@@ -486,7 +534,10 @@
    "A constant term in the recurrence is handled by adding a state that is always 1."
   ],
   "task": "long-no-three",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nconst long long M = 1000000007;\ntypedef array<array<long long, 2>, 2> Mat;\n\nMat mul(const Mat &A, const Mat &B) {\n    Mat C{};\n    for (int i = 0; i < 2; i++)\n        for (int j = 0; j < 2; j++)\n            for (int t = 0; t < 2; t++) C[i][j] = (C[i][j] + A[i][t] * B[t][j]) % M;\n    return C;\n}\n\nint main() {\n    long long n, k;\n    scanf(\"%lld %lld\", &n, &k);\n    long long c = (k - 1) % M;\n    Mat step = {{{c, c}, {1, 0}}};                       // (diff, same) -> ((k-1)(diff+same), diff)\n    Mat result = {{{1, 0}, {0, 1}}};\n    for (long long e = n - 1; e > 0; e >>= 1, step = mul(step, step))\n        if (e & 1) result = mul(result, step);\n    long long diff = result[0][0] * (k % M) % M, same = result[1][0] * (k % M) % M;   // applied to the start (k, 0)\n    printf(\"%lld\\n\", (diff + same) % M);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nconst long long M = 1000000007;\ntypedef array<array<long long, 2>, 2> Mat;\n\nMat mul(const Mat &A, const Mat &B) {\n    Mat C{};\n    for (int i = 0; i < 2; i++)\n        for (int j = 0; j < 2; j++)\n            for (int t = 0; t < 2; t++) C[i][j] = (C[i][j] + A[i][t] * B[t][j]) % M;\n    return C;\n}\n\nint main() {\n    long long n, k;\n    scanf(\"%lld %lld\", &n, &k);\n    long long c = (k - 1) % M;\n    Mat step = {{{c, c}, {1, 0}}};                       // (diff, same) -> ((k-1)(diff+same), diff)\n    Mat result = {{{1, 0}, {0, 1}}};\n    for (long long e = n - 1; e > 0; e >>= 1, step = mul(step, step))\n        if (e & 1) result = mul(result, step);\n    long long diff = result[0][0] * (k % M) % M, same = result[1][0] * (k % M) % M;   // applied to the start (k, 0)\n    printf(\"%lld\\n\", (diff + same) % M);\n}\n",
+  "needs": [
+   "fast-power"
+  ]
  },
  {
   "id": "manacher",
@@ -507,7 +558,10 @@
    "Number of palindromic substrings: each centre contributes one per possible radius."
   ],
   "task": "longest-palindrome",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    string t = \"#\";                                    // a#b#a: every palindrome now has a centre on a position\n    for (char ch : s) { t += ch; t += '#'; }\n    int m = t.size(), centre = 0, right = 0, best = 0;\n    vector<int> rad(m, 0);\n    for (int i = 0; i < m; i++) {\n        int k = i < right ? min(rad[2 * centre - i], right - i) : 0;   // copied from the mirror image, cut at the border\n        while (i - k - 1 >= 0 && i + k + 1 < m && t[i - k - 1] == t[i + k + 1]) k++;\n        rad[i] = k;\n        if (i + k > right) { centre = i; right = i + k; }\n        best = max(best, k);                           // a radius in t is a length in s\n    }\n    printf(\"%d\\n\", best);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    string t = \"#\";                                    // a#b#a: every palindrome now has a centre on a position\n    for (char ch : s) { t += ch; t += '#'; }\n    int m = t.size(), centre = 0, right = 0, best = 0;\n    vector<int> rad(m, 0);\n    for (int i = 0; i < m; i++) {\n        int k = i < right ? min(rad[2 * centre - i], right - i) : 0;   // copied from the mirror image, cut at the border\n        while (i - k - 1 >= 0 && i + k + 1 < m && t[i - k - 1] == t[i + k + 1]) k++;\n        rad[i] = k;\n        if (i + k > right) { centre = i; right = i + k; }\n        best = max(best, k);                           // a radius in t is a length in s\n    }\n    printf(\"%d\\n\", best);\n}\n",
+  "needs": [
+   "pal-centres"
+  ]
  },
  {
   "id": "small-to-large",
@@ -529,7 +583,10 @@
    "On a path of 200000 vertices recursion may overflow the stack: process vertices in reverse breadth-first order."
   ],
   "task": "subtree-colours",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<int> colour(n + 1);\n    for (int v = 1; v <= n; v++) scanf(\"%d\", &colour[v]);\n    vector<vector<int>> adj(n + 1);\n    for (int i = 0; i < n - 1; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    vector<int> parent(n + 1, 0), order = {1}, answer(n + 1);\n    for (size_t i = 0; i < order.size(); i++)\n        for (int u : adj[order[i]])\n            if (u != parent[order[i]]) { parent[u] = order[i]; order.push_back(u); }\n    vector<set<int>> bag(n + 1);\n    for (int i = n - 1; i >= 0; i--) {                  // children before parents\n        int v = order[i], p = parent[v];\n        bag[v].insert(colour[v]);\n        answer[v] = bag[v].size();\n        if (p == 0) continue;\n        if (bag[p].size() < bag[v].size()) swap(bag[p], bag[v]);   // keep the larger, no copying\n        for (int c : bag[v]) bag[p].insert(c);          // each element moves at most log n times\n        bag[v].clear();\n    }\n    for (int v = 1; v <= n; v++) printf(\"%d%c\", answer[v], v == n ? '\\n' : ' ');\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    vector<int> colour(n + 1);\n    for (int v = 1; v <= n; v++) scanf(\"%d\", &colour[v]);\n    vector<vector<int>> adj(n + 1);\n    for (int i = 0; i < n - 1; i++) {\n        int a, b;\n        scanf(\"%d %d\", &a, &b);\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    vector<int> parent(n + 1, 0), order = {1}, answer(n + 1);\n    for (size_t i = 0; i < order.size(); i++)\n        for (int u : adj[order[i]])\n            if (u != parent[order[i]]) { parent[u] = order[i]; order.push_back(u); }\n    vector<set<int>> bag(n + 1);\n    for (int i = n - 1; i >= 0; i--) {                  // children before parents\n        int v = order[i], p = parent[v];\n        bag[v].insert(colour[v]);\n        answer[v] = bag[v].size();\n        if (p == 0) continue;\n        if (bag[p].size() < bag[v].size()) swap(bag[p], bag[v]);   // keep the larger, no copying\n        for (int c : bag[v]) bag[p].insert(c);          // each element moves at most log n times\n        bag[v].clear();\n    }\n    for (int v = 1; v <= n; v++) printf(\"%d%c\", answer[v], v == n ? '\\n' : ' ');\n}\n",
+  "needs": [
+   "graph-walk"
+  ]
  },
  {
   "id": "sweep-line",
@@ -572,7 +629,10 @@
    "A hash map with a million keys is slow and easy to attack; sorted arrays are safer."
   ],
   "task": "subset-count",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nvector<long long> sums(const vector<long long> &part) {\n    vector<long long> out = {0};\n    for (long long y : part) {                          // every number adds a shifted copy of the list\n        size_t k = out.size();\n        for (size_t i = 0; i < k; i++) out.push_back(out[i] + y);\n    }\n    sort(out.begin(), out.end());\n    return out;\n}\n\nint main() {\n    int n;\n    long long x;\n    scanf(\"%d %lld\", &n, &x);\n    vector<long long> a(n);\n    for (auto &y : a) scanf(\"%lld\", &y);\n    vector<long long> left = sums(vector<long long>(a.begin(), a.begin() + n / 2));\n    vector<long long> right = sums(vector<long long>(a.begin() + n / 2, a.end()));\n    long long count = 0;\n    for (long long s : left) {\n        auto range = equal_range(right.begin(), right.end(), x - s);   // all right sums equal to what is missing\n        count += range.second - range.first;\n    }\n    printf(\"%lld\\n\", count);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nvector<long long> sums(const vector<long long> &part) {\n    vector<long long> out = {0};\n    for (long long y : part) {                          // every number adds a shifted copy of the list\n        size_t k = out.size();\n        for (size_t i = 0; i < k; i++) out.push_back(out[i] + y);\n    }\n    sort(out.begin(), out.end());\n    return out;\n}\n\nint main() {\n    int n;\n    long long x;\n    scanf(\"%d %lld\", &n, &x);\n    vector<long long> a(n);\n    for (auto &y : a) scanf(\"%lld\", &y);\n    vector<long long> left = sums(vector<long long>(a.begin(), a.begin() + n / 2));\n    vector<long long> right = sums(vector<long long>(a.begin() + n / 2, a.end()));\n    long long count = 0;\n    for (long long s : left) {\n        auto range = equal_range(right.begin(), right.end(), x - s);   // all right sums equal to what is missing\n        count += range.second - range.first;\n    }\n    printf(\"%lld\\n\", count);\n}\n",
+  "needs": [
+   "masks"
+  ]
  },
  {
   "id": "prefix-pairs",
@@ -594,7 +654,10 @@
    "The number of stretches is about n squared over 2: 64 bits."
   ],
   "task": "divisible-stretches",
-  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    long long k;\n    scanf(\"%d %lld\", &n, &k);\n    vector<long long> rem = {0};                        // the empty prefix\n    long long p = 0;\n    for (int i = 0; i < n; i++) {\n        long long x;\n        scanf(\"%lld\", &x);\n        p = ((p + x) % k + k) % k;                      // keep the remainder in 0..k-1 for negative numbers too\n        rem.push_back(p);\n    }\n    sort(rem.begin(), rem.end());                       // equal remainders are now neighbours\n    long long total = 0;\n    for (size_t i = 0, j; i < rem.size(); i = j) {\n        for (j = i; j < rem.size() && rem[j] == rem[i]; j++);\n        long long c = j - i;\n        total += c * (c - 1) / 2;                       // every pair of equal prefixes is one stretch\n    }\n    printf(\"%lld\\n\", total);\n}\n"
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    long long k;\n    scanf(\"%d %lld\", &n, &k);\n    vector<long long> rem = {0};                        // the empty prefix\n    long long p = 0;\n    for (int i = 0; i < n; i++) {\n        long long x;\n        scanf(\"%lld\", &x);\n        p = ((p + x) % k + k) % k;                      // keep the remainder in 0..k-1 for negative numbers too\n        rem.push_back(p);\n    }\n    sort(rem.begin(), rem.end());                       // equal remainders are now neighbours\n    long long total = 0;\n    for (size_t i = 0, j; i < rem.size(); i = j) {\n        for (j = i; j < rem.size() && rem[j] == rem[i]; j++);\n        long long c = j - i;\n        total += c * (c - 1) / 2;                       // every pair of equal prefixes is one stretch\n    }\n    printf(\"%lld\\n\", total);\n}\n",
+  "needs": [
+   "prefix-pairs"
+  ]
  },
  {
   "id": "rebuild-answer",

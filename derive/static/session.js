@@ -20,7 +20,7 @@ function paint() {
   const offer = !s.on_break && s.offer_break;
   host.className = `sitting tone-${offer ? 'break' : s.tone}`;
   host.innerHTML = `<div class="sitting-top">
-      <a class="sitting-clock" href="#/session" title="The sitting: what has been done so far"><span class="sitting-dot${s.on_break ? ' is-paused' : ''}"></span><span data-sitting-clock>${s.on_break ? 'paused' : s.over ? 'time is up' : clock(s.left) + ' left'}</span></a>
+      <a class="sitting-clock" href="#/session" title="Time worked so far (breaks not counted). Click for what has been done."><span class="sitting-dot${s.on_break ? ' is-paused' : ''}"></span><span data-sitting-clock>${s.on_break ? 'paused · ' + clock(s.worked) : clock(s.worked)}</span></a>
       ${stage ? `<span class="sitting-stage"><span class="sitting-label">${e(stage.label)}</span> ${e(stage.title)}</span>` : ''}
       <span class="sitting-actions">
         ${s.on_break ? '<button class="btn btn-primary btn-sm" type="button" data-sit="back">I am back</button>'
@@ -37,9 +37,8 @@ function paint() {
 
 function tick() {
   const node = document.querySelector('[data-sitting-clock]');
-  if (!node || !status?.running || status.on_break || status.over) return;
-  const left = status.left - (Date.now() - tickAt) / 1000;
-  node.textContent = left > 0 ? clock(left) + ' left' : 'time is up';
+  if (!node || !status?.running || status.on_break) return;
+  node.textContent = clock(status.worked + (Date.now() - tickAt) / 1000);          // counts up: time worked, breaks left out
 }
 
 function take(next, {announce = true} = {}) {
@@ -156,7 +155,7 @@ export async function renderSession(ctx) {
     const head = `<header class="page-head"><div><p class="eyebrow">Someone to sit with you</p><h1>Sit with a tutor</h1><p class="muted">A timed sitting. The tutor hands you one thing at a time, watches how it goes, tells you when to change tack, and calls the breaks.</p></div></header>`;
     if (s.running) {
       root.innerHTML = head + `<section class="surface"><h2>${s.on_break ? 'On a break' : s.over ? 'Time is up' : 'A sitting is running'}</h2>
-        <p class="muted">Set for ${s.minutes} min · ${mins(s.worked)} min worked${s.over ? '' : ` · ${mins(s.left)} min left`}. The strip at the top of every page is the tutor; use it from wherever you are.</p>
+        <p class="muted">Set for ${s.minutes} min · ${mins(s.worked)} min worked. The strip at the top of every page is the tutor; use it from wherever you are.</p>
         ${s.goal ? `<p><strong>What you asked for:</strong> ${e(s.goal)}</p>` : ''}
         ${s.stage ? `<p><strong>Now:</strong> ${e(s.stage.label)} · <a href="${e(s.stage.href)}">${e(s.stage.title)}</a></p>` : ''}
         ${s.plan?.length ? `<p><strong>Still planned:</strong> ${s.plan.map(p => e(p.title)).join(' · ')}</p>` : ''}

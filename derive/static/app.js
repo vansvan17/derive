@@ -14,6 +14,7 @@ import {renderBreaks, renderBreak} from './breaks.js';
 import {renderNotebook} from './notebook.js';
 import {renderRecognise} from './recognise.js';
 import {renderRevise} from './revise.js';
+import {renderSession, sittingStart, sittingPoke, sittingRepaint} from './session.js';
 
 const state = {boot: null, token: 0, cleanups: [], root: null};
 
@@ -39,6 +40,7 @@ const ICONS = {
   eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   compass: '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  person: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.6-3.8 3.4-6 7-6s6.4 2.2 7 6"/>',
   sliders: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
   lock: '<rect x="6" y="11" width="12" height="9" rx="2"/><path d="M9 11V8a3 3 0 016 0v3"/>',
 };
@@ -91,7 +93,7 @@ export async function api(path, options = {}) {
   if (!response.ok) { const error = new Error(data?.error || `The request failed (${response.status}).`); error.status = response.status; throw error; }
   return data;
 }
-export const post = (path, body) => api(path, {method: 'POST', body});
+export const post = (path, body) => api(path, {method: 'POST', body}).then(result => { if (!path.startsWith('/session/')) sittingPoke(); return result; });
 
 /* Background work (running code, grading a proof): poll until it is finished. */
 export async function waitFor(job, alive = () => true) {
@@ -133,7 +135,7 @@ export function dialog({title, body = '', html = '', confirm = 'Continue', cance
 export const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
 /* The sidebar, in groups. Each entry: route, icon, label. */
 const NAV = [
-  ['', [['', 'map', 'The map']]],
+  ['', [['', 'map', 'The map'], ['session', 'person', 'Sit with a tutor']]],
   ['Learn', [['derive', 'chain', 'Derive'], ['tools', 'box', 'Toolbox'], ['cses', 'layers', 'CSES DP']]],
   ['Practise', [['solve', 'target', 'Solve'], ['code', 'code', 'Code'], ['puzzles', 'question', 'Puzzles'], ['think', 'bulb', 'Think it up'], ['break', 'bolt', 'Break it'], ['recognise', 'eye', 'Recognise']]],
   ['Contest', [['contest', 'clock', 'Contest'], ['predictions', 'compass', 'Predictions']]],
@@ -180,11 +182,12 @@ function buildShell() {
       <div class="sidebar-foot"><p class="sidebar-count" data-side-count></p><button class="theme-toggle" type="button" data-theme-toggle></button></div>
     </aside>
     <div class="scrim" data-scrim></div>
-    <main class="main" id="main-content" tabindex="-1"><div class="main-inner" data-root></div></main>
+    <main class="main" id="main-content" tabindex="-1"><div class="sitting" data-sitting hidden></div><div class="main-inner" data-root></div></main>
   </div>`;
   const shell = app.querySelector('.shell'), menu = app.querySelector('[data-menu]');
   app.querySelectorAll('[data-theme-toggle]').forEach(b => b.addEventListener('click', toggleTheme));
   applyTheme(document.documentElement.dataset.theme || state.boot?.settings?.theme);       // gives the switch its label
+  sittingStart({state, ctx, api, escape, toast, dialog, navigate});
   // The sidebar can be folded down to a thin strip to give the page the full width; remembered in this browser.
   const SIDE = 'derive-sidebar-hidden', fold = app.querySelector('[data-side-toggle]');
   const setHidden = (hidden, keep = true) => {
@@ -251,6 +254,7 @@ async function route() {
   document.querySelector('[data-root]').replaceWith(root);
   state.root = root;
   paintNav();
+  sittingRepaint();
   window.scrollTo(0, 0);
   try {
     await sync();
@@ -277,6 +281,7 @@ async function route() {
     else if (name === 'break') await (rest[0] ? renderBreak(ctx, rest[0]) : renderBreaks(ctx));
     else if (name === 'contest') await renderContest(ctx);
     else if (name === 'revise') await renderRevise(ctx);
+    else if (name === 'session') await renderSession(ctx);
     else if (name === 'mastery') await renderMastery(ctx);
     else if (name === 'settings') await renderSettings(ctx);
     else root.innerHTML = '<section class="surface empty-state"><h1>Nothing lives at this address</h1><a class="btn btn-primary" href="#/">Back to the map</a></section>';

@@ -541,6 +541,114 @@ class App(unittest.TestCase):
         pattern = self.get('/tasks')['patterns'][0]
         self.assertEqual((pattern['id'], pattern['name'], pattern['derived']), ('pat-label', None, False))
 
+    # ---------- a sitting with the tutor ----------
+    def wait_job(self, job):
+        for _ in range(200):
+            row = self.get('/jobs/' + job)
+            if row['status'] not in ('queued', 'running'):
+                return row['result']
+            time.sleep(.05)
+
+    def test_a_sitting_watches_the_record_and_never_names_what_is_not_derived(self):
+        from datetime import datetime, timedelta, timezone
+        from derive import session
+        t0 = datetime.now(timezone.utc) - timedelta(hours=3)
+        later = lambda minutes: t0 + timedelta(minutes=minutes)
+        name = json.loads((self.root / 'content/ideas.json').read_text())['ideas'][0]['name']
+        with self.service.store() as store:
+            self.assertFalse(session.status(self.service, store)['running'])
+            first = session.start(self.service, store, 60, at=t0)
+            self.assertEqual((first['stage']['kind'], first['stage']['href'], first['tone']), ('chain', '#/chain/residues', 'plain'))
+            self.assertNotIn(name, json.dumps(first))                                   # "a chain in ...", never its name
+            with self.assertRaises(ValueError):
+                session.start(self.service, store, 60, at=t0)                           # one sitting at a time
+            # a long time on one question, then misses: the advice changes, and it is about method only
+            self.assertIn('8 minutes', session.status(self.service, store, later(8))['say'])
+            stamp = lambda minutes: later(minutes).isoformat()
+            for k in range(3):
+                store.run('INSERT INTO step_attempts(at,idea,step,answer,correct) VALUES(?,?,?,?,?)', (stamp(9 + k), 'residues', 'clock', '99', 0))
+            stuck = session.status(self.service, store, later(12))
+            self.assertEqual(stuck['tone'], 'stuck')
+            self.assertIn('Three misses', stuck['say'])
+            self.assertIn('99', session.seen_by_tutor(self.service, store, later(12)))  # the talking tutor is told what she typed
+            # no break is offered in the middle of a question, however long it has been
+            self.assertIsNone(session.status(self.service, store, later(50))['offer_break'])
+            # ... but just after a question is answered, it is
+            store.run('INSERT OR IGNORE INTO steps_done VALUES(?,?,?,?)', ('residues', 'clock', stamp(51), '0'))
+            offered = session.status(self.service, store, later(52))
+            self.assertIn('good place', offered['offer_break'])
+            self.assertIsNone(session.keep_going(self.service, store, later(52))['offer_break'])
+            resting = session.take_break(self.service, store, later(53))
+            self.assertTrue(resting['on_break'])
+            self.assertEqual(session.status(self.service, store, later(63))['worked'], 53 * 60)   # the clock stops on a break
+            back = session.back(self.service, store, later(63))
+            self.assertEqual((back['on_break'], back['left']), (False, 7 * 60))
+            # silence is noticed
+            self.assertIn('Nothing typed', session.status(self.service, store, later(68.5))['say'])
+            session.seen(self.service, store, '#/chain/residues', True, later(69))
+            # moving on never loses anything, and the same thing is not handed back in this sitting
+            moved = session.move_on(self.service, store, later(69.5))
+            self.assertNotEqual(moved['stage']['href'], '#/chain/residues')
+            self.assertEqual(moved['done'][0]['outcome'], 'moved on')
+            self.assertTrue(session.status(self.service, store, later(72))['over'])      # time is up, but nothing stops her
+            session.end(self.service, store, later(73))
+            ended = session.status(self.service, store, later(74))
+            self.assertFalse(ended['running'])
+            last = ended['past'][0]
+            self.assertEqual((last['right'], last['wrong'], last['breaks'], last['hardest']['misses']), (1, 3, 1, 3))
+            self.assertEqual(last['next']['href'], '#/chain/residues')
+            self.assertNotIn(name, json.dumps(ended))
+
+    def test_the_talking_tutor_plans_from_her_words_and_keeps_hidden_names_out(self):
+        from derive import session
+        name = json.loads((self.root / 'content/ideas.json').read_text())['ideas'][0]['name']
+        # switched off: the usual plan comes straight back and nothing is sent anywhere
+        calls = []
+        self.service.teach = lambda prompt: (calls.append(prompt), {'status': 'ok', 'reply': 'x'})[1]
+        self.service.voice_on = lambda store: False
+        plain = self.post('/session/plan', {'minutes': 60, 'goal': 'anything'})[1]
+        self.assertEqual((plain['voice'], plain['plan'][0]['href'], calls), (False, '#/chain/residues', []))
+        self.assertEqual(self.post('/session/plan', {'minutes': 7})[0], 400)
+        # switched on: the plan is made of real items only, and a sentence that leaks a hidden name is dropped
+        self.service.voice_on = lambda store: True
+        reply = json.dumps({'say': 'Today is ' + name + ' day.', 'plan': [{'kind': 'tool', 'id': 'loop-walk', 'why': 'you asked for permutations'},
+                 {'kind': 'task', 'id': 'no-such-task', 'why': ''}, {'kind': 'chain', 'id': 'residues', 'why': 'this is ' + name}, {'kind': 'task', 'id': 't1-squares', 'why': 'a counting one'}]})
+        self.service.teach = lambda prompt: (calls.append(prompt), {'status': 'ok', 'reply': 'Here you go:\n' + reply})[1]
+        made = self.wait_job(self.post('/session/plan', {'minutes': 60, 'goal': 'teach me permutations'})[1]['job'])
+        self.assertIn('teach me permutations', calls[0])
+        self.assertEqual([(p['kind'], p['id']) for p in made['plan']], [('tool', 'loop-walk'), ('chain', 'residues'), ('think', 't1-squares')])
+        self.assertNotIn(name, json.dumps(made))
+        self.assertEqual(made['plan'][1]['title'].split(' in ')[0], 'A chain')
+        started = self.post('/session/start', {'minutes': 60, 'goal': 'teach me permutations', 'plan': made['plan'], 'say': 'Let us begin.'})[1]
+        self.assertEqual((started['stage']['href'], started['chat'][0]['text'], [p['kind'] for p in started['plan']]), ('#/tool/loop-walk', 'Let us begin.', ['chain', 'think']))
+        self.assertEqual(self.get('/bootstrap')['session']['stage']['href'], '#/tool/loop-walk')     # a reload picks the sitting up again
+        # she says something: the tutor is told her goal, where she is and what was said, and its reply lands in the conversation
+        self.service.teach = lambda prompt: (calls.append(prompt), {'status': 'ok', 'reply': 'What does one round do to seat 1?'})[1]
+        self.assertTrue(self.post('/session/say', {'text': 'i do not get loops'})[1]['thinking'])
+        for _ in range(100):
+            now = self.post('/session/seen', {'route': '#/tool/loop-walk', 'active': True})[1]
+            if not now['thinking'] and len(now['chat']) >= 3:
+                break
+            time.sleep(.05)
+        self.assertEqual([m['who'] for m in now['chat']][:3], ['tutor', 'me', 'tutor'])
+        said = next(c for c in calls if 'i do not get loops' in c)
+        for needed in ('teach me permutations', 'Walk the loops of a shuffle', 'WHAT THE APP HAS WATCHED', 'Do NOT give the solution'):
+            self.assertIn(needed, said)
+        with self.service.store() as store:
+            self.assertEqual(store.one("SELECT COUNT(*) FROM tutor_uses WHERE outlet='sitting' AND gated=1")[0], 1)   # asking is help, and is recorded
+        # a reply that names something she has not derived is held back
+        self.post('/session/next', {})
+        self.service.teach = lambda prompt: {'status': 'ok', 'reply': 'This is ' + name + '.'}
+        self.post('/session/say', {'text': 'what is this chain about?'})
+        for _ in range(100):
+            now = self.post('/session/seen', {'route': '', 'active': True})[1]
+            if not now['thinking']:
+                break
+            time.sleep(.05)
+        self.assertNotIn(name, json.dumps(now))
+        self.assertIn('held that reply back', now['chat'][-1]['text'])
+        self.assertEqual(self.post('/session/end', {})[1]['running'], False)
+
     def test_the_cses_section_lists_every_task_with_a_chain_and_stays_off_the_map(self):
         page = self.get('/cses')
         self.assertEqual(len(page['problems']), 23)

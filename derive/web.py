@@ -22,7 +22,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import uuid
 import webbrowser
 
-from . import breaks, contest, evidence, grader, recognise, stars, sync, tasks, tutor
+from . import breaks, contest, evidence, grader, recognise, session, stars, sync, tasks, tutor
 from .checks import CheckError, check
 from .content import Content
 from .runner import Executable, JudgeError, same_output
@@ -171,7 +171,8 @@ class Service:
     def bootstrap(self, store):
         return {'csrf': self.csrf, 'settings': self.settings(store), 'grader_available': grader.available(), 'tutor_available': tutor.available(),
                 'counts': self.counts(store), 'band': evidence.band(self.content, store),
-                'open_problem': evidence.open_problem(store), 'next_chain': self.next_chain(store), 'stars': stars.keys(store)}
+                'open_problem': evidence.open_problem(store), 'next_chain': self.next_chain(store), 'stars': stars.keys(store),
+                'session': session.status(self, store), 'voice': self.voice_on(store)}
 
     # ---------- chains ----------
     def nudges_open(self, store, scope, owner, step):
@@ -754,6 +755,119 @@ class Service:
             entries.append(entry)
         return {'entries': entries, 'extra': store.get('notebook_extra', ''), 'title': store.get('notebook_title', '')}
 
+    # ---------- a sitting with the tutor (derive/session.py) ----------
+    def voice_on(self, store):
+        return self.settings(store)['tutor'] == 'codex' and tutor.available()
+
+    def sitting_context(self, store):
+        """Where she is, written for the talking tutor, with the names that must not come back in a reply."""
+        state = store.get(session.KEY)
+        stage = state.get('stage') if state else None
+        if not stage:
+            return '', []
+        try:
+            if stage['kind'] == 'chain':
+                if stage['id'] in self.derived(store):
+                    prompt, _, _, _, _, secret = self.tutor_context(store, {'scope': 'chain', 'idea': stage['id']})
+                else:
+                    done = self.done_steps(store, stage['id'])
+                    current = next(s for s in self.content.chains[stage['id']]['steps'] if s['id'] not in done)
+                    prompt, _, _, _, _, secret = self.tutor_context(store, {'scope': 'chain', 'idea': stage['id'], 'step': current['id']})
+                return prompt, secret
+            task_id = session._task_of(self, stage)
+            prompt, _, _, _, _, secret = self.tutor_context(store, {'scope': 'task', 'id': task_id})
+            if stage['kind'] == 'tool':
+                page = self.content.tools[stage['id']]
+                prompt += '\n\nTHE TOOLBOX PAGE SHE HAS IN FRONT OF HER (she can read all of this; you may teach from it freely)\n' + page['title'] + '\nWhen to reach for it: ' + str(page['when']) + '\n' + str(page['idea'])[:6000]
+            return prompt, secret
+        except (ApiError, StopIteration):
+            return '', []
+
+    def sitting_speak(self, store, unasked=''):
+        """Queue the tutor's next message. Talking on an unfinished chain or task is help, recorded like the Ask a tutor button."""
+        state = store.get(session.KEY)
+        context, secret = self.sitting_context(store)
+        stage = state.get('stage')
+        if stage and not unasked and not session._complete(self, store, stage):
+            owner = stage['id'] if stage['kind'] == 'chain' else session._task_of(self, stage)
+            store.run('INSERT INTO tutor_uses(at,scope,owner,step,outlet,gated) VALUES(?,?,?,?,?,?)', (now(), 'chain' if stage['kind'] == 'chain' else 'task', owner, '-', 'sitting', 1))
+        hidden = [self.content.ideas[i]['name'] for i in self.content.chains if i not in self.derived(store) and self.content.ideas[i].get('track') != 'cses']
+        job = self.queue(store, 'sitting', {'mode': 'talk', 'prompt': session.voice_prompt(self, store, context, unasked), 'secret': [*secret, *hidden] if unasked else secret})
+        state = store.get(session.KEY)
+        state['pending'] = job
+        store.set(session.KEY, state)
+        return job
+
+    def sitting(self, store, data, action):
+        if action == 'plan':
+            minutes = data.get('minutes')
+            if minutes not in session.LENGTHS:
+                raise ApiError('Pick one of the listed lengths.')
+            goal = text(data.get('goal', ''), 'What you want to do', 2000).strip()
+            if not self.voice_on(store):
+                return {'voice': False, 'say': '', 'plan': session.shown_plan(self, store, session.default_plan(self, store))}
+            prompt, secret = session.plan_prompt(self, store, goal, minutes)
+            return {'voice': True, 'job': self.queue(store, 'sitting', {'mode': 'plan', 'prompt': prompt, 'secret': secret})}
+        if action == 'start':
+            if contest.active(store):
+                raise ApiError('A contest is running. Start a sitting when it has ended.', 409)
+            plan = data.get('plan') if isinstance(data.get('plan'), list) else []
+            try:
+                return session.start(self, store, data.get('minutes'), goal=text(data.get('goal', ''), 'What you want to do', 2000), plan=plan[:8], say=text(data.get('say', ''), 'A message', 6000))
+            except ValueError as error:
+                raise ApiError(str(error), 409)
+        if action == 'say':
+            said = text(data.get('text', ''), 'Your message', 6000).strip()
+            state = store.get(session.KEY)
+            if not state or not said:
+                raise ApiError('There is no sitting to talk in.', 409)
+            if not self.voice_on(store):
+                raise ApiError('The talking tutor is switched off. Turn it on in Settings (it uses the Codex command on this Mac).', 409)
+            if state.get('pending'):
+                raise ApiError('The tutor is still answering your last message.', 409)
+            self.no_contest(store)
+            session.add_chat(store, 'me', said)
+            self.sitting_speak(store)
+            return session.status(self, store)
+        if action == 'seen':
+            out = session.seen(self, store, data.get('route', ''), bool(data.get('active')))
+            state = store.get(session.KEY)
+            if state and state.get('pending'):                   # a reply that never came must not block her for ever
+                row = store.one('SELECT status FROM jobs WHERE id=?', (state['pending'],))
+                if not row or row['status'] in ('done', 'error'):
+                    state['pending'] = None
+                    store.set(session.KEY, state)
+            if out.get('running') and self.voice_on(store) and not contest.active(store):
+                why = session.wants_voice(self, store)
+                if why:
+                    try:
+                        self.sitting_speak(store, unasked=why)
+                    except ApiError:
+                        pass                                     # the queue is busy judging her code; the rules still speak
+                    out = session.status(self, store)
+            return out
+        return {'break': session.take_break, 'back': session.back, 'keep': session.keep_going, 'next': session.move_on, 'end': session.end}[action](self, store)
+
+    def work_sitting(self, payload):
+        outcome = self.teach(payload['prompt'])
+        if payload['mode'] == 'plan':
+            with self.lock, self.store() as store:
+                if outcome['status'] != 'ok':
+                    return {'status': 'fallback', 'reason': outcome['reason'], 'say': '', 'plan': session.shown_plan(self, store, session.default_plan(self, store))}
+                plan, say = session.read_plan(self, store, outcome['reply'], payload.get('secret', []))
+                if not plan:
+                    return {'status': 'fallback', 'reason': 'The tutor did not come back with a usable plan, so here is the usual one.', 'say': say, 'plan': session.shown_plan(self, store, session.default_plan(self, store))}
+                return {'status': 'ok', 'say': say, 'plan': session.shown_plan(self, store, plan)}
+        if outcome['status'] != 'ok':
+            reply = 'I could not answer just now (' + outcome['reason'] + ') Carry on; the strip at the top still watches, and you can ask me again.'
+        elif any(name.casefold() in outcome['reply'].casefold() for name in payload.get('secret', [])):
+            reply = 'I started to name the thing you are about to discover, so I have held that reply back. Ask me again, or open the smaller question under the one you are on.'
+        else:
+            reply = outcome['reply']
+        with self.lock, self.store() as store:
+            session.add_chat(store, 'tutor', reply)
+        return {'status': 'ok'}
+
     # ---------- the tutor ----------
     def tutor_context(self, store, data):
         """Build the prompt for wherever the learner is. Returns (prompt, gated, scope, owner, step, names to keep out of a reply)."""
@@ -767,6 +881,19 @@ class Service:
                 names = [self.content.ideas[i]['name'] for i in problem['ideas'] if i in derived]
                 return tutor.problem_full(problem, row['approach'], problem['observations'], names, bool(row['solved_at'])), False, 'problem', problem['id'], '-', []
             return tutor.problem_stuck(problem, row['approach'], row['cue'], problem.get('nudges', [])[:level], question), True, 'problem', problem['id'], '-', []
+        seen = session.seen_by_tutor(self, store)             # during a sitting the tutor is told what the app has watched
+        if data.get('scope') == 'task':
+            task = self.content.tasks.get(data.get('id')) if isinstance(data.get('id'), str) else None
+            if not task:
+                raise ApiError('No such task.', 404)
+            language = self.settings(store)['language']
+            saved = store.one('SELECT code FROM code WHERE owner=? AND language=? AND file=?', (task['id'], language, 'main'))
+            code = saved['code'][:20000] if saved else ''
+            if store.one('SELECT 1 FROM tasks_done WHERE task=?', (task['id'],)):
+                return tutor.task_full(task, code), False, 'task', task['id'], '-', []
+            verdicts = [r['verdict'] for r in store.all('SELECT verdict FROM task_tries WHERE task=? ORDER BY id', (task['id'],))][-10:]
+            opened = self.nudges_open(store, 'task', task['id'], '-')
+            return tutor.task_stuck(task, code, verdicts, task['hints'][:opened], question) + seen, True, 'task', task['id'], '-', []
         idea = data.get('idea')
         chain = self.content.chains.get(idea) if isinstance(idea, str) else None
         if not chain:
@@ -780,7 +907,7 @@ class Service:
         earlier = [(s['prompt'], shown(s), s['showed']) for s in chain['steps'] if s['id'] in done]
         level = self.nudges_open(store, 'chain', idea, step['id'])
         prompt = tutor.chain_step(chain['opening'], earlier, step, step.get('options'), step.get('nudges', [])[:level], question)
-        return prompt, True, 'chain', idea, step['id'], [self.content.ideas[idea]['name']]
+        return prompt + seen, True, 'chain', idea, step['id'], [self.content.ideas[idea]['name']]
 
     def tutor_prompt(self, store, data):
         """The copy outlet: hand back the prompt to paste into ChatGPT."""
@@ -833,7 +960,7 @@ class Service:
             raise ApiError('Let the current run finish first.', 429)
         job = uuid.uuid4().hex
         store.run('INSERT INTO jobs VALUES(?,?,?,?,?,?,NULL)', (job, kind, 'queued', now(), now(), json.dumps(payload)))
-        (self.tutors if kind == 'tutor' else self.workers).submit(self.work, job)
+        (self.tutors if kind in ('tutor', 'sitting') else self.workers).submit(self.work, job)
         return job
 
     def queue_run(self, store, data):
@@ -879,6 +1006,8 @@ class Service:
                     result = self.work_grade(store, payload)
                 elif row['kind'] == 'tutor':
                     result = self.work_tutor(payload)
+                elif row['kind'] == 'sitting':
+                    result = self.work_sitting(payload)
                 elif row['kind'] == 'judge':
                     result = self.work_judge(store, payload)
                 elif row['kind'] == 'break':
@@ -1001,6 +1130,8 @@ class Service:
         with self.store() as store:
             if path == '/bootstrap':
                 return self.bootstrap(store)
+            if path == '/session':
+                return session.status(self, store)
             if path == '/map':
                 return self.map(store)
             if path.startswith('/chain/'):
@@ -1053,6 +1184,8 @@ class Service:
                   '/tutor/prompt': self.tutor_prompt, '/tutor/ask': self.tutor_ask, '/puzzle/answer': self.puzzle_answer, '/task/judge': self.task_judge, '/task/hint': self.task_hint,
                   '/problem/open': self.open_from_chain, '/break/try': self.break_try, '/break/nudge': self.break_nudge}
         with self.lock, self.store() as store:
+            if path.startswith('/session/') and path[9:] in ('plan', 'start', 'say', 'seen', 'break', 'back', 'keep', 'next', 'end'):
+                return self.sitting(store, data, path[9:])
             if path == '/problem/next':
                 return self.open_next(store)
             if path == '/problem/notes':

@@ -95,6 +95,34 @@ def problem_stuck(problem, approach, cue, nudges_seen, question):
     return '\n'.join(parts)
 
 
+SOCRATIC_TASK = '''You are tutoring one student in competitive programming. She is writing a program for the task below and it is not accepted yet. She learns from finding the idea and the bug herself.
+
+Rules for this conversation:
+- Do NOT give the solution, the key observation, or the name of the technique. Do NOT write or rewrite her code.
+- Read her code and what the judge said. If the idea is wrong, ask a question about a small input where it fails; let her run it by hand. If the idea is right and the code is wrong, point at the region to look at with a question, not at the fix.
+- If she has no idea yet, ask her to work the two smallest cases by hand and tell you the answers.
+- One question at a time; wait for her reply. Be warm and brief.
+- If she is missing background knowledge, teach that background plainly on a different example.'''
+
+
+def task_stuck(task, code, verdicts, hints_seen, question):
+    """Socratic prompt for a task in progress: the statement, her code and what the judge said. No hints she has not opened."""
+    parts = [SOCRATIC_TASK, '', 'THE TASK', task['title'], task['statement'], '', 'Example input and output:']
+    parts += [f'{s[0].rstrip()}\n->\n{s[1].rstrip()}' for s in task['samples'][:2]]
+    parts += ['', 'HER CODE RIGHT NOW', code.strip() or '(nothing written yet)', '', 'WHAT THE JUDGE HAS SAID, oldest first', ', '.join(verdicts) or '(nothing judged yet)']
+    if hints_seen:
+        parts += ['', 'Hints the app has already shown her:'] + [f'- {h}' for h in hints_seen]
+    parts += ['', 'WHAT SHE SAYS', question or '(She did not say where she is stuck. Start by asking her.)']
+    return '\n'.join(parts)
+
+
+def task_full(task, code):
+    """Explain prompt for a task she has had accepted."""
+    return '\n'.join([EXPLAIN.replace('She has just finished the material below by herself', 'Her program for the task below has just been accepted'),
+                      '', 'THE TASK', task['title'], task['statement'], '', 'THE HINTS THE APP HOLDS FOR IT'] + [f'- {h}' for h in task['hints']]
+                     + ['', 'HER ACCEPTED CODE', code.strip(), '', 'Also review her code: what is good, what a cleaner version would look like, and what habit would have got her there faster.'])
+
+
 def problem_full(problem, approach, observations, idea_names, solved):
     """Explain prompt for a problem that is solved or given up."""
     parts = [EXPLAIN.replace('She has just finished the material below by herself', 'She has just ' + ('solved' if solved else 'given up on') + ' the problem below'),

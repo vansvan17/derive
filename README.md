@@ -8,6 +8,7 @@ A local trainer for competitive programming where results are derived, not told.
 - **Puzzles.** Short single-question puzzles on invariants, games and bits, each with one checked answer and the reason shown afterwards.
 - **Real problems.** Recent Codeforces problems rated 1600 to 2500, handed out with no topic. Writing down your approach first is optional; a solve counts only when the judge accepted it, read from your public submission list.
 - **Contest mode.** A past Codeforces round against the clock for one to three handles, scored the ICPC way, with help locked while it runs, labels for every wrong submission afterwards, and an upsolve list.
+- **Sit with a tutor.** A timed sitting: you say what you want from the day, the tutor plans it out of what the app has, talks with you throughout, watches every answer and judged program, tells you when to change tack and calls the breaks. The watching is rules on your own machine; the talking is optional and runs through a local `codex` command.
 - **A tutor on request.** "Ask a tutor" builds a prompt for exactly where you are, to paste into ChatGPT or, optionally, to run through a local Codex command. While something is unfinished the tutor is told to lead with questions only.
 - **Evidence.** Derived, applied, recognised cold, and combined are counted separately. An idea you needed help with comes back later inside a different problem.
 
@@ -78,6 +79,7 @@ derive/sync.py                     reading public submission lists (Codeforces, 
 derive/runner.py                   sandboxed runs of your code
 derive/contest.py                  contest mode: timing and ICPC scoring from the judge
 derive/tutor.py                    tutor prompts, and the optional local codex call
+derive/session.py                  a sitting with the tutor: what to do next, when you are stuck, when to break
 derive/web.py, derive/static/      the local server and pages
 ```
 

@@ -70,7 +70,7 @@ export function sittingStart(given) {
     const button = event.target.closest?.('[data-sit]');
     if (!button) return;
     const what = button.dataset.sit;
-    if (what === 'talk') { setDock(!dockOpen); return; }
+    if (what === 'talk') { setDock(button.matches('[data-sitting-tab]') ? true : !dockOpen); return; }
     if (what === 'dock-close') { setDock(false); return; }
     if (what === 'end' && !(await hooks.dialog({title: 'End the sitting?', body: status?.over ? 'You get a short account of how it went.' : 'There is time left on the clock. You get a short account of how it went, and nothing you did is lost.', confirm: 'End it', cancel: 'Not yet'}))) return;
     if (what === 'next' && !(await hooks.dialog({title: 'Move on from this one?', body: 'It stays exactly where you left it and you can come back to it any time. The tutor will hand you something else.', confirm: 'Move on', cancel: 'Stay'}))) return;
@@ -98,8 +98,16 @@ function setDock(open) {
   if (open) document.querySelector('[data-dock-input]')?.focus();
 }
 function paintDock(force = false) {
-  let dock = document.querySelector('[data-sitting-dock]');
-  if (!status?.running || !dockOpen) { dock?.remove(); shownChat = status?.running ? (status.chat || []).length : -1; return; }
+  let dock = document.querySelector('[data-sitting-dock]'), tab = document.querySelector('[data-sitting-tab]');
+  const open = !!status?.running && dockOpen;
+  // The conversation is a column of its own: the page moves over to make room, so it never covers anything.
+  if (document.body.classList.contains('has-dock') !== open) { document.body.classList.toggle('has-dock', open); window.dispatchEvent(new Event('resize')); }
+  // Closed, it leaves a tab on the right edge of the window, so there is always a way back.
+  if (status?.running && !dockOpen) {
+    if (!tab) { tab = document.createElement('button'); tab.type = 'button'; tab.className = 'tutor-tab'; tab.dataset.sittingTab = ''; tab.dataset.sit = 'talk'; tab.title = 'Open the conversation with the tutor'; document.body.append(tab); }
+    tab.innerHTML = `<span>Tutor</span>${unread ? `<span class="sitting-unread">${unread}</span>` : ''}`;
+  } else tab?.remove();
+  if (!open) { dock?.remove(); shownChat = status?.running ? (status.chat || []).length : -1; return; }
   const {escape: e} = hooks, md = hooks.ctx.markdown, chat = status.chat || [];
   if (!dock) {
     dock = document.createElement('aside');

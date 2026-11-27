@@ -652,6 +652,19 @@ class App(unittest.TestCase):
         self.service.teach = lambda prompt: {'status': 'ok', 'reply': json.dumps({'say': 'You asked for ' + name + ', so that is today.', 'plan': [{'kind': 'chain', 'id': 'residues', 'why': 'it is what you asked for'}]})}
         asked = self.wait_job(self.post('/session/plan', {'minutes': 30, 'goal': 'i want to learn ' + name.lower()})[1]['job'])
         self.assertIn(name, asked['say'])                                                             # her own words are not hidden from her
+        self.service.voice_on = lambda store: False
+        # naming an area of the map plans every chain of it she has not derived, in order, even with the tutor off
+        ideas = json.loads((self.root / 'content/ideas.json').read_text())['ideas']
+        numbers = [i['id'] for i in ideas if i['area'] == 'nt']
+        whole = self.post('/session/plan', {'minutes': 120, 'goal': 'i want to finish derive for Numbers and  remainders today'})[1]
+        self.assertEqual([p['id'] for p in whole['plan']], numbers)
+        self.assertTrue(all(p['title'] == 'A chain in Numbers and remainders' for p in whole['plan']))
+        going = self.post('/session/start', {'minutes': 120, 'goal': 'numbers and remainders', 'plan': whole['plan'], 'say': ''})[1]
+        self.assertEqual((going['stage']['href'], len(going['plan'])), ('#/chain/residues', len(numbers) - 1))
+        self.derive('residues')
+        after = self.post('/session/seen', {'route': '', 'active': True})[1]            # one chain derived: the next one of the area is handed over
+        self.assertEqual((after['done'][0]['outcome'], after['stage']['href'], len(after['plan'])), ('done', '#/chain/' + numbers[1], len(numbers) - 2))
+        self.post('/session/end', {})
 
     def test_the_cses_section_lists_every_task_with_a_chain_and_stays_off_the_map(self):
         page = self.get('/cses')

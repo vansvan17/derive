@@ -166,9 +166,9 @@ export async function renderSession(ctx) {
     const voice = ctx.boot.voice;
     root.innerHTML = head + `<section class="surface"><h2>Start a sitting</h2>
         <form data-plan-form>
-          <label class="field">What do you want to do today?<textarea name="goal" rows="3" placeholder="${voice ? 'e.g. I keep failing counting problems. Teach me how to count things properly, then make me code two.' : 'The talking tutor is off, so this is not read yet. See the note below.'}" ${voice ? '' : 'disabled'}></textarea></label>
+          <label class="field">What do you want to do today?<textarea name="goal" rows="3" placeholder="${voice ? 'e.g. finish Derive for Numbers and remainders today. Or: I keep failing counting problems, teach me to count properly and make me code two.' : 'With the talking tutor off, only the name of an area of the map is understood, e.g. finish Numbers and remainders. Anything else gets the usual plan.'}"></textarea></label>
           <p class="sit-length">How long do you have? ${s.lengths.map(m => `<label class="sit-pill"><input type="radio" name="minutes" value="${m}" ${m === 60 ? 'checked' : ''}> ${m} min</label>`).join('')}</p>
-          <div class="step-actions"><button class="btn btn-primary" type="submit">${voice ? 'Plan my sitting' : 'Start with the usual plan'}</button></div>
+          <div class="step-actions"><button class="btn btn-primary" type="submit">${voice ? 'Plan my sitting' : 'Start'}</button></div>
         </form>
         <div data-plan aria-live="polite"></div>
         ${voice ? '' : `<aside class="basis-note" role="note"><p><strong>The talking tutor is off.</strong> With it on, you say what you want, it plans the sitting from that, and you can talk to it the whole time. It runs through the Codex command on this Mac with your own login. What gets sent to it: the question or task you are on, your answers and code, what the app has timed, and your messages. <button class="link-btn" type="button" data-voice-on>Turn it on</button></p></aside>`}
@@ -197,7 +197,7 @@ export async function renderSession(ctx) {
           if (!made || ctx.root !== root) return;
           if (made.error) throw new Error(made.error);
         }
-        if (made.voice === false) { await begin(minutes, '', made.plan, ''); return; }
+        if (made.voice === false) { await begin(minutes, goal, made.plan, ''); return; }
         box.innerHTML = `<div class="sit-plan">${made.status === 'fallback' ? `<p class="inline-error">${e(made.reason)}</p>` : ''}${made.say ? `<div class="tutor-msg is-tutor">${ctx.markdown(made.say)}</div>` : ''}
           <ol class="rows">${made.plan.map((p, k) => `<li class="row"><span class="row-mark">${k + 1}</span><span class="row-main"><span class="row-title">${e(p.title)}</span><span class="row-when">${e(p.why || '')}</span></span><span class="row-note">${e(p.label)}</span></li>`).join('')}</ol>
           <div class="step-actions"><button class="btn btn-primary" type="button" data-begin>Start</button><span class="muted small">Not what you meant? Change what you wrote above and plan again.</span></div></div>`;

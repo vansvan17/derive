@@ -35,6 +35,7 @@ BOUNDARY = 150                 # a break is offered only this soon after somethi
 IDLE = 5 * 60
 SNOOZE = 15 * 60
 LONG = {'chain': 40 * 60, 'task': 35 * 60, 'think': 35 * 60, 'tool': 45 * 60}
+PLAN_MAX = 24
 VOICE_GAP = 4 * 60             # the talking tutor speaks unasked at most this often
 
 
@@ -140,9 +141,13 @@ def _pick(service, store, kind, state):
 
 def _next_stage(service, store, state, at):
     """Take the next thing from her plan; when the plan is used up, go round learn, use, think."""
-    while state.get('plan'):
-        item = state['plan'].pop(0)
-        if not _complete(service, store, item):
+    # The first planned thing that is not finished and can be opened now. A chain that still waits for an earlier
+    # one stays in the plan and gets its turn once that one is derived.
+    state['plan'] = [i for i in state.get('plan', []) if not _complete(service, store, i)]
+    derived = service.derived(store)
+    for k, item in enumerate(state['plan']):
+        if item['kind'] != 'chain' or service.chain_open(item['id'], derived) or service.done_steps(store, item['id']):
+            state['plan'].pop(k)
             state['stage'] = {**item, 'since': at.isoformat()}
             state['intro'] = at.isoformat()
             return
@@ -167,6 +172,14 @@ def _close_stage(service, store, state, outcome, at):
 
 
 # ---------- the actions ----------
+def area_plan(service, store, goal):
+    """If her words name an area of the map ("finish numbers and remainders"), every chain of it she has not derived, in map order."""
+    said = ' '.join(str(goal).casefold().split())
+    areas = [a['id'] for a in service.content.areas if a['title'].casefold() in said]
+    derived = service.derived(store)
+    return [{'kind': 'chain', 'id': i} for i in service.content.order if service.content.ideas[i]['area'] in areas and i in service.content.chains and i not in derived][:PLAN_MAX]
+
+
 def default_plan(service, store):
     """Without a talking tutor: one of each, chosen by the rules."""
     state = {'done': [], 'stage': None}
@@ -190,7 +203,7 @@ def start(service, store, minutes, at=None, goal='', plan=None, say=''):
         raise ValueError('A sitting is already running.')
     state = {'started': at.isoformat(), 'minutes': minutes, 'stage': None, 'breaks': [], 'last_break': at.isoformat(), 'snooze': None,
              'offered': None, 'seen': at.isoformat(), 'route': '', 'done': [], 'ended': None, 'finished': None, 'intro': None,
-             'goal': str(goal)[:2000], 'plan': [v for v in (valid_item(service, i) for i in (plan or [])) if v][:8], 'chat': [], 'pending': None, 'voiced': None, 'voiced_at': None}
+             'goal': str(goal)[:2000], 'plan': [v for v in (valid_item(service, i) for i in (plan or [])) if v][:PLAN_MAX], 'chat': [], 'pending': None, 'voiced': None, 'voiced_at': None}
     if say:
         state['chat'].append({'who': 'tutor', 'text': str(say)[:6000], 'at': at.isoformat()})
     _next_stage(service, store, state, at)
@@ -450,7 +463,8 @@ PLANNER = '''You are a tutor planning one sitting for a student of competitive p
 How to choose:
 - Follow her words first. If she names a topic, find the items that teach and drill it. If she is vague, pick what suits her record.
 - Order: something that teaches (a chain or a Toolbox page), then something that uses it (a task), then one harder thing. 3 to 6 items for the minutes she has; a chain takes 15 to 40 minutes, a task 15 to 35.
-- A chain marked "locked" cannot be opened yet; do not pick it. Do not pick anything marked done unless she asks to revise.
+- If she asks to finish or work through a whole area of the map (or "derive" for a topic), the plan is EVERY chain of that area that is not done, in catalogue order, and nothing else unless she asked for more. Locked ones are included: they open as she finishes the earlier ones. Up to 24 items; say honestly if that is more than fits in her time, and that the rest waits for the next sitting.
+- Otherwise, a chain marked "locked" cannot be opened yet; do not pick it. Do not pick anything marked done unless she asks to revise.
 - Chains marked "name hidden" teach a result she is meant to discover. NEVER write that name, or an obvious synonym, in "say" or "why": refer to it as "a chain in <area>". (If she named the topic herself you may use her own words.)
 
 Reply with ONE JSON object and nothing else:
@@ -495,10 +509,12 @@ def catalogue(service, store):
     return '\n'.join(lines), secret
 
 
-def plan_prompt(service, store, goal, minutes):
+def plan_prompt(service, store, goal, minutes, area=()):
     text, secret = catalogue(service, store)
     record = f'{len(service.derived(store))} chains derived, {store.one("SELECT COUNT(*) FROM tasks_done")[0]} tasks accepted so far.'
-    return '\n'.join([PLANNER, '', 'WHAT SHE SAID SHE WANTS TODAY', goal.strip() or '(nothing in particular: choose for her)', '', f'TIME: {minutes} minutes', f'HER RECORD: {record}', '', 'THE CATALOGUE', text]), secret
+    return '\n'.join([PLANNER, '', 'WHAT SHE SAID SHE WANTS TODAY', goal.strip() or '(nothing in particular: choose for her)', '', f'TIME: {minutes} minutes', f'HER RECORD: {record}',
+                      ('SHE NAMED A WHOLE AREA. Its unfinished chains, in order, are: ' + ', '.join(i['id'] for i in area) + '. Plan exactly these unless her words ask for something else too.') if area else '',
+                      '', 'THE CATALOGUE', text]), secret
 
 
 def read_plan(service, store, reply, secret):
@@ -514,11 +530,9 @@ def read_plan(service, store, reply, secret):
     for item in data.get('plan', []) if isinstance(data.get('plan'), list) else []:
         good = valid_item(service, item if isinstance(item, dict) else {})
         if good and good['id'] not in seen_ids and not _complete(service, store, good):
-            if good['kind'] == 'chain' and not (service.chain_open(good['id'], service.derived(store)) or service.done_steps(store, good['id'])):
-                continue                                         # a chain that cannot be opened yet
             seen_ids.add(good['id'])
             plan.append({**good, 'why': clean(item.get('why', ''))[:300]})
-    return plan[:8], clean(data.get('say', ''))[:3000]
+    return plan[:PLAN_MAX], clean(data.get('say', ''))[:3000]
 
 
 def add_chat(store, who, text, at=None):

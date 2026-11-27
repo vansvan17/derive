@@ -808,17 +808,18 @@ class Service:
             if minutes not in session.LENGTHS:
                 raise ApiError('Pick one of the listed lengths.')
             goal = text(data.get('goal', ''), 'What you want to do', 2000).strip()
+            area = session.area_plan(self, store, goal)
             if not self.voice_on(store):
-                return {'voice': False, 'say': '', 'plan': session.shown_plan(self, store, session.default_plan(self, store))}
-            prompt, secret = session.plan_prompt(self, store, goal, minutes)
+                return {'voice': False, 'say': '', 'plan': session.shown_plan(self, store, area or session.default_plan(self, store))}
+            prompt, secret = session.plan_prompt(self, store, goal, minutes, area)
             secret = [n for n in secret if n.casefold() not in goal.casefold()]      # a topic she named herself is not a secret from her
-            return {'voice': True, 'job': self.queue(store, 'sitting', {'mode': 'plan', 'prompt': prompt, 'secret': secret})}
+            return {'voice': True, 'job': self.queue(store, 'sitting', {'mode': 'plan', 'prompt': prompt, 'secret': secret, 'area': area})}
         if action == 'start':
             if contest.active(store):
                 raise ApiError('A contest is running. Start a sitting when it has ended.', 409)
             plan = data.get('plan') if isinstance(data.get('plan'), list) else []
             try:
-                return session.start(self, store, data.get('minutes'), goal=text(data.get('goal', ''), 'What you want to do', 2000), plan=plan[:8], say=text(data.get('say', ''), 'A message', 6000))
+                return session.start(self, store, data.get('minutes'), goal=text(data.get('goal', ''), 'What you want to do', 2000), plan=plan[:session.PLAN_MAX], say=text(data.get('say', ''), 'A message', 6000))
             except ValueError as error:
                 raise ApiError(str(error), 409)
         if action == 'say':
@@ -858,10 +859,14 @@ class Service:
         if payload['mode'] == 'plan':
             with self.lock, self.store() as store:
                 if outcome['status'] != 'ok':
-                    return {'status': 'fallback', 'reason': outcome['reason'], 'say': '', 'plan': session.shown_plan(self, store, session.default_plan(self, store))}
+                    return {'status': 'fallback', 'reason': outcome['reason'], 'say': '', 'plan': session.shown_plan(self, store, payload.get('area') or session.default_plan(self, store))}
                 plan, say = session.read_plan(self, store, outcome['reply'], payload.get('secret', []))
+                wanted = [i['id'] for i in payload.get('area', [])]
+                if wanted and [p['id'] for p in plan if p['kind'] == 'chain'][:len(wanted)] != wanted:
+                    # she named a whole area: the plan is that area, in order, whatever else the tutor thought of
+                    plan = [*payload['area'], *[p for p in plan if p['id'] not in wanted]]
                 if not plan:
-                    return {'status': 'fallback', 'reason': 'The tutor did not come back with a usable plan, so here is the usual one.', 'say': say, 'plan': session.shown_plan(self, store, session.default_plan(self, store))}
+                    return {'status': 'fallback', 'reason': 'The tutor did not come back with a usable plan, so here is the usual one.', 'say': say, 'plan': session.shown_plan(self, store, payload.get('area') or session.default_plan(self, store))}
                 return {'status': 'ok', 'say': say, 'plan': session.shown_plan(self, store, plan)}
         if outcome['status'] != 'ok':
             reply = 'I could not answer just now (' + outcome['reason'] + ') Carry on; the strip at the top still watches, and you can ask me again.'

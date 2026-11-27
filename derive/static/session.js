@@ -2,7 +2,7 @@
    The rules live on the server (derive/session.py) and read the record the app already keeps. This file is the
    strip that stays at the top of every page while a sitting runs, and the page where one is started and reviewed.
    Nothing is locked while a sitting runs; the strip only points. */
-const BEAT = 15000, FAST = 1000;      // how often the page reports in; faster while the tutor is writing                       // how often the page reports in, in milliseconds
+const BEAT = 15000, FAST = 400;      // how often the page reports in; faster while the tutor is writing                       // how often the page reports in, in milliseconds
 let hooks = null, status = null, timer = null, beat = null, active = true, tickAt = 0, lastStage = '';
 let dockOpen = false, shownChat = -1, unread = 0, steered = null;
 try { dockOpen = localStorage.getItem('derive-tutor-dock') === 'open'; } catch { /* the dock just starts closed */ }
@@ -94,10 +94,13 @@ export function sittingStart(given) {
     } catch (error) { hooks.toast(error.message, 'error'); button.disabled = false; }
   });
   take(hooks.state.boot?.session || null, {announce: false});
+  // Report in at once on arriving and on every change of page, so the tutor does not wait for the next beat to speak.
+  window.addEventListener('hashchange', () => sittingPoke());
+  sittingPoke();
 }
 /* After the page did something (an answer, a judged program), ask the tutor again shortly, so it reacts at once. */
 let soon = null;
-export function sittingPoke() { if (!status?.running) return; clearTimeout(soon); soon = setTimeout(report, 500); }
+export function sittingPoke() { if (!status?.running) return; clearTimeout(soon); soon = setTimeout(report, 250); }
 export function sittingRepaint() { if (status?.running) paint(); }
 /* The page has just re-read everything from the server (after an accept, say): take the sitting from that, so the strip reacts at once. */
 export function sittingAdopt(next) { if (hooks && next && (next.running || status?.running)) take(next); }
@@ -142,12 +145,15 @@ function paintDock(force = false) {
   }
   const voice = hooks.state.boot?.voice;
   dock.querySelector('[data-dock-note]').textContent = voice ? 'sees what you are on and what the app has watched' : 'switched off';
-  if (force || chat.length !== shownChat || dock.dataset.thinking !== String(!!status.thinking)) {
+  const writing = status.thinking ? status.writing || '' : '';
+  if (force || chat.length !== shownChat || dock.dataset.thinking !== String(!!status.thinking) || dock.dataset.writing !== writing) {
+    const atEnd = (() => { const l = dock.querySelector('[data-dock-log]'); return l.scrollHeight - l.scrollTop - l.clientHeight < 60; })();
     const log = dock.querySelector('[data-dock-log]');
     log.innerHTML = (chat.length ? chat.map(m => m.who === 'note' ? `<p class="tutor-note">${e(m.text)}</p>` : `<div class="tutor-msg ${m.who === 'tutor' ? 'is-tutor' : 'is-me'}">${m.who === 'tutor' ? md(m.text) : `<p>${e(m.text)}</p>`}</div>`).join('')
         : `<p class="muted small">${voice ? 'Nothing said yet. Tell the tutor what you are thinking, ask it to teach you something, or ask where to look. It is told what you are on, your wrong answers and how long you have been at it.' : 'The talking tutor is switched off, so only the strip at the top speaks. Turn it on under Settings → In-app tutor (it uses the Codex command on this Mac).'}</p>`)
-      + (status.thinking ? '<div class="tutor-msg is-tutor is-thinking"><span class="spinner"></span> thinking… this can take up to a minute</div>' : '');
-    log.scrollTop = log.scrollHeight;
+      + (writing ? `<div class="tutor-msg is-tutor is-writing">${md(writing)}</div>` : status.thinking ? '<div class="tutor-msg is-tutor is-thinking"><span class="spinner"></span> thinking…</div>' : '');
+    if (atEnd || force || chat.length !== shownChat) log.scrollTop = log.scrollHeight;
+    dock.dataset.writing = writing;
     dock.dataset.thinking = String(!!status.thinking);
     shownChat = chat.length;
   }

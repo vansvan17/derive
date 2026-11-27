@@ -672,6 +672,23 @@ class App(unittest.TestCase):
         self.assertEqual(tell('On you go.\nACTION: {"do": "next"}')['stage']['href'], '#/tool/scc')
         self.assertEqual(tell('Hm.\nACTION: {"do": "format the disk"}')['stage']['href'], '#/tool/scc')        # anything else is ignored
         self.assertEqual(self.post('/session/end', {})[1]['running'], False)
+        # a message nobody asked for is dropped if she has moved past the question by the time it is written
+        self.post('/session/start', {'minutes': 60, 'goal': '', 'plan': [{'kind': 'chain', 'id': 'residues'}], 'say': ''})
+        def slow(prompt):
+            with self.service.store() as store:                                           # she answers the question while the tutor is still writing
+                store.run('INSERT OR IGNORE INTO steps_done VALUES(?,?,?,?)', ('residues', 'clock', '2099-01-01T00:00:00+00:00', '0'))
+            return {'status': 'ok', 'reply': 'About that first question: what does the hand do?'}
+        self.service.teach = slow
+        self.assertTrue(self.post('/session/seen', {'route': '', 'active': True})[1]['thinking'])     # it speaks up as the chain starts
+        for _ in range(100):
+            quiet = self.post('/session/seen', {'route': '', 'active': True})[1]
+            if not quiet['thinking']:
+                break
+            time.sleep(.05)
+        self.assertEqual((quiet['thinking'], [m for m in quiet['chat'] if m['who'] == 'tutor']), (False, []))
+        with self.service.store() as store:
+            store.run("DELETE FROM steps_done WHERE idea='residues'")
+        self.post('/session/end', {})
         # a chain is not skipped by asking: the tutor tests her with a little code, and only shown code gets a pass
         self.post('/session/start', {'minutes': 60, 'goal': '', 'plan': [{'kind': 'chain', 'id': 'residues'}, {'kind': 'task', 'id': 't1-squares'}], 'say': ''})
         self.assertEqual(tell('Fine, moving on.\nACTION: {"do": "next"}', 'this is too easy, skip it')['stage']['href'], '#/chain/residues')

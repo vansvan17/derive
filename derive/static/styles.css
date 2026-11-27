@@ -696,3 +696,5 @@ body.has-dock .toasts{right:calc(var(--dock-width) + 1.5rem)}
 .tutor-msg.is-me p{white-space:pre-wrap}
 .tutor-msg.is-me:has(p:only-child){max-width:96%}
 .tutor-dock textarea{max-height:12rem;field-sizing:content}
+.tutor-msg.is-writing>:last-child::after{content:'▍';margin-left:.125rem;color:var(--primary);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}

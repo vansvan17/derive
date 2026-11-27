@@ -23,6 +23,9 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+import json
+import threading
+import time
 
 TIMEOUT = 240
 
@@ -175,3 +178,115 @@ def teach(prompt, run=subprocess.run, effort=None):
         hint = ' It may have reached its usage limit.' if 'limit' in ' '.join(tail).lower() else ''
         return {'status': 'unavailable', 'reason': f'Codex did not answer.{hint} The prompt can still be copied into ChatGPT.'}
     return {'status': 'ok', 'reply': reply[:20000]}
+
+
+class Stream:
+    """One Codex process kept running for the conversation of a sitting, so that a reply starts at once and can be
+    shown while it is being written.
+
+    It speaks the app-server protocol (`codex app-server`, JSON lines on its standard input and output): a thread is
+    started for each message, in an empty temporary folder, read-only, with nothing ever approved, and not kept.
+    Anything that goes wrong (the command is missing, the protocol changed, it stops answering) makes `teach` fall
+    back to the plain one-shot call above, so the tutor still answers, only later and all at once.
+    """
+
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.process = None
+        self.folder = None
+        self.count = 0
+
+    def _send(self, method, params=None, note=False):
+        message = {'method': method}
+        if params is not None:
+            message['params'] = params
+        if not note:
+            self.count += 1
+            message['id'] = self.count
+        self.process.stdin.write(json.dumps(message) + '\n')
+        self.process.stdin.flush()
+        return self.count
+
+    def _read(self, deadline):
+        """The next message from Codex, or None at the deadline or if it has gone away."""
+        while time.time() < deadline:
+            line = self.process.stdout.readline()
+            if not line:
+                return None
+            try:
+                return json.loads(line)
+            except ValueError:
+                continue
+        return None
+
+    def _answer(self, wanted, deadline):
+        while True:
+            message = self._read(deadline)
+            if message is None or (message.get('id') == wanted and 'method' not in message):
+                return message
+
+    def _start(self):
+        self.folder = tempfile.TemporaryDirectory(prefix='derive-tutor-')
+        self.process = subprocess.Popen(['codex', 'app-server'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                        text=True, cwd=self.folder.name)
+        self.count = 0
+        ready = self._answer(self._send('initialize', {'clientInfo': {'name': 'derive', 'title': 'derive', 'version': '1'}, 'capabilities': None}), time.time() + 30)
+        if not ready or ready.get('error'):
+            raise OSError('Codex did not start.')
+        self._send('initialized', note=True)
+
+    def close(self):
+        with self.lock:
+            self._stop()
+
+    def _stop(self):
+        if self.process:
+            try:
+                self.process.terminate()
+            except OSError:
+                pass
+        if self.folder:
+            self.folder.cleanup()
+        self.process = self.folder = None
+
+    def teach(self, prompt, on_piece=None):
+        """Like teach(): {'status': 'ok', 'reply': ...} or unavailable. `on_piece(text so far)` is called as the reply grows."""
+        if not available():
+            return {'status': 'unavailable', 'reason': 'The codex command is not installed on this computer.'}
+        with self.lock:
+            try:
+                if not self.process or self.process.poll() is not None:
+                    self._stop()
+                    self._start()
+                deadline = time.time() + TIMEOUT
+                made = self._answer(self._send('thread/start', {'cwd': self.folder.name, 'approvalPolicy': 'never', 'sandbox': 'read-only', 'ephemeral': True}), deadline)
+                thread = made['result']['thread']['id']
+                turn = self._send('turn/start', {'threadId': thread, 'input': [{'type': 'text', 'text': prompt, 'text_elements': []}]})
+                reply, final = '', None
+                while True:
+                    message = self._read(deadline)
+                    if message is None:
+                        raise OSError('Codex stopped answering.')
+                    if message.get('id') == turn and message.get('error'):
+                        raise OSError(str(message['error'].get('message', 'Codex refused the message.')))
+                    if 'id' in message and 'method' in message:          # it asks for something (an approval): the answer is always no
+                        self.process.stdin.write(json.dumps({'id': message['id'], 'error': {'code': -32601, 'message': 'not available'}}) + '\n')
+                        self.process.stdin.flush()
+                        continue
+                    params = message.get('params') or {}
+                    if params.get('threadId') not in (None, thread):
+                        continue
+                    if message.get('method') == 'item/agentMessage/delta':
+                        reply += params.get('delta', '')
+                        if on_piece:
+                            on_piece(reply)
+                    elif message.get('method') == 'item/completed' and (params.get('item') or {}).get('type') == 'agentMessage':
+                        final = params['item'].get('text') or final
+                    elif message.get('method') == 'turn/completed':
+                        break
+                reply = (final or reply).strip()
+                if reply:
+                    return {'status': 'ok', 'reply': reply[:20000]}
+            except (OSError, KeyError, TypeError, ValueError):
+                self._stop()
+        return teach(prompt)                                             # the slow, sure way

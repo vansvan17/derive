@@ -553,9 +553,10 @@ def add_chat(store, who, text, at=None):
     state = store.get(KEY)
     if not state:
         return
-    state.setdefault('chat', []).append({'who': who, 'text': str(text)[:8000], 'at': moment(at).isoformat()})
-    state['chat'] = state['chat'][-80:]
-    if who == 'tutor':
+    if who:
+        state.setdefault('chat', []).append({'who': who, 'text': str(text)[:8000], 'at': moment(at).isoformat()})
+        state['chat'] = state['chat'][-80:]
+    if who in ('tutor', None):                                   # None: the reply was dropped, so only the waiting ends
         state['pending'] = None
     store.set(KEY, state)
 
@@ -596,6 +597,19 @@ def ask_check(service, store, at=None):
     state.setdefault('chat', []).append({'who': 'me', 'text': 'I think I already know this chain and want to skip it. Test me.', 'at': at.isoformat()})
     store.set(KEY, state)
     return True
+
+
+def position(service, store):
+    """Exactly where she is: the thing, and the question of it (or how many programs have been judged). A message written
+    for one position is of no use at another."""
+    state = store.get(KEY)
+    stage = state.get('stage') if state else None
+    if not stage:
+        return None
+    if stage['kind'] == 'chain':
+        done = service.done_steps(store, stage['id'])
+        return [stage['id'], next((s['id'] for s in service.content.chains[stage['id']]['steps'] if s['id'] not in done), None)]
+    return [stage['id'], store.one('SELECT COUNT(*) FROM task_tries WHERE task=?', (_task_of(service, stage),))[0]]
 
 
 def split_action(reply):
@@ -687,10 +701,12 @@ def wants_voice(service, store, at=None):
     state = store.get(KEY)
     if not state or state.get('pending') or _on_break(state) or not state.get('stage'):
         return None
-    if state.get('voiced_at') and (at - _t(state['voiced_at'])).total_seconds() < VOICE_GAP:
-        return None
     stage, sig = state['stage'], _signals(service, store, state, at)
     coach = _coach(sig)
+    # Spacing keeps it from chattering, but a learner who has just missed twice needs it now, not in four minutes.
+    urgent = (coach and coach[0] == 'stuck') or (stage['kind'] == 'chain' and sig['wrong'] >= 2)
+    if state.get('voiced_at') and (at - _t(state['voiced_at'])).total_seconds() < (0 if urgent else VOICE_GAP):
+        return None
     key, why = None, None
     if state.get('voiced') is None or not str(state['voiced']).startswith(stage['id'] + '|'):
         key, why = stage['id'] + '|start', 'she has just started this. Tell her in a sentence what it is for in today\'s plan and how to begin.'

@@ -65,6 +65,8 @@ class Service:
         self.fetch = sync.fetch                  # replaced in tests with recorded replies
         self.grade = grader.grade
         self.teach = tutor.teach                 # replaced in tests
+        self.stream = tutor.Stream()             # the conversation of a sitting, shown while it is written
+        self.writing = {}                        # job -> what the tutor has written so far, the names to keep out, and what it was about
         self.cf_cache = {}                       # the Codeforces problem list, read once per launch
         with self.store() as store:
             store.run("UPDATE jobs SET status='error', result=?, updated=? WHERE status IN ('queued','running')",
@@ -77,6 +79,7 @@ class Service:
     def close(self):
         self.workers.shutdown(wait=False, cancel_futures=True)
         self.tutors.shutdown(wait=False, cancel_futures=True)
+        self.stream.close()
 
     # ---------- settings ----------
     def settings(self, store):
@@ -801,13 +804,27 @@ class Service:
         planned = [self.content.ideas[i['id']]['name'] for i in state.get('plan', []) if i['kind'] == 'chain' and i['id'] not in derived and self.content.ideas[i['id']].get('track') != 'cses']
         hers = (state.get('goal', '') + ' ' + ' '.join(m['text'] for m in state.get('chat', []) if m['who'] == 'me')).casefold()
         secret = [n for n in dict.fromkeys([*secret, *planned]) if n.casefold() not in hers]
-        job = self.queue(store, 'sitting', {'mode': 'talk', 'prompt': session.voice_prompt(self, store, context, unasked), 'secret': secret})
+        # A message nobody asked for is about one moment; if she has moved on by the time it is written, it is dropped.
+        job = self.queue(store, 'sitting', {'mode': 'talk', 'prompt': session.voice_prompt(self, store, context, unasked), 'secret': secret,
+                                            'about': session.position(self, store) if unasked else None})
         state = store.get(session.KEY)
         state['pending'] = job
         store.set(session.KEY, state)
         return job
 
+    def being_written(self, store, out):
+        state = store.get(session.KEY)
+        entry = self.writing.get(state.get('pending')) if state else None
+        if entry and out.get('running'):
+            text = session.split_action(entry['text'].split('ACTION:')[0])[0]
+            stale = entry['about'] and entry['about'] != session.position(self, store)
+            out['writing'] = '' if stale or any(n.casefold() in text.casefold() for n in entry['secret']) else text
+        return out
+
     def sitting(self, store, data, action):
+        return self.being_written(store, self.sitting_act(store, data, action))
+
+    def sitting_act(self, store, data, action):
         if action == 'plan':
             minutes = data.get('minutes')
             if minutes not in session.LENGTHS:
@@ -868,9 +885,16 @@ class Service:
         return {'break': session.take_break, 'back': session.back, 'keep': session.keep_going, 'next': session.move_on, 'end': session.end}[action](self, store)
 
     def work_sitting(self, payload):
-        # Talk is answered with little thinking so that it comes back in a few seconds; the plan gets the usual amount.
-        quick = payload['mode'] == 'talk' and self.teach is tutor.teach
-        outcome = tutor.teach(payload['prompt'], effort='low') if quick else self.teach(payload['prompt'])
+        # Talk goes through the running Codex process and is shown while it is written; the plan is one plain call.
+        if payload['mode'] == 'talk' and self.teach is tutor.teach:
+            job = payload.get('job')
+            self.writing[job] = {'text': '', 'secret': payload.get('secret', []), 'about': payload.get('about')}
+            try:
+                outcome = self.stream.teach(payload['prompt'], lambda text: self.writing[job].update(text=text))
+            finally:
+                self.writing.pop(job, None)
+        else:
+            outcome = self.teach(payload['prompt'])
         if payload['mode'] == 'plan':
             with self.lock, self.store() as store:
                 if outcome['status'] != 'ok':
@@ -891,6 +915,9 @@ class Service:
             reply = outcome['reply']
         reply, action = session.split_action(reply)             # the tutor may end a message by doing something
         with self.lock, self.store() as store:
+            if payload.get('about') and payload['about'] != session.position(self, store):
+                session.add_chat(store, None, '')               # she has moved past what this was about: say nothing
+                return {'status': 'stale'}
             session.add_chat(store, 'tutor', reply or 'Done.')
             if action and outcome['status'] == 'ok':
                 session.act(self, store, action)
@@ -987,6 +1014,7 @@ class Service:
         if waiting >= 3:
             raise ApiError('Let the current run finish first.', 429)
         job = uuid.uuid4().hex
+        payload = {**payload, 'job': job} if kind == 'sitting' else payload
         store.run('INSERT INTO jobs VALUES(?,?,?,?,?,?,NULL)', (job, kind, 'queued', now(), now(), json.dumps(payload)))
         (self.tutors if kind in ('tutor', 'sitting') else self.workers).submit(self.work, job)
         return job
@@ -1158,7 +1186,7 @@ class Service:
         with self.store() as store:
             if path in ('/bootstrap', '/session'):               # these can move the sitting on, so they take the writer's lock
                 with self.lock:
-                    return self.bootstrap(store) if path == '/bootstrap' else session.status(self, store)
+                    return self.bootstrap(store) if path == '/bootstrap' else self.being_written(store, session.status(self, store))
             if path == '/map':
                 return self.map(store)
             if path.startswith('/chain/'):

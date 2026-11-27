@@ -346,5 +346,17 @@
   "to": "window-max",
   "kind": "combines with",
   "note": "Longest stretch whose largest minus smallest is within a limit: both ends sweep right, and two queues give the maximum and minimum of the moving window."
+ },
+ {
+  "from": "perm-cycles",
+  "to": "permutation-parity",
+  "kind": "used to prove",
+  "note": "One swap changes the number of cycles by exactly 1, so whether n minus the number of cycles is even flips with every swap."
+ },
+ {
+  "from": "perm-cycles",
+  "to": "graph-walk",
+  "kind": "special case of",
+  "note": "Draw an arrow from i to p[i]: the cycles are the connected pieces of that graph, found by walking it with a visited array."
  }
 ]

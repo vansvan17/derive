@@ -15,6 +15,7 @@
  "2074G": "kept",
  "2078D": "kept",
  "2085D": "dropped: take-the-best-seen at each deadline with a heap; not the undo greedy the regret chain teaches, and no other idea on the map is its crux",
+ "2086C": "kept",
  "2086D": "kept",
  "2091E": "kept (parked, below 1600)",
  "2091F": "kept",
@@ -164,5 +165,6 @@
  "2268A": "dropped: forced symmetric pairs; no idea on the map fits",
  "2271C": "kept",
  "2275F": "kept",
- "2276D": "kept"
+ "2276D": "kept",
+ "2276F": "kept"
 }

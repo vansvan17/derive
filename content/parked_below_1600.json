@@ -122,6 +122,33 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-2086C",
+  "site": "Codeforces",
+  "contest": 2086,
+  "index": "C",
+  "title": "Disappearing Permutation",
+  "rating": 1300,
+  "url": "https://codeforces.com/contest/2086/problem/C",
+  "editorial": "https://codeforces.com/blog/entry/141425",
+  "ideas": [
+   "perm-cycles"
+  ],
+  "observations": [
+   "A missing number v can only be put back at position v. That overwrites p[v], which then can only go to position p[v], and so on, until you reach a position that is already broken.",
+   "So zeroing position d forces fixing every position on the walk d, p[d], p[p[d]], ... : the whole cycle of d.",
+   "Keep the set of positions that must be fixed. A query inside the set changes nothing; a query outside adds its whole cycle. Each position is added once, so everything is linear."
+  ],
+  "nudges": [
+   "The number that was erased must come back. At which position is the operation able to write it?",
+   "Writing it there destroys another number. Where does that one have to go?",
+   "If the queried position is already among the positions you must fix, does the answer change?"
+  ],
+  "tools": [
+   "loop-walk"
+  ],
+  "checked": "2026-11-27"
+ },
+ {
   "id": "cf-2091E",
   "site": "Codeforces",
   "contest": 2091,

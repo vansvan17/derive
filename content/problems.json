@@ -519,7 +519,8 @@
   "url": "https://codeforces.com/contest/2123/problem/F",
   "editorial": "https://codeforces.com/blog/entry/144363",
   "ideas": [
-   "necessary-sufficient"
+   "necessary-sufficient",
+   "perm-cycles"
   ],
   "observations": [
    "Some positions cannot move: 1, and every prime p with 2p > n, because no other number up to n shares a factor with it.",
@@ -1958,6 +1959,7 @@
   "url": "https://codeforces.com/contest/2237/problem/E",
   "editorial": "https://codeforces.com/blog/entry/154603",
   "ideas": [
+   "perm-cycles",
    "necessary-sufficient",
    "exchange"
   ],
@@ -1972,7 +1974,10 @@
    "If one entry of b on a cycle is known, how much of b is determined?",
    "For the smallest answer, which position gets to choose first, and what does its choice cost the others?"
   ],
-  "checked": "2026-11-25"
+  "checked": "2026-11-25",
+  "tools": [
+   "loop-walk"
+  ]
  },
  {
   "id": "cf-2238E",
@@ -2576,6 +2581,36 @@
    "If you keep some cells and change the rest freely, when can two kept cells stand in the same final array?"
   ],
   "checked": "2026-11-25"
+ },
+ {
+  "id": "cf-2276F",
+  "site": "Codeforces",
+  "contest": 2276,
+  "index": "F",
+  "title": "Permutation Coloring Game",
+  "rating": 2400,
+  "url": "https://codeforces.com/contest/2276/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/157752",
+  "ideas": [
+   "perm-cycles",
+   "mirror-strategy",
+   "dp-state"
+  ],
+  "observations": [
+   "Draw an arrow from i to p[i]: the permutation falls into cycles. A cycle can be sorted by swaps inside it, so the result can be sorted exactly when every cycle is painted in one colour. If a cycle has two colours, two neighbours on it differ and a number cannot cross between them. So Bob wants one cycle with both colours, Alice wants none.",
+   "Long cycles lose for Alice at once: a cycle of length at least k + 2, or two cycles of length k + 1, lets Bob put one colour in and still find a white element there after Alice's reply. (k = 1 is a separate small case.)",
+   "With exactly one cycle of length k + 1, Alice must finish every cycle of length 2 to k on her first move, and nobody wants to touch the big cycle first. The cycles of length 1 become a take-1-to-k game: Alice also paints c of them, the remainder of their count modulo k + 1, and then answers b with k + 1 - b. She wins exactly when that first move has between 1 and k elements.",
+   "With all cycles of length at most k, Bob wins if at his turn some d <= k cycles hold at least d + k + 1 white elements in total. Only the 2k longest cycles matter, and a table over (cycles looked at, cycles Alice paints, their total length) decides whether Alice has a safe first move."
+  ],
+  "nudges": [
+   "Forget the game for a moment: for a finished colouring, when can the permutation be sorted by same-colour swaps? What structure of the permutation decides it?",
+   "Bob only needs one cycle with two colours. If a cycle is very long compared with k, can Alice ever protect it?",
+   "When exactly one dangerous cycle is left and neither player wants to touch it first, what simpler game are the fixed points?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "loop-walk"
+  ]
  },
  {
   "id": "cf-2154E",

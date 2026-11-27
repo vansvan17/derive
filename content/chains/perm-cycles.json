@@ -1,0 +1,231 @@
+{
+ "idea": "perm-cycles",
+ "opening": "People changing seats by fixed rules, round after round, and what never gets mixed up while they do.",
+ "steps": [
+  {
+   "id": "follow",
+   "kind": "list",
+   "ordered": true,
+   "prompt": "Seats are numbered from 1. A sign on every seat names a seat, and every seat is named by exactly one sign. In one **round**, everybody moves at the same moment: whoever sits on seat $i$ goes to the seat named on the sign of seat $i$.\n\nFive seats. The signs on seats 1, 2, 3, 4, 5 say 3, 5, 4, 1, 2. Take the person who starts on seat 1. On which seats do they sit after round 1, round 2 and round 3? Give the three seats in order.",
+   "answer": [
+    3,
+    4,
+    1
+   ],
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\np = (3, 5, 4, 1, 2)\nresult = [after(p, k)[0] for k in (1, 2, 3)]",
+   "nudges": [
+    "The sign on seat 1 says 3. What does the sign on seat 3 say?"
+   ],
+   "showed": "1 goes to 3, 3 goes to 4, 4 goes back to 1. The walk closed up after three rounds."
+  },
+  {
+   "id": "loops",
+   "kind": "number",
+   "prompt": "Start on any seat and keep following the signs until you are back where you began. The seats you passed form a **loop**. With the same signs (3, 5, 4, 1, 2 on seats 1 to 5), into how many loops do the five seats split?",
+   "answer": 2,
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\nresult = len(loops((3, 5, 4, 1, 2)))",
+   "nudges": [
+    "Seats 1, 3 and 4 are one loop. Where does the sign on seat 2 lead?"
+   ],
+   "showed": "Two loops: 1 → 3 → 4 → 1 and 2 → 5 → 2. Every seat is in exactly one of them."
+  },
+  {
+   "id": "close",
+   "kind": "choice",
+   "prompt": "Any number of seats, and every seat is named by exactly one sign. You start on seat $s$ and follow the signs. Which seat is the first one you stand on for a second time?",
+   "options": [
+    "Always $s$ itself",
+    "It can be any seat of the walk",
+    "It can be any seat except $s$"
+   ],
+   "answer": 0,
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\nbad = 0\nfor p in itertools.permutations(range(1, 6)):\n    for s in range(1, 6):\n        seen = {s}; x = p[s - 1]\n        while x not in seen: seen.add(x); x = p[x - 1]\n        bad += x != s\nresult = 0 if bad == 0 else 1",
+   "nudges": [
+    "Suppose the first repeated seat is some other seat $t$. You entered $t$ twice, from two different seats. How many signs name $t$?"
+   ],
+   "showed": "Entering another seat twice would need two signs naming it. So the walk can only close at its own start: every seat lies on a loop, and loops never share a seat."
+  },
+  {
+   "id": "count",
+   "kind": "number",
+   "prompt": "A seat whose sign names itself is a loop of length 1. Eight seats, and the signs on seats 1 to 8 say 4, 2, 7, 1, 8, 3, 5, 6. How many loops are there?",
+   "answer": 3,
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\nresult = len(loops((4, 2, 7, 1, 8, 3, 5, 6)))",
+   "nudges": [
+    "Start at seat 1 and walk until you return. Which is the smallest seat you have not visited yet?"
+   ],
+   "showed": "1 → 4 → 1, then 2 alone, then 3 → 7 → 5 → 8 → 6 → 3. Lengths 2, 1 and 5."
+  },
+  {
+   "id": "split",
+   "kind": "number",
+   "prompt": "Five seats with signs 2, 3, 4, 5, 1: one loop through all five. Now the signs of seat 1 and seat 3 are exchanged (seat 1 gets the sign that was on seat 3, and the other way round). How many loops are there now?",
+   "answer": 2,
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\nresult = len(loops((4, 3, 2, 5, 1)))",
+   "nudges": [
+    "The signs now say 4, 3, 2, 5, 1. Where does the walk from seat 1 go?"
+   ],
+   "showed": "1 → 4 → 5 → 1 and 2 → 3 → 2. Exchanging two signs inside one loop cut it in two."
+  },
+  {
+   "id": "join",
+   "kind": "number",
+   "prompt": "Five seats with signs 2, 1, 4, 5, 3: a loop of two seats and a loop of three. The signs of seat 2 and seat 4 are exchanged. How many loops are there now?",
+   "answer": 1,
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\nresult = len(loops((2, 5, 4, 1, 3)))",
+   "nudges": [
+    "The signs now say 2, 5, 4, 1, 3. Does the walk from seat 1 reach seat 3?"
+   ],
+   "showed": "1 → 2 → 5 → 3 → 4 → 1. Exchanging two signs from different loops glued the loops together."
+  },
+  {
+   "id": "one",
+   "kind": "choice",
+   "prompt": "In general, the signs of two different seats are exchanged. What happens to the number of loops?",
+   "options": [
+    "It goes up by 1 if the two seats were in the same loop, and down by 1 if they were in different loops",
+    "It goes down by 1 if the two seats were in the same loop, and up by 1 if they were in different loops",
+    "It can stay the same, or change by 1 or by 2"
+   ],
+   "answer": 0,
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\nok = True\nfor p in itertools.permutations(range(1, 6)):\n    comp = [None] * 5\n    for s in range(5):\n        if comp[s] is None:\n            x = s\n            while comp[x] is None: comp[x] = s; x = p[x] - 1\n    for i in range(5):\n        for j in range(i + 1, 5):\n            q = list(p); q[i], q[j] = q[j], q[i]\n            ok &= len(loops(q)) - len(loops(p)) == (1 if comp[i] == comp[j] else -1)\nresult = 0 if ok else 2",
+   "nudges": [
+    "In the two examples you just did, were the two seats in the same loop or in different loops?",
+    "Inside one loop a → ... → b → ..., the two seats now point at each other's next seat. Which part of the old loop does each walk skip?"
+   ],
+   "showed": "One exchange always changes the number of loops by exactly 1. Same loop: it splits. Different loops: they join."
+  },
+  {
+   "id": "fewest",
+   "kind": "formula",
+   "prompt": "There are $n$ seats and the signs form $c$ loops. One move exchanges the signs of two seats. What is the smallest number of moves after which every seat names itself?",
+   "answer": "n-c",
+   "vars": {
+    "n": [
+     1,
+     6
+    ],
+    "c": [
+     1,
+     6
+    ]
+   },
+   "verify_when": "c <= n",
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\np = list(range(1, n + 1))\nfor i in range(n - c): p[i], p[i + 1] = p[i + 1], p[i]\nassert len(loops(p)) == c\nresult = dist(tuple(p), tuple(range(1, n + 1)))",
+   "nudges": [
+    "How many loops are there when every seat names itself?",
+    "By how much can one move raise the number of loops?"
+   ],
+   "showed": "At the end there are $n$ loops, and one move adds at most one. So $n - c$ moves are needed, and splitting a loop each time shows they are enough."
+  },
+  {
+   "id": "why",
+   "kind": "proof",
+   "prompt": "Prove both halves: with $n$ seats and $c$ loops, fewer than $n - c$ exchanges of two signs can never make every seat name itself, and exactly $n - c$ exchanges can.",
+   "claims": [
+    "When every seat names itself there are exactly n loops (each of length 1).",
+    "One exchange changes the number of loops by exactly 1 (or: by at most 1), so going from c loops to n loops takes at least n - c exchanges.",
+    "While some seat does not name itself, it lies in a loop of length at least 2, and exchanging the signs of two seats of that loop splits it, raising the number of loops by 1.",
+    "Repeating this n - c times reaches n loops, which means every seat names itself."
+   ],
+   "nudges": [
+    "How many loops does the finished state have, and how fast can the count grow?",
+    "If some seat does not name itself yet, which two signs can you exchange to gain a loop for certain?"
+   ],
+   "showed": "The number of loops is the measure of progress: it must rise from $c$ to $n$, one per move."
+  },
+  {
+   "id": "rounds",
+   "kind": "number",
+   "prompt": "Back to people moving. Nine seats whose signs form three loops, of lengths 2, 3 and 4. Everybody starts on a seat and rounds are played. After how many rounds is **everybody** back on their own starting seat for the first time?",
+   "answer": 12,
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\np = (2, 1, 4, 5, 3, 7, 8, 9, 6)\nassert loops(p) == [2, 3, 4]\nk = 1\nwhile after(p, k) != list(range(1, 10)): k += 1\nresult = k",
+   "nudges": [
+    "After which numbers of rounds is a person on the loop of length 4 at home?",
+    "Which is the smallest number that is a multiple of 2, of 3 and of 4?"
+   ],
+   "showed": "A person on a loop of length $L$ is home exactly after multiples of $L$ rounds. Everybody is home at the least common multiple: 12, not $2 \\cdot 3 \\cdot 4 = 24$."
+  },
+  {
+   "id": "far",
+   "kind": "list",
+   "ordered": true,
+   "prompt": "Five seats again, signs 3, 5, 4, 1, 2. After 1000 rounds, on which seat is the person who started on seat 1, and on which seat is the person who started on seat 2? Give the two seats in that order.",
+   "answer": [
+    3,
+    2
+   ],
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\nr = after((3, 5, 4, 1, 2), 1000)\nresult = [r[0], r[1]]",
+   "nudges": [
+    "How long is the loop of seat 1? What is the remainder of 1000 when divided by that length?"
+   ],
+   "showed": "Seat 1 is on a loop of length 3, and 1000 leaves remainder 1, so one step: seat 3. Seat 2 is on a loop of length 2, remainder 0: still seat 2. Only the remainder modulo the loop length matters."
+  },
+  {
+   "id": "h-relabel",
+   "kind": "number",
+   "tier": "hard",
+   "prompt": "Two rows of cards. Top row: 3 1 2 5 4 6. Bottom row: 1 3 2 4 6 5. One move swaps any two cards of the top row. What is the smallest number of moves after which the top row equals the bottom row?",
+   "answer": 3,
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\nresult = dist((3, 1, 2, 5, 4, 6), (1, 3, 2, 4, 6, 5))",
+   "nudges": [
+    "Give each position a sign: the position where its top card must end up. Are those signs of the kind you know?",
+    "How many loops do those signs form?"
+   ],
+   "showed": "Position 1 must send its card to position 2, position 2 to 1, position 3 stays, and 4 → 6 → 5 → 4. Loops of lengths 2, 1 and 3, so $6 - 3 = 3$ swaps. Any \"turn this row into that row\" question becomes a sorting question once you rename."
+  },
+  {
+   "id": "h-double",
+   "kind": "list",
+   "tier": "hard",
+   "prompt": "A **double round** is two rounds played at once. It moves people exactly as some new set of signs would. Take signs forming one single loop of length $L$. For which $L$ from 2 to 9 do the new signs (those of the double round) still form one single loop?",
+   "answer": [
+    3,
+    5,
+    7,
+    9
+   ],
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\nresult = [L for L in range(2, 10) if len(loops(twice(tuple(list(range(2, L + 1)) + [1])))) == 1]",
+   "nudges": [
+    "On a loop of length 6, where are you after 2, 4, 6 steps of the old signs? Did you see every seat?",
+    "On a loop of length 5, taking two steps at a time, when do you first return?"
+   ],
+   "showed": "Odd loops stay one loop (in a different order). An even loop of length $L$ falls apart into two loops of length $L/2$."
+  },
+  {
+   "id": "h-root",
+   "kind": "list",
+   "tier": "hard",
+   "prompt": "Six seats. Below are six patterns of loop lengths. Which of them can be the loop lengths of a double round (of some signs on six seats)? Give the labels. (1) 6   (2) 3 + 3   (3) 4 + 2   (4) 2 + 2 + 1 + 1   (5) 5 + 1   (6) 2 + 1 + 1 + 1 + 1",
+   "answer": [
+    2,
+    4,
+    5
+   ],
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\ngot = {tuple(loops(twice(p))) for p in itertools.permutations(range(1, 7))}\npats = [(6,), (3, 3), (2, 4), (1, 1, 2, 2), (1, 5), (1, 1, 1, 1, 2)]\nresult = [k + 1 for k, t in enumerate(pats) if t in got]",
+   "nudges": [
+    "An even loop in the double round can only have come from where?",
+    "So in what quantities must loops of the same even length appear?"
+   ],
+   "showed": "Even loops in a double round are always born in pairs of equal length, from one loop twice as long. So the even lengths must pair up: 3 + 3, 2 + 2 + 1 + 1 and 5 + 1 are possible, the others are not."
+  },
+  {
+   "id": "h-longest",
+   "kind": "number",
+   "tier": "hard",
+   "prompt": "Ten seats. You choose the signs. After some number of rounds everybody is back on their starting seat for the first time. What is the largest that this number can be?",
+   "answer": 30,
+   "verify": "import itertools, math\ndef loops(p):\n    n = len(p); seen = [False] * n; out = []\n    for s in range(n):\n        if not seen[s]:\n            k = 0; x = s\n            while not seen[x]: seen[x] = True; x = p[x] - 1; k += 1\n            out.append(k)\n    return sorted(out)\ndef swaps(s): return [s[:i] + (s[j],) + s[i + 1:j] + (s[i],) + s[j + 1:] for i in range(len(s)) for j in range(i + 1, len(s))]\ndef dist(start, goal):\n    seen, todo = {start: 0}, [start]\n    for s in todo:\n        if s == goal: return seen[s]\n        for t in swaps(s):\n            if t not in seen: seen[t] = seen[s] + 1; todo.append(t)\ndef after(p, k):\n    pos = list(range(1, len(p) + 1))\n    for _ in range(k): pos = [p[x - 1] for x in pos]\n    return pos\ndef twice(p): return tuple(p[p[i] - 1] for i in range(len(p)))\ndef parts(n, m):\n    if n == 0: yield []; return\n    for k in range(min(n, m), 0, -1):\n        for rest in parts(n - k, k): yield [k] + rest\nresult = max(math.lcm(*t) for t in parts(10, 10))",
+   "nudges": [
+    "The answer is the least common multiple of the loop lengths, and the lengths add up to 10. Is one loop of length 10 the best?",
+    "Which lengths have no common factor with each other and add up to at most 10?"
+   ],
+   "showed": "Loops of lengths 2, 3 and 5 give 30. Lengths that share no factor multiply; one big loop of 10 only gives 10."
+  }
+ ],
+ "reveal": {
+  "name": "Cycles of a permutation",
+  "statement": "A permutation $p$ of $1..n$ splits into disjoint cycles: follow $i \\to p_i \\to p_{p_i} \\to \\dots$ until you return to $i$. Swapping two elements changes the number of cycles by exactly 1, so sorting takes exactly $n - c$ swaps, where $c$ is the number of cycles. Applying $p$ $k$ times moves every element $k \\bmod L$ steps along its cycle of length $L$, and everything returns after the least common multiple of the cycle lengths.",
+  "remark": "Whenever a problem applies a permutation again and again, swaps elements to sort, or says \"go from $i$ to $p_i$\", draw the arrows and look at the cycles first. Each cycle can then be handled alone. Squaring keeps odd cycles and halves even ones."
+ }
+}

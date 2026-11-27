@@ -230,6 +230,17 @@
    ]
   },
   {
+   "id": "perm-cycles",
+   "area": "gr",
+   "name": "Cycles of a permutation",
+   "statement": "A permutation splits into disjoint cycles. Sorting it takes n minus (number of cycles) swaps, and applying it k times moves each element k mod (its cycle length) steps.",
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
+  },
+  {
    "id": "permutation-parity",
    "area": "inv",
    "name": "Parity of a permutation",

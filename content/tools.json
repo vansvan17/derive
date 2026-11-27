@@ -709,5 +709,32 @@
   "task": "shared-letters",
   "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string a, b;\n    cin >> a >> b;\n    int n = a.size(), m = b.size();\n    // len[i][j]: the answer for a from position i on and b from position j on\n    vector<vector<unsigned short>> len(n + 1, vector<unsigned short>(m + 1, 0));\n    for (int i = n - 1; i >= 0; i--)\n        for (int j = m - 1; j >= 0; j--)\n            len[i][j] = a[i] == b[j] ? len[i + 1][j + 1] + 1 : max(len[i + 1][j], len[i][j + 1]);\n    string out;\n    for (int i = 0, j = 0; i < n && j < m;) {           // walk forward, always towards a cell that keeps the best value\n        if (a[i] == b[j]) { out += a[i]; i++; j++; }\n        else if (len[i + 1][j] >= len[i][j + 1]) i++;\n        else j++;\n    }\n    printf(\"%d\\n%s\\n\", (int)out.size(), out.c_str());\n}\n",
   "example": "// len[i][j]: the answer for a from position i on and b from position j on\nfor (int i = n - 1; i >= 0; i--)\n    for (int j = m - 1; j >= 0; j--)\n        len[i][j] = a[i] == b[j] ? len[i + 1][j + 1] + 1 : max(len[i + 1][j], len[i][j + 1]);\nstring out;\nfor (int i = 0, j = 0; i < n && j < m;) {      // walk forward, towards a cell that keeps the best value\n    if (a[i] == b[j]) { out += a[i]; i++; j++; }\n    else if (len[i + 1][j] >= len[i][j + 1]) i++;\n    else j++;\n}"
+ },
+ {
+  "id": "loop-walk",
+  "title": "Walk the loops of a shuffle",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "The statement has a permutation and says \"go from i to p[i]\", or applies the same shuffle again and again",
+   "Fewest swaps to sort, or to turn one arrangement into another",
+   "After how many rounds does everything return, or where is an element after a huge number of rounds"
+  ],
+  "idea": "**The question (an example):** seat $i$ has a sign $p_i$, and every seat is named by exactly one sign. Each round, the person on seat $i$ moves to seat $p_i$. Where is everybody after $k$ rounds, when $k$ can be $10^{18}$?\n\n**The simple way:** play the rounds one by one. That is $n \\cdot k$ steps: hopeless.\n\n**What is really going on:** follow the signs from any seat and you come back to it. So the seats fall into separate **loops**, and a person never leaves their loop.\n\n**A tiny example:** signs 3, 5, 4, 1, 2.\n\n- Loop A: 1 → 3 → 4 → 1 (length 3).\n- Loop B: 2 → 5 → 2 (length 2).\n- After 1000 rounds, the person from seat 1 has made 1000 steps on a loop of length 3. 1000 leaves remainder 1, so they sit one step on: seat 3.\n\n**The steps:**\n\n- Keep a `seen` mark for every seat.\n- Go through the seats 1 to n. If a seat is not marked, walk from it along the signs, marking seats and writing them into a list, until you are back.\n- That list is one loop. Do the work for this loop (here: move everyone `k % length` places along the list).\n\n**Why it is fast:** every seat is marked once and never walked again, so everything together is n steps.\n\n**The same walk answers other questions:**\n\n- Fewest swaps to sort: n minus the number of loops.\n- Rounds until everybody is home: the least common multiple of the loop lengths.\n- \"Turn row A into row B\": rename so that B is sorted, then it is the first question.",
+  "traps": [
+   "Mark a seat when you walk over it; without the marks one long loop is walked n times.",
+   "Fix the direction once: does the person on seat i go to p[i], or does seat i receive the person from p[i]? The two give opposite shifts.",
+   "Take k modulo the loop length before using it as an index; k does not fit in an int.",
+   "The least common multiple of the loop lengths overflows quickly; if it is asked modulo a prime, collect the largest power of each prime instead.",
+   "A seat that names itself is a loop of length 1 and still counts as a loop."
+  ],
+  "task": "rounds-later",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n;\n    long long k;\n    scanf(\"%d %lld\", &n, &k);\n    vector<int> p(n + 1), where(n + 1);\n    for (int i = 1; i <= n; i++) scanf(\"%d\", &p[i]);\n    vector<bool> seen(n + 1, false);\n    for (int s = 1; s <= n; s++) {\n        if (seen[s]) continue;\n        vector<int> loop;                           // the seats of this loop, in walking order\n        for (int x = s; !seen[x]; x = p[x]) { seen[x] = true; loop.push_back(x); }\n        int len = loop.size();\n        int shift = k % len;                        // only the remainder matters\n        for (int j = 0; j < len; j++) where[loop[j]] = loop[(j + shift) % len];\n    }\n    for (int i = 1; i <= n; i++) printf(\"%d%c\", where[i], i == n ? '\\n' : ' ');\n}\n",
+  "needs": [
+   "perm-cycles"
+  ],
+  "example": "vector<bool> seen(n + 1, false);\nfor (int s = 1; s <= n; s++) {\n    if (seen[s]) continue;                      // already on an earlier loop\n    vector<int> loop;                           // the seats of this loop, in walking order\n    for (int x = s; !seen[x]; x = p[x]) { seen[x] = true; loop.push_back(x); }\n    int len = loop.size();\n    int shift = k % len;                        // k rounds = k mod len steps along the loop\n    for (int j = 0; j < len; j++) where[loop[j]] = loop[(j + shift) % len];\n}"
  }
 ]

@@ -22,7 +22,7 @@ function behindFold(behind, e) {
 function taskRow(t, k, e, note = '') {
   const mark = t.solved ? `<span class="row-mark is-done" title="Accepted"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="sr-only">Accepted</span></span>` : `<span class="row-mark${t.tries ? ' is-tried' : ''}">${k}</span>`;
   const state = t.solved ? '' : t.tries ? `<span class="row-state">${e(t.last)} · ${t.tries} ${t.tries === 1 ? 'try' : 'tries'}</span>` : '';
-  return `<li class="row">${mark}<a class="row-title" href="#/task/${e(t.id)}">${e(String(t.title).replace(/^\d+\.\s*/, ''))}</a>${note ? `<span class="row-note">${note}</span>` : ''}${state}</li>`;
+  return `<li class="row">${mark}<a class="row-title" href="#/task/${e(t.id)}">${e(String(t.title).replace(/^(\d+|[A-Z])\.\s+/, ''))}</a>${note ? `<span class="row-note">${note}</span>` : ''}${state}</li>`;
 }
 /* The heading of one group of tasks, with how many are accepted and a thin bar. */
 function groupHead(title, about, list, e) {

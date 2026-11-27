@@ -636,6 +636,7 @@ class App(unittest.TestCase):
             self.assertIn(needed, said)
         with self.service.store() as store:
             self.assertEqual(store.one("SELECT COUNT(*) FROM tutor_uses WHERE outlet='sitting' AND gated=1")[0], 1)   # asking is help, and is recorded
+        self.assertIn('counts', self.get('/mastery'))                                                 # and the record page still reads
         # a reply that names something she has not derived is held back
         self.post('/session/next', {})
         self.service.teach = lambda prompt: {'status': 'ok', 'reply': 'This is ' + name + '.'}
@@ -648,6 +649,9 @@ class App(unittest.TestCase):
         self.assertNotIn(name, json.dumps(now))
         self.assertIn('held that reply back', now['chat'][-1]['text'])
         self.assertEqual(self.post('/session/end', {})[1]['running'], False)
+        self.service.teach = lambda prompt: {'status': 'ok', 'reply': json.dumps({'say': 'You asked for ' + name + ', so that is today.', 'plan': [{'kind': 'chain', 'id': 'residues', 'why': 'it is what you asked for'}]})}
+        asked = self.wait_job(self.post('/session/plan', {'minutes': 30, 'goal': 'i want to learn ' + name.lower()})[1]['job'])
+        self.assertIn(name, asked['say'])                                                             # her own words are not hidden from her
 
     def test_the_cses_section_lists_every_task_with_a_chain_and_stays_off_the_map(self):
         page = self.get('/cses')

@@ -791,8 +791,12 @@ class Service:
         if stage and not unasked and not session._complete(self, store, stage):
             owner = stage['id'] if stage['kind'] == 'chain' else session._task_of(self, stage)
             store.run('INSERT INTO tutor_uses(at,scope,owner,step,outlet,gated) VALUES(?,?,?,?,?,?)', (now(), 'chain' if stage['kind'] == 'chain' else 'task', owner, '-', 'sitting', 1))
-        hidden = [self.content.ideas[i]['name'] for i in self.content.chains if i not in self.derived(store) and self.content.ideas[i].get('track') != 'cses']
-        job = self.queue(store, 'sitting', {'mode': 'talk', 'prompt': session.voice_prompt(self, store, context, unasked), 'secret': [*secret, *hidden] if unasked else secret})
+        # Names that must not come back: the chain she is on and the chains still planned, unless she used the words herself.
+        derived = self.derived(store)
+        planned = [self.content.ideas[i['id']]['name'] for i in state.get('plan', []) if i['kind'] == 'chain' and i['id'] not in derived and self.content.ideas[i['id']].get('track') != 'cses']
+        hers = (state.get('goal', '') + ' ' + ' '.join(m['text'] for m in state.get('chat', []) if m['who'] == 'me')).casefold()
+        secret = [n for n in dict.fromkeys([*secret, *planned]) if n.casefold() not in hers]
+        job = self.queue(store, 'sitting', {'mode': 'talk', 'prompt': session.voice_prompt(self, store, context, unasked), 'secret': secret})
         state = store.get(session.KEY)
         state['pending'] = job
         store.set(session.KEY, state)
@@ -807,6 +811,7 @@ class Service:
             if not self.voice_on(store):
                 return {'voice': False, 'say': '', 'plan': session.shown_plan(self, store, session.default_plan(self, store))}
             prompt, secret = session.plan_prompt(self, store, goal, minutes)
+            secret = [n for n in secret if n.casefold() not in goal.casefold()]      # a topic she named herself is not a secret from her
             return {'voice': True, 'job': self.queue(store, 'sitting', {'mode': 'plan', 'prompt': prompt, 'secret': secret})}
         if action == 'start':
             if contest.active(store):
@@ -1128,10 +1133,9 @@ class Service:
     # ---------- routing ----------
     def get(self, path, query):
         with self.store() as store:
-            if path == '/bootstrap':
-                return self.bootstrap(store)
-            if path == '/session':
-                return session.status(self, store)
+            if path in ('/bootstrap', '/session'):               # these can move the sitting on, so they take the writer's lock
+                with self.lock:
+                    return self.bootstrap(store) if path == '/bootstrap' else session.status(self, store)
             if path == '/map':
                 return self.map(store)
             if path.startswith('/chain/'):

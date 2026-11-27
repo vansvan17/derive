@@ -88,6 +88,8 @@ export function sittingStart(given) {
 let soon = null;
 export function sittingPoke() { if (!status?.running) return; clearTimeout(soon); soon = setTimeout(report, 500); }
 export function sittingRepaint() { if (status?.running) paint(); }
+/* The page has just re-read everything from the server (after an accept, say): take the sitting from that, so the strip reacts at once. */
+export function sittingAdopt(next) { if (hooks && next && (next.running || status?.running)) take(next); }
 
 /* ---------- the conversation: a panel docked at the bottom right, open on any page ---------- */
 function setDock(open) {

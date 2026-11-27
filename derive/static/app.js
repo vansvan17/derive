@@ -14,7 +14,7 @@ import {renderBreaks, renderBreak} from './breaks.js';
 import {renderNotebook} from './notebook.js';
 import {renderRecognise} from './recognise.js';
 import {renderRevise} from './revise.js';
-import {renderSession, sittingStart, sittingPoke, sittingRepaint} from './session.js';
+import {renderSession, sittingStart, sittingPoke, sittingRepaint, sittingAdopt} from './session.js';
 
 const state = {boot: null, token: 0, cleanups: [], root: null};
 
@@ -208,7 +208,7 @@ function buildShell() {
 }
 
 /* ---------- What every page is handed ---------- */
-async function sync() { state.boot = await api('/bootstrap'); paintNav(); return state.boot; }
+async function sync() { state.boot = await api('/bootstrap'); paintNav(); sittingAdopt(state.boot.session); return state.boot; }
 function navigate(hash) { const target = hash.startsWith('#') ? hash : '#' + hash; if (location.hash === target) route(); else location.hash = target; }
 /* ---------- Stars ----------
    Any page can drop in star(kind, ref). Pages rebuild their HTML often, so one listener on the document serves every button. */

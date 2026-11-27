@@ -684,3 +684,5 @@ summary .star-btn{float:right;margin-top:-.25rem}
 .sit-plan .tutor-msg{max-width:none;margin-bottom:.75rem}
 .sit-plan .rows{margin:0 0 .75rem}
 @media print{.tutor-dock{display:none!important}}
+/* with the conversation open, notices go to the bottom centre so they never cover its input */
+body:has(.tutor-dock) .toasts{right:auto;left:50%;transform:translateX(-50%)}

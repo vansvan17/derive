@@ -1,5 +1,31 @@
 [
  {
+  "id": "cf-2008D",
+  "site": "Codeforces",
+  "contest": 2008,
+  "index": "D",
+  "title": "Sakurako's Hobby",
+  "rating": 1100,
+  "url": "https://codeforces.com/contest/2008/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/133509",
+  "ideas": [
+   "perm-cycles"
+  ],
+  "observations": [
+   "From i you can reach exactly the elements of the cycle of i.",
+   "So F(i) is the number of black elements on its cycle: walk each cycle once, count, and write the count to every element of it."
+  ],
+  "nudges": [
+   "Keep applying i = p[i]. Which elements can you ever arrive at?",
+   "Do two elements of the same cycle have different answers?"
+  ],
+  "tools": [
+   "loop-walk"
+  ],
+  "checked": "2026-11-27",
+  "older": true
+ },
+ {
   "id": "cf-2094E",
   "site": "Codeforces",
   "contest": 2094,
@@ -120,6 +146,61 @@
    "If you decide that x must stay divisible by a prime p throughout, which piles can you empty?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-1249B2",
+  "site": "Codeforces",
+  "contest": 1249,
+  "index": "B2",
+  "title": "Books Exchange (hard version)",
+  "rating": 1300,
+  "url": "https://codeforces.com/contest/1249/problem/B2",
+  "editorial": "https://codeforces.com/blog/entry/70779",
+  "ideas": [
+   "perm-cycles"
+  ],
+  "observations": [
+   "The book of kid i travels along the cycle of i and comes back after exactly the length of that cycle.",
+   "Every kid on the same cycle has the same answer, so walk each cycle once and write its length to all its members."
+  ],
+  "nudges": [
+   "Follow the book of kid 1 day by day. When is it first back?",
+   "Once you know the answer for kid i, for which other kids do you know it too?"
+  ],
+  "tools": [
+   "loop-walk"
+  ],
+  "checked": "2026-11-27",
+  "older": true
+ },
+ {
+  "id": "cf-1968D",
+  "site": "Codeforces",
+  "contest": 1968,
+  "index": "D",
+  "title": "Permutation Game",
+  "rating": 1300,
+  "url": "https://codeforces.com/contest/1968/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/129096",
+  "ideas": [
+   "perm-cycles",
+   "exchange"
+  ],
+  "observations": [
+   "A player walks along the cycle of the start position and may stop at any time; once stopped, staying for good is best.",
+   "After n moves the walk repeats, so only the first min(n, k) stopping points matter.",
+   "For each number of moves i, the score is the sum collected on the way plus (k - i) times the value at the stopping place. Take the best for each player and compare."
+  ],
+  "nudges": [
+   "Where can a player ever stand, given the start?",
+   "If a player decides to stop moving at some position, should they ever move again?",
+   "How many different stopping places are worth trying?"
+  ],
+  "tools": [
+   "loop-walk"
+  ],
+  "checked": "2026-11-27",
+  "older": true
  },
  {
   "id": "cf-2086C",
@@ -247,6 +328,34 @@
    "Which group's value appears in no shadow at all?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-2033E",
+  "site": "Codeforces",
+  "contest": 2033,
+  "index": "E",
+  "title": "Sakurako, Kosuke, and the Permutation",
+  "rating": 1400,
+  "url": "https://codeforces.com/contest/2033/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/135520",
+  "ideas": [
+   "perm-cycles"
+  ],
+  "observations": [
+   "The condition says every cycle of i -> p[i] has length 1 or 2.",
+   "A swap of two elements in the same cycle splits it in two; cycles do not affect each other.",
+   "A cycle of length x is cut down by 2 with each swap, so it needs floor((x - 1) / 2) swaps. Add this over all cycles."
+  ],
+  "nudges": [
+   "What does \"p[i] = i or p[p[i]] = i for every i\" say about the cycles?",
+   "What does one swap inside a cycle do to it?",
+   "How many cuts turn a cycle of length x into pieces of length at most 2?"
+  ],
+  "tools": [
+   "loop-walk"
+  ],
+  "checked": "2026-11-27",
+  "older": true
  },
  {
   "id": "cf-2104D",

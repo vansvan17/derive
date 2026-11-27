@@ -81,11 +81,13 @@ def pair_evidence(content, store):
 
 
 def band(content, store):
-    """The rating the learner is working at. It rises only on cold accepts: 7 of the last 10 at this level."""
+    """The rating the learner is working at. It rises only on cold accepts: 7 of the last 10 at this level.
+
+    Problems marked 'older' (rounds before 2025) are left out: their ratings run easier than today's."""
     current = store.get('band', START_BAND)
     since = store.get('band_raised_at', '')          # after a rise the count starts again
     finished = [r for r in store.all('SELECT * FROM attempts WHERE solved_at IS NOT NULL OR gave_up_at IS NOT NULL ORDER BY COALESCE(solved_at, gave_up_at) DESC')
-                if r['problem'] in content.problems and content.problems[r['problem']]['rating'] >= current - 100
+                if r['problem'] in content.problems and not content.problems[r['problem']].get('older') and content.problems[r['problem']]['rating'] >= current - 100
                 and (r['solved_at'] or r['gave_up_at']) > since]
     recent = finished[:10]
     return {'band': current, 'recent': len(recent), 'cold': sum(1 for r in recent if is_cold(r))}

@@ -354,6 +354,35 @@
   "checked": "2026-11-25"
  },
  {
+  "id": "cf-1690F",
+  "site": "Codeforces",
+  "contest": 1690,
+  "index": "F",
+  "title": "Shifting String",
+  "rating": 1700,
+  "url": "https://codeforces.com/contest/1690/problem/F",
+  "editorial": "https://codeforces.com/blog/entry/103658",
+  "ideas": [
+   "perm-cycles",
+   "euclid"
+  ],
+  "observations": [
+   "The permutation falls into cycles, and one operation rotates the letters on every cycle by one place.",
+   "A cycle does not need its full length to look the same again: its letters, read around the cycle, return after the smallest rotation that maps that circular string to itself. With n at most 200, try every rotation.",
+   "The whole string is back when every cycle is back, so the answer is the least common multiple of those smallest rotations. It needs 64 bits."
+  ],
+  "nudges": [
+   "Where can the letter at position i ever travel?",
+   "Is the first return time of a cycle always its length? What if all its letters are equal?",
+   "Each cycle returns at multiples of its own number. When do all of them return together?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "loop-walk"
+  ],
+  "older": true
+ },
+ {
   "id": "cf-2086D",
   "site": "Codeforces",
   "contest": 2086,
@@ -782,6 +811,35 @@
    "If neighbouring gaps can be swapped only when they have the same parity, which rearrangements of the gaps are possible?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-1768D",
+  "site": "Codeforces",
+  "contest": 1768,
+  "index": "D",
+  "title": "Lucky Permutation",
+  "rating": 1800,
+  "url": "https://codeforces.com/contest/1768/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/110901",
+  "ideas": [
+   "perm-cycles"
+  ],
+  "observations": [
+   "Only n - 1 targets have exactly one inversion: the sorted order with two neighbouring values k and k + 1 swapped.",
+   "Sorting takes n minus the number of cycles of i -> p[i]. Reaching target k is the same count on a graph where the arrows into k and k + 1 are exchanged.",
+   "Exchanging two arrows changes the number of cycles by exactly one: plus one if k and k + 1 were in the same cycle, minus one otherwise.",
+   "So the answer is n - cycles - 1 if some k and k + 1 share a cycle, and n - cycles + 1 if none do. Give every element the id of its cycle and compare neighbours in value."
+  ],
+  "nudges": [
+   "How many different final arrangements are allowed, and what do they look like?",
+   "How many swaps does it take to sort a permutation, in terms of its structure?",
+   "The target differs from sorted by one swap of k and k + 1. What does one swap do to the number of cycles?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "loop-walk"
+  ],
+  "older": true
  },
  {
   "id": "cf-2069D",
@@ -1796,6 +1854,36 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-1553E",
+  "site": "Codeforces",
+  "contest": 1553,
+  "index": "E",
+  "title": "Permutation Shift",
+  "rating": 2100,
+  "url": "https://codeforces.com/contest/1553/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/93105",
+  "ideas": [
+   "perm-cycles",
+   "pigeonhole"
+  ],
+  "observations": [
+   "For a fixed shift k the target is known, and the fewest swaps from one permutation to another is n minus the number of cycles of the map between them. That check costs O(n).",
+   "Trying all k is too slow. But m swaps move at most 2m elements, so at least n - 2m positions already agree with the right shift.",
+   "Each position agrees with exactly one shift, so the agreement counts over all k add up to n. With m at most n / 3, a shift needs at least n / 3 agreements, so at most three shifts qualify.",
+   "Count agreements per shift in one pass and run the cycle check only on those few."
+  ],
+  "nudges": [
+   "If you already knew k, how would you find the fewest swaps needed?",
+   "After at most m swaps, how many elements can be away from where the shift put them?",
+   "Each position fits exactly one value of k. How many values of k can have at least n / 3 fitting positions?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "loop-walk"
+  ],
+  "older": true
+ },
+ {
   "id": "cf-2074G",
   "site": "Codeforces",
   "contest": 2074,
@@ -2030,6 +2118,36 @@
   "checked": "2026-11-24"
  },
  {
+  "id": "cf-1327D",
+  "site": "Codeforces",
+  "contest": 1327,
+  "index": "D",
+  "title": "Infinite Path",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/1327/problem/D",
+  "editorial": "https://codeforces.com/blog/entry/75147",
+  "ideas": [
+   "perm-cycles",
+   "gcd-subtraction"
+  ],
+  "observations": [
+   "Following i -> p[i] walks around a cycle. In the k-th power you jump k places at a time along the same cycle.",
+   "A cycle of length m, walked in jumps of k, falls into gcd(k, m) smaller cycles: the positions with the same remainder modulo gcd(k, m).",
+   "So only g = gcd(k, m) matters, and the smallest k giving g is g itself: try only the divisors of m.",
+   "For each cycle and each divisor d of its length, check whether some remainder class modulo d has one colour. The answer is the smallest d that works over all cycles; the work is the cycle length times its number of divisors."
+  ],
+  "nudges": [
+   "What does the k-th power of the permutation do to a walk along one cycle?",
+   "A cycle of length 6 walked two places at a time: which positions do you meet from position 0?",
+   "Do k = 2 and k = 4 split a cycle of length 6 into different sets of positions?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "loop-walk"
+  ],
+  "older": true
+ },
+ {
   "id": "cf-2060F",
   "site": "Codeforces",
   "contest": 2060,
@@ -2237,6 +2355,35 @@
    "Once you know the answer for every pair (smallest, largest), how many subsequences have a given smallest and largest value?"
   ],
   "checked": "2026-11-24"
+ },
+ {
+  "id": "cf-612E",
+  "site": "Codeforces",
+  "contest": 612,
+  "index": "E",
+  "title": "Square Root of Permutation",
+  "rating": 2200,
+  "url": "https://codeforces.com/contest/612/problem/E",
+  "editorial": "https://codeforces.com/blog/entry/22299",
+  "ideas": [
+   "perm-cycles",
+   "necessary-sufficient"
+  ],
+  "observations": [
+   "Look at what squaring does to the cycles of q: an odd cycle stays one cycle (its order is interleaved), an even cycle splits into two cycles of half the length.",
+   "So in p every even length must appear an even number of times. If some even length appears an odd number of times, print -1.",
+   "Odd cycles of p are undone alone: spread the cycle out so that walking two steps in q is one step in p. Even cycles are paired by length and each pair is woven together alternately into one cycle of double length."
+  ],
+  "nudges": [
+   "Take a single cycle of length 5 and one of length 6 and square each. What cycles do you get?",
+   "Where can a cycle of even length in p have come from?",
+   "For an odd cycle of p, can you place its elements around a circle so that jumping two places follows p?"
+  ],
+  "checked": "2026-11-27",
+  "tools": [
+   "loop-walk"
+  ],
+  "older": true
  },
  {
   "id": "cf-2120E",

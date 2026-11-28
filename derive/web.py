@@ -1041,7 +1041,7 @@ class Service:
         owner, language = data.get('id'), data.get('language')
         if (owner not in self.content.problems and owner not in self.content.tasks and owner not in self.content.chains) or language not in ('cpp', 'python'):
             raise ApiError('That cannot be run.')
-        payload = {'language': language, 'input': text(data.get('input', ''), 'Input', CODE_LIMIT)}
+        payload = {'language': language, 'input': text(data.get('input', ''), 'Input', CODE_LIMIT), 'owner': owner}
         for file in FILES:
             if file in data:
                 self.save_code(store, {'id': owner, 'language': language, 'file': file, 'code': data[file]})
@@ -1115,6 +1115,17 @@ class Service:
                     raise JudgeError({'main': 'Your solution', 'brute': 'Your brute force', 'gen': 'Your generator'}[name] + ' did not compile.\n' + str(exc)) from exc
             with build('main') as main:
                 if kind == 'run':
+                    task = self.content.tasks.get(payload.get('owner'))
+                    if task and task.get('interactive'):
+                        # A trial run of an interactive task: the judge's side plays against the program, and the exchange is shown.
+                        try:
+                            got, reason, transcript = main.talk(tasks.talkers(task)[0](payload['input']))
+                        except JudgeError:
+                            raise
+                        except Exception:
+                            return {'verdict': 'WA', 'seconds': 0, 'output': '', 'detail': 'That hidden input is not in the form this task uses. Start from the example and change the numbers.'}
+                        verdict = got.verdict if got.verdict != 'OK' else 'WA' if reason else 'OK'
+                        return {'verdict': verdict, 'seconds': got.seconds, 'output': tasks.script(transcript), 'detail': reason or got.detail or 'The judge accepted the exchange.'}
                     return asdict(main.run(payload['input']))
                 with build('brute') as brute, build('gen') as gen:
                     for seed in range(1, payload['cases'] + 1):

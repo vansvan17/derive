@@ -115,6 +115,101 @@ def run_bounded(command, text, scratch, seconds=2.0,memory_mb=256):
         return Result(verdict,elapsed,output,f'Exit status {proc.returncode}. '+diagnostic[:2000],memory)
     return Result('OK',elapsed,output,'',memory)
 
+def run_talking(command, talk, scratch, seconds=2.0, memory_mb=256):
+    """Run a program that talks with a judge instead of reading all its input at once.
+
+    `talk` is a generator written by the task author. It yields the lines to send to the program (or '' for
+    nothing) and is sent the program's next line of output each time; it finishes by returning '' when the
+    program did everything right, or a sentence saying what was wrong. Returns (Result, reason, transcript),
+    where the transcript is the exchange as a list of ('judge' | 'you', line).
+    """
+    scratch = Path(scratch)
+    err = scratch / 'stderr.txt'
+    start = time.monotonic()
+    deadline = start + seconds + 0.25
+    transcript = []
+    with err.open('wb') as stderr:
+        proc = subprocess.Popen(sandbox_command(command, scratch), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=stderr, cwd=scratch,
+                                env=_environment(scratch), start_new_session=True, preexec_fn=_bounds(seconds, memory_mb), bufsize=0)
+        waiting = b''
+
+        def say(text):
+            if not text:
+                return
+            for line in str(text).splitlines():
+                if len(transcript) < 400:
+                    transcript.append(('judge', line))
+            try:
+                proc.stdin.write((str(text).rstrip('\n') + '\n').encode())
+                proc.stdin.flush()
+            except (BrokenPipeError, OSError):
+                pass                                             # the program has gone; the next read finds out
+
+        def hear():
+            """The program's next non-empty line, None if it has stopped, or 'TLE' at the deadline."""
+            nonlocal waiting
+            while True:
+                if b'\n' in waiting:
+                    line, waiting = waiting.split(b'\n', 1)
+                    text = line.decode(errors='replace').strip()
+                    if text:
+                        if len(transcript) < 400:
+                            transcript.append(('you', text[:300]))
+                        return text
+                    continue
+                left = deadline - time.monotonic()
+                if left <= 0:
+                    return 'TLE'
+                with selectors.DefaultSelector() as ready:
+                    ready.register(proc.stdout, selectors.EVENT_READ)
+                    if not ready.select(left):
+                        return 'TLE'
+                chunk = os.read(proc.stdout.fileno(), 65536)
+                if not chunk:
+                    rest, waiting = waiting.decode(errors='replace').strip(), b''
+                    if rest:
+                        transcript.append(('you', rest[:300]))
+                        return rest
+                    return None
+                waiting += chunk
+                if len(waiting) > OUTPUT_LIMIT:
+                    return None
+
+        reason, verdict = None, 'OK'
+        try:
+            try:
+                say(next(talk))
+                while True:
+                    line = hear()
+                    if line == 'TLE':
+                        verdict = 'TLE'
+                        break
+                    if line is None:
+                        proc.wait(timeout=1)
+                        verdict = 'RE' if proc.returncode else 'OK'
+                        reason = 'Your program stopped before the exchange was finished.'
+                        break
+                    say(talk.send(line))
+            except StopIteration as done:
+                reason = done.value or ''
+        finally:
+            try:
+                proc.stdin.close()
+            except OSError:
+                pass
+            try:
+                proc.wait(timeout=0.3)
+            except subprocess.TimeoutExpired:
+                pass
+            _kill(proc)
+    elapsed = time.monotonic() - start
+    if verdict == 'TLE':
+        return Result('TLE', elapsed, detail='The judge waited for a line from your program and none came. Did you flush after printing?'), '', transcript
+    if verdict == 'RE':
+        return Result('RE', elapsed, detail='Exit status %s. ' % proc.returncode + err.read_text(errors='replace')[:1500]), '', transcript
+    return Result('OK', elapsed), reason, transcript
+
+
 class Executable:
     def __init__(self, source, seconds=2.0,memory_mb=256):
         self.source=Path(source).resolve()
@@ -147,6 +242,9 @@ class Executable:
 
     def run(self,text):
         return run_bounded(self.command,text,self.scratch,self.seconds,self.memory_mb)
+
+    def talk(self, talk):
+        return run_talking(self.command, talk, self.scratch, self.seconds, self.memory_mb)
 
     def close(self):
         self.temp.cleanup()

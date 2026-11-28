@@ -1001,5 +1001,32 @@
    "bs-invariant"
   ],
   "practice": []
+ },
+ {
+  "id": "interactive",
+  "title": "Talking to the judge (interactive problems)",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "The statement has a section called \"Interaction\", or says \"you may ask at most ... queries\"",
+   "Something is hidden (a number, a list, a position) and you learn about it only by asking",
+   "The statement tells you to flush the output after every line"
+  ],
+  "idea": "**What is different.** In an ordinary problem your program reads all the input, thinks, and prints all the output. In an interactive problem the input does not exist yet. Your program and the judge take turns, like a conversation:\n\n- your program prints one line (a question),\n- the judge reads it and prints one line back (the answer),\n- your program reads that answer and decides what to ask next,\n- at the end your program prints its final answer.\n\nThe judge is just another program. Its output is your input, and your output is its input.\n\n**A tiny example.** The judge has a secret number from 1 to 10, say 7. A question is `? y` and means \"is your number at least $y$?\".\n\n- The judge sends `10`. Your program reads it: $n = 10$.\n- You print `? 6`. The judge answers `yes`.\n- You print `? 8`. The judge answers `no`.\n- You print `? 7`. The judge answers `yes`.\n- You print `! 7`. Done, with 3 questions.\n\n**The one thing everybody gets wrong first: flushing.** When your program prints, the text does not leave at once. It waits in a buffer until the buffer is full. In an ordinary problem that does not matter. Here it is fatal: your question sits in the buffer, the judge never sees it, the judge waits for you, you wait for the judge, and the verdict is a time limit. So after **every** line you print, flush:\n\n- C++ with `printf`: `fflush(stdout);`\n- C++ with `cout`: end the line with `endl` (not `\"\\n\"`)\n- Python: `print(..., flush=True)`\n\n**The steps for any interactive problem:**\n\n- Read the statement for three things: what a question looks like, what the answer looks like, and how many questions you get.\n- Write one small function `ask(...)` that prints the question, flushes, reads the answer and returns it. Use it everywhere.\n- Decide the strategy on paper. The limit on questions tells you which one is meant: about $\\log_2 n$ questions means halving.\n- Print the final answer in the required form, flush, and stop.\n\n**How to test it here.** Under the editor there is a box for the hidden input and a button \"Trial run: show the exchange\". It runs your program against the judge and shows the whole conversation, line by line, so you can see exactly where it goes wrong.",
+  "example": "bool ask(long long y) {                  // one question: print, flush, read\n    printf(\"? %lld\\n\", y);\n    fflush(stdout);                      // without this line nothing works\n    char word[8];\n    scanf(\"%7s\", word);\n    return word[0] == 'y';               // \"yes\" or \"no\"\n}\n\nlong long lo = 1, hi = n + 1;            // lo is a yes, hi is a no\nwhile (hi - lo > 1) {\n    long long mid = lo + (hi - lo) / 2;\n    if (ask(mid)) lo = mid; else hi = mid;\n}\nprintf(\"! %lld\\n\", lo);\nfflush(stdout);",
+  "traps": [
+   "Forgetting to flush after a line. The symptom is a time limit on the very first test, with nothing wrong in the logic.",
+   "Reading the whole input at the start, the way you would in an ordinary problem. There is nothing to read yet except the first line.",
+   "Counting questions wrongly: work out the worst case of your strategy and compare it with the limit before you write any code.",
+   "Printing anything extra (debug lines, a prompt). The judge reads every line you print as a question.",
+   "Carrying on after the final answer, or not stopping when the judge says the exchange is over.",
+   "With several test cases, each case is its own conversation: reset everything, and read the first line of the next case only after finishing the previous one."
+  ],
+  "task": "ia-guess",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\n// One question: print it, flush, read the answer.\nbool ask(long long y) {\n    printf(\"? %lld\\n\", y);\n    fflush(stdout);\n    char word[8];\n    scanf(\"%7s\", word);\n    return word[0] == 'y';\n}\n\nint main() {\n    long long n;\n    scanf(\"%lld\", &n);\n    long long lo = 1, hi = n + 1;            // the answer to \"at least lo?\" is yes, to \"at least hi?\" is no\n    while (hi - lo > 1) {\n        long long mid = lo + (hi - lo) / 2;\n        if (ask(mid)) lo = mid;\n        else hi = mid;\n    }\n    printf(\"! %lld\\n\", lo);\n    fflush(stdout);\n}\n",
+  "needs": [],
+  "practice": []
  }
 ]

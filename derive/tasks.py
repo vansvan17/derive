@@ -11,6 +11,14 @@ Python that defines
                      when the output is acceptable for that input, otherwise what is wrong
                      with it; expected is solve(text), so the optimum need not be recomputed
 
+An interactive task ("interactive": true) has no solve or brute. Instead it defines
+
+    interact(text)   the judge's side of the conversation, as a generator: it yields the lines to send
+                     to the program ('' for nothing), is sent the program's next line each time, and
+                     returns '' when the program did everything right or a sentence saying what was wrong
+    play()           a correct program, as a generator the other way round (it is sent the judge's lines
+                     and yields its own next line); used only to check the task itself
+
 The judge generates the same tests every time (fixed seed), runs the learner's
 program on each with the task's time limit, and stops at the first failure.
 The task code is part of the course content, written by the course author; it
@@ -32,7 +40,40 @@ def load(task):
     """Run a task's code and hand back its three functions."""
     scope = {}
     exec(task['code'], scope)
-    return scope['gen'], scope['solve'], scope['brute']
+    return scope['gen'], scope.get('solve'), scope.get('brute')
+
+
+def talkers(task):
+    """For an interactive task: the judge's side and a correct player."""
+    scope = {}
+    exec(task['code'], scope)
+    return scope['interact'], scope['play']
+
+
+def rehearse(interact, play, text, limit=100000):
+    """Let a player written in Python talk to the judge's side without running any program.
+    Returns (reason, transcript); reason '' means accepted."""
+    judge, player, transcript = interact(text), play(), []
+    next(player)
+    said = next(judge)
+    try:
+        for _ in range(limit):
+            transcript += [('judge', line) for line in str(said).splitlines()] if said else []
+            try:
+                line = player.send(said)
+            except StopIteration:
+                return 'The player stopped before the exchange was finished.', transcript
+            transcript.append(('you', str(line)))
+            said = judge.send(str(line))
+    except StopIteration as done:
+        return done.value or '', transcript
+    return 'The exchange did not end.', transcript
+
+
+def script(transcript, last=60):
+    """An exchange as text, for showing: the judge's lines on the left, the program's lines marked."""
+    lines = [('         ' if who == 'judge' else 'you >    ') + line for who, line in transcript]
+    return '\n'.join((['... (earlier lines left out)'] if len(lines) > last else []) + lines[-last:])
 
 
 _CACHE = {}
@@ -64,10 +105,11 @@ def tests(task):
 def _build(task):
     gen, solve, _ = load(task)
     rng = random.Random(SEED)
-    out = [(sample[0], sample[1]) for sample in task.get('samples', [])]
+    talking = task.get('interactive')
+    out = [(sample[0], '' if talking else sample[1]) for sample in task.get('samples', [])]
     for size in SIZES:
         text = gen(rng, size)
-        out.append((text, solve(text)))
+        out.append((text, '' if talking else solve(text)))
     return out
 
 
@@ -75,13 +117,14 @@ def public(task, store):
     done = store.one('SELECT * FROM tasks_done WHERE task=?', (task['id'],))
     tries = store.one('SELECT COUNT(*) FROM task_tries WHERE task=?', (task['id'],))[0]
     last = store.one('SELECT verdict FROM task_tries WHERE task=? ORDER BY id DESC LIMIT 1', (task['id'],))
-    return {'id': task['id'], 'title': task['title'], 'track': task.get('track', 'core'), 'level': task.get('level'), 'rung': task.get('rung'), 'pattern': task.get('pattern'), 'solved': bool(done), 'tries': tries, 'last': last['verdict'] if last else None}
+    return {'id': task['id'], 'title': task['title'], 'track': task.get('track', 'core'), 'level': task.get('level'), 'rung': task.get('rung'), 'pattern': task.get('pattern'), 'interactive': bool(task.get('interactive')), 'solved': bool(done), 'tries': tries, 'last': last['verdict'] if last else None}
 
 
 def judge(task, language, source):
     """Run the learner's program on every test. Returns the verdict and, for a small failing test, what went wrong."""
     cases = tests(task)
     check = checker(task)
+    interact = talkers(task)[0] if task.get('interactive') else None
     seconds = task.get('seconds', 1.0) * (PYTHON_FACTOR if language == 'python' else 1)
     with tempfile.TemporaryDirectory(prefix='derive-task-') as folder:
         path = Path(folder) / ('main.py' if language == 'python' else 'main.cpp')
@@ -93,6 +136,17 @@ def judge(task, language, source):
         with program:
             slowest = 0.0
             for number, (text, expected) in enumerate(cases, 1):
+                if interact:
+                    got, reason, transcript = program.talk(interact(text))
+                    slowest = max(slowest, got.seconds)
+                    if got.verdict != 'OK' or reason:
+                        verdict = 'WA' if got.verdict == 'OK' else got.verdict
+                        out = {'verdict': verdict, 'passed': number - 1, 'of': len(cases), 'test': number, 'seconds': round(got.seconds, 2), 'limit': seconds,
+                               'detail': ({'WA': 'Wrong', 'TLE': f'No reply within {seconds:g} s', 'RE': 'Your program crashed'}.get(verdict, verdict) + f' on test {number} of {len(cases)}. ' + (reason or got.detail)).strip()}
+                        if len(text) <= 600:
+                            out.update({'input': text, 'output': script(transcript)})
+                        return out
+                    continue
                 got = program.run(text)
                 slowest = max(slowest, got.seconds)
                 reason = ''

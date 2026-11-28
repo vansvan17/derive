@@ -4182,5 +4182,337 @@
     "0\n"
    ]
   ]
+ },
+ {
+  "id": "ia-guess",
+  "title": "Guess the number",
+  "track": "toolbox",
+  "seconds": 1.0,
+  "statement": "The judge has chosen a whole number $x$ between 1 and $n$ and keeps it secret. Your program finds it by asking questions.\n\n**How the conversation goes.**\n\n1. First read one number: $n$ ($1 \\le n \\le 10^9$).\n2. To ask a question, print a line `? y` with $1 \\le y \\le n$. Then read one word: `yes` if $x \\ge y$, `no` if $x < y$.\n3. When you know $x$, print a line `! x`. This ends the conversation.\n\nYou may ask at most **30** questions (the final `!` line does not count).\n\n**After every line you print, flush the output** (`fflush(stdout);` or `cout << endl` in C++, `print(..., flush=True)` in Python). Otherwise your line stays in a buffer, the judge never sees it, and both sides wait for ever.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef parse(line, kinds='?!', count=1):\n    \"\"\"A line like \"? 5\" or \"! 7\": returns (kind, numbers) or None if it cannot be read.\"\"\"\n    p = str(line).split()\n    if not p or p[0] not in kinds or len(p) < 1 + count: return None\n    try: return p[0], [int(x) for x in p[1:]]\n    except ValueError: return None\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': rng.randint(900, 1100), 'large': 10 ** 9}[size]\n    return f\"{n} {rng.choice([1, n, rng.randint(1, n), rng.randint(1, n)])}\\n\"\ndef interact(text):\n    n, x = ints(text); asked = 0\n    line = yield str(n)\n    while True:\n        got = parse(line)\n        if not got: return f'The judge could not read your line \"{line}\". A question is \"? y\" and the answer is \"! x\".'\n        kind, (y, *_) = got\n        if kind == '!': return '' if y == x else f'You answered {y}, but the hidden number was {x}.'\n        asked += 1\n        if asked > 30: return 'More than 30 questions.'\n        if not 1 <= y <= n: return f'The question \"? {y}\" is outside 1..{n}.'\n        line = yield 'yes' if x >= y else 'no'\ndef play():\n    n = int((yield)); lo, hi = 1, n + 1\n    while hi - lo > 1:\n        mid = (lo + hi) // 2\n        if (yield f\"? {mid}\") == 'yes': lo = mid\n        else: hi = mid\n    yield f\"! {lo}\"\n",
+  "hints": [
+   "Play it on paper first with $n = 10$: you are the program, a friend (or you) is the judge with a secret number. Which first question tells you the most, whatever the answer is?",
+   "Each answer should halve what is left. Keep two numbers: `lo`, for which the answer is known to be yes, and `hi`, for which it is known to be no. What can you start them at without asking anything?",
+   "`lo = 1` is always a yes and `hi = n + 1` is always a no. While `hi - lo > 1`: print `? mid`, flush, read the word; yes moves `lo` to `mid`, no moves `hi`. Then print `! lo` and flush. A billion needs 30 questions at most."
+  ],
+  "interactive": true,
+  "samples": [
+   [
+    "10 7\n",
+    "         10\nyou >    ? 6\n         yes\nyou >    ? 8\n         no\nyou >    ? 7\n         yes\nyou >    ! 7"
+   ],
+   [
+    "1 1\n",
+    "         1\nyou >    ! 1"
+   ]
+  ]
+ },
+ {
+  "id": "ia-peak",
+  "title": "The top of the hill",
+  "seconds": 1.0,
+  "statement": "The judge holds a list of $n$ different heights $a_1, \\dots, a_n$ that first rises and then falls: there is one position $p$ with $a_1 < \\dots < a_p > \\dots > a_n$ (the top may also be the first or the last position). Find $p$.\n\n**How the conversation goes.**\n\n1. First read $n$ ($1 \\le n \\le 10^5$).\n2. To ask, print `? i` with $1 \\le i \\le n$. Then read one number: $a_i$.\n3. When you know the top, print `! p`.\n\nYou may ask at most **40** questions. Flush after every line you print.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef parse(line, kinds='?!', count=1):\n    \"\"\"A line like \"? 5\" or \"! 7\": returns (kind, numbers) or None if it cannot be read.\"\"\"\n    p = str(line).split()\n    if not p or p[0] not in kinds or len(p) < 1 + count: return None\n    try: return p[0], [int(x) for x in p[1:]]\n    except ValueError: return None\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': rng.randint(900, 1100), 'large': 10 ** 5}[size]\n    p = rng.choice([1, n, rng.randint(1, n), rng.randint(1, n)])\n    vals = sorted(rng.sample(range(1, 10 ** 9), n)) if size != 'small' else sorted(rng.sample(range(1, 40), n))\n    left = sorted(rng.sample(vals[:-1], p - 1)); right = sorted(set(vals[:-1]) - set(left), reverse=True)\n    return f\"{n} {p}\\n\" + ' '.join(map(str, left + [vals[-1]] + right)) + \"\\n\"\ndef interact(text):\n    v = ints(text); n, p, a = v[0], v[1], v[2:]; asked = 0\n    line = yield str(n)\n    while True:\n        got = parse(line)\n        if not got: return f'The judge could not read your line \"{line}\".'\n        kind, (i, *_) = got\n        if kind == '!': return '' if i == p else f'You answered {i}, but the top is at position {p}.'\n        asked += 1\n        if asked > 40: return 'More than 40 questions.'\n        if not 1 <= i <= n: return f'The question \"? {i}\" is outside 1..{n}.'\n        line = yield str(a[i - 1])\ndef play():\n    n = int((yield)); lo, hi = 0, n\n    while hi - lo > 1:\n        mid = (lo + hi) // 2\n        x = int((yield f\"? {mid}\")); y = int((yield f\"? {mid + 1}\"))\n        if x > y: hi = mid\n        else: lo = mid\n    yield f\"! {hi}\"\n",
+  "hints": [
+   "The list is not sorted, so \"is $a_i$ at least something?\" is useless. Look for a yes or no question about a position that is no on the way up and yes from the top onwards.",
+   "\"Is $a_i > a_{i+1}$?\" is no before the top and yes from the top on (treat the last position as a yes). It costs two questions to answer. How many positions can 40 questions handle then?",
+   "Keep `lo = 0` (a no) and `hi = n` (a yes: nothing comes after the last position). While `hi - lo > 1`: ask for `a[mid]` and `a[mid + 1]`; if the first is larger move `hi` to `mid`, otherwise `lo`. Print `! hi`. That is 2 questions per halving, at most 34 for $10^5$."
+  ],
+  "interactive": true,
+  "track": "interactive",
+  "samples": [
+   [
+    "5 2\n3 9 7 4 1\n",
+    "         5\nyou >    ? 2\n         9\nyou >    ? 3\n         7\nyou >    ? 1\n         3\nyou >    ? 2\n         9\nyou >    ! 2"
+   ],
+   [
+    "1 1\n5\n",
+    "         1\nyou >    ! 1"
+   ]
+  ]
+ },
+ {
+  "id": "ia-single",
+  "title": "The one without a partner",
+  "seconds": 1.0,
+  "statement": "The judge holds a list of $n$ numbers ($n$ is odd). Every value appears exactly twice, in two neighbouring positions, except one value that appears only once. For example: 4 4 9 9 **2** 7 7. Find the **position** of the value without a partner.\n\n**How the conversation goes.**\n\n1. First read $n$ ($1 \\le n < 10^5$, odd).\n2. To ask, print `? i` with $1 \\le i \\le n$. Then read one number: the value at position $i$.\n3. When you know the position, print `! p`.\n\nYou may ask at most **40** questions. Flush after every line you print.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef parse(line, kinds='?!', count=1):\n    \"\"\"A line like \"? 5\" or \"! 7\": returns (kind, numbers) or None if it cannot be read.\"\"\"\n    p = str(line).split()\n    if not p or p[0] not in kinds or len(p) < 1 + count: return None\n    try: return p[0], [int(x) for x in p[1:]]\n    except ValueError: return None\ndef gen(rng, size):\n    n = {'small': rng.randrange(1, 10, 2), 'medium': 1001, 'large': 99999}[size]\n    k = (n - 1) // 2; q = rng.choice([0, k, rng.randint(0, k), rng.randint(0, k)])       # pairs before the single one\n    vals = rng.sample(range(1, 10 ** 9 if size != 'small' else 30), k + 1); a = []\n    for i in range(k + 1):\n        a += [vals[i]] if i == q else [vals[i], vals[i]]\n    return f\"{n} {2 * q + 1}\\n\" + ' '.join(map(str, a)) + \"\\n\"\ndef interact(text):\n    v = ints(text); n, p, a = v[0], v[1], v[2:]; asked = 0\n    line = yield str(n)\n    while True:\n        got = parse(line)\n        if not got: return f'The judge could not read your line \"{line}\".'\n        kind, (i, *_) = got\n        if kind == '!': return '' if i == p else f'You answered {i}, but the value without a partner is at position {p}.'\n        asked += 1\n        if asked > 40: return 'More than 40 questions.'\n        if not 1 <= i <= n: return f'The question \"? {i}\" is outside 1..{n}.'\n        line = yield str(a[i - 1])\ndef play():\n    n = int((yield)); lo, hi = 0, (n - 1) // 2 + 1\n    while hi - lo > 1:\n        mid = (lo + hi) // 2\n        x = int((yield f\"? {2 * mid - 1}\")); y = int((yield f\"? {2 * mid}\"))\n        if x == y: lo = mid\n        else: hi = mid\n    yield f\"! {2 * lo + 1}\"\n",
+  "hints": [
+   "Write the example 4 4 9 9 2 7 7 with its positions. Before the lonely value, at which positions do the pairs start (odd or even)? And after it?",
+   "Before the lonely value, positions $2m - 1$ and $2m$ hold equal values. From the lonely value on, they do not. So \"are positions $2m - 1$ and $2m$ equal?\" is yes, yes, ..., no, no as $m$ grows: it flips once.",
+   "Halve on $m$ between `lo = 0` (count it as a yes) and `hi = (n − 1)/2 + 1` (a no). Each test asks for two neighbouring values. At the end the first `lo` pairs are complete, so the lonely value is at position $2 \\cdot lo + 1$."
+  ],
+  "interactive": true,
+  "track": "interactive",
+  "samples": [
+   [
+    "7 5\n4 4 9 9 2 7 7\n",
+    "         7\nyou >    ? 3\n         9\nyou >    ? 4\n         9\nyou >    ? 5\n         2\nyou >    ? 6\n         7\nyou >    ! 5"
+   ],
+   [
+    "1 1\n8\n",
+    "         1\nyou >    ! 1"
+   ]
+  ]
+ },
+ {
+  "id": "ia-eggs",
+  "title": "Two test phones",
+  "seconds": 2.0,
+  "statement": "A building has $n$ floors. A phone dropped from floor $x$ or lower survives; dropped from any higher floor it breaks. Here $x$ is a secret whole number with $0 \\le x \\le n$ ($x = 0$ means it breaks from every floor). You have only **two** phones. A phone that survives can be used again; a broken one cannot.\n\n**How the conversation goes.**\n\n1. First read $n$ ($1 \\le n \\le 10^5$).\n2. To drop a phone from floor $y$, print `? y` with $1 \\le y \\le n$. Then read one word: `ok` if it survived, `broke` if it broke.\n3. When you know $x$, print `! x`.\n\nYou may make at most **450** drops, and at most two of them may end in `broke`: a third broken phone is an error. Flush after every line you print.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef parse(line, kinds='?!', count=1):\n    \"\"\"A line like \"? 5\" or \"! 7\": returns (kind, numbers) or None if it cannot be read.\"\"\"\n    p = str(line).split()\n    if not p or p[0] not in kinds or len(p) < 1 + count: return None\n    try: return p[0], [int(x) for x in p[1:]]\n    except ValueError: return None\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 9), 'medium': rng.randint(900, 1100), 'large': 10 ** 5}[size]\n    return f\"{n} {rng.choice([0, n, n - 1, rng.randint(0, n), rng.randint(0, n)])}\\n\"\ndef interact(text):\n    n, x = ints(text); asked = broken = 0\n    line = yield str(n)\n    while True:\n        got = parse(line)\n        if not got: return f'The judge could not read your line \"{line}\".'\n        kind, (y, *_) = got\n        if kind == '!': return '' if y == x else f'You answered {y}, but the highest safe floor was {x}.'\n        asked += 1\n        if asked > 450: return 'More than 450 drops.'\n        if not 1 <= y <= n: return f'The drop \"? {y}\" is outside 1..{n}.'\n        if y > x:\n            broken += 1\n            if broken > 2: return 'A third phone broke, and you only had two.'\n        line = yield 'ok' if y <= x else 'broke'\ndef play():\n    n = int((yield)); k = 1\n    while k * (k + 1) // 2 < n: k += 1\n    low, top = 0, None\n    while k > 0 and low + 1 <= n:\n        cur = min(low + k, n)\n        if (yield f\"? {cur}\") == 'ok': low = cur; k -= 1\n        else: top = cur; break\n    if top is not None:\n        for y in range(low + 1, top):\n            if (yield f\"? {y}\") == 'ok': low = y\n            else: break\n    yield f\"! {low}\"\n",
+  "hints": [
+   "Halving is forbidden here: after two unlucky answers you have no phones left. Start smaller: with ONE phone, what is the only safe way to find $x$? With two phones, what should the first phone be used for?",
+   "With one phone you must go floor by floor from the bottom. So use the first phone to jump in big steps and find a stretch that contains the answer, and the second phone to walk that stretch floor by floor. With equal steps of size $s$ the worst case is about $n/s + s$ drops; that is about 632 for $10^5$, too many. How can later jumps be made shorter to pay for the drops already used?",
+   "Make the first jump $k$ floors, the next $k - 1$, then $k - 2$, and so on, where $k$ is the smallest number with $k(k+1)/2 \\ge n$ (447 for $10^5$). If the first phone breaks after $j$ jumps, the stretch below it has fewer than $k - j + 1$ floors, so the total never exceeds $k$. Walk that stretch upward with the second phone; the answer is the last floor that survived."
+  ],
+  "interactive": true,
+  "track": "interactive",
+  "samples": [
+   [
+    "10 6\n",
+    "         10\nyou >    ? 4\n         ok\nyou >    ? 7\n         broke\nyou >    ? 5\n         ok\nyou >    ? 6\n         ok\nyou >    ! 6"
+   ],
+   [
+    "3 0\n",
+    "         3\nyou >    ? 2\n         broke\nyou >    ? 1\n         broke\nyou >    ! 0"
+   ]
+  ]
+ },
+ {
+  "id": "ia-scale",
+  "title": "The scale that needs a heavy load",
+  "seconds": 1.0,
+  "statement": "There are $n$ bags in a row. Every bag weighs exactly 10, except one bag, at an unknown position $p$, which weighs 11. You have a scale that weighs a block of neighbouring bags, but it only works under a heavy load: the block must contain **at least half** of all the bags.\n\n**How the conversation goes.**\n\n1. First read $n$ ($2 \\le n \\le 10^5$).\n2. To weigh bags $l$ to $r$, print `? l r` with $1 \\le l \\le r \\le n$ and $r - l + 1 \\ge \\lceil n / 2 \\rceil$. Then read one number: their total weight.\n3. When you know the heavy bag, print `! p`.\n\nYou may weigh at most **40** times. Flush after every line you print.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef parse(line, kinds='?!', count=1):\n    \"\"\"A line like \"? 5\" or \"! 7\": returns (kind, numbers) or None if it cannot be read.\"\"\"\n    p = str(line).split()\n    if not p or p[0] not in kinds or len(p) < 1 + count: return None\n    try: return p[0], [int(x) for x in p[1:]]\n    except ValueError: return None\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 9), 'medium': rng.randint(900, 1100), 'large': rng.choice([10 ** 5, 10 ** 5 - 1])}[size]\n    return f\"{n} {rng.choice([1, n, rng.randint(1, n), rng.randint(1, n)])}\\n\"\ndef interact(text):\n    n, p = ints(text); asked = 0; half = (n + 1) // 2\n    line = yield str(n)\n    while True:\n        got = parse(line)\n        if not got: return f'The judge could not read your line \"{line}\".'\n        kind, nums = got\n        if kind == '!': return '' if nums[0] == p else f'You answered {nums[0]}, but the heavy bag is number {p}.'\n        if len(nums) < 2: return 'A weighing is \"? l r\".'\n        l, r = nums[0], nums[1]; asked += 1\n        if asked > 40: return 'More than 40 weighings.'\n        if not 1 <= l <= r <= n: return f'The weighing \"? {l} {r}\" is outside 1..{n}.'\n        if r - l + 1 < half: return f'The scale needs at least {half} bags, and \"? {l} {r}\" has only {r - l + 1}.'\n        line = yield str(10 * (r - l + 1) + (1 if l <= p <= r else 0))\ndef play():\n    n = int((yield)); half = (n + 1) // 2; lo, hi = 0, n\n    while hi - lo > 1:\n        mid = (lo + hi) // 2\n        if mid >= half: w = int((yield f\"? 1 {mid}\"))\n        else: w = int((yield f\"? 1 {mid + half}\")) - int((yield f\"? {mid + 1} {mid + half}\"))\n        if w == 10 * mid: lo = mid\n        else: hi = mid\n    yield f\"! {hi}\"\n",
+  "hints": [
+   "If the scale had no restriction you would halve: \"is the heavy bag among the first $m$ bags?\" is answered by weighing bags 1 to $m$. Which of those weighings does the restriction forbid? Try $n = 8$ and $m = 2$.",
+   "You cannot weigh a short block, but you can weigh two long blocks whose difference is the short block. Which two long blocks differ by exactly the bags 1 to $m$?",
+   "Let $h = \\lceil n/2 \\rceil$. For $m \\ge h$ weigh bags 1 to $m$ directly. For $m < h$ weigh bags 1 to $m + h$ and bags $m + 1$ to $m + h$, and subtract: that is the weight of bags 1 to $m$. If it equals $10m$ the heavy bag is further right. Halve on $m$ with `lo = 0`, `hi = n`; two weighings per step at most, about 34 in all."
+  ],
+  "interactive": true,
+  "track": "interactive",
+  "samples": [
+   [
+    "6 2\n",
+    "         6\nyou >    ? 1 3\n         31\nyou >    ? 1 4\n         41\nyou >    ? 2 4\n         31\nyou >    ? 1 5\n         51\nyou >    ? 3 5\n         30\nyou >    ! 2"
+   ],
+   [
+    "2 2\n",
+    "         2\nyou >    ? 1 1\n         10\nyou >    ! 2"
+   ]
+  ]
+ },
+ {
+  "track": "twist",
+  "id": "tw-swap2",
+  "title": "Swapping across a neighbour",
+  "seconds": 1.0,
+  "statement": "You are given $a_1, \\dots, a_n$. The only move allowed is to swap two elements that have **exactly one element between them**: positions $i$ and $i + 2$. Neighbours cannot be swapped. Using any number of moves, can the list be put in non-decreasing order?\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^4$). Each test has two lines: $n$ ($1 \\le n \\le 2 \\cdot 10^5$), then $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^9$). The sum of $n$ over all tests is at most $2 \\cdot 10^5$.\n\n**Output.** For each test print `YES` or `NO`.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 4), 'medium': 20, 'large': 4}[size]; out = [str(t)]\n    for _ in range(t):\n        n = {'small': rng.randint(1, 6), 'medium': 100, 'large': 50000}[size]; top = 4 if size == 'small' else rng.choice([5, 10 ** 9])\n        a = [rng.randint(1, top) for _ in range(n)]\n        if rng.random() < 0.5:                         # often a list that CAN be sorted: a sorted one scrambled by legal moves\n            a.sort()\n            for _ in range(3 * n):\n                i = rng.randrange(max(1, n - 2))\n                if i + 2 < n: a[i], a[i + 2] = a[i + 2], a[i]\n        out += [str(n), ' '.join(map(str, a))]\n    return '\\n'.join(out) + \"\\n\"\ndef cases(text):\n    v = ints(text); p = 1\n    for _ in range(v[0]):\n        n = v[p]; yield v[p + 1:p + 1 + n]; p += n + 1\ndef solve(text):\n    out = []\n    for a in cases(text):\n        b = a[:]; b[0::2] = sorted(a[0::2]); b[1::2] = sorted(a[1::2]); out.append('YES' if b == sorted(a) else 'NO')\n    return '\\n'.join(out)\ndef brute(text):\n    out = []\n    for a in cases(text):\n        seen, stack = {tuple(a)}, [tuple(a)]\n        while stack:\n            x = stack.pop()\n            for i in range(len(x) - 2):\n                y = list(x); y[i], y[i + 2] = y[i + 2], y[i]; y = tuple(y)\n                if y not in seen: seen.add(y); stack.append(y)\n        out.append('YES' if tuple(sorted(a)) in seen else 'NO')\n    return '\\n'.join(out)\n",
+  "hints": [
+   "Take 3 2 1 and 2 1 3 and try every move by hand. Follow one element: which positions can it ever reach?",
+   "An element at an odd position can only ever stand at odd positions, and the same for even. Inside the odd positions, a move swaps two that are next to each other in that group. So what arrangements of the odd group are reachable?",
+   "Every arrangement: swapping neighbours within a group can sort the group. So sort the elements at odd positions among themselves and the elements at even positions among themselves, put them back, and check whether the whole list is now in order."
+  ],
+  "found": {
+   "move": "invariant",
+   "steps": [
+    "The move you want (swap neighbours) is forbidden, so ask what the allowed move can never do.",
+    "Follow one element in 2 1 3: it jumps two places at a time, so it never changes between odd and even positions.",
+    "So the list is really two separate lists, the odd positions and the even positions, and inside each one the move swaps neighbours.",
+    "Neighbour swaps can sort anything, so each of the two lists can be put in any order. Sort both, interleave, and look."
+   ],
+   "rule": "When the natural move is replaced by a restricted one, find what the restricted move keeps fixed. It usually splits the problem into independent parts in which everything is possible.",
+   "elsewhere": "Moves that only reach every k-th position, swaps that keep a parity, pouring between jugs, knights on a board (they alternate colours)."
+  },
+  "samples": [
+   [
+    "3\n3\n3 2 1\n3\n2 1 3\n4\n4 3 2 1\n",
+    "YES\nNO\nNO"
+   ]
+  ]
+ },
+ {
+  "track": "twist",
+  "id": "tw-others",
+  "title": "Everyone else",
+  "seconds": 1.0,
+  "statement": "You are given $a_1, \\dots, a_n$. For every position $i$, find the greatest common divisor of all the **other** numbers (all of them except $a_i$).\n\n**Input.** The first line contains $n$ ($2 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^{18}$).\n\n**Output.** $n$ numbers on one line.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport math\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 7), 'medium': 2000, 'large': 200000}[size]\n    base = rng.choice([1, 2, 6, 30]) if size == 'small' else rng.choice([1, 12, 10 ** 9 + 7, 2 ** 40])\n    top = 20 if size == 'small' else 10 ** 18 // base\n    return f\"{n}\\n\" + ' '.join(str(base * rng.randint(1, top)) for _ in range(n)) + \"\\n\"\ndef solve(text):\n    v = ints(text); n, a = v[0], v[1:]; p = [0] * (n + 1); s = [0] * (n + 2)\n    for i in range(n): p[i + 1] = math.gcd(p[i], a[i])\n    for i in range(n - 1, -1, -1): s[i + 1] = math.gcd(s[i + 2], a[i])\n    return ' '.join(str(math.gcd(p[i], s[i + 2])) for i in range(n))\ndef brute(text):\n    v = ints(text); n, a = v[0], v[1:]\n    return ' '.join(str(math.gcd(*(a[:i] + a[i + 1:]))) for i in range(n))\n",
+  "hints": [
+   "With sums this would be easy: the sum of everyone else is the total minus $a_i$. Why does the same trick fail for the greatest common divisor? Try 12, 18, 8, 30.",
+   "A gcd cannot be undone: knowing the gcd of everything does not tell you the gcd without one number. So do not remove anything. \"Everyone except $a_i$\" is two blocks that you can each prepare in advance. Which two?",
+   "The numbers before $i$ and the numbers after $i$. Compute the gcd of every prefix and of every suffix in two passes; the answer for $i$ is the gcd of the prefix ending at $i - 1$ and the suffix starting at $i + 1$."
+  ],
+  "found": {
+   "move": "workaround",
+   "steps": [
+    "The obvious plan is \"compute everything, then take $a_i$ out\", as you would with a sum.",
+    "A gcd has no \"take out\": from the gcd of 12, 18, 8, 30 (which is 2) you cannot recover the gcd of 12, 18, 30 (which is 6).",
+    "So build \"everyone else\" from pieces instead of removing from the whole: everyone else is the block to the left of $i$ together with the block to the right of $i$.",
+    "Prefix gcds and suffix gcds give both blocks for every $i$ in two passes."
+   ],
+   "rule": "When you would like to remove one item from a combined result and the operation cannot be undone (gcd, maximum, minimum, product modulo a non-prime), build the result without that item from a prefix and a suffix.",
+   "elsewhere": "Largest value of everyone else, product of everyone else without dividing, best answer after deleting one element, a scan that may not cover the whole row."
+  },
+  "samples": [
+   [
+    "4\n12 18 8 30\n",
+    "2 2 6 2"
+   ],
+   [
+    "2\n7 5\n",
+    "5 7"
+   ],
+   [
+    "3\n6 6 6\n",
+    "6 6 6"
+   ]
+  ]
+ },
+ {
+  "track": "twist",
+  "id": "tw-suffix",
+  "title": "Pulling the whole tail",
+  "seconds": 1.0,
+  "statement": "A row of $n$ dials all show 0. In one move you choose a position $i$ and turn dial $i$ **and every dial to its right** up by 1, or all of them down by 1 (dials may show negative numbers). You cannot turn a single dial on its own. What is the smallest number of moves after which the dials show $b_1, \\dots, b_n$?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $b_1, \\dots, b_n$ ($-10^9 \\le b_i \\le 10^9$).\n\n**Output.** The smallest number of moves.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 4), 'medium': 2000, 'large': 200000}[size]; top = 2 if size == 'small' else 10 ** 9\n    return f\"{n}\\n\" + ' '.join(str(rng.randint(-top, top)) for _ in range(n)) + \"\\n\"\ndef solve(text):\n    v = ints(text); b = [0] + v[1:]\n    return str(sum(abs(b[i] - b[i - 1]) for i in range(1, len(b))))\ndef brute(text):\n    from collections import deque\n    v = ints(text); n, b = v[0], tuple(v[1:]); start = (0,) * n; dist = {start: 0}; q = deque([start])\n    while q:\n        x = q.popleft()\n        if x == b: return str(dist[x])\n        for i in range(n):\n            for d in (1, -1):\n                y = x[:i] + tuple(t + d for t in x[i:])\n                if y not in dist and all(abs(t) <= 5 for t in y): dist[y] = dist[x] + 1; q.append(y)\n",
+  "hints": [
+   "Work out the answer by hand for targets 2 2 5 and for 1 −1 1 −1. For each move you made, which dial did you choose, and how many times?",
+   "A move changes many dials at once, which is hard to think about. Look instead at the **steps** between neighbours: $b_1 - 0$, $b_2 - b_1$, $b_3 - b_2$, ... What does one move do to that list of steps?",
+   "A move at position $i$ changes exactly one step, the one between dial $i - 1$ and dial $i$, by 1. The steps are independent, so the answer is $|b_1| + |b_2 - b_1| + \\dots + |b_n - b_{n-1}|$, in 64 bits."
+  ],
+  "found": {
+   "move": "restate",
+   "steps": [
+    "A move touches a whole tail of the row, so thinking dial by dial goes nowhere.",
+    "Write down the differences between neighbours instead (with a 0 in front): for 2 2 5 they are 2, 0, 3.",
+    "Now look at a move again: turning dial $i$ and everything to its right changes only ONE difference, the one just before dial $i$.",
+    "So each difference is fixed on its own, one move per unit: the answer is the sum of the absolute differences."
+   ],
+   "rule": "When a move changes a whole prefix, suffix or range, describe the row by the differences between neighbours. The move then changes only one or two numbers.",
+   "elsewhere": "Adding to a range (two differences change), watering a stretch of plants, raising a staircase, any \"apply to everything from here on\" operation."
+  },
+  "samples": [
+   [
+    "3\n2 2 5\n",
+    "5"
+   ],
+   [
+    "4\n1 -1 1 -1\n",
+    "7"
+   ],
+   [
+    "1\n0\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "track": "twist",
+  "id": "tw-circle",
+  "title": "The best stretch of a ring",
+  "seconds": 1.0,
+  "statement": "$n$ numbers are written around a ring: $a_1$ is next to $a_2$, and $a_n$ is next to $a_1$. Choose one or more numbers that sit next to each other on the ring (the stretch may run past $a_n$ into $a_1$, but no number is used twice) so that their sum is as large as possible.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($-10^9 \\le a_i \\le 10^9$).\n\n**Output.** The largest sum.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]; top = 6 if size == 'small' else 10 ** 9\n    lo = rng.choice([-top, -top, -1, 0]) if size == 'small' else rng.choice([-top, -top, -top // 1000])\n    hi = rng.choice([top, -1]) if lo < -1 else top\n    return f\"{n}\\n\" + ' '.join(str(rng.randint(lo, hi)) for _ in range(n)) + \"\\n\"\ndef solve(text):\n    v = ints(text); a = v[1:]; total = sum(a); bmax = bmin = None; cmax = cmin = 0\n    for x in a:\n        cmax = max(cmax, 0) + x; bmax = cmax if bmax is None else max(bmax, cmax)\n        cmin = min(cmin, 0) + x; bmin = cmin if bmin is None else min(bmin, cmin)\n    return str(bmax if bmax < 0 else max(bmax, total - bmin))\ndef brute(text):\n    v = ints(text); n, a = v[0], v[1:]\n    return str(max(sum(a[(i + k) % n] for k in range(m)) for i in range(n) for m in range(1, n + 1)))\n",
+  "hints": [
+   "On a straight row you may know how to find the best stretch in one pass. In the first sample, the best stretch on the ring is 5 then 4, wrapping round. What is left over when you take a stretch that wraps round?",
+   "A stretch that wraps round the end leaves out one stretch in the middle of the row, and that leftover is an ordinary stretch that does not wrap. If your wrapped stretch has the largest sum, what must be true of the leftover?",
+   "The leftover has the smallest sum. So the answer is the larger of (best ordinary stretch) and (total minus the smallest ordinary stretch), both found in one pass. One exception: if every number is negative, the smallest stretch is everything and the leftover would be empty; then the answer is just the largest number."
+  ],
+  "found": {
+   "move": "reverse",
+   "steps": [
+    "The ring breaks the one-pass method for a row, because a stretch can run off the end and come back.",
+    "Do not chase the wrapped stretch. Look at what it leaves out: an ordinary stretch in the middle that does not wrap.",
+    "Wrapped sum = total − leftover sum. The total is fixed, so the best wrapped stretch leaves out the stretch with the SMALLEST sum.",
+    "Now both cases are ordinary one-pass questions on the row. Watch the case where everything is negative: an empty choice is not allowed."
+   ],
+   "rule": "When the thing you want is awkward (it wraps round, or it is \"everything except ...\"), describe it by what it leaves out. The leftover is often an ordinary object you already know how to optimise.",
+   "elsewhere": "Problems on a ring or a clock, \"remove one stretch so that the rest is best\", choosing a prefix and a suffix (the middle is what you remove)."
+  },
+  "samples": [
+   [
+    "5\n4 -6 1 -2 5\n",
+    "9"
+   ],
+   [
+    "3\n-3 -1 -2\n",
+    "-1"
+   ],
+   [
+    "4\n2 -5 2 2\n",
+    "6"
+   ]
+  ]
+ },
+ {
+  "track": "twist",
+  "id": "tw-nofour",
+  "title": "The lift without fours",
+  "seconds": 1.0,
+  "statement": "A very tall building is superstitious about the digit 4: no floor label contains a 4. So the floors are labelled 1, 2, 3, 5, 6, ..., 13, 15, ..., 39, 50, 51, ... in increasing order, skipping every number that has a 4 anywhere in it. What label does the $k$-th floor from the ground carry?\n\n**Input.** The first line contains $t$ ($1 \\le t \\le 10^5$). Each of the next $t$ lines contains $k$ ($1 \\le k \\le 10^{18}$).\n\n**Output.** For each $k$, the label of the $k$-th floor.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    t = {'small': rng.randint(1, 5), 'medium': 1000, 'large': 100000}[size]; top = {'small': 400, 'medium': 10 ** 9, 'large': 10 ** 18}[size]\n    return f\"{t}\\n\" + ''.join(f\"{rng.choice([1, top, rng.randint(1, top), rng.randint(1, top)])}\\n\" for _ in range(t))\ndef label(k):\n    s = ''\n    while k: d = k % 9; s = str(d + 1 if d >= 4 else d) + s; k //= 9\n    return s\ndef solve(text):\n    return '\\n'.join(label(k) for k in ints(text)[1:])\ndef brute(text):\n    ks = ints(text)[1:]; labels = []; x = 0\n    while len(labels) < max(ks):\n        x += 1\n        if '4' not in str(x): labels.append(str(x))\n    return '\\n'.join(labels[k - 1] for k in ks)\n",
+  "hints": [
+   "Write the labels of the first 20 floors in a row with their floor numbers underneath. How many different digits can appear in a label?",
+   "Only nine digits are ever used: 0, 1, 2, 3, 5, 6, 7, 8, 9. Counting with nine digits is counting in base 9. Compare the floor number written in base 9 with the label: floor 9 is \"10\" in base 9, and its label is 10.",
+   "Write $k$ in base 9. Then replace each digit by the digit that stands in its place among 0, 1, 2, 3, 5, 6, 7, 8, 9: digits 0 to 3 stay, and 4, 5, 6, 7, 8 become 5, 6, 7, 8, 9."
+  ],
+  "found": {
+   "move": "small-cases",
+   "steps": [
+    "Skipping numbers looks like it needs a search: count how many labels are below a guess, and adjust.",
+    "Before doing that, write the first labels next to their floor numbers: 1→1, 2→2, 3→3, 4→5, 5→6, ..., 8→9, 9→10, 10→11.",
+    "The labels use only nine digits, and after 9 comes 10: they are simply counting with nine symbols. Floor numbers in base 9 read 1, 2, 3, 4, 5, ..., 8, 10, 11.",
+    "So the label is the floor number in base 9, with the digits 4 to 8 renamed 5 to 9. No searching at all."
+   ],
+   "rule": "When some values are forbidden and you are asked for the k-th allowed one, list the first twenty allowed values against 1 to 20. Often the allowed values are just ordinary counting in disguise.",
+   "elsewhere": "k-th number without a given digit, spreadsheet column names (A, B, ..., Z, AA), k-th binary string without some pattern."
+  },
+  "samples": [
+   [
+    "5\n1\n4\n9\n13\n100\n",
+    "1\n5\n10\n15\n121"
+   ]
+  ]
+ },
+ {
+  "track": "twist",
+  "id": "tw-pairs",
+  "title": "Every pair of houses",
+  "seconds": 1.0,
+  "statement": "There are $n$ houses on a street, at positions $a_1, \\dots, a_n$ (not sorted, and positions may repeat). Find the sum of the distances $|a_i - a_j|$ over all pairs $i < j$.\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($0 \\le a_i \\le 10^8$).\n\n**Output.** The sum of all pairwise distances.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]; top = 9 if size == 'small' else 10 ** 8\n    return f\"{n}\\n\" + ' '.join(str(rng.randint(0, top)) for _ in range(n)) + \"\\n\"\ndef solve(text):\n    a = sorted(ints(text)[1:]); r = pre = 0\n    for i, x in enumerate(a): r += x * i - pre; pre += x\n    return str(r)\ndef brute(text):\n    a = ints(text)[1:]\n    return str(sum(abs(a[i] - a[j]) for i in range(len(a)) for j in range(i + 1, len(a))))\n",
+  "hints": [
+   "There can be $2 \\cdot 10^{10}$ pairs, so they cannot be listed. The absolute value is what makes the sum awkward. For 5, 1, 4: does the answer change if the houses are given in a different order?",
+   "The order does not matter, so sort the positions. Now for $i < j$ the distance is simply $a_j - a_i$, with no absolute value. How often does one particular $a_j$ appear with a plus sign, and how often with a minus sign?",
+   "After sorting, $a_j$ is added once for every house to its left and subtracted once for every house to its right. Sweep left to right keeping the sum of the positions so far: house $j$ (counting from 0) adds $j \\cdot a_j$ minus that sum. Use 64 bits."
+  ],
+  "found": {
+   "move": "restate",
+   "steps": [
+    "The absolute value blocks any formula: you would have to know which of the two is larger for every pair.",
+    "Ask what the answer cannot depend on. It does not depend on the order of the houses. So choose the order: sort them.",
+    "In sorted order every pair is (smaller, larger) and its distance is larger − smaller. The absolute value is gone.",
+    "Now count how often each house is added and subtracted: once per house on its left, once per house on its right. One pass."
+   ],
+   "rule": "When an absolute value, a maximum or a minimum inside a sum blocks you, look for an order of the items that settles every comparison in advance. Sorting is free whenever the answer does not depend on the order.",
+   "elsewhere": "Sums of |a_i − a_j|, sums of max or min over all pairs, \"for every pair, the larger one\" questions."
+  },
+  "samples": [
+   [
+    "3\n5 1 4\n",
+    "8"
+   ],
+   [
+    "4\n2 2 2 2\n",
+    "0"
+   ],
+   [
+    "1\n9\n",
+    "0"
+   ]
+  ]
  }
 ]

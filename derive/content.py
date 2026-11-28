@@ -50,6 +50,7 @@ class Content:
                             {'id': 'standard', 'title': 'Standard moves', 'about': 'Here the technique is named and nothing has to be discovered. The job is to write it quickly and get it accepted on the first submission.'},
                             {'id': 'graphs', 'title': 'Graphs and trees, from the adjacency list up', 'about': 'A ladder: each task asks for exactly one thing, and each builds on the one before.'},
                             {'id': 'search', 'title': 'Halving on the answer', 'about': 'Each of these turns into a yes or no question that flips only once. The work is finding the question and getting the two ends right.'},
+                            {'id': 'interactive', 'title': 'Talking to the judge', 'about': 'Interactive tasks: your program asks, the judge answers, and the number of questions is limited. Start with the Toolbox page "Talking to the judge" if you have never done one.'},
                             {'id': 'numbers', 'title': 'Numbers', 'about': 'Primes, factors, powers and binomials at contest sizes.'},
                             {'id': 'structures', 'title': 'Structures and graph algorithms', 'about': 'The standard machinery, written by you.'},
                             {'id': 'tables', 'title': 'Tables and orders', 'about': 'Filling a table in the right order, and sorting by the right key.'},
@@ -217,7 +218,7 @@ def problems(content):
     for task in content.tasks.values():
         if task.get('track') == 'transfer' and task.get('pattern') not in pattern_ids:
             faults.append(f'task {task["id"]}: a transfer task belongs to a pattern')
-        if task.get('track') == 'ladder':
+        if task.get('track') in ('ladder', 'twist'):
             found = task.get('found') or {}
             if found.get('move') not in evidence.MOVES or len(found.get('steps', [])) < 3 or not found.get('rule') or not found.get('elsewhere'):
                 faults.append(f'task {task["id"]}: a ladder task says how it could have been found (move, steps, rule, elsewhere)')

@@ -26,7 +26,7 @@ from datetime import datetime, timezone
 KEY, LOG = 'session', 'session_log'
 LENGTHS = (30, 60, 90, 120)
 CYCLE = ('chain', 'task', 'think')
-OFF_CODE_PAGE = ('predictions', 'ladder', 'transfer', 'toolbox')
+OFF_CODE_PAGE = ('predictions', 'ladder', 'transfer', 'toolbox', 'twist')
 
 BREAK_AFTER = 45 * 60          # minutes of work since the last break before one is offered
 BREAK_EARLY = 20 * 60          # ... or this long, if the mistakes are piling up
@@ -108,7 +108,7 @@ def valid_item(service, item):
     if kind == 'tool' and ident in content.tools:
         return {'kind': 'tool', 'id': ident}
     if kind in ('task', 'think') and ident in content.tasks and content.tasks[ident].get('track') != 'toolbox':
-        return {'kind': 'think' if content.tasks[ident].get('track') in ('ladder', 'transfer') else 'task', 'id': ident}
+        return {'kind': 'think' if content.tasks[ident].get('track') in ('ladder', 'transfer', 'twist') else 'task', 'id': ident}
     return None
 
 

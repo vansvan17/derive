@@ -730,6 +730,30 @@ class App(unittest.TestCase):
         self.assertEqual((after['done'][0]['outcome'], after['stage']['href'], len(after['plan'])), ('done', '#/chain/' + numbers[1], len(numbers) - 2))
         self.post('/session/end', {})
 
+    def test_an_interactive_task_is_a_conversation_and_forgetting_to_flush_is_named(self):
+        task = self.get('/task/ia-guess')
+        self.assertTrue(task['interactive'])
+        self.assertIn('you >    ! 7', task['samples'][0][1])                               # the example is shown as an exchange
+        good = 'import sys\nn = int(input()); lo, hi = 1, n + 1\nwhile hi - lo > 1:\n    mid = (lo + hi) // 2\n    print("?", mid, flush=True)\n    if input() == "yes": lo = mid\n    else: hi = mid\nprint("!", lo, flush=True)\n'
+        self.assertEqual(self.judged({'id': 'ia-guess', 'language': 'python', 'main': good})['verdict'], 'AC')
+        blind = self.judged({'id': 'ia-guess', 'language': 'python', 'main': 'n = int(input())\nprint("! 1", flush=True)\n'})
+        self.assertEqual(blind['verdict'], 'WA')
+        self.assertIn('you >    ! 1', blind['output'])                                     # the failing exchange is shown
+        linear = self.judged({'id': 'ia-guess', 'language': 'python', 'main': 'n = int(input()); y = 1\nwhile True:\n    print("?", min(y, n), flush=True); input(); y += 1\n'})
+        self.assertIn('More than 30 questions', linear['detail'])
+        silent = self.judged({'id': 'ia-guess', 'language': 'python', 'main': 'import sys\nn = int(sys.stdin.readline())\nsys.stdout.write("? 1\\n")\nsys.stdin.readline()\n'})
+        self.assertEqual(silent['verdict'], 'TLE')
+        self.assertIn('flush', silent['detail'])
+        # a trial run shows the whole exchange for a hidden input of her choosing
+        reply = self.post('/run', {'kind': 'run', 'id': 'ia-guess', 'language': 'python', 'main': good, 'input': '10 3\n'})[1]
+        for _ in range(300):
+            job = self.get('/jobs/' + reply['job'])
+            if job['status'] not in ('queued', 'running'):
+                break
+            time.sleep(.05)
+        self.assertEqual(job['result']['verdict'], 'OK')
+        self.assertIn('you >    ! 3', job['result']['output'])
+
     def test_the_cses_section_lists_every_task_with_a_chain_and_stays_off_the_map(self):
         page = self.get('/cses')
         self.assertEqual(len(page['problems']), 23)

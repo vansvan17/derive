@@ -49,7 +49,7 @@ export async function renderTasks(ctx) {
       <ol class="rows">${mine.map((t, k) => taskRow(t, k + 1, e, t.basis.length ? `rests on ${basisLinks(t.basis, e)}` : '')).join('')}</ol></section>` : ''; }).join('')}`;
 }
 
-const OWN_PAGE = ['predictions', 'ladder', 'transfer'];
+const OWN_PAGE = ['predictions', 'ladder', 'transfer', 'twist'];
 const RUNGS = ['', 'One observation', 'Look twice', 'Find the pattern, then explain it', 'Two steps', 'Genuinely hard'];
 
 /* Think it up: problems that no named technique solves, in rungs from easy to hard. Nothing is locked. */
@@ -67,7 +67,9 @@ export async function renderLadder(ctx) {
       ${page.patterns.map((p, k) => { const use = page.tasks.filter(t => t.pattern === p.id); return `<ol class="rows"><li class="row"><span class="row-mark${p.derived ? ' is-done' : p.started ? ' is-tried' : ''}">${p.derived ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : k + 1}</span><a class="row-title" href="#/chain/${e(p.id)}">${p.derived ? e(p.name) : `A way of thinking, not named yet`}</a><span class="row-note">${p.derived ? 'worked through' : `${p.steps} questions${p.started ? ', started' : ''}`}</span></li></ol>
         ${use.length ? `<p class="muted small use-head">Then use it on these (same way of thinking, different surface):</p><ol class="rows use-rows">${use.map((t, j) => taskRow(t, j + 1, e)).join('')}</ol>` : ''}`; }).join('')}</section>` : ''}
     ${rungs.map(r => { const here = mine.filter(t => t.rung === r); return `<section class="surface">${groupHead(`Rung ${r} · ${RUNGS[r] || ''}`, '', here, e)}
-      <ol class="rows">${here.map((t, k) => taskRow(t, k + 1, e)).join('')}</ol></section>`; }).join('')}`;
+      <ol class="rows">${here.map((t, k) => taskRow(t, k + 1, e)).join('')}</ol></section>`; }).join('')}
+    ${(() => { const tw = page.tasks.filter(t => t.track === 'twist'); return tw.length ? `<section class="surface">${groupHead('Twists: the obvious way is blocked', 'Each of these has a familiar task with one rule added that forbids the natural approach. The work is finding the way round. Each one shows how it could have been found once you are through it.', tw, e)}
+      <ol class="rows">${tw.map((t, k) => taskRow(t, k + 1, e)).join('')}</ol></section>` : ''; })()}`;
 }
 
 /* Predictions: original problems written for this course in the style of a regional, kept apart from the real ones. */
@@ -94,13 +96,13 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
   if (!alive()) return;
   let busy = false, saveTimer = null;
   const box = (title, text) => `<div class="io-box"><h4>${e(title)}</h4><pre>${e(text)}</pre></div>`;
-  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow">${task.track === 'predictions' ? '<a href="#/predictions">Predictions</a>' : task.track === 'ladder' ? `<a href="#/think">Think it up</a> · rung ${e(task.rung)}` : task.track === 'transfer' ? '<a href="#/think">Think it up</a> · using a pattern' : '<a href="#/code">Code</a>'} · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}${behindFold(task.behind, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
+  host.innerHTML = `${heading ? `<header class="page-head"><div><p class="eyebrow">${task.track === 'predictions' ? '<a href="#/predictions">Predictions</a>' : task.track === 'ladder' ? `<a href="#/think">Think it up</a> · rung ${e(task.rung)}` : task.track === 'transfer' ? '<a href="#/think">Think it up</a> · using a pattern' : task.track === 'twist' ? '<a href="#/think">Think it up</a> · a twist' : '<a href="#/code">Code</a>'} · time limit ${task.seconds} s (C++)</p><h1>${e(task.title)} ${ctx.star('task', task.id)}</h1></div><div data-status></div></header>${basisNote(task.basis, e)}${behindFold(task.behind, e)}` : `<p class="muted small">Time limit ${task.seconds} s (C++). <span data-status></span></p>`}
     <div class="split" data-split><div class="split-pane split-text">${before}<section class="surface reading task-statement">${markdown(task.statement)}
-      <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box('Input', s[0])}${box('Output', s[1])}</div>`).join('')}</section>${hints ? '<section class="surface task-hints" data-hints aria-live="polite"></section>' : ''}<div data-found aria-live="polite"></div>${after}</div>
+      <h3>Example${task.samples.length > 1 ? 's' : ''}</h3>${task.samples.map(s => `<div class="io-grid">${box(task.interactive ? 'Hidden from your program' : 'Input', s[0])}${box(task.interactive ? 'One possible exchange' : 'Output', s[1])}</div>`).join('')}${task.interactive ? '<p class="muted small">This task is interactive: your program and the judge take turns. In the exchange, lines marked <code>you &gt;</code> are printed by your program; the other lines are what the judge sends back. Flush after every line you print.</p>' : ''}</section>${hints ? '<section class="surface task-hints" data-hints aria-live="polite"></section>' : ''}<div data-found aria-live="polite"></div>${after}</div>
     <div class="split-pane split-code"><section class="surface editor-card" aria-label="Code"><div class="editor-bar"><span class="muted small" data-save role="status">Saved</span><div class="editor-meta">${sideButton()}<label><span class="sr-only">Language</span><select data-language><option value="cpp" ${language === 'cpp' ? 'selected' : ''}>C++20</option><option value="python" ${language === 'python' ? 'selected' : ''}>Python</option></select></label></div></div>
       <div class="editor-host" data-editor></div>
-      <label class="field">Your own input<textarea data-input rows="3" spellcheck="false">${e(task.samples[0][0])}</textarea></label>
-      <div class="run-bar"><button class="btn btn-secondary btn-sm" type="button" data-run title="Run (${MOD}Enter)">Run on this input</button><span class="spacer"></span><button class="btn btn-primary" type="button" data-judge title="Judge (${MOD}Shift+Enter)">Judge</button></div></section>
+      <label class="field">${task.interactive ? 'Hidden input for a trial run (the judge keeps it; your program does not read it)' : 'Your own input'}<textarea data-input rows="3" spellcheck="false">${e(task.samples[0][0])}</textarea></label>
+      <div class="run-bar"><button class="btn btn-secondary btn-sm" type="button" data-run title="Run (${MOD}Enter)">${task.interactive ? 'Trial run: show the exchange' : 'Run on this input'}</button><span class="spacer"></span><button class="btn btn-primary" type="button" data-judge title="Judge (${MOD}Shift+Enter)">Judge</button></div></section>
     <section class="surface results" aria-live="polite" data-results><h3>Results</h3><p class="results-empty">Run it on your own input, or judge it against the hidden tests.</p></section></div></div>`;
   wireSplit(host.querySelector('[data-split]'));
   const $ = s => host.querySelector(s);
@@ -159,7 +161,7 @@ export async function mountTask(ctx, host, id, {onAccepted = null, heading = tru
       if (job.status === 'error') { results.innerHTML = `<h3>Results</h3><p class="inline-error">${e(r.error || 'The run could not finish.')}</p>`; return; }
       const good = r.verdict === 'AC' || r.verdict === 'OK';
       results.innerHTML = `<h3>${kind === 'judge' ? 'Verdict' : 'Run'}</h3><div class="result-head"><span class="verdict ${good ? 'verdict-ok' : 'verdict-bad'}">${e(r.verdict)}</span>${kind === 'judge' ? `<strong>${r.passed} of ${r.of} tests passed</strong>` : `<span class="muted">${r.seconds != null ? Number(r.seconds).toFixed(2) + ' s' : ''}</span>`}</div>
-        ${r.detail ? `<p class="result-detail">${e(r.detail)}</p>` : ''}<div class="io-grid">${r.input != null ? box('The test', r.input) : ''}${r.expected != null ? box('Expected', r.expected) : ''}${r.output != null && (kind === 'run' || r.verdict !== 'AC') ? box('Your output', r.output) : ''}</div>`;
+        ${r.detail ? `<p class="result-detail">${e(r.detail)}</p>` : ''}<div class="io-grid">${r.input != null ? box(task.interactive ? 'Hidden input of the test' : 'The test', r.input) : ''}${r.expected != null && !task.interactive ? box('Expected', r.expected) : ''}${r.output != null && (kind === 'run' || r.verdict !== 'AC') ? box(task.interactive ? 'The exchange (you > marks your lines)' : 'Your output', r.output) : ''}</div>`;
       if (kind === 'judge') { task = await api('/task/' + encodeURIComponent(id)); status(); paintHints(); paintFound(); ctx.sync(); accepted = r.verdict === 'AC'; }
     } catch (error) { toast(error.message, 'error'); results.innerHTML = '<h3>Results</h3><p class="results-empty">Nothing was run.</p>'; }
     finally { busy = false; if (alive()) host.querySelectorAll('[data-run],[data-judge]').forEach(b => { b.disabled = false; }); }

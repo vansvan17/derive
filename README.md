@@ -47,9 +47,9 @@ Nothing leaves your computer except the calls listed below, and there is no acco
 | Chains | 119: 95 on the map, 23 for CSES dynamic programming, 1 way of thinking; each has a hard part |
 | Puzzles | 203, in seven sets |
 | Real problems | 113 from Codeforces, rated 1600 to 2500, each read with its editorial before being added |
-| Toolbox | 36 standard techniques, each with a task you write against the local judge |
-| Code | 71 short implementation tasks, judged on this computer |
-| Think it up | 19 problems that need an idea of your own, in five rungs; each shows how it could have been found once you are through it |
+| Toolbox | 37 standard techniques, each with a task you write against the local judge |
+| Code | 75 short implementation tasks, judged on this computer; four of them interactive (your program talks with the judge) |
+| Think it up | 19 problems that need an idea of your own, in five rungs, and 6 twists where the obvious way is blocked; each shows how it could have been found once you are through it |
 | Predictions | 30 original problems in the style of an ICPC regional (guesses, not real problems) |
 | Break it | 14 wrong programs to find a failing input for |
 | Proof grading | optional, through the Claude Code command on this machine; off until switched on in Settings |

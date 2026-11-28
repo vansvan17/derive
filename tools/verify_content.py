@@ -141,6 +141,33 @@ def main():
     from derive import tasks as task_module
     for task in course.tasks.values():
         try:
+            if task.get('interactive'):
+                # An interactive task: its own correct player must be accepted on every test, and a program that
+                # answers at once without asking anything must be refused somewhere.
+                gen, _, _ = task_module.load(task)
+                interact, play = task_module.talkers(task)
+                def blind():
+                    yield
+                    while True:
+                        yield '! 1'
+                rng, refused = random.Random(7), False
+                for _ in range(150):
+                    text = gen(rng, 'small')
+                    reason, _ = task_module.rehearse(interact, play, text)
+                    if reason:
+                        faults.append(f'task {task["id"]}: its own player is refused on {text!r}: {reason}'); break
+                    refused = refused or bool(task_module.rehearse(interact, blind, text, 50)[0])
+                if not refused:
+                    faults.append(f'task {task["id"]}: a program that guesses without asking is never refused')
+                for size in ('medium', 'large'):
+                    if task_module.rehearse(interact, play, gen(rng, size))[0]:
+                        faults.append(f'task {task["id"]}: its own player is refused on a {size} test')
+                if not task.get('samples') or any(task_module.rehearse(interact, play, s[0])[0] or not s[1].strip() for s in task['samples']):
+                    faults.append(f'task {task["id"]}: a sample is wrong')
+                hints = task.get('hints')
+                if not isinstance(hints, list) or not 2 <= len(hints) <= 3 or any(not isinstance(h, str) or len(h.strip()) < 30 for h in hints):
+                    faults.append(f'task {task["id"]}: needs two or three hints, each a full sentence')
+                continue
             gen, solve, brute_force = task_module.load(task)
             check = task_module.checker(task)
             # With a checker, both solutions must be accepted by it (it compares against the optimum), and it must refuse rubbish.

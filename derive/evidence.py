@@ -36,6 +36,7 @@ MOVES = {
     'label': 'Sort the objects into kinds and count what pins each one down',
     'restate': 'Say the move or the question in a simpler way that means the same',
     'forced': 'Find the choice that is forced and let it decide the next one',
+    'workaround': 'The obvious step is forbidden: build it out of steps that are allowed',
     'technique': 'None of these: it was recognising a known technique',
 }
 

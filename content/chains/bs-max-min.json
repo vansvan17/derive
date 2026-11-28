@@ -1,0 +1,133 @@
+{
+ "idea": "bs-max-min",
+ "opening": "Five stalls along a wall and cows that do not like each other.",
+ "steps": [
+  {
+   "id": "three",
+   "kind": "number",
+   "prompt": "Stalls stand at positions 1, 2, 4, 8, 9. Every two cows must be at least 3 apart. Put a cow in stall 1, then go right and put a cow in the first stall that is far enough from the last cow, and so on. How many cows get a stall?",
+   "answer": 3,
+   "verify": "def fit(pos, d):\n    c, last = 1, pos[0]\n    for x in pos[1:]:\n        if x - last >= d: c += 1; last = x\n    return c\nresult = fit([1, 2, 4, 8, 9], 3)",
+   "nudges": [
+    "After the cow at 1, which is the first stall at least 3 further on?"
+   ],
+   "showed": "Cows at 1, 4 and 8."
+  },
+  {
+   "id": "row",
+   "kind": "list",
+   "prompt": "Same stalls (1, 2, 4, 8, 9). Do the same for required distances 1, 2, 3, 4, 5, 6, 7, 8: how many cows fit each time? Give the eight counts in order.",
+   "answer": [
+    5,
+    3,
+    3,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "verify": "def fit(pos, d):\n    c, last = 1, pos[0]\n    for x in pos[1:]:\n        if x - last >= d: c += 1; last = x\n    return c\nresult = [fit([1, 2, 4, 8, 9], d) for d in range(1, 9)]",
+   "nudges": [
+    "For distance 4: after the cow at 1, the next stall must be at 5 or beyond. Which is it?"
+   ],
+   "showed": "5, 3, 3, 2, 2, 2, 2, 2. The count never goes up when the required distance grows.",
+   "ordered": true
+  },
+  {
+   "id": "left",
+   "kind": "choice",
+   "prompt": "Why is it right to always use the first stall that is far enough, instead of saving it and using a later one?",
+   "options": [
+    "A cow placed further left leaves at least as much room for all the cows after it",
+    "Because the leftmost stalls are the closest together",
+    "Because it uses the stalls in order",
+    "It is not always right, but it is close enough"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Take any valid placement. If you slide one cow left to the first stall that is still far enough from the previous cow, can a distance to the NEXT cow get smaller?"
+   ],
+   "showed": "Sliding a cow left never breaks anything to its right. So the leftmost choice fits as many cows as any choice can, and the count it gives is the true maximum for that distance."
+  },
+  {
+   "id": "best",
+   "kind": "number",
+   "prompt": "Still stalls at 1, 2, 4, 8, 9, and now exactly 3 cows. Place them so that the two closest cows are as far apart as possible. How far apart are the two closest cows?",
+   "answer": 3,
+   "verify": "import itertools\nresult = max(min(b - a for a, b in zip(c, c[1:])) for c in itertools.combinations([1, 2, 4, 8, 9], 3))",
+   "nudges": [
+    "Use your row of counts: for which required distances do at least 3 cows fit?"
+   ],
+   "showed": "At least 3 cows fit for distances 1, 2 and 3 but not for 4. The last distance that still fits 3 cows is the answer: 3."
+  },
+  {
+   "id": "flip",
+   "kind": "choice",
+   "prompt": "For $k$ cows, write yes or no under each distance $d$ = 1, 2, 3, ... for the question \"do at least $k$ cows fit when every two must be at least $d$ apart?\". What does the row always look like?",
+   "options": [
+    "yes, yes, ..., yes, no, no, ... with a single change",
+    "It can change back and forth several times",
+    "no, no, ..., no, yes, yes, ...",
+    "All yes"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If the cows fit with distance 5, do they fit with distance 4?"
+   ],
+   "showed": "A placement that works for a distance works for every smaller one. So there is a single change, and the answer is the last yes."
+  },
+  {
+   "id": "h-tri",
+   "kind": "number",
+   "prompt": "Ten stalls at positions 1, 3, 6, 10, 15, 21, 28, 36, 45, 55 and 4 cows. How far apart can the two closest cows be made?",
+   "answer": 15,
+   "verify": "import itertools\nresult = max(min(b - a for a, b in zip(c, c[1:])) for c in itertools.combinations([1, 3, 6, 10, 15, 21, 28, 36, 45, 55], 4))",
+   "nudges": [
+    "Pick a distance and count how many cows fit, taking the first allowed stall each time. Is the answer a yes or a no for 18? For 14?",
+    "You know a distance that works and one that does not. What is the natural distance to try next?"
+   ],
+   "showed": "Distance 15 fits four cows (1, 21, 36, 55); distance 16 fits only three. So 15.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-parts",
+   "kind": "number",
+   "prompt": "A different surface. The numbers 5, 1, 7, 3, 9, 2, 8 stand in a row. Cut the row into exactly 3 consecutive parts so that the **smallest** part sum is as large as possible. What is that smallest part sum?",
+   "answer": 10,
+   "verify": "import itertools\na = [5, 1, 7, 3, 9, 2, 8]\nresult = max(min(sum(a[:i]), sum(a[i:j]), sum(a[j:])) for i, j in itertools.combinations(range(1, 7), 2))",
+   "nudges": [
+    "Turn it into a yes or no question about a number $x$. What would you ask?",
+    "For a fixed $x$: walk left to right and close a part as soon as its sum reaches $x$. How many parts do you get, and what does \"at least 3\" mean?"
+   ],
+   "showed": "Ask \"can every part have a sum of at least $x$?\". Close a part as soon as it reaches $x$; if you can close at least 3, the answer is yes (extra numbers join the last part). Yes for 10 (5+1+7, 3+9, 2+8), no for 11.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-stones",
+   "kind": "number",
+   "prompt": "A river is 25 wide. Stones lie at 2, 11, 14, 17 and 21 from the near bank; you start at 0 and must reach 25 by jumping from stone to stone. Before starting you may remove exactly 2 stones. Remove them so that your **shortest** jump is as long as possible. How long is that shortest jump?",
+   "answer": 4,
+   "verify": "import itertools\ns = [2, 11, 14, 17, 21]\nresult = max(min(b - a for a, b in zip([0] + list(k), list(k) + [25])) for k in itertools.combinations(s, 3))",
+   "nudges": [
+    "Ask \"can every jump be at least $x$ after removing at most 2 stones?\". For a fixed $x$, which stones are you forced to remove as you walk from the near bank?"
+   ],
+   "showed": "For a fixed $x$, walk from 0 and remove every stone that is closer than $x$ to the last one kept (and mind the last jump to 25). If at most 2 stones go, the answer is yes. Yes for 4, no for 5.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-stalls",
+   "kind": "code",
+   "task": "bs-stalls",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Sort, then halve on the distance between 0 and (largest − smallest) + 1; the check is the greedy pass that takes the first stall far enough along.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Largest possible minimum",
+  "statement": "To make the smallest of several things as large as possible, ask \"can every one of them be at least $x$?\", answer that with a greedy pass, and search for the last $x$ that says yes.",
+  "remark": ""
+ }
+}

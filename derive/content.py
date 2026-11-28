@@ -49,6 +49,7 @@ class Content:
         self.task_tracks = [{'id': 'core', 'title': 'Arrays and counting', 'about': 'Plain statements, no hint about technique. The obvious loop is too slow.'},
                             {'id': 'standard', 'title': 'Standard moves', 'about': 'Here the technique is named and nothing has to be discovered. The job is to write it quickly and get it accepted on the first submission.'},
                             {'id': 'graphs', 'title': 'Graphs and trees, from the adjacency list up', 'about': 'A ladder: each task asks for exactly one thing, and each builds on the one before.'},
+                            {'id': 'search', 'title': 'Halving on the answer', 'about': 'Each of these turns into a yes or no question that flips only once. The work is finding the question and getting the two ends right.'},
                             {'id': 'numbers', 'title': 'Numbers', 'about': 'Primes, factors, powers and binomials at contest sizes.'},
                             {'id': 'structures', 'title': 'Structures and graph algorithms', 'about': 'The standard machinery, written by you.'},
                             {'id': 'tables', 'title': 'Tables and orders', 'about': 'Filling a table in the right order, and sorting by the right key.'},

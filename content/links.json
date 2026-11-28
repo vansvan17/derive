@@ -358,5 +358,35 @@
   "to": "graph-walk",
   "kind": "special case of",
   "note": "Draw an arrow from i to p[i]: the cycles are the connected pieces of that graph, found by walking it with a visited array."
+ },
+ {
+  "from": "prefix-sums",
+  "to": "best-so-far",
+  "kind": "combines with",
+  "note": "Both keep one running quantity about everything to the left, so each new element is answered in one step."
+ },
+ {
+  "from": "search-answer",
+  "to": "bs-invariant",
+  "kind": "used to prove",
+  "note": "The single change from no to yes is what lets the two kept points close in on it."
+ },
+ {
+  "from": "search-answer",
+  "to": "bs-max-min",
+  "kind": "special case of",
+  "note": "The yes or no question is \"can every one be at least x\", and it flips only once as x grows."
+ },
+ {
+  "from": "prefix-sums",
+  "to": "bs-real",
+  "kind": "combines with",
+  "note": "After subtracting x from every element, a stretch with sum at least 0 is found from prefix sums."
+ },
+ {
+  "from": "search-answer",
+  "to": "bs-real",
+  "kind": "special case of",
+  "note": "The question \"is an average of x reachable\" flips once, so the largest x is found by halving."
  }
 ]

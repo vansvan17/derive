@@ -1,0 +1,175 @@
+{
+ "idea": "bs-invariant",
+ "opening": "A guessing game, and then the same game played on a list.",
+ "steps": [
+  {
+   "id": "hundred",
+   "kind": "number",
+   "prompt": "I think of a whole number from 1 to 100. You may ask \"is your number at least $x$?\" for any $x$, and I answer yes or no. What is the smallest number of questions that is always enough to know my number?",
+   "answer": 7,
+   "verify": "import math\nresult = math.ceil(math.log2(100))",
+   "nudges": [
+    "After one well-chosen question, how many numbers can still be mine at worst?",
+    "Each question can at best halve what is left. How many halvings bring 100 down to 1?"
+   ],
+   "showed": "Each answer halves the candidates: 100, 50, 25, 13, 7, 4, 2, 1. Seven questions."
+  },
+  {
+   "id": "billion",
+   "kind": "number",
+   "prompt": "The same game with a number from 1 to 1 000 000 000. How many questions are always enough?",
+   "answer": 30,
+   "verify": "import math\nresult = math.ceil(math.log2(10 ** 9))",
+   "nudges": [
+    "How many times can you halve a billion before reaching 1?"
+   ],
+   "showed": "$2^{30}$ is just over a billion. Thirty questions for a billion candidates is why this is worth getting exactly right."
+  },
+  {
+   "id": "trace",
+   "kind": "list",
+   "prompt": "A sorted list: 2, 3, 5, 8, 13, 21, 34, 55 at positions 1 to 8. You want the first position whose value is at least 20. Keep two markers: `lo` = 0 (pretend a \"no\" stands before the list) and `hi` = 9 (pretend a \"yes\" stands after it). Repeat: test `mid` = (lo + hi) / 2 rounded down; if the value there is at least 20, move `hi` to `mid`, otherwise move `lo` to `mid`. Stop when `hi − lo` = 1.\n\nWhich positions get tested, in order?",
+   "answer": [
+    4,
+    6,
+    5
+   ],
+   "verify": "def run(n, yes):\n    lo, hi, mids = 0, n + 1, []\n    while hi - lo > 1:\n        mid = (lo + hi) // 2; mids.append(mid)\n        if yes(mid): hi = mid\n        else: lo = mid\n    return mids, lo, hi\na = [2, 3, 5, 8, 13, 21, 34, 55]\nresult = run(8, lambda m: a[m - 1] >= 20)[0]",
+   "nudges": [
+    "The first test is at (0 + 9) / 2 rounded down. What is the value there, and which marker moves?"
+   ],
+   "showed": "Position 4 (value 8, no), position 6 (value 21, yes), position 5 (value 13, no). Then the markers are 5 and 6.",
+   "ordered": true
+  },
+  {
+   "id": "promise",
+   "kind": "choice",
+   "prompt": "In that run, what stayed true about the two markers from the first moment to the last?",
+   "options": [
+    "`lo` always stood on a \"no\" and `hi` always on a \"yes\"",
+    "`lo` and `hi` were always the same distance from the answer",
+    "The value at `lo` was always smaller than 20 and `hi` was always inside the list",
+    "The tested position was always a \"yes\""
+   ],
+   "answer": 0,
+   "nudges": [
+    "Look at each move: when is `lo` moved, and when is `hi`?"
+   ],
+   "showed": "A marker only ever moves onto a position whose answer matches it. So when they become neighbours, the boundary is between them and `hi` is the first yes: position 6."
+  },
+  {
+   "id": "ends",
+   "kind": "choice",
+   "prompt": "Why start with `lo` = 0 and `hi` = 9, positions that are not in the list at all?",
+   "options": [
+    "So that the markers are a \"no\" and a \"yes\" even when every real position is a yes, or every one is a no",
+    "Because lists are counted from 0",
+    "To make the loop run one more time",
+    "So that the middle is never rounded"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Suppose every value in the list is at least 20. Where is a \"no\" for `lo` to stand on?"
+   ],
+   "showed": "With the two pretend positions there is nothing special about \"all yes\" (the answer comes out as 1) or \"all no\" (it comes out as 9, one past the end)."
+  },
+  {
+   "id": "count",
+   "kind": "list",
+   "prompt": "A sorted list: 1, 3, 7, 7, 7, 9, 12. Run the method twice: once for \"the first position with value at least 7\" and once for \"the first position with value at least 8\". Give the two positions, in that order.",
+   "answer": [
+    3,
+    6
+   ],
+   "verify": "def run(n, yes):\n    lo, hi, mids = 0, n + 1, []\n    while hi - lo > 1:\n        mid = (lo + hi) // 2; mids.append(mid)\n        if yes(mid): hi = mid\n        else: lo = mid\n    return mids, lo, hi\na = [1, 3, 7, 7, 7, 9, 12]\nresult = [run(7, lambda m: a[m - 1] >= 7)[2], run(7, lambda m: a[m - 1] >= 8)[2]]",
+   "nudges": [
+    "Where does the first 7 stand? And what is the first value that is 8 or more?"
+   ],
+   "showed": "Positions 3 and 6. Their difference, 3, is how many 7s there are: two searches count a value without looking at each copy.",
+   "ordered": true
+  },
+  {
+   "id": "stuck",
+   "kind": "choice",
+   "prompt": "Someone writes the loop as: `while lo < hi`, test `mid` = (lo + hi) / 2 rounded down, a yes sets `hi = mid`, a no sets `lo = mid`. What happens when it reaches `lo` = 5 and `hi` = 6 with a \"no\" at 5?",
+   "options": [
+    "It tests position 5 for ever: `lo` is set to 5 again and nothing changes",
+    "It stops with the right answer",
+    "It stops one position too early",
+    "It moves `hi` to 5"
+   ],
+   "answer": 0,
+   "nudges": [
+    "With `lo` = 5 and `hi` = 6, what is `mid`?"
+   ],
+   "showed": "The middle of neighbours rounds down to `lo`, so nothing moves. Stopping when `hi − lo` = 1 is what makes the loop end, and it loses nothing: neighbours already pin the boundary."
+  },
+  {
+   "id": "h-rotated",
+   "kind": "number",
+   "prompt": "A sorted list was cut in one place and the two parts swapped: 13, 21, 34, 55, 2, 3, 5, 8 (positions 1 to 8). The list is no longer sorted, so \"is the value at least $x$?\" does not go no, no, ..., yes, yes. But some yes or no question about a position does flip exactly once along this list, and halving on it finds where the smallest value stands. At which position does the smallest value stand?",
+   "answer": 5,
+   "verify": "a = [13, 21, 34, 55, 2, 3, 5, 8]\nresult = a.index(min(a)) + 1",
+   "nudges": [
+    "Compare every value with the FIRST value, 13. Write yes or no under each position for \"is this value smaller than 13?\". What does the row look like?"
+   ],
+   "showed": "\"Is the value smaller than the first one?\" reads no, no, no, no, yes, yes, yes, yes. The method needs a question that flips once; it does not need a sorted list.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-mountain",
+   "kind": "number",
+   "prompt": "A list that rises and then falls: 1, 4, 9, 15, 22, 26, 27, 25, 20, 12, 3 (positions 1 to 11). Again it is not sorted. Find a yes or no question about position $i$ that flips exactly once, and use it: at which position is the top?",
+   "answer": 7,
+   "verify": "a = [1, 4, 9, 15, 22, 26, 27, 25, 20, 12, 3]\nresult = a.index(max(a)) + 1",
+   "nudges": [
+    "Compare each value with its RIGHT neighbour. Where is the value larger than the next one?"
+   ],
+   "showed": "\"Is this value larger than the next one?\" is no on the way up and yes from the top onwards. The first yes is the top: position 7.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-tests",
+   "kind": "number",
+   "prompt": "A mountain like that has 1 000 000 values. Using the question \"is this value larger than the next one?\" and halving, how many values does the method need to look at, at most? (Each test looks at two neighbouring values; count the tests, then double.)",
+   "answer": 40,
+   "verify": "import math\nresult = 2 * math.ceil(math.log2(10 ** 6 + 1))",
+   "nudges": [
+    "How many tests does halving need for a million positions?"
+   ],
+   "showed": "About 20 tests, two values each: 40 looks instead of a million.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-not",
+   "kind": "choice",
+   "prompt": "For which of these questions about position $i$ of a sorted list of whole numbers can the method NOT be used?",
+   "options": [
+    "\"Is the value at position $i$ even?\"",
+    "\"Is the value at position $i$ at least 100?\"",
+    "\"Is the value at position $i$ larger than $i$ itself?\" when all values are different",
+    "\"Is the sum of the first $i$ values at least 1000?\" when all values are positive"
+   ],
+   "answer": 0,
+   "nudges": [
+    "For each question, can the answers along the list go yes, no, yes?"
+   ],
+   "showed": "Even and odd values can alternate any number of times. The other three flip once: values at least 100 are a suffix, prefix sums of positive values only grow, and for different whole numbers (value − position) never decreases.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-first",
+   "kind": "code",
+   "task": "bs-first",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Two markers, a pretend \"no\" before the list and a pretend \"yes\" after it, and a loop that stops when they are neighbours. No special cases.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Halving between a no and a yes",
+  "statement": "Keep two points: one where the answer is no and one where it is yes. Test the middle and move the end that matches. The two stay a no and a yes, and after about $\\log_2$(range) tests they are neighbours: that is the boundary.",
+  "remark": ""
+ }
+}

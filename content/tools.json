@@ -971,5 +971,35 @@
     "checked": "2026-11-27"
    }
   ]
+ },
+ {
+  "id": "binary-search",
+  "title": "Binary search that cannot go wrong",
+  "marks": [
+   "standard",
+   "common"
+  ],
+  "when": [
+   "A sorted list and \"the first position where ...\" or \"how many are below x\"",
+   "\"The smallest x for which it can be done\", \"make the largest as small as possible\", \"make the smallest as large as possible\"",
+   "\"The k-th smallest\" of something too large to list, when you can count how many are at most x",
+   "Any yes or no question that is no, no, ..., no, yes, yes, ... along a line of candidates"
+  ],
+  "idea": "**The question (an example):** a sorted list 2, 4, 4, 7, 9 and a number $x = 5$. Find the first position whose value is at least 5.\n\n**What is really going on:** ask \"is the value at least 5?\" at every position. The answers read no, no, no, yes, yes. The task is to find the place where no turns into yes.\n\n**The steps:**\n\n- Keep two markers. `lo` stands on a position that is a **no**. `hi` stands on a position that is a **yes**.\n- Start with `lo = 0` and `hi = n + 1`: pretend there is a no before the list and a yes after it.\n- While `hi - lo > 1`: look at `mid = (lo + hi) / 2`. If it is a yes, move `hi` there. If it is a no, move `lo` there.\n- When the markers are neighbours, `hi` is the first yes.\n\n**A tiny example:** list 2, 4, 4, 7, 9, $x = 5$.\n\n- `lo = 0`, `hi = 6`. `mid = 3`, value 4: no. So `lo = 3`.\n- `lo = 3`, `hi = 6`. `mid = 4`, value 7: yes. So `hi = 4`.\n- Neighbours. The answer is position 4.\n\n**Why it cannot go wrong:** `lo` is always a no and `hi` is always a yes, because a marker only moves onto a position with its own answer. The gap halves each round, so about 30 rounds handle a billion candidates.\n\n**The same loop answers other questions:**\n\n- Smallest $x$ that works: `lo` = a value that surely fails, `hi` = a value that surely works, and \"yes\" means \"it can be done with $x$\".\n- Largest $x$ that works: the row reads yes, ..., yes, no, ..., no. Keep `lo` on a yes and `hi` on a no; the answer is `lo`.\n- How many values equal $x$: (first position with value above $x$) minus (first position with value at least $x$).",
+  "example": "int lo = 0, hi = n + 1;                 // lo is a \"no\", hi is a \"yes\" (both pretend positions)\nwhile (hi - lo > 1) {\n    int mid = lo + (hi - lo) / 2;\n    if (a[mid] >= x) hi = mid;            // a yes: the first yes is here or to the left\n    else lo = mid;                        // a no: the first yes is to the right\n}\n// hi is the first position with a[hi] >= x, or n + 1 if there is none",
+  "traps": [
+   "Check that the yes or no question really flips only once. If it can go yes, no, yes, halving finds nothing.",
+   "Stop when hi − lo is 1, not when lo equals hi. With lo = mid and \"while lo < hi\" the loop never ends once the markers are neighbours.",
+   "Choose the two starting values so that one is surely a no and the other surely a yes; for \"smallest x that works\", a starting hi that does not work gives a wrong answer silently.",
+   "When searching on a value, the ends can be huge: (lo + hi) can overflow an int. Use 64 bits, or lo + (hi − lo) / 2.",
+   "For \"largest x that works\" the roles swap: lo is the yes and the answer. Decide which marker is the answer before writing the loop.",
+   "For a real-valued answer, run a fixed number of rounds (60 to 100) instead of waiting for the gap to drop below a tiny number."
+  ],
+  "task": "bs-first",
+  "reference": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n, q;\n    scanf(\"%d %d\", &n, &q);\n    vector<long long> a(n + 2);\n    for (int i = 1; i <= n; i++) scanf(\"%lld\", &a[i]);\n    while (q--) {\n        long long x;\n        scanf(\"%lld\", &x);\n        int lo = 0, hi = n + 1;               // lo: a pretend \"no\" before the list, hi: a pretend \"yes\" after it\n        while (hi - lo > 1) {\n            int mid = lo + (hi - lo) / 2;\n            if (a[mid] >= x) hi = mid;\n            else lo = mid;\n        }\n        printf(\"%d\\n\", hi);\n    }\n}\n",
+  "needs": [
+   "bs-invariant"
+  ],
+  "practice": []
  }
 ]

@@ -1,0 +1,124 @@
+{
+ "idea": "canonical-form",
+ "opening": "Six words, and the question of which of them are really the same.",
+ "steps": [
+  {
+   "id": "anagrams",
+   "kind": "number",
+   "prompt": "Two words are **alike** if one is a rearrangement of the letters of the other. The words are: listen, silent, banana, enlist, tinsel, inlets. Into how many groups of alike words do they fall?",
+   "answer": 2,
+   "verify": "def groups(items, same):\n    reps = []\n    for x in items:\n        if not any(same(x, r) for r in reps): reps.append(x)\n    return len(reps)\nresult = groups(['listen', 'silent', 'banana', 'enlist', 'tinsel', 'inlets'], lambda a, b: sorted(a) == sorted(b))",
+   "nudges": [
+    "Which word clearly has different letters from the rest?"
+   ],
+   "showed": "Five of them use the letters e, i, l, n, s, t once each; banana stands alone."
+  },
+  {
+   "id": "note",
+   "kind": "choice",
+   "prompt": "With a million words you cannot compare every pair. Suppose you write one note next to every word, so that two words are alike exactly when their notes are equal. Which note does that?",
+   "options": [
+    "The letters of the word in alphabetical order",
+    "The number of letters in the word",
+    "The first and the last letter of the word",
+    "The set of different letters in the word"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Two words must get the SAME note whenever they are alike, and DIFFERENT notes whenever they are not. Do \"noon\" and \"non\" get different notes under each option?"
+   ],
+   "showed": "Sorted letters: \"eilnst\" for the five, \"aaabnn\" for banana. Length and letter sets give equal notes to words that are not alike (\"noon\" and \"onon\" are fine, but \"noon\" and \"non\" share a letter set)."
+  },
+  {
+   "id": "fractions",
+   "kind": "number",
+   "prompt": "Fractions are alike if they have the same value. The fractions are 2/4, 3/6, 4/6, 6/9, 10/15, 1/2. How many different values are there?",
+   "answer": 2,
+   "verify": "from fractions import Fraction\nresult = len({Fraction(a, b) for a, b in [(2, 4), (3, 6), (4, 6), (6, 9), (10, 15), (1, 2)]})",
+   "nudges": [
+    "Write each fraction in lowest terms. What do you get?"
+   ],
+   "showed": "In lowest terms: 1/2, 1/2, 2/3, 2/3, 2/3, 1/2. The lowest-terms form is the note."
+  },
+  {
+   "id": "rotations",
+   "kind": "number",
+   "prompt": "Two words are alike if one is a **rotation** of the other: some letters are moved from the front to the back, keeping their order (abc → bca → cab). The words are abc, bca, cab, acb, bac, cba. How many groups?",
+   "answer": 2,
+   "verify": "def groups(items, same):\n    reps = []\n    for x in items:\n        if not any(same(x, r) for r in reps): reps.append(x)\n    return len(reps)\nresult = groups(['abc', 'bca', 'cab', 'acb', 'bac', 'cba'], lambda a, b: len(a) == len(b) and b in a + a)",
+   "nudges": [
+    "Write all rotations of abc. Is acb among them?"
+   ],
+   "showed": "abc, bca, cab are rotations of each other, and so are acb, cba, bac. A note that works: the alphabetically smallest rotation (abc for the first group, acb for the second)."
+  },
+  {
+   "id": "good",
+   "kind": "choice",
+   "prompt": "Sorted letters, lowest terms, smallest rotation. What do all three notes have in common, which makes grouping easy?",
+   "options": [
+    "Each is worked out from one object alone, and two objects are alike exactly when their notes are equal",
+    "Each is shorter than the object it describes",
+    "Each can be computed by sorting",
+    "Each loses some information about the object"
+   ],
+   "answer": 0,
+   "nudges": [
+    "To group a million objects with such notes, how many pairs of objects do you have to compare?"
+   ],
+   "showed": "One agreed representative per group, computed without looking at any other object. Then grouping is just sorting the notes or putting them in a hash table: no pairs are compared."
+  },
+  {
+   "id": "h-lines",
+   "kind": "number",
+   "prompt": "Arrows start at the origin and end at (2, 4), (−1, −2), (3, 6), (1, −2), (−2, 4), (0, 5), (0, −1), (4, 0). Two arrows are alike if they lie on the same straight line through the origin (pointing the same way or exactly opposite ways). How many different lines?",
+   "answer": 4,
+   "verify": "def groups(items, same):\n    reps = []\n    for x in items:\n        if not any(same(x, r) for r in reps): reps.append(x)\n    return len(reps)\nresult = groups([(2, 4), (-1, -2), (3, 6), (1, -2), (-2, 4), (0, 5), (0, -1), (4, 0)], lambda p, q: p[0] * q[1] == p[1] * q[0])",
+   "nudges": [
+    "Dividing both numbers by their greatest common divisor makes (2, 4) and (3, 6) equal. Does it make (1, 2) and (−1, −2) equal?",
+    "What extra rule would give (1, 2) and (−1, −2) the same note?"
+   ],
+   "showed": "Divide by the gcd, then fix the sign (say: the first non-zero number is positive). Notes: (1, 2) three times, (1, −2) twice, (0, 1) twice, (1, 0) once. A note that is almost right, like dividing by the gcd alone, splits one group into two.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-shapes",
+   "kind": "number",
+   "prompt": "Two words are alike if one becomes the other by renaming letters, where different letters must stay different (abb → cdd by a→c, b→d). The words are abb, cdd, xyz, aba, pqp, mno, zzz, add. How many groups?",
+   "answer": 4,
+   "verify": "def groups(items, same):\n    reps = []\n    for x in items:\n        if not any(same(x, r) for r in reps): reps.append(x)\n    return len(reps)\ndef shape(w):\n    seen = {}\n    return [seen.setdefault(ch, len(seen)) for ch in w]\nresult = groups(['abb', 'cdd', 'xyz', 'aba', 'pqp', 'mno', 'zzz', 'add'], lambda a, b: shape(a) == shape(b))",
+   "nudges": [
+    "The actual letters do not matter. What about a word does matter?",
+    "Replace the first new letter you meet by 1, the next new letter by 2, and so on. What do abb and cdd become?"
+   ],
+   "showed": "Number the letters by first appearance: abb, cdd and add all become 1 2 2; xyz and mno become 1 2 3; aba and pqp become 1 2 1; zzz becomes 1 1 1.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-endless",
+   "kind": "number",
+   "prompt": "An **endless word** is described by two finite words $u$ and $v$: write $u$ once and then $v$ again and again for ever. The descriptions are: (ab, ab), (abab, ab), (a, ba), (aba, ba), (ab, b), (abb, bb), (b, ab). Two descriptions are alike if they give the very same endless word. How many different endless words are there?",
+   "answer": 3,
+   "verify": "def groups(items, same):\n    reps = []\n    for x in items:\n        if not any(same(x, r) for r in reps): reps.append(x)\n    return len(reps)\ndef start(u, v): return (u + v * 60)[:60]\nresult = groups([('ab', 'ab'), ('abab', 'ab'), ('a', 'ba'), ('aba', 'ba'), ('ab', 'b'), ('abb', 'bb'), ('b', 'ab')], lambda p, q: start(*p) == start(*q))",
+   "nudges": [
+    "Write the first ten letters of each endless word. Which ones agree?",
+    "Is there a note you can work out for one description alone that settles it? For these short words, would a long enough beginning of the endless word do?"
+   ],
+   "showed": "ababab... four times (the first four descriptions), abbbb... twice, and bababa... once. For descriptions this short, a long enough beginning of the endless word is itself a note; for a contest you would look for a smaller one (strip from $u$ what $v$ can absorb, and reduce $v$ to its shortest repeating block).",
+   "tier": "hard"
+  },
+  {
+   "id": "c-lines",
+   "kind": "code",
+   "task": "cf-lines",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Reduce every arrow by its gcd, fix the sign, and count the different notes in a set.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Canonical form",
+  "statement": "To decide whether two objects count as the same, reduce each to one agreed representative: equal representatives exactly when the objects are the same. Grouping is then sorting or hashing the representatives.",
+  "remark": ""
+ }
+}

@@ -3783,5 +3783,404 @@
     "0"
    ]
   ]
+ },
+ {
+  "id": "bp-gap",
+  "title": "Two stalls, far enough apart",
+  "track": "core",
+  "needs": [
+   "best-so-far"
+  ],
+  "seconds": 1.0,
+  "statement": "A street has $n$ plots in a row; plot $i$ would earn $a_i$ (this can be negative). You open exactly two stalls, on plots $i < j$ that are at least $k$ apart: $j - i \\ge k$. What is the largest total $a_i + a_j$?\n\n**Input.** The first line contains $n$ and $k$ ($2 \\le n \\le 2 \\cdot 10^5$, $1 \\le k \\le n - 1$). The second line contains $a_1, \\dots, a_n$ ($-10^9 \\le a_i \\le 10^9$).\n\n**Output.** The largest total.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 7), 'medium': 2000, 'large': 200000}[size]\n    top = rng.choice([3, 9]) if size == 'small' else 10 ** 9\n    shape = rng.choice(['mixed', 'mixed', 'neg', 'pos', 'down'])\n    lo, hi = {'mixed': (-top, top), 'neg': (-top, -1), 'pos': (1, top), 'down': (-top, top)}[shape]\n    a = [rng.randint(lo, hi) for _ in range(n)]\n    if shape == 'down': a.sort(reverse=True)\n    return f\"{n} {rng.randint(1, n - 1)}\\n\" + ' '.join(map(str, a)) + \"\\n\"\ndef solve(text):\n    v = ints(text); n, k, a = v[0], v[1], v[2:]; best = pre = None\n    for j in range(k, n):\n        pre = a[j - k] if pre is None else max(pre, a[j - k]); best = pre + a[j] if best is None else max(best, pre + a[j])\n    return str(best)\ndef brute(text):\n    v = ints(text); n, k, a = v[0], v[1], v[2:]\n    return str(max(a[i] + a[j] for i in range(n) for j in range(i + k, n)))\n",
+  "hints": [
+   "Work the first sample by hand. For the second stall on plot 5, which plots are allowed for the first stall, and which of them is best?",
+   "Fix the second stall $j$. The first stall may be any plot up to $j - k$, and you want the largest $a_i$ among those. What changes in that set when $j$ grows by one?",
+   "Exactly one plot joins it: plot $j - k + 1$. So keep one number, the largest earning among plots that are far enough back, update it as $j$ moves right, and try that number plus $a_j$ for every $j$."
+  ],
+  "samples": [
+   [
+    "5 2\n3 9 1 8 2\n",
+    "17"
+   ],
+   [
+    "4 3\n-5 100 100 -7\n",
+    "-12"
+   ],
+   [
+    "2 1\n-1 -1\n",
+    "-2"
+   ]
+  ]
+ },
+ {
+  "id": "bp-walk",
+  "title": "Two viewpoints and the walk between",
+  "track": "core",
+  "needs": [
+   "best-so-far"
+  ],
+  "seconds": 1.0,
+  "statement": "A trail has $n$ viewpoints in a row, one kilometre apart; viewpoint $i$ is worth $a_i$. You visit exactly two of them, $i < j$, and the walk between them costs $j - i$. What is the largest value of $a_i + a_j - (j - i)$?\n\n**Input.** The first line contains $n$ ($2 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($-10^9 \\le a_i \\le 10^9$).\n\n**Output.** The largest value.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 7), 'medium': 2000, 'large': 200000}[size]\n    top = rng.choice([3, 9]) if size == 'small' else 10 ** 9\n    shape = rng.choice(['mixed', 'mixed', 'neg', 'pos', 'down'])\n    lo, hi = {'mixed': (-top, top), 'neg': (-top, -1), 'pos': (1, top), 'down': (-top, top)}[shape]\n    a = [rng.randint(lo, hi) for _ in range(n)]\n    if shape == 'down': a.sort(reverse=True)\n    return f\"{n}\\n\" + ' '.join(map(str, a)) + \"\\n\"\ndef solve(text):\n    v = ints(text); n, a = v[0], v[1:]; best = None; pre = a[0] + 0\n    for j in range(1, n):\n        best = pre + a[j] - j if best is None else max(best, pre + a[j] - j); pre = max(pre, a[j] + j)\n    return str(best)\ndef brute(text):\n    v = ints(text); n, a = v[0], v[1:]\n    return str(max(a[i] + a[j] - (j - i) for i in range(n) for j in range(i + 1, n)))\n",
+  "hints": [
+   "Work the first sample by hand. The value of a pair mixes $i$ and $j$. Try to write it as (something about $i$ only) + (something about $j$ only).",
+   "$a_i + a_j - (j - i) = (a_i + i) + (a_j - j)$. Now fix $j$: which earlier $i$ is best?",
+   "The one with the largest $a_i + i$. Sweep $j$ left to right, keep the largest $a_i + i$ seen so far, and try it together with $a_j - j$."
+  ],
+  "samples": [
+   [
+    "5\n8 1 5 2 6\n",
+    "11"
+   ],
+   [
+    "2\n1 2\n",
+    "2"
+   ],
+   [
+    "3\n-4 -4 -4\n",
+    "-9"
+   ]
+  ]
+ },
+ {
+  "id": "bp-product",
+  "title": "The largest product of a rising pair",
+  "track": "core",
+  "needs": [
+   "best-so-far"
+  ],
+  "seconds": 1.0,
+  "statement": "You are given $a_1, \\dots, a_n$. Choose two positions $i < j$ with $a_i < a_j$ (the later one strictly larger) and make the product $a_i \\cdot a_j$ as large as possible.\n\n**Input.** The first line contains $n$ ($2 \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($-10^9 \\le a_i \\le 10^9$).\n\n**Output.** The largest product, or `IMPOSSIBLE` if no such pair exists.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 7), 'medium': 2000, 'large': 200000}[size]\n    top = rng.choice([3, 9]) if size == 'small' else 10 ** 9\n    shape = rng.choice(['mixed', 'mixed', 'neg', 'pos', 'down'])\n    lo, hi = {'mixed': (-top, top), 'neg': (-top, -1), 'pos': (1, top), 'down': (-top, top)}[shape]\n    a = [rng.randint(lo, hi) for _ in range(n)]\n    if shape == 'down': a.sort(reverse=True)\n    return f\"{n}\\n\" + ' '.join(map(str, a)) + \"\\n\"\ndef solve(text):\n    v = ints(text); n, a = v[0], v[1:]; best = None\n    def take(x):\n        nonlocal best\n        best = x if best is None or x > best else best\n    pmin = pnp = None\n    for x in a:\n        if x < 0 and pmin is not None and pmin < x: take(pmin * x)\n        if x == 0 and pmin is not None and pmin < 0: take(0)\n        if x > 0 and pnp is not None: take(pnp * x)\n        if pmin is None or x < pmin: pmin = x\n        if x <= 0 and (pnp is None or x > pnp): pnp = x\n    smax = None\n    for x in reversed(a):\n        if x > 0 and smax is not None and smax > x: take(x * smax)\n        if smax is None or x > smax: smax = x\n    return 'IMPOSSIBLE' if best is None else str(best)\ndef brute(text):\n    v = ints(text); n, a = v[0], v[1:]\n    c = [a[i] * a[j] for i in range(n) for j in range(i + 1, n) if a[i] < a[j]]\n    return str(max(c)) if c else 'IMPOSSIBLE'\n",
+  "hints": [
+   "Work the samples by hand, and for each one write the signs of the winning pair: (+, +), (−, −) or (−, +). The best partner looks different in each case.",
+   "Split by signs. Two negatives: fix the later one; which earlier value makes the product largest? Two positives: fixing the later one does not work well (why?), so fix the earlier one and look to the right. A negative then a positive: the product is below zero, so you want it as close to zero as possible.",
+   "Two negatives: for each negative $a_j$, the smallest value before it (if it is smaller than $a_j$). Two positives: for each positive $a_i$, the largest value after it (if it is larger). Negative or zero then positive: for each positive $a_j$, the largest value before it that is at most 0. Do not forget a negative followed by a zero, which gives 0. Take the best of all candidates; products reach $10^{18}$, so use 64 bits."
+  ],
+  "samples": [
+   [
+    "5\n2 7 3 5 4\n",
+    "15"
+   ],
+   [
+    "4\n-6 -2 -5 -1\n",
+    "30"
+   ],
+   [
+    "3\n-3 0 4\n",
+    "0"
+   ],
+   [
+    "3\n5 5 1\n",
+    "IMPOSSIBLE"
+   ],
+   [
+    "4\n-2 3 -1 1\n",
+    "2"
+   ]
+  ]
+ },
+ {
+  "id": "gen-climb",
+  "title": "An array too long to read",
+  "track": "core",
+  "needs": [
+   "best-so-far"
+  ],
+  "seconds": 1.0,
+  "statement": "The array is too long to be given, so it is produced by a rule. You get eight numbers $n, l, r, x, y, z, b_1, b_2$.\n\n- First a helper sequence: $b_1$ and $b_2$ are given, and for $i > 2$, $b_i = (b_{i-2} \\cdot x + b_{i-1} \\cdot y + z) \\bmod 2^{32}$.\n- Then the array: $a_i = (b_i \\bmod (r - l + 1)) + l$ for $i = 1, \\dots, n$. So every $a_i$ lies between $l$ and $r$.\n\nPrint the largest value of $a_j - a_i$ over all pairs $i < j$ (it may be negative).\n\n**Input.** One line with $n, l, r, x, y, z, b_1, b_2$ ($2 \\le n \\le 10^6$, $-2 \\cdot 10^9 \\le l \\le r \\le 2 \\cdot 10^9$, $0 \\le x, y, z, b_1, b_2 < 2^{32}$).\n\n**Output.** The largest difference.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 8), 'medium': 5000, 'large': 400000}[size]\n    big = 2 ** 32\n    if size == 'small' and rng.random() < 0.5:\n        l = rng.randint(-5, 5); r = l + rng.randint(0, 6); nums = [rng.randint(0, 9) for _ in range(5)]\n    else:\n        l = rng.randint(-2 * 10 ** 9, 2 * 10 ** 9); r = rng.randint(l, 2 * 10 ** 9)\n        if rng.random() < 0.5: l, r = -2 * 10 ** 9, 2 * 10 ** 9\n        nums = [rng.choice([big - 1, big - 2, rng.randrange(big)]) for _ in range(5)]\n    return f\"{n} {l} {r} \" + ' '.join(map(str, nums)) + \"\\n\"\ndef make(text):\n    n, l, r, x, y, z, b1, b2 = ints(text); b = [b1, b2]\n    while len(b) < n: b.append((b[-2] * x + b[-1] * y + z) % 2 ** 32)\n    return [v % (r - l + 1) + l for v in b[:n]]\ndef solve(text):\n    a = make(text); best = None; low = a[0]\n    for v in a[1:]:\n        best = v - low if best is None else max(best, v - low); low = min(low, v)\n    return str(best)\ndef brute(text):\n    a = make(text)\n    return str(max(a[j] - a[i] for i in range(len(a)) for j in range(i + 1, len(a))))\n",
+  "hints": [
+   "Produce the first sample by hand: write $b_1, \\dots, b_5$ and then $a_1, \\dots, a_5$. Then ask of every number in your program: how large can it get?",
+   "Three traps. $b_{i-2} \\cdot x$ is a product of two numbers below $2^{32}$, so it needs 64 bits without a sign, and reducing after each product keeps it safe. $r - l + 1$ can be about $4 \\cdot 10^9$, which does not fit in an `int`. And the answer $a_j - a_i$ can be $4 \\cdot 10^9$ too.",
+   "Generate the $b$ values in `unsigned long long`, reducing modulo $2^{32}$ after every step. You do not need to store the array: sweep once, keep the smallest $a_i$ so far in a `long long`, and try $a_j$ minus it for every $j$."
+  ],
+  "samples": [
+   [
+    "5 0 9 3 1 4 1 5\n",
+    "4"
+   ],
+   [
+    "4 -2000000000 2000000000 4294967295 4294967295 4294967295 4294967295 0\n",
+    "294967294"
+   ],
+   [
+    "3 7 7 1 1 1 1 1\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "bs-first",
+  "title": "The first one that is large enough",
+  "track": "toolbox",
+  "seconds": 1.0,
+  "statement": "You are given $n$ numbers in non-decreasing order, $a_1 \\le a_2 \\le \\dots \\le a_n$, and $q$ questions. Each question is a number $x$: print the smallest position $i$ with $a_i \\ge x$, or $n + 1$ if every number is smaller than $x$.\n\n**Input.** The first line contains $n$ and $q$ ($1 \\le n, q \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$ ($-10^9 \\le a_i \\le 10^9$). Each of the next $q$ lines contains one $x$ ($-10^9 \\le x \\le 10^9$).\n\n**Output.** One line per question.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]; q = {'small': rng.randint(1, 6), 'medium': 2000, 'large': 200000}[size]\n    top = 8 if size == 'small' else rng.choice([20, 10 ** 9])\n    a = sorted(rng.randint(-top, top) for _ in range(n))\n    return f\"{n} {q}\\n\" + ' '.join(map(str, a)) + \"\\n\" + ''.join(f\"{rng.randint(-top - 1, top + 1) if top < 10 ** 9 else rng.randint(-top, top)}\\n\" for _ in range(q))\nimport bisect\ndef solve(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]\n    return '\\n'.join(str(bisect.bisect_left(a, x) + 1) for x in v[2 + n:2 + n + q])\ndef brute(text):\n    v = ints(text); n, q = v[0], v[1]; a = v[2:2 + n]\n    return '\\n'.join(str(next((i + 1 for i in range(n) if a[i] >= x), n + 1)) for x in v[2 + n:2 + n + q])\n",
+  "hints": [
+   "For the first sample and $x = 5$, write \"no\" or \"yes\" under each position for the question \"is $a_i \\ge 5$?\". What does the row look like?",
+   "A row of no followed by a row of yes. Keep two positions, one known to be a no and one known to be a yes, and test the middle. Where can you start so that this is true even when all are no, or all are yes?",
+   "Start with lo = 0 (pretend a no stands before the list) and hi = n + 1 (pretend a yes stands after it). While hi − lo > 1: test mid; a yes moves hi to mid, a no moves lo to mid. At the end hi is the answer, with no special cases."
+  ],
+  "samples": [
+   [
+    "5 4\n2 4 4 7 9\n4\n5\n10\n1\n",
+    "2\n4\n6\n1"
+   ],
+   [
+    "1 2\n3\n3\n4\n",
+    "1\n2"
+   ]
+  ]
+ },
+ {
+  "id": "bs-ropes",
+  "title": "Equal ribbons",
+  "seconds": 1.0,
+  "statement": "You have $n$ ribbons of lengths $a_1, \\dots, a_n$ centimetres and need $k$ pieces that all have the same whole length. A ribbon may be cut into several pieces; leftovers are thrown away and pieces cannot be joined. What is the largest possible length of a piece? Print 0 if even pieces of length 1 are not enough.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le n \\le 2 \\cdot 10^5$, $1 \\le k \\le 10^{12}$). The second line contains $a_1, \\dots, a_n$ ($1 \\le a_i \\le 10^9$).\n\n**Output.** The largest length.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 5), 'medium': 2000, 'large': 200000}[size]; top = 12 if size == 'small' else 10 ** 9\n    a = [rng.randint(1, top) for _ in range(n)]\n    k = rng.randint(1, 2 * sum(a) if size == 'small' else rng.choice([n, 10 * n, 10 ** 12]))\n    return f\"{n} {k}\\n\" + ' '.join(map(str, a)) + \"\\n\"\ndef solve(text):\n    v = ints(text); n, k, a = v[0], v[1], v[2:]; lo, hi = 0, 10 ** 9 + 1\n    while hi - lo > 1:\n        mid = (lo + hi) // 2\n        if sum(x // mid for x in a) >= k: lo = mid\n        else: hi = mid\n    return str(lo)\ndef brute(text):\n    v = ints(text); n, k, a = v[0], v[1], v[2:]\n    return str(max([L for L in range(1, max(a) + 1) if sum(x // L for x in a) >= k], default=0))\n",
+  "hints": [
+   "In the first sample, how many pieces do you get for length 1, 2, 3, 4, 5? Write the counts in a row.",
+   "The number of pieces of length $L$ is the sum of $\\lfloor a_i / L \\rfloor$, and it never grows when $L$ grows. So \"are there at least $k$ pieces?\" is yes, yes, ..., yes, no, no, ...",
+   "Halve between lo = 0 (treated as a yes: nothing to cut) and hi = $10^9 + 1$ (certainly a no). A yes at mid moves lo, a no moves hi; lo is the answer. The piece count can reach about $2 \\cdot 10^{14}$: use 64 bits."
+  ],
+  "track": "search",
+  "samples": [
+   [
+    "3 5\n8 9 4\n",
+    "4"
+   ],
+   [
+    "2 100\n3 3\n",
+    "0"
+   ],
+   [
+    "1 1\n7\n",
+    "7"
+   ]
+  ]
+ },
+ {
+  "id": "bs-stalls",
+  "title": "Keeping them apart",
+  "seconds": 1.0,
+  "statement": "A barn has $n$ stalls at positions $x_1, \\dots, x_n$ on a line (not sorted; several stalls may share a position). You must put $k$ cows into $k$ different stalls so that the two closest cows are as far apart as possible. Print that distance.\n\n**Input.** The first line contains $n$ and $k$ ($2 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains $x_1, \\dots, x_n$ ($0 \\le x_i \\le 10^9$).\n\n**Output.** The largest possible distance between the two closest cows.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 7), 'medium': 2000, 'large': 200000}[size]; top = 15 if size == 'small' else 10 ** 9\n    k = rng.randint(2, n) if size == 'small' else rng.choice([2, 3, n // 100 + 2, n // 2, n])\n    return f\"{n} {k}\\n\" + ' '.join(str(rng.randint(0, top)) for _ in range(n)) + \"\\n\"\ndef fits(a, k, d):\n    c, last = 1, a[0]\n    for x in a[1:]:\n        if x - last >= d: c += 1; last = x\n    return c >= k\ndef solve(text):\n    v = ints(text); n, k = v[0], v[1]; a = sorted(v[2:]); lo, hi = 0, a[-1] - a[0] + 1\n    while hi - lo > 1:\n        mid = (lo + hi) // 2\n        if fits(a, k, mid): lo = mid\n        else: hi = mid\n    return str(lo)\ndef brute(text):\n    import itertools\n    v = ints(text); n, k = v[0], v[1]; a = sorted(v[2:])\n    return str(max(min(c[i + 1] - c[i] for i in range(k - 1)) for c in itertools.combinations(a, k)))\n",
+  "hints": [
+   "Sort the first sample and ask a different question: if every two cows must be at least 3 apart, how many cows can you fit? And at least 4 apart?",
+   "For a fixed distance $d$, put the first cow in the leftmost stall and each next cow in the first stall that is at least $d$ beyond the last one. That places as many cows as possible. The count never grows when $d$ grows.",
+   "Sort. Halve on $d$ between lo = 0 (always possible) and hi = (largest position − smallest position) + 1 (impossible for two cows). A $d$ that fits $k$ cows moves lo up, otherwise hi comes down; lo is the answer."
+  ],
+  "track": "search",
+  "samples": [
+   [
+    "5 3\n1 2 8 4 9\n",
+    "3"
+   ],
+   [
+    "3 3\n5 5 9\n",
+    "0"
+   ],
+   [
+    "4 2\n7 1 3 100\n",
+    "99"
+   ]
+  ]
+ },
+ {
+  "id": "bs-table",
+  "title": "The k-th entry of the times table",
+  "seconds": 1.0,
+  "statement": "A times table has $n$ rows and $m$ columns; the entry in row $i$ and column $j$ is $i \\cdot j$. Write all $n \\cdot m$ entries in non-decreasing order (equal entries are all written). What is the $k$-th of them?\n\n**Input.** One line with $n$, $m$ and $k$ ($1 \\le n, m \\le 2 \\cdot 10^5$, $1 \\le k \\le n \\cdot m$).\n\n**Output.** The $k$-th smallest entry.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    top = {'small': 7, 'medium': 500, 'large': 200000}[size]\n    n, m = rng.randint(1, top), rng.randint(max(1, top // 2), top)\n    return f\"{n} {m} {rng.choice([1, n * m, rng.randint(1, n * m), rng.randint(1, n * m)])}\\n\"\ndef solve(text):\n    n, m, k = ints(text)\n    if n > m: n, m = m, n\n    lo, hi = 0, n * m\n    while hi - lo > 1:\n        mid = (lo + hi) // 2\n        if sum(min(m, mid // i) for i in range(1, n + 1)) >= k: hi = mid\n        else: lo = mid\n    return str(hi)\ndef brute(text):\n    n, m, k = ints(text)\n    return str(sorted(i * j for i in range(1, n + 1) for j in range(1, m + 1))[k - 1])\n",
+  "hints": [
+   "For the $3 \\times 3$ table, how many entries are at most 4? At most 5? At most 6? Do it without writing the entries in order.",
+   "The number of entries that are at most $x$ in row $i$ is $\\min(m, \\lfloor x / i \\rfloor)$. Add that over the rows: one loop counts them all. The $k$-th smallest entry is the smallest $x$ for which that count reaches $k$.",
+   "Halve on $x$ between lo = 0 (count 0) and hi = $n \\cdot m$ (count is everything). If the count for mid is at least $k$, move hi to mid, otherwise lo. The answer is hi. Loop over the shorter side, and use 64 bits."
+  ],
+  "track": "search",
+  "samples": [
+   [
+    "3 3 5\n",
+    "3"
+   ],
+   [
+    "2 5 7\n",
+    "5"
+   ],
+   [
+    "1 1 1\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "bs-kth-gap",
+  "title": "The k-th closest pair",
+  "seconds": 1.0,
+  "statement": "There are $n$ houses on a street at positions $x_1, \\dots, x_n$ (not sorted, positions may repeat). Every pair of houses has a distance $|x_i - x_j|$. Write the distances of all $n(n-1)/2$ pairs in non-decreasing order. What is the $k$-th of them?\n\n**Input.** The first line contains $n$ and $k$ ($2 \\le n \\le 2 \\cdot 10^5$, $1 \\le k \\le n(n-1)/2$). The second line contains $x_1, \\dots, x_n$ ($0 \\le x_i \\le 10^9$).\n\n**Output.** The $k$-th smallest distance.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(2, 7), 'medium': 2000, 'large': 200000}[size]; top = 12 if size == 'small' else rng.choice([1000, 10 ** 9])\n    pairs = n * (n - 1) // 2\n    return f\"{n} {rng.choice([1, pairs, rng.randint(1, pairs), rng.randint(1, pairs)])}\\n\" + ' '.join(str(rng.randint(0, top)) for _ in range(n)) + \"\\n\"\ndef solve(text):\n    v = ints(text); n, k = v[0], v[1]; a = sorted(v[2:]); lo, hi = -1, a[-1] - a[0]\n    while hi - lo > 1:\n        mid = (lo + hi) // 2; c = i = 0\n        for j in range(n):\n            while a[j] - a[i] > mid: i += 1\n            c += j - i\n        if c >= k: hi = mid\n        else: lo = mid\n    return str(hi)\ndef brute(text):\n    v = ints(text); n, k = v[0], v[1]; a = v[2:]\n    return str(sorted(abs(a[i] - a[j]) for i in range(n) for j in range(i + 1, n))[k - 1])\n",
+  "hints": [
+   "There can be about $2 \\cdot 10^{10}$ pairs, so they cannot be listed. Sort the first sample and answer instead: how many pairs are at most 2 apart? At most 3 apart?",
+   "After sorting, \"how many pairs are at most $d$ apart\" is a counting question: for each house, count the houses to its left within $d$. As you move right, the left end of that window only moves right too. The $k$-th smallest distance is the smallest $d$ for which the count reaches $k$.",
+   "Sort. Halve on $d$ between lo = −1 (count 0) and hi = largest minus smallest (count is everything). For each mid count the pairs with two pointers in one pass; a count of at least $k$ moves hi to mid, otherwise lo. The answer is hi. The count needs 64 bits."
+  ],
+  "track": "search",
+  "samples": [
+   [
+    "4 3\n1 9 4 2\n",
+    "3"
+   ],
+   [
+    "3 1\n5 5 5\n",
+    "0"
+   ],
+   [
+    "2 1\n0 1000000000\n",
+    "1000000000"
+   ]
+  ]
+ },
+ {
+  "id": "bs-avg",
+  "title": "The best average of a long stretch",
+  "seconds": 1.5,
+  "statement": "You are given $a_1, \\dots, a_n$ and a number $k$. Among all stretches of at least $k$ neighbouring elements, find the largest average. To avoid fractions, print the average multiplied by 1000 and rounded **down** to a whole number.\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 10^5$). The second line contains $a_1, \\dots, a_n$ ($0 \\le a_i \\le 10^6$).\n\n**Output.** $\\lfloor 1000 \\cdot \\text{(largest average)} \\rfloor$.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nfrom fractions import Fraction\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 1500, 'large': 100000}[size]; top = 9 if size == 'small' else rng.choice([50, 10 ** 6])\n    k = rng.randint(1, n) if size == 'small' else rng.choice([1, 2, n // 10 + 1, n // 2, n])\n    return f\"{n} {k}\\n\" + ' '.join(str(rng.randint(0, top)) for _ in range(n)) + \"\\n\"\ndef solve(text):\n    v = ints(text); n, k, a = v[0], v[1], v[2:]; lo, hi = 0, 1000 * 10 ** 6 + 1\n    while hi - lo > 1:\n        mid = (lo + hi) // 2; p = [0]\n        for x in a: p.append(p[-1] + 1000 * x - mid)\n        best, ok = None, False\n        for j in range(k, n + 1):\n            best = p[j - k] if best is None else min(best, p[j - k])\n            if p[j] - best >= 0: ok = True; break\n        if ok: lo = mid\n        else: hi = mid\n    return str(lo)\ndef brute(text):\n    v = ints(text); n, k, a = v[0], v[1], v[2:]\n    return str(max(Fraction(1000 * sum(a[i:j]), j - i) for i in range(n) for j in range(i + k, n + 1)).__floor__())\n",
+  "hints": [
+   "Do not look for the best stretch directly. For the first sample, answer a yes or no question instead: is there a stretch of length at least 2 whose average is at least 6?",
+   "A stretch has average at least $x$ exactly when the sum of $(a_i - x)$ over it is at least 0. So subtract $x$ from everything and ask whether some stretch of length at least $k$ has a sum of at least 0. Prefix sums and the smallest prefix far enough back answer that in one pass.",
+   "Work in thousandths so everything stays whole: test a whole number $x$ by using $1000 a_i - x$. Halve on $x$ between lo = 0 (always possible) and hi = $10^9 + 1$. For each mid, sweep $j$ and keep the smallest prefix sum among positions up to $j - k$. A yes moves lo, a no moves hi; print lo."
+  ],
+  "track": "search",
+  "samples": [
+   [
+    "6 2\n2 8 3 9 4 1\n",
+    "6666"
+   ],
+   [
+    "4 4\n1 2 3 5\n",
+    "2750"
+   ],
+   [
+    "3 1\n7 0 7\n",
+    "7000"
+   ]
+  ]
+ },
+ {
+  "id": "bs-median",
+  "title": "The best middle of a long stretch",
+  "seconds": 1.5,
+  "statement": "You are given $a_1, \\dots, a_n$ with $1 \\le a_i \\le n$, and a number $k$. The **middle** of a stretch is found by sorting its elements and taking the one at position $\\lceil \\text{length} / 2 \\rceil$ (so the middle of 4, 1, 3, 2 is 2, and the middle of 5, 1, 3 is 3). Among all stretches of at least $k$ neighbouring elements, what is the largest middle?\n\n**Input.** The first line contains $n$ and $k$ ($1 \\le k \\le n \\le 2 \\cdot 10^5$). The second line contains $a_1, \\dots, a_n$.\n\n**Output.** The largest middle.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 8), 'medium': 2000, 'large': 200000}[size]\n    k = rng.randint(1, n) if size == 'small' else rng.choice([1, 2, n // 10 + 1, n // 2, n])\n    return f\"{n} {k}\\n\" + ' '.join(str(rng.randint(1, n)) for _ in range(n)) + \"\\n\"\ndef solve(text):\n    v = ints(text); n, k, a = v[0], v[1], v[2:]; lo, hi = 1, n + 1\n    while hi - lo > 1:\n        mid = (lo + hi) // 2; p = [0]\n        for x in a: p.append(p[-1] + (1 if x >= mid else -1))\n        best, ok = None, False\n        for j in range(k, n + 1):\n            best = p[j - k] if best is None else min(best, p[j - k])\n            if p[j] - best > 0: ok = True; break\n        if ok: lo = mid\n        else: hi = mid\n    return str(lo)\ndef brute(text):\n    v = ints(text); n, k, a = v[0], v[1], v[2:]\n    return str(max(sorted(a[i:j])[(j - i + 1) // 2 - 1] for i in range(n) for j in range(i + k, n + 1)))\n",
+  "hints": [
+   "Answer a yes or no question for the second sample: is there a stretch of length at least 2 whose middle is at least 3? What must be true of the elements of such a stretch?",
+   "The middle of a stretch is at least $x$ exactly when the stretch has more elements that are at least $x$ than elements below $x$. Write $+1$ for every element that is at least $x$ and $-1$ for the others: you need a stretch of length at least $k$ with a sum above 0.",
+   "Halve on $x$ between lo = 1 (always possible) and hi = $n + 1$ (impossible). For each mid build the $\\pm 1$ prefix sums, sweep $j$ and keep the smallest prefix sum among positions up to $j - k$; a difference above 0 means yes. A yes moves lo, a no moves hi; print lo."
+  ],
+  "track": "search",
+  "samples": [
+   [
+    "5 3\n1 2 3 2 1\n",
+    "2"
+   ],
+   [
+    "4 2\n1 2 3 4\n",
+    "3"
+   ],
+   [
+    "3 3\n3 1 1\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "cf-lines",
+  "title": "How many different lines",
+  "track": "core",
+  "needs": [
+   "canonical-form"
+  ],
+  "seconds": 1.0,
+  "statement": "You are given $n$ arrows that start at the origin; arrow $i$ ends at the point $(x_i, y_i)$, which is not the origin. Each arrow lies on a straight line through the origin. Arrows pointing in exactly opposite directions lie on the same line. How many different lines are there?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 2 \\cdot 10^5$). Each of the next $n$ lines contains $x_i$ and $y_i$ ($-10^9 \\le x_i, y_i \\le 10^9$, not both 0).\n\n**Output.** The number of different lines.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nimport math\ndef gen(rng, size):\n    n = {'small': rng.randint(1, 7), 'medium': 2000, 'large': 200000}[size]; out = []\n    base = [(rng.randint(-3, 3), rng.randint(-3, 3)) for _ in range(4 if size == 'small' else rng.choice([5, 1000, n]))]\n    base = [b for b in base if b != (0, 0)] or [(1, 0)]\n    for _ in range(n):\n        x, y = rng.choice(base); top = 3 if size == 'small' else 10 ** 9 // 3\n        k = rng.choice([-1, 1]) * rng.randint(1, top) if rng.random() < 0.7 else 1\n        if rng.random() < 0.15: x, y = rng.randint(-top, top), rng.randint(-top, top)\n        if (x, y) == (0, 0): x = 1\n        out.append((x * k, y * k) if abs(x * k) <= 10 ** 9 and abs(y * k) <= 10 ** 9 else (x, y))\n    return f\"{n}\\n\" + ''.join(f\"{x} {y}\\n\" for x, y in out)\ndef solve(text):\n    v = ints(text); seen = set()\n    for i in range(v[0]):\n        x, y = v[1 + 2 * i], v[2 + 2 * i]; g = math.gcd(abs(x), abs(y)); x //= g; y //= g\n        if x < 0 or (x == 0 and y < 0): x, y = -x, -y\n        seen.add((x, y))\n    return str(len(seen))\ndef brute(text):\n    v = ints(text); pts = [(v[1 + 2 * i], v[2 + 2 * i]) for i in range(v[0])]; reps = []\n    for p in pts:\n        if not any(p[0] * q[1] == p[1] * q[0] for q in reps): reps.append(p)\n    return str(len(reps))\n",
+  "hints": [
+   "In the first sample, which arrows lie on the same line? What could you write down for each arrow so that two arrows get the same note exactly when they share a line?",
+   "Shrink each arrow as far as it goes: divide both numbers by their greatest common divisor. That makes (2, 4) and (3, 6) equal, but (1, 2) and (−1, −2) are still different. What rule fixes the sign?",
+   "After dividing by the gcd, flip both signs if $x$ is negative, or if $x$ is 0 and $y$ is negative. Now each line has exactly one note. Put the notes in a set and print its size."
+  ],
+  "samples": [
+   [
+    "5\n2 4\n-1 -2\n3 6\n1 -2\n0 5\n",
+    "3"
+   ],
+   [
+    "3\n4 0\n-7 0\n0 -1\n",
+    "2"
+   ],
+   [
+    "1\n1000000000 -1000000000\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "cf-shift",
+  "title": "The same tune in another key",
+  "track": "core",
+  "needs": [
+   "canonical-form"
+  ],
+  "seconds": 1.0,
+  "statement": "A tune is a list of whole numbers (the pitches of its notes). Two tunes are **the same tune** if they have the same length and one becomes the other by adding one fixed number to every note: 3, 5, 4 and 10, 12, 11 are the same tune. You are given $n$ tunes. How many different tunes are among them?\n\n**Input.** The first line contains $n$ ($1 \\le n \\le 10^5$). Each of the next $n$ lines contains a length $m$ followed by $m$ notes ($-10^9 \\le$ note $\\le 10^9$). The total of all lengths is at most $2 \\cdot 10^5$.\n\n**Output.** The number of different tunes.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\ndef gen(rng, size):\n    total = {'small': rng.randint(1, 12), 'medium': 3000, 'large': 200000}[size]; tunes = []; base = []\n    while total > 0:\n        if base and rng.random() < 0.5:\n            b = rng.choice(base); k = rng.randint(-5, 5) if size == 'small' else rng.randint(-10 ** 8, 10 ** 8); t = [x + k for x in b]\n        else:\n            m = rng.randint(1, min(total, 4 if size == 'small' else rng.choice([1, 3, 50]))); top = 2 if size == 'small' else 10 ** 8\n            t = [rng.randint(-top, top) for _ in range(m)]; base.append(t)\n        if len(t) > total: t = t[:total]\n        tunes.append(t); total -= len(t)\n    return f\"{len(tunes)}\\n\" + ''.join(f\"{len(t)} \" + ' '.join(map(str, t)) + \"\\n\" for t in tunes)\ndef read(text):\n    v = ints(text); out, p = [], 1\n    for _ in range(v[0]):\n        m = v[p]; out.append(v[p + 1:p + 1 + m]); p += m + 1\n    return out\ndef solve(text):\n    return str(len({tuple(x - t[0] for x in t) for t in read(text)}))\ndef brute(text):\n    reps = []\n    for t in read(text):\n        if not any(len(t) == len(r) and len({a - b for a, b in zip(t, r)}) == 1 for r in reps): reps.append(t)\n    return str(len(reps))\n",
+  "hints": [
+   "In the first sample, why are the first two tunes the same and the third different? What stays the same when a fixed number is added to every note?",
+   "Pick one agreed version of every tune, so that two tunes are the same exactly when their agreed versions are equal. Which shift of 10, 12, 11 would you choose as the agreed one?",
+   "Shift every tune so that its first note is 0 (subtract the first note from all). Put the shifted tunes in a set (or sort them) and count the different ones."
+  ],
+  "samples": [
+   [
+    "4\n3 3 5 4\n3 10 12 11\n3 3 5 5\n2 3 5\n",
+    "3"
+   ],
+   [
+    "2\n1 7\n1 -7\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "ow-park",
+  "title": "Parking the carts",
+  "track": "core",
+  "needs": [
+   "order-of-work"
+  ],
+  "seconds": 1.0,
+  "statement": "A yard is a grid of $h$ rows and $w$ columns; row 1 is at the bottom. There are $k$ identical carts on different cells. The **garage** is the first $k$ cells in this order: row 1 from left to right, then row 2 from left to right, and so on.\n\nIn one move, one cart goes one cell up, down, left or right into an empty cell. Give any sequence of at most 5000 moves after which the carts fill exactly the garage cells. It does not have to be the shortest.\n\n**Input.** The first line contains $h$, $w$ and $k$ ($1 \\le h, w \\le 8$, $1 \\le k \\le h \\cdot w$). Each of the next $k$ lines contains the row and the column of a cart.\n\n**Output.** The number of moves $m$ ($0 \\le m \\le 5000$), then $m$ lines `r1 c1 r2 c2`: the cart on cell (r1, c1) goes to cell (r2, c2). Any valid answer is accepted.",
+  "code": "def ints(text):\n    return list(map(int, text.split()))\n\nfrom collections import deque\ndef gen(rng, size):\n    h, w = (rng.randint(1, 3), rng.randint(1, 3)) if size == 'small' else (rng.randint(4, 8), rng.randint(4, 8)) if size == 'medium' else (8, 8)\n    cells = [(r, c) for r in range(1, h + 1) for c in range(1, w + 1)]\n    k = rng.choice([1, len(cells), rng.randint(1, len(cells)), rng.randint(1, len(cells))])\n    return f\"{h} {w} {k}\\n\" + ''.join(f\"{r} {c}\\n\" for r, c in rng.sample(cells, k))\ndef read(text):\n    v = ints(text); h, w, k = v[0], v[1], v[2]\n    return h, w, k, {(v[3 + 2 * i], v[4 + 2 * i]) for i in range(k)}\ndef garage(h, w, k):\n    return [(r, c) for r in range(1, h + 1) for c in range(1, w + 1)][:k]\ndef solve(text):\n    h, w, k, carts = read(text); done, moves = set(), []\n    for t in garage(h, w, k):\n        if t not in carts:\n            # the nearest cart that is not parked yet, reached from the target through empty cells\n            back, queue, found = {t: None}, deque([t]), None\n            while queue and not found:\n                r, c = queue.popleft()\n                for cell in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):\n                    if not (1 <= cell[0] <= h and 1 <= cell[1] <= w) or cell in back or cell in done: continue\n                    back[cell] = (r, c)\n                    if cell in carts: found = cell; break\n                    queue.append(cell)\n            cell = found; carts.discard(found)\n            while back[cell] is not None:\n                moves.append((*cell, *back[cell])); cell = back[cell]\n            carts.add(t)\n        done.add(t)\n    return f\"{len(moves)}\\n\" + ''.join(' '.join(map(str, m)) + \"\\n\" for m in moves)\ndef brute(text):\n    return solve(text)\ndef check(text, output, expected):\n    h, w, k, carts = read(text); toks = output.split()\n    if not toks: return 'Nothing was printed.'\n    m = int(toks[0])\n    if m < 0 or m > 5000: return 'More than 5000 moves.'\n    if len(toks) != 1 + 4 * m: return 'The number of moves printed does not match the first line.'\n    for i in range(m):\n        r1, c1, r2, c2 = (int(x) for x in toks[1 + 4 * i:5 + 4 * i])\n        if (r1, c1) not in carts: return f'Move {i + 1}: there is no cart on ({r1}, {c1}).'\n        if not (1 <= r2 <= h and 1 <= c2 <= w) or abs(r1 - r2) + abs(c1 - c2) != 1: return f'Move {i + 1}: a cart moves one cell up, down, left or right, inside the yard.'\n        if (r2, c2) in carts: return f'Move {i + 1}: the cell ({r2}, {c2}) is not empty.'\n        carts.discard((r1, c1)); carts.add((r2, c2))\n    return '' if carts == set(garage(h, w, k)) else 'At the end the carts do not fill the garage cells.'\n",
+  "hints": [
+   "Try a $2 \\times 3$ yard with carts at (2, 1), (2, 2), (2, 3) and $k = 3$. In which order would you fill the three garage cells so that a parked cart is never in the way?",
+   "Fill the garage cells in their own order (row 1 left to right, then row 2, ...). Once a cell is filled, never touch that cart again. Why can the next garage cell always still be reached from the carts that are not parked yet?",
+   "For each garage cell in order: if a cart is already there, it is parked. Otherwise run a breadth-first search from the cell through empty cells (never through parked carts) until it touches a cart that is not parked, and walk that cart back along the path. The carts are identical, so any cart will do. Each cart walks fewer than 64 steps, so the total is far below 5000."
+  ],
+  "samples": [
+   [
+    "2 3 3\n2 1\n2 2\n2 3\n",
+    "3\n2 1 1 1\n2 2 1 2\n2 3 1 3\n"
+   ],
+   [
+    "1 4 2\n1 3\n1 4\n",
+    "4\n1 3 1 2\n1 2 1 1\n1 4 1 3\n1 3 1 2\n"
+   ],
+   [
+    "2 2 4\n1 1\n1 2\n2 1\n2 2\n",
+    "0\n"
+   ]
+  ]
  }
 ]

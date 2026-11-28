@@ -1,0 +1,133 @@
+{
+ "idea": "order-of-work",
+ "opening": "A dead-end corridor, five parking bays and carts that cannot pass each other.",
+ "steps": [
+  {
+   "id": "first",
+   "kind": "number",
+   "prompt": "A dead-end corridor has 5 bays in a line: bay 1 is next to the entrance and bay 5 is at the far end. Carts come in through the entrance one at a time, and a cart cannot pass a parked cart. All 5 bays must be filled. Which bay has to be filled first?",
+   "answer": 5,
+   "verify": "import itertools\ndef orders(h, w, garage):\n    \"\"\"How many orders of filling the garage cells work: each cell, when its turn comes, can be reached from a cell\n    outside the garage by steps up, down, left or right through cells that are not filled yet.\"\"\"\n    garage = list(garage); outside = [(r, c) for r in range(1, h + 1) for c in range(1, w + 1) if (r, c) not in garage]\n    def reach(t, filled):\n        seen, stack = {t}, [t]\n        while stack:\n            r, c = stack.pop()\n            if (r, c) in outside: return True\n            for n in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):\n                if 1 <= n[0] <= h and 1 <= n[1] <= w and n not in seen and n not in filled: seen.add(n); stack.append(n)\n        return False\n    good = []\n    for p in itertools.permutations(garage):\n        filled, ok = set(), True\n        for t in p:\n            if not reach(t, filled): ok = False; break\n            filled.add(t)\n        if ok: good.append(p)\n    return good\nresult = orders(1, 6, [(1, c) for c in range(2, 7)])[0][0][1] - 1",
+   "nudges": [
+    "If the first cart parks in bay 3, which bays can no later cart reach?"
+   ],
+   "showed": "Bay 5. Any other first choice walls off the bays behind it for good."
+  },
+  {
+   "id": "one",
+   "kind": "number",
+   "prompt": "In how many different orders can the 5 bays of that corridor be filled so that every cart can reach its bay?",
+   "answer": 1,
+   "verify": "import itertools\ndef orders(h, w, garage):\n    \"\"\"How many orders of filling the garage cells work: each cell, when its turn comes, can be reached from a cell\n    outside the garage by steps up, down, left or right through cells that are not filled yet.\"\"\"\n    garage = list(garage); outside = [(r, c) for r in range(1, h + 1) for c in range(1, w + 1) if (r, c) not in garage]\n    def reach(t, filled):\n        seen, stack = {t}, [t]\n        while stack:\n            r, c = stack.pop()\n            if (r, c) in outside: return True\n            for n in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):\n                if 1 <= n[0] <= h and 1 <= n[1] <= w and n not in seen and n not in filled: seen.add(n); stack.append(n)\n        return False\n    good = []\n    for p in itertools.permutations(garage):\n        filled, ok = set(), True\n        for t in p:\n            if not reach(t, filled): ok = False; break\n            filled.add(t)\n        if ok: good.append(p)\n    return good\nresult = len(orders(1, 6, [(1, c) for c in range(2, 7)]))",
+   "nudges": [
+    "After bay 5 is filled, which bay must come next?"
+   ],
+   "showed": "Only one: 5, 4, 3, 2, 1. The order is forced from the far end back to the entrance."
+  },
+  {
+   "id": "open",
+   "kind": "number",
+   "prompt": "A yard has 2 rows and 3 columns. The garage is the whole bottom row (3 cells); the carts wait in the top row and move one cell up, down, left or right through empty cells. In how many of the 6 possible orders can the three garage cells be filled?",
+   "answer": 6,
+   "verify": "import itertools\ndef orders(h, w, garage):\n    \"\"\"How many orders of filling the garage cells work: each cell, when its turn comes, can be reached from a cell\n    outside the garage by steps up, down, left or right through cells that are not filled yet.\"\"\"\n    garage = list(garage); outside = [(r, c) for r in range(1, h + 1) for c in range(1, w + 1) if (r, c) not in garage]\n    def reach(t, filled):\n        seen, stack = {t}, [t]\n        while stack:\n            r, c = stack.pop()\n            if (r, c) in outside: return True\n            for n in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):\n                if 1 <= n[0] <= h and 1 <= n[1] <= w and n not in seen and n not in filled: seen.add(n); stack.append(n)\n        return False\n    good = []\n    for p in itertools.permutations(garage):\n        filled, ok = set(), True\n        for t in p:\n            if not reach(t, filled): ok = False; break\n            filled.add(t)\n        if ok: good.append(p)\n    return good\nresult = len(orders(2, 3, [(1, 1), (1, 2), (1, 3)]))",
+   "nudges": [
+    "Can a parked cart in the bottom row ever block another bottom cell from the top row?"
+   ],
+   "showed": "All 6. Every garage cell has its own way in from above, so here the order does not matter. Order matters only where a filled cell can cut another one off."
+  },
+  {
+   "id": "corner",
+   "kind": "number",
+   "prompt": "Same yard (2 rows, 3 columns, row 1 at the bottom), but now the garage has 4 cells: the whole bottom row and the left cell of the top row. The carts wait on the two remaining top cells. In how many of the 24 possible orders can the four garage cells be filled?",
+   "answer": 16,
+   "verify": "import itertools\ndef orders(h, w, garage):\n    \"\"\"How many orders of filling the garage cells work: each cell, when its turn comes, can be reached from a cell\n    outside the garage by steps up, down, left or right through cells that are not filled yet.\"\"\"\n    garage = list(garage); outside = [(r, c) for r in range(1, h + 1) for c in range(1, w + 1) if (r, c) not in garage]\n    def reach(t, filled):\n        seen, stack = {t}, [t]\n        while stack:\n            r, c = stack.pop()\n            if (r, c) in outside: return True\n            for n in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):\n                if 1 <= n[0] <= h and 1 <= n[1] <= w and n not in seen and n not in filled: seen.add(n); stack.append(n)\n        return False\n    good = []\n    for p in itertools.permutations(garage):\n        filled, ok = set(), True\n        for t in p:\n            if not reach(t, filled): ok = False; break\n            filled.add(t)\n        if ok: good.append(p)\n    return good\nresult = len(orders(2, 3, [(1, 1), (1, 2), (1, 3), (2, 1)]))",
+   "nudges": [
+    "Which garage cell can only be reached through other garage cells?",
+    "The bottom-left cell is entered from the cell above it or the cell to its right. What must not happen before it is filled?"
+   ],
+   "showed": "The bottom-left corner is the far end here: it must be filled before BOTH of its neighbours are, otherwise it is sealed off. Counting the orders that respect that gives the answer."
+  },
+  {
+   "id": "rule",
+   "kind": "choice",
+   "prompt": "What is the general rule behind the corridor and the corner?",
+   "options": [
+    "Fill a cell while it can still be reached from the open part; the cells deepest inside go first",
+    "Fill the cells nearest to the carts first, to save moves",
+    "Fill the cells in any order, then repair the ones that got blocked",
+    "Always fill from left to right"
+   ],
+   "answer": 0,
+   "nudges": [
+    "In the corridor, which bay was \"deepest inside\"? In the corner yard?"
+   ],
+   "showed": "A parked cart is an obstacle for ever, so it must never stand between the open part and a cell that still needs filling. Deepest first guarantees that."
+  },
+  {
+   "id": "route",
+   "kind": "number",
+   "prompt": "Once the order is right, each cart is just a shortest-route question. A yard has 4 rows and 4 columns (row 1 at the bottom). Parked carts stand on (1, 2), (2, 2) and (3, 2). A cart on (1, 4) must reach (1, 1), moving one cell up, down, left or right through empty cells. What is the smallest number of moves?",
+   "answer": 9,
+   "verify": "from collections import deque\nblocked = {(1, 2), (2, 2), (3, 2)}\ndist, q = {(1, 4): 0}, deque([(1, 4)])\nwhile q:\n    r, c = q.popleft()\n    for n in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):\n        if 1 <= n[0] <= 4 and 1 <= n[1] <= 4 and n not in blocked and n not in dist: dist[n] = dist[(r, c)] + 1; q.append(n)\nresult = dist[(1, 1)]",
+   "nudges": [
+    "The wall in column 2 reaches from row 1 to row 3. Where is the only gap?"
+   ],
+   "showed": "Up and over the wall through row 4, then down the left column: a breadth-first search finds it, treating parked carts as walls."
+  },
+  {
+   "id": "budget",
+   "kind": "number",
+   "prompt": "A yard has 8 rows and 8 columns and 40 carts. Each cart is walked to its garage cell along a route that never visits a cell twice. At most how many moves can the whole job take?",
+   "answer": 2520,
+   "verify": "result = 40 * (8 * 8 - 1)",
+   "nudges": [
+    "A route that never repeats a cell in a yard of 64 cells has at most how many steps?"
+   ],
+   "showed": "At most 63 steps per cart, so at most $40 \\cdot 63 = 2520$ moves. A rough bound like this is how you check a plan against a move limit before writing any code."
+  },
+  {
+   "id": "h-five",
+   "kind": "number",
+   "prompt": "A yard has 3 rows and 3 columns (row 1 at the bottom). The garage is the first 5 cells in reading order from the bottom: all of row 1, then the left and middle cells of row 2. The other 4 cells are open. In how many of the 120 possible orders can the five garage cells be filled, if each cell must be reachable from an open cell through unfilled cells when its turn comes?",
+   "answer": 50,
+   "verify": "import itertools\ndef orders(h, w, garage):\n    \"\"\"How many orders of filling the garage cells work: each cell, when its turn comes, can be reached from a cell\n    outside the garage by steps up, down, left or right through cells that are not filled yet.\"\"\"\n    garage = list(garage); outside = [(r, c) for r in range(1, h + 1) for c in range(1, w + 1) if (r, c) not in garage]\n    def reach(t, filled):\n        seen, stack = {t}, [t]\n        while stack:\n            r, c = stack.pop()\n            if (r, c) in outside: return True\n            for n in ((r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)):\n                if 1 <= n[0] <= h and 1 <= n[1] <= w and n not in seen and n not in filled: seen.add(n); stack.append(n)\n        return False\n    good = []\n    for p in itertools.permutations(garage):\n        filled, ok = set(), True\n        for t in p:\n            if not reach(t, filled): ok = False; break\n            filled.add(t)\n        if ok: good.append(p)\n    return good\nresult = len(orders(3, 3, [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2)]))",
+   "nudges": [
+    "Which garage cells touch an open cell directly, so that they can be filled at any time?",
+    "Each of the other garage cells must be filled before ALL of its neighbours are. Which neighbours does each of them have?"
+   ],
+   "showed": "Cells that touch the open part are free to go at any time. The bottom-left corner and the bottom-middle cell are the deep ones: each must be filled while at least one of its neighbours is still empty. Counting the orders that respect both conditions gives the answer.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-reading",
+   "kind": "choice",
+   "prompt": "In a yard of any size, the garage is the first $k$ cells in reading order: row 1 from left to right, then row 2 from left to right, and so on. Filling them in exactly that order always works. Why?",
+   "options": [
+    "When a cell's turn comes, the cell above it (or, in the top row, the cell to its right) is not parked yet, so it is still joined to the open part",
+    "Because the bottom row is nearest to the carts",
+    "Because every cell is filled before all of its neighbours",
+    "Because carts can jump over one parked cart"
+   ],
+   "answer": 0,
+   "nudges": [
+    "When it is the turn of a cell in row 2, which cells are already parked? Is the cell directly above it one of them?"
+   ],
+   "showed": "Everything parked so far lies below or to the left. The cell above (or to the right, in the top row) is unparked, and all unparked cells hang together, so some cart that is not parked yet can always walk in.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-park",
+   "kind": "code",
+   "task": "ow-park",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Garage cells in reading order; for each one, a breadth-first search from the cell through empty cells to the nearest cart that is not parked, and that cart walks back along the path.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Settle the far end first",
+  "statement": "When pieces are brought to their places one at a time, choose the order of places so that a finished piece is never in the way of what remains. Then each piece is an ordinary shortest-route problem.",
+  "remark": ""
+ }
+}

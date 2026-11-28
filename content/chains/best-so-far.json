@@ -1,0 +1,170 @@
+{
+ "idea": "best-so-far",
+ "opening": "Prices over six days, one purchase and one later sale.",
+ "steps": [
+  {
+   "id": "profit",
+   "kind": "number",
+   "prompt": "A price list for six days: 7, 4, 5, 2, 6, 3. You buy on one day and sell on a **later** day. What is the largest profit (selling price minus buying price)?",
+   "answer": 4,
+   "verify": "def pairs(a, ok=lambda x, y: True):\n    return [(a[i], a[j]) for i in range(len(a)) for j in range(i + 1, len(a)) if ok(a[i], a[j])]\nresult = max(y - x for x, y in pairs([7, 4, 5, 2, 6, 3]))",
+   "nudges": [
+    "If you sell on day 5 at price 6, on which earlier day should you have bought?"
+   ],
+   "showed": "Buy at 2 on day 4, sell at 6 on day 5."
+  },
+  {
+   "id": "lows",
+   "kind": "list",
+   "prompt": "Same prices: 7, 4, 5, 2, 6, 3. For each day, write the lowest price seen on that day or before it. Give the six numbers in order.",
+   "answer": [
+    7,
+    4,
+    4,
+    2,
+    2,
+    2
+   ],
+   "verify": "a = [7, 4, 5, 2, 6, 3]\nresult = [min(a[:k + 1]) for k in range(6)]",
+   "nudges": [
+    "On day 3 the prices so far are 7, 4, 5. Which is the lowest?"
+   ],
+   "showed": "The row 7, 4, 4, 2, 2, 2 never goes up, and each entry comes from the one before it and one new price.",
+   "ordered": true
+  },
+  {
+   "id": "keep",
+   "kind": "choice",
+   "prompt": "You walk through the days from left to right and want, for every selling day, the best day to have bought. What do you need to remember from the days already passed?",
+   "options": [
+    "Only the lowest price so far",
+    "All earlier prices, sorted",
+    "The lowest price and the day after it",
+    "The last two prices"
+   ],
+   "answer": 0,
+   "nudges": [
+    "For a fixed selling day, does the best buying day depend on the selling price at all?"
+   ],
+   "showed": "The best earlier day to buy is the same whatever today's price is: the lowest so far. One number is enough."
+  },
+  {
+   "id": "ten",
+   "kind": "number",
+   "prompt": "Heights along a trail: 6, 9, 3, 8, 2, 7, 10, 1, 5, 4. Choose two positions $i < j$. What is the largest value of $a_j - a_i$ (the later height minus the earlier one)?",
+   "answer": 8,
+   "verify": "def pairs(a, ok=lambda x, y: True):\n    return [(a[i], a[j]) for i in range(len(a)) for j in range(i + 1, len(a)) if ok(a[i], a[j])]\nresult = max(y - x for x, y in pairs([6, 9, 3, 8, 2, 7, 10, 1, 5, 4]))",
+   "nudges": [
+    "Walk left to right keeping the lowest height so far. What is height minus lowest-so-far at each position?"
+   ],
+   "showed": "The lowest so far is 2 when the walk reaches 10: a climb of 8. One pass, one remembered number, instead of 45 pairs."
+  },
+  {
+   "id": "gap",
+   "kind": "number",
+   "prompt": "Same heights: 6, 9, 3, 8, 2, 7, 10, 1, 5, 4. Now choose $i < j$ that are at least 3 apart ($j - i \\ge 3$) and make the **sum** $a_i + a_j$ as large as possible. What is the largest sum?",
+   "answer": 19,
+   "verify": "a = [6, 9, 3, 8, 2, 7, 10, 1, 5, 4]\nresult = max(a[i] + a[j] for i in range(10) for j in range(i + 3, 10))",
+   "nudges": [
+    "For a fixed $j$, which positions $i$ are allowed?",
+    "When $j$ moves one step right, how does the set of allowed $i$ change?"
+   ],
+   "showed": "The partner must be at least 3 back, so the remembered \"largest so far\" simply lags 3 positions behind: 9 (position 2) with 10 (position 7)."
+  },
+  {
+   "id": "walk",
+   "kind": "number",
+   "prompt": "Values 4, 9, 1, 8, 3, 7 stand at positions 1 to 6. Choose $i < j$ and score $a_i + a_j - (j - i)$: the two values, minus the distance between them. What is the largest score?",
+   "answer": 15,
+   "verify": "a = [4, 9, 1, 8, 3, 7]\nresult = max(a[i] + a[j] - (j - i) for i in range(6) for j in range(i + 1, 6))",
+   "nudges": [
+    "Can the score be written as one part that depends only on $i$ plus one part that depends only on $j$?",
+    "The score is $(a_i + i) + (a_j - j)$. For a fixed $j$, which earlier $i$ is best?"
+   ],
+   "showed": "The score splits into $(a_i + i) + (a_j - j)$, so what you remember is the largest $a_i + i$ so far. Here 9 at position 2 with 8 at position 4: $9 + 8 - 2 = 15$.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-product",
+   "kind": "number",
+   "prompt": "Now products, and the numbers may be negative: 3, −2, 5, 4, −1, 6. Choose $i < j$ and make the product $a_i \\cdot a_j$ as **small** as possible (far below zero counts as small). What is the smallest product?",
+   "answer": -12,
+   "verify": "def pairs(a, ok=lambda x, y: True):\n    return [(a[i], a[j]) for i in range(len(a)) for j in range(i + 1, len(a)) if ok(a[i], a[j])]\nresult = min(x * y for x, y in pairs([3, -2, 5, 4, -1, 6]))",
+   "nudges": [
+    "For the last number, 6, which earlier number gives the smallest product?",
+    "For the number −1, which earlier number gives the smallest product? Is it the same kind of partner as for 6?"
+   ],
+   "showed": "For a positive number the best earlier partner is the smallest so far; for a negative number it is the largest so far. So you remember two numbers, not one.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-two",
+   "kind": "choice",
+   "prompt": "In general, to find the smallest product $a_i \\cdot a_j$ over $i < j$ in one pass, which facts about the earlier numbers are enough?",
+   "options": [
+    "The smallest and the largest so far",
+    "The smallest so far only",
+    "The number closest to zero so far",
+    "The smallest and the second smallest so far"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Multiply a fixed positive number by several candidates: which candidate gives the least? And for a fixed negative number?"
+   ],
+   "showed": "A positive $a_j$ wants the smallest partner, a negative $a_j$ wants the largest. Which case you are in decides which remembered number to use.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-rising-pos",
+   "kind": "number",
+   "prompt": "A new condition: the pair must be **rising**, meaning $i < j$ and $a_i < a_j$. All numbers are positive: 5, 3, 8, 2, 2, 7, 4. What is the smallest product $a_i \\cdot a_j$ of a rising pair?",
+   "answer": 8,
+   "verify": "def pairs(a, ok=lambda x, y: True):\n    return [(a[i], a[j]) for i in range(len(a)) for j in range(i + 1, len(a)) if ok(a[i], a[j])]\nresult = min(x * y for x, y in pairs([5, 3, 8, 2, 2, 7, 4], lambda x, y: x < y))",
+   "nudges": [
+    "For a fixed later number $a_j$, which earlier partner would you like, and when is it allowed?"
+   ],
+   "showed": "With positive numbers the later one wants the smallest so far, and that partner is allowed whenever it is strictly smaller. 2 then 4 gives 8.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-rising-neg",
+   "kind": "number",
+   "prompt": "Same rule (a rising pair: $i < j$ and $a_i < a_j$), but now all numbers are negative: −3, −7, −2, −5, −1, −6. What is the smallest product of a rising pair? (Every product here is positive, so small means close to zero.)",
+   "answer": 2,
+   "verify": "def pairs(a, ok=lambda x, y: True):\n    return [(a[i], a[j]) for i in range(len(a)) for j in range(i + 1, len(a)) if ok(a[i], a[j])]\nresult = min(x * y for x, y in pairs([-3, -7, -2, -5, -1, -6], lambda x, y: x < y))",
+   "nudges": [
+    "Fix the later number, say −1. Which earlier partner is best? Is it the smallest so far or the largest so far, and is it always allowed?",
+    "Now fix the EARLIER number instead, and look to its right. Which later number is best for it?"
+   ],
+   "showed": "Fixing the later number goes wrong: it wants the largest earlier number that is still below it, which one remembered value cannot give. Fix the earlier number instead: it wants the largest number to its right (closest to zero), allowed when that is larger than itself. So sweep from the right. −2 then −1 gives 2.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-mixed",
+   "kind": "number",
+   "prompt": "All together. The numbers are 2, −3, 4, −1, 0, 5, −6, 3. What is the smallest product $a_i \\cdot a_j$ of a rising pair ($i < j$ and $a_i < a_j$)?",
+   "answer": -18,
+   "verify": "def pairs(a, ok=lambda x, y: True):\n    return [(a[i], a[j]) for i in range(len(a)) for j in range(i + 1, len(a)) if ok(a[i], a[j])]\nresult = min(x * y for x, y in pairs([2, -3, 4, -1, 0, 5, -6, 3], lambda x, y: x < y))",
+   "nudges": [
+    "Can a product below zero be made by a rising pair here? What signs must the two numbers have, and which comes first?",
+    "A negative number followed later by a positive one is always rising. Which negative and which positive make the product smallest?"
+   ],
+   "showed": "A negative followed by a positive is always a rising pair and gives a product below zero, which beats every other kind. For each positive number take the smallest number before it: for 5 that is −3 (product −15), for the final 3 it is −6 (product −18), so the answer is −18. Only when no such pair exists do the all-positive and all-negative sweeps matter.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-gap",
+   "kind": "code",
+   "task": "bp-gap",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "One pass. The largest earning among the plots at least k back is updated by one new plot each step, and tried together with the current plot.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Best partner so far",
+  "statement": "To optimise over pairs $i < j$, sweep $j$ from left to right and keep only the best earlier element (sometimes two: the smallest and the largest). Each $j$ is then answered in one step, and when the roles flip you sweep from the other end.",
+  "remark": ""
+ }
+}

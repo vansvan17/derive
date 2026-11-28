@@ -1,0 +1,159 @@
+{
+ "idea": "bs-real",
+ "opening": "Six numbers and a question about averages that looks awkward until it is turned round.",
+ "steps": [
+  {
+   "id": "exists",
+   "kind": "choice",
+   "prompt": "The list is 2, 8, 3, 9, 4, 1. A **stretch** is two or more neighbouring numbers. Is there a stretch whose average is at least 6?",
+   "options": [
+    "Yes",
+    "No"
+   ],
+   "answer": 0,
+   "nudges": [
+    "What is the average of 8, 3, 9?"
+   ],
+   "showed": "8, 3, 9 has average $20/3$, and 3, 9 has average exactly 6.",
+   "verify": "a = [2, 8, 3, 9, 4, 1]\nresult = 0 if any(sum(a[i:j]) >= 6 * (j - i) for i in range(6) for j in range(i + 2, 7)) else 1"
+  },
+  {
+   "id": "shift",
+   "kind": "list",
+   "prompt": "Subtract 6 from every number of 2, 8, 3, 9, 4, 1. Give the six new numbers in order.",
+   "answer": [
+    -4,
+    2,
+    -3,
+    3,
+    -2,
+    -5
+   ],
+   "verify": "result = [x - 6 for x in [2, 8, 3, 9, 4, 1]]",
+   "nudges": [
+    "What is 2 − 6?"
+   ],
+   "showed": "−4, 2, −3, 3, −2, −5.",
+   "ordered": true
+  },
+  {
+   "id": "sum",
+   "kind": "number",
+   "prompt": "In the new list −4, 2, −3, 3, −2, −5, what is the largest sum of a stretch (two or more neighbouring numbers)?",
+   "answer": 2,
+   "verify": "a = [-4, 2, -3, 3, -2, -5]\nresult = max(sum(a[i:j]) for i in range(6) for j in range(i + 2, 7))",
+   "nudges": [
+    "What do 2, −3 and 3 add up to?"
+   ],
+   "showed": "2, −3, 3 sums to 2. That is the stretch 8, 3, 9 of the old list, whose average is above 6."
+  },
+  {
+   "id": "same",
+   "kind": "choice",
+   "prompt": "What is the connection between the last two questions?",
+   "options": [
+    "A stretch has average at least 6 exactly when, after subtracting 6 from every number, its sum is at least 0",
+    "A stretch has average at least 6 exactly when its sum is at least 6",
+    "The largest sum and the largest average always belong to the same stretch",
+    "There is none; it was a coincidence"
+   ],
+   "answer": 0,
+   "nudges": [
+    "If the average of $m$ numbers is at least 6, what does that say about their sum compared with $6m$?"
+   ],
+   "showed": "Average at least 6 means sum at least $6m$, which is the sum of (number − 6) being at least 0. An awkward question about averages has become a plain question about sums."
+  },
+  {
+   "id": "prefix",
+   "kind": "list",
+   "prompt": "For the shifted list −4, 2, −3, 3, −2, −5, write the running totals, starting with 0 before the first number. Give all seven totals in order.",
+   "answer": [
+    0,
+    -4,
+    -2,
+    -5,
+    -2,
+    -4,
+    -9
+   ],
+   "verify": "import itertools\nresult = [0] + list(itertools.accumulate([-4, 2, -3, 3, -2, -5]))",
+   "nudges": [
+    "After −4 and 2 the total is −2. What is it after −3?"
+   ],
+   "showed": "0, −4, −2, −5, −2, −4, −9. The sum of a stretch is one total minus an earlier total.",
+   "ordered": true
+  },
+  {
+   "id": "partner",
+   "kind": "choice",
+   "prompt": "With those totals $P_0, \\dots, P_6$, a stretch of length at least 2 that ends at position $j$ has sum $P_j - P_i$ for some $i \\le j - 2$. To check whether a stretch ending at $j$ has a sum of at least 0, what do you need from the earlier totals?",
+   "options": [
+    "Only the smallest total among $P_0, \\dots, P_{j-2}$",
+    "All earlier totals",
+    "The largest total among $P_0, \\dots, P_{j-2}$",
+    "Only $P_{j-2}$"
+   ],
+   "answer": 0,
+   "nudges": [
+    "$P_j$ is fixed. Which $P_i$ makes $P_j - P_i$ largest?"
+   ],
+   "showed": "The smallest earlier total, kept as you walk right and lagging two positions behind. So one pass answers \"is there a stretch with average at least $x$?\" for any $x$."
+  },
+  {
+   "id": "h-whole",
+   "kind": "number",
+   "prompt": "The list is 5, 1, 9, 2, 8, 7, 3, 6, 4, 10 and a stretch must now have at least 3 numbers. What is the largest whole number $x$ for which some stretch has average at least $x$?",
+   "answer": 6,
+   "verify": "from fractions import Fraction\na = [5, 1, 9, 2, 8, 7, 3, 6, 4, 10]\nresult = max(Fraction(sum(a[i:j]), j - i) for i in range(10) for j in range(i + 3, 11)).__floor__()",
+   "nudges": [
+    "Is the answer to \"is there a stretch with average at least $x$?\" a yes for $x$ = 6? For $x$ = 8?",
+    "As $x$ grows, can the answer go from no back to yes?"
+   ],
+   "showed": "Yes for 6 and no for 7: the best stretch is 6, 4, 10 with average $20/3$, about 6.67. Nobody finds that by eye among 36 stretches; the yes or no answer flips once as $x$ grows, so the largest yes is found by halving, with the one-pass check from before for each $x$.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-rounds",
+   "kind": "number",
+   "prompt": "When the answer is not a whole number, you keep halving an interval of real numbers. Start with the interval from 0 to 1000. After how many halvings is its length below one millionth?",
+   "answer": 30,
+   "verify": "k, length = 0, 1000.0\nwhile length >= 1e-6: length /= 2; k += 1\nresult = k",
+   "nudges": [
+    "After $k$ halvings the length is $1000 / 2^k$. When is that below $10^{-6}$?"
+   ],
+   "showed": "$2^{30}$ is just over $10^9$, so 30 halvings. In practice one simply runs 60 or 100 rounds: more than enough, and no stopping test to get wrong.",
+   "tier": "hard"
+  },
+  {
+   "id": "h-fixed",
+   "kind": "choice",
+   "prompt": "Why is \"repeat exactly 100 times\" safer than \"repeat while hi − lo is larger than 0.000000001\"?",
+   "options": [
+    "Real numbers in a computer have limited precision: for large values the middle can equal one of the ends, so the interval may never get that short",
+    "Because 100 rounds are always faster",
+    "Because the interval gets shorter by a different amount each round",
+    "It is not safer; the two are the same"
+   ],
+   "answer": 0,
+   "nudges": [
+    "Near one billion, how far apart are two neighbouring numbers that a `double` can store? Is it less than 0.000000001?"
+   ],
+   "showed": "Near $10^9$ neighbouring doubles are about $10^{-7}$ apart, so the gap can never drop below $10^{-9}$ and the loop would spin for ever. A fixed number of rounds always ends.",
+   "tier": "hard"
+  },
+  {
+   "id": "c-avg",
+   "kind": "code",
+   "task": "bs-avg",
+   "prompt": "Now make it run. Write a program for the task below; it is judged on large inputs, so the idea has to be in the code.",
+   "nudges": [],
+   "showed": "Halve on the average (in thousandths, to stay in whole numbers); each test subtracts it from every element and looks for a stretch with sum at least 0 using the smallest earlier running total.",
+   "tier": "hard"
+  }
+ ],
+ "reveal": {
+  "name": "Searching for an average",
+  "statement": "\"Is there a stretch with average at least $x$?\" becomes \"is there a stretch of $a_i - x$ with sum at least 0?\", which prefix sums answer. Then search for the largest such $x$; for a real answer, halve a fixed number of times.",
+  "remark": ""
+ }
+}

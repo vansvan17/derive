@@ -264,6 +264,17 @@
    ]
   },
   {
+   "id": "canonical-form",
+   "area": "inv",
+   "name": "Canonical form",
+   "statement": "To decide whether two objects count as the same, reduce each to one agreed representative: equal representatives exactly when the objects are the same. Grouping is then sorting or hashing the representatives.",
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
+  },
+  {
    "id": "small-cases",
    "area": "con",
    "name": "Extend a small construction",
@@ -424,6 +435,30 @@
    ]
   },
   {
+   "id": "bs-invariant",
+   "area": "bs",
+   "name": "Halving between a no and a yes",
+   "statement": "Keep two points: one where the answer is no and one where it is yes. Test the middle and move the end that matches. The two stay a no and a yes, and after about $\\log_2$(range) tests they are neighbours: that is the boundary.",
+   "needs": [],
+   "marks": [
+    "standard",
+    "common"
+   ]
+  },
+  {
+   "id": "bs-max-min",
+   "area": "bs",
+   "name": "Largest possible minimum",
+   "statement": "To make the smallest of several things as large as possible, ask \"can every one of them be at least $x$?\", answer that with a greedy pass, and search for the last $x$ that says yes.",
+   "needs": [
+    "search-answer"
+   ],
+   "marks": [
+    "standard",
+    "common"
+   ]
+  },
+  {
    "id": "kth-by-counting",
    "area": "bs",
    "name": "k-th value by counting",
@@ -433,6 +468,19 @@
    ],
    "marks": [
     "standard"
+   ]
+  },
+  {
+   "id": "bs-real",
+   "area": "bs",
+   "name": "Searching for an average",
+   "statement": "\"Is there a stretch with average at least $x$?\" becomes \"is there a stretch of $a_i - x$ with sum at least 0?\", which prefix sums answer. Then search for the largest such $x$; for a real answer, halve a fixed number of times.",
+   "needs": [
+    "search-answer",
+    "prefix-sums"
+   ],
+   "marks": [
+    "common"
    ]
   },
   {
@@ -672,6 +720,16 @@
    "area": "con",
    "name": "Pairs that cannot both survive",
    "statement": "Find pairs of objects of which exactly one can be taken whatever you do; the problem then splits into one small choice per pair.",
+   "needs": [],
+   "marks": [
+    "common"
+   ]
+  },
+  {
+   "id": "order-of-work",
+   "area": "con",
+   "name": "Settle the far end first",
+   "statement": "When pieces are brought to their places one at a time, choose the order of places so that a finished piece is never in the way of what remains. Then each piece is an ordinary shortest-route problem.",
    "needs": [],
    "marks": [
     "common"
@@ -1085,6 +1143,17 @@
    "needs": [
     "nearest-greater"
    ],
+   "marks": [
+    "standard",
+    "common"
+   ]
+  },
+  {
+   "id": "best-so-far",
+   "area": "seq",
+   "name": "Best partner so far",
+   "statement": "To optimise over pairs $i < j$, sweep $j$ from left to right and keep only the best earlier element (sometimes two: the smallest and the largest). Each $j$ is then answered in one step, and when the roles flip you sweep from the other end.",
+   "needs": [],
    "marks": [
     "standard",
     "common"
